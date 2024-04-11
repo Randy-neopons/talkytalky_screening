@@ -1,3 +1,67 @@
 {
-  "extends": "next/core-web-vitals"
+    "plugins": ["import"],
+    "extends": ["next/core-web-vitals", "plugin:import/recommended", "plugin:@tanstack/eslint-plugin-query/recommended"],
+    "rules": {
+        "import/order": [
+            "error",
+            {
+                "newlines-between": "always",
+                "groups": ["builtin", "external", "internal", ["parent", "sibling", "index"], "object", "type"],
+                "pathGroups": [
+                    {
+                        "pattern": "react*",
+                        "group": "builtin",
+                        "position": "before"
+                    },
+                    {
+                        "pattern": "next*",
+                        "group": "builtin"
+                    },
+                    {
+                        "pattern": "next/**",
+                        "group": "builtin"
+                    },
+                    {
+                        "pattern": "@/pages/**",
+                        "group": "internal",
+                        "position": "after"
+                    },
+                    {
+                        "pattern": "@/components/**",
+                        "group": "internal",
+                        "position": "after"
+                    },
+                    {
+                        "pattern": "@/hooks/**",
+                        "group": "internal",
+                        "position": "after"
+                    },
+                    {
+                        "pattern": "@/util/**",
+                        "group": "internal",
+                        "position": "after"
+                    },
+                    {
+                        "pattern": "@/api/**",
+                        "group": "internal",
+                        "position": "after"
+                    },
+                    {
+                        "pattern": "@/types/**",
+                        "group": "type",
+                        "position": "after"
+                    },
+                    {
+                        "pattern": "public/static/**",
+                        "group": "object"
+                    }
+                ],
+                "distinctGroup": false,
+                "pathGroupsExcludedImportTypes": ["@tanstack*"],
+                "alphabetize": {
+                    "order": "asc"
+                }
+            }
+        ]
+    }
 }
