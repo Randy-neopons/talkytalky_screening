@@ -19,22 +19,22 @@ export default function Home() {
                         rel='noopener noreferrer'
                     >
                         By <Image src='/vercel.svg' alt='Vercel Logo' className='dark:invert' width={100} height={24} priority />
-                        <button className='btn btn-large btn-outlined'>ABC</button>
-                        <label className='flex justify-center cursor-pointer checkbox-label'>
-                            <input type='checkbox' className='hidden peer' readOnly />
-                            <svg
-                                className='hidden text-white peer-checked:block'
-                                xmlns='http://www.w3.org/2000/svg'
-                                width='24'
-                                height='24'
-                                viewBox='0 0 24 24'
-                                fill='none'
-                            >
-                                <path d='M7 12L11 16L17 8' stroke='white' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
-                            </svg>
-                            안녕
-                        </label>
+                        {/* <button className='btn btn-large btn-outlined'>ABC</button> */}
                     </a>
+                    <label className='flex justify-center items-center cursor-pointer'>
+                        <input type='checkbox' className='hidden peer' />
+                        <svg
+                            className='bg-white peer-checked:bg-accent1 rounded border peer-checked:border-none'
+                            xmlns='http://www.w3.org/2000/svg'
+                            width='24'
+                            height='24'
+                            viewBox='0 0 24 24'
+                            fill='none'
+                        >
+                            <path d='M7 12L11 16L17 8' stroke='white' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+                        </svg>
+                        <span>안녕</span>
+                    </label>
                 </div>
             </div>
 
