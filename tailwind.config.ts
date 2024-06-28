@@ -8,6 +8,9 @@ const config: Config = {
                 'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
                 'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
             },
+            boxShadow: {
+                base: '0px 4px 8px 0px rgba(0, 0, 0, 0.08)',
+            },
             colors: {
                 primary1: '#FFCF5C',
                 primary2: '#FFE29D',
