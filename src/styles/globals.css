@@ -58,47 +58,6 @@ body {
     }
 }
 
-@layer components {
-    .text-head-1 {
-        @apply text-[28px]/[42px] xl:text-[32px]/[48px];
-    }
-    .text-head-2 {
-        @apply text-xl xl:text-2xl;
-    }
-    .text-head-3 {
-        @apply text-lg xl:text-xl;
-    }
-    .text-body-1 {
-        @apply text-base xl:text-lg;
-    }
-    .text-body-2 {
-        @apply text-sm xl:text-base;
-    }
-
-    .btn {
-        @apply rounded-md border-2 font-bold;
-    }
-    .btn-large {
-        @apply w-[200px] h-[56px] xl:w-[220px] xl:h-[60px] text-body-2;
-    }
-    .btn-small {
-        @apply w-[130px] h-[50px] text-body-1;
-    }
-    .btn-contained {
-        @apply bg-accent1 text-neutral11 border-accent1;
-    }
-    .btn-outlined {
-        @apply bg-neutral11 text-accent1 border-accent1;
-    }
-    .btn-disabled {
-        @apply bg-neutral7 text-neutral4;
-    }
-
-    .checkbox-label {
-        @apply w-6 h-6 block border-2 border-neutral6 rounded cursor-pointer transition-colors bg-white has-[:checked]:bg-accent1 has-[:checked]:border-none;
-    }
-}
-
 @layer utilities {
     .text-balance {
         text-wrap: balance;

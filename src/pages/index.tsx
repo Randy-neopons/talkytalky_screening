@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 
 import Container from '@/components/common/Container';
 
@@ -24,7 +25,9 @@ export default function Home() {
                     <span className='text-neutral4 text-body-2 mt-[10px] xl:mt-2 text-center xl:text-left'>
                         환자의 기본정보 입력 후 원하는 소검사를 선택하여 평가를 진행할 수 있습니다.
                     </span>
-                    <button className='btn btn-small btn-contained mt-auto xl:mr-auto'>시작하기</button>
+                    <Link className='flex justify-center items-center btn btn-small btn-contained mt-auto xl:mr-auto px-auto' href='/start'>
+                        시작하기
+                    </Link>
                 </li>
 
                 <li className='float-left flex flex-col flex-nowrap items-center xl:items-start rounded-[20px] bg-white shadow-base py-[30px] px-[58px] w-[300px] h-[467px] xl:w-[477px] xl:h-[440px] text-center xl:text-left'>
@@ -36,7 +39,7 @@ export default function Home() {
                         <br />
                         또한 문제를 보인 항목들에 대한 초기점검이 가능합니다.
                     </span>
-                    <button className='btn btn-small btn-contained mt-auto xl:mr-auto'>시작하기</button>
+                    <button className='btn btn-large text-head-1 btn-contained mt-auto xl:mr-auto'>시작하기</button>
                 </li>
             </ul>
         </Container>

@@ -1,3 +1,5 @@
+import plugin from 'tailwindcss/plugin';
+
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
@@ -51,6 +53,106 @@ const config: Config = {
             },
         },
     },
-    plugins: [],
+    plugins: [
+        plugin(function ({ addUtilities, theme }) {
+            addUtilities({
+                '.text-head-1': {
+                    fontSize: '28px',
+                    lineHeight: '42px',
+
+                    '@media (min-width: 1280px)': {
+                        fontSize: '32px',
+                        lineHeight: '48px',
+                    },
+                },
+                '.text-head-2': {
+                    fontSize: '20px',
+                    lineHeight: '30px',
+
+                    '@media (min-width: 1280px)': {
+                        fontSize: '24px',
+                        lineHeight: '36px',
+                    },
+                },
+                '.text-head-3': {
+                    fontSize: '18px',
+                    lineHeight: '28px',
+
+                    '@media (min-width: 1280px)': {
+                        fontSize: '20px',
+                        lineHeight: '30px',
+                    },
+                },
+                '.text-body-1': {
+                    fontSize: '16px',
+                    lineHeight: '24px',
+
+                    '@media (min-width: 1280px)': {
+                        fontSize: '18px',
+                        lineHeight: '28px',
+                    },
+                },
+                '.text-body-2': {
+                    fontSize: '14px',
+                    lineHeight: '22px',
+
+                    '@media (min-width: 1280px)': {
+                        fontSize: '16px',
+                        lineHeight: '24px',
+                    },
+                },
+
+                '.btn': {
+                    borderRadius: '6px',
+                    borderWidth: '2px',
+                    fontWeight: '700',
+                },
+                '.btn-large': {
+                    width: '200px',
+                    height: '56px',
+
+                    // body-2
+                    fontSize: '14px',
+                    lineHeight: '22px',
+
+                    '@media (min-width: 1280px)': {
+                        width: '220px',
+                        height: '60px',
+
+                        fontSize: '16px',
+                        lineHeight: '24px',
+                    },
+                },
+                '.btn-small': {
+                    width: '130px',
+                    height: '50px',
+
+                    // body-1
+                    fontSize: '16px',
+                    lineHeight: '24px',
+
+                    '@media (min-width: 1280px)': {
+                        fontSize: '18px',
+                        lineHeight: '28px',
+                    },
+                },
+                '.btn-contained': {
+                    backgroundColor: theme('colors.accent1'),
+                    color: theme('colors.neutral11'),
+                    borderColor: theme('colors.accent1'),
+                },
+                '.btn-outlined': {
+                    backgroundColor: theme('colors.neutral11'),
+                    color: theme('colors.accent1'),
+                    borderColor: theme('colors.accent1'),
+                    // '@apply bg-neutral11 text-accent1 border-accent1': '',
+                },
+                '.btn-disabled': {
+                    backgroundColor: theme('colors.neutral7'),
+                    color: theme('colors.neutral4'),
+                },
+            });
+        }),
+    ],
 };
 export default config;
