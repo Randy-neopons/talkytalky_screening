@@ -11,4 +11,6 @@ module.exports = {
     arrowParens: 'avoid', // arrow function 가능한 경우엔 괄호 생략
     endOfLine: 'auto', // EoF 설정
     formatOnSave: true,
+
+    plugins: ['prettier-plugin-tailwindcss'],
 };

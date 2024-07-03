@@ -22,10 +22,10 @@ const CheckBox = ({
     const handleChange = isControlled ? onChange : field.onChange;
 
     return (
-        <label className='flex justify-center items-center cursor-pointer'>
-            <input type='checkbox' className='hidden peer' checked={isChecked} onChange={handleChange} />
+        <label className='flex cursor-pointer items-center justify-center'>
+            <input type='checkbox' className='peer hidden' checked={isChecked} onChange={handleChange} />
             <svg
-                className='bg-white peer-checked:bg-accent1 rounded border peer-checked:border-none'
+                className='rounded border bg-white peer-checked:border-none peer-checked:bg-accent1'
                 xmlns='http://www.w3.org/2000/svg'
                 width='24'
                 height='24'
