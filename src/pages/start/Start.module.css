@@ -1,3 +1,19 @@
 .input {
     @apply h-[50px] w-full rounded-md border border-neutral6 px-[15px] text-neutral1 placeholder:text-neutral4;
 }
+
+/* Chrome, Safari, Edge, Opera */
+.input::-webkit-outer-spin-button,
+.input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox  */
+.input[type='number'] {
+    -moz-appearance: textfield;
+}
+
+.textarea {
+    @apply w-full rounded-md border border-neutral6 px-[15px] py-[11px] text-neutral1 placeholder:text-neutral4;
+}

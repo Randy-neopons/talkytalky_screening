@@ -5,7 +5,7 @@ import { ClockIcon } from './icons';
 export default function AppLayout({ children }: { children: ReactNode }) {
     return (
         <>
-            <header className='fixed left-0 top-0 flex h-20 w-full items-center justify-center bg-accent1'>
+            <header className='fixed left-0 top-0 z-10 flex h-20 w-full items-center justify-center bg-accent1'>
                 <div className='flex w-full max-w-screen-md justify-between px-5 xl:max-w-screen-xl xl:px-[140px]'>
                     <span className='mr-auto font-bold text-neutral11 text-head-2'>말운동 평가</span>
                     <div className='flex items-center gap-5 xl:gap-[30px]'>
