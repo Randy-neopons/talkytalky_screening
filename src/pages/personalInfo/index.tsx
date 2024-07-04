@@ -2,6 +2,7 @@ import { useCallback, useRef, useState, type ChangeEvent, type ReactNode, type R
 import { Controller, useForm } from 'react-hook-form';
 import TextareaAutosize from 'react-textarea-autosize';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 
 import { create, useStore } from 'zustand';
 
@@ -62,8 +63,9 @@ const useTestInfoStore = create<{
         setTests: newTests => set({ tests: newTests }),
     },
 }));
-const useTestInfo = () => useTestInfoStore(state => state.testInfo);
-const useTestInfoActions = () => useTestInfoStore(state => state.actions);
+export const useTestInfo = () => useTestInfoStore(state => state.testInfo);
+export const useTests = () => useTestInfoStore(state => state.tests);
+export const useTestInfoActions = () => useTestInfoStore(state => state.actions);
 
 const Label = ({ children, htmlFor, required }: { children: ReactNode; htmlFor: string; required?: boolean }) => {
     return (
@@ -90,7 +92,8 @@ interface FormValues {
     memo: string;
 }
 
-export default function StartPage() {
+export default function PersonalInfoPage() {
+    const router = useRouter();
     const { control, register, handleSubmit } = useForm<FormValues>({
         defaultValues: {
             testYear: `${new Date().getFullYear()}`,
@@ -109,8 +112,9 @@ export default function StartPage() {
         (data: any) => {
             setTestInfo(data);
             console.log(data);
+            router.push('/selectTest');
         },
-        [setTestInfo],
+        [router, setTestInfo],
     );
 
     return (
