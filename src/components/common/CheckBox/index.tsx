@@ -1,4 +1,4 @@
-import type { InputHTMLAttributes, ReactNode } from 'react';
+import { useCallback, type InputHTMLAttributes, type ReactNode } from 'react';
 import { useController, type Control, type FieldValues, type Path } from 'react-hook-form';
 
 export default function CheckBox<T extends FieldValues>({
@@ -53,20 +53,32 @@ export function CheckBoxGroupItem<T extends FieldValues>({
 }) {
     const { field } = useController({ name, control }) || {}; // useForm 사용
 
+    const handleChange = useCallback(() => {
+        let newValue: string[] = [];
+
+        if (value === 'unknown') {
+            // 알 수 없음 클릭 시 기존 checkbox 해제
+            // TODO: 'unknown'이라는 값을 변수로 받을지
+            if (field.value?.includes(value)) {
+                newValue = field.value.filter((fieldValue: string) => fieldValue !== value);
+            } else {
+                newValue = [value];
+            }
+        } else {
+            // 알 수 없음 제외한 값 클릭 시
+            if (field.value?.includes(value)) {
+                newValue = field.value.filter((fieldValue: string) => fieldValue !== value);
+            } else {
+                newValue = [...(field.value.filter((fieldValue: string) => fieldValue !== 'unknown') || []), value];
+            }
+        }
+
+        field.onChange(newValue); // react-hook-form setting
+    }, [field, value]);
+
     return (
         <label className='flex cursor-pointer items-center'>
-            <input
-                type='checkbox'
-                className='peer hidden'
-                checked={field.value?.includes(value)}
-                onChange={() => {
-                    const newValue = field.value?.includes(value)
-                        ? field.value.filter((fieldValue: string) => fieldValue !== value)
-                        : [...(field.value || []), value];
-
-                    field.onChange(newValue);
-                }}
-            />
+            <input type='checkbox' className='peer hidden' checked={field.value?.includes(value)} onChange={handleChange} />
             <svg
                 className='mr-2 rounded border bg-white peer-checked:border-none peer-checked:bg-accent1'
                 xmlns='http://www.w3.org/2000/svg'

@@ -25,7 +25,10 @@ export default function Home() {
                     <span className='mt-[10px] text-center text-neutral4 text-body-2 xl:mt-2 xl:text-left'>
                         환자의 기본정보 입력 후 원하는 소검사를 선택하여 평가를 진행할 수 있습니다.
                     </span>
-                    <Link className='px-auto mt-auto flex items-center justify-center btn btn-small btn-contained xl:mr-auto' href='/start'>
+                    <Link
+                        className='px-auto mt-auto flex items-center justify-center btn btn-small btn-contained xl:mr-auto'
+                        href='/personalInfo'
+                    >
                         시작하기
                     </Link>
                 </li>
