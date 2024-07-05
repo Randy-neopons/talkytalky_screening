@@ -1,5 +1,5 @@
 .input {
-    @apply h-[50px] w-full rounded-md border border-neutral6 px-[15px] text-neutral1 placeholder:text-neutral4;
+    @apply h-[50px] w-full rounded-md border border-neutral6 px-[15px] text-neutral1 placeholder:text-neutral4 hover:border-accent1  focus:outline-accent1;
 }
 
 /* Chrome, Safari, Edge, Opera */
@@ -15,5 +15,5 @@
 }
 
 .textarea {
-    @apply w-full rounded-md border border-neutral6 px-[15px] py-[11px] text-neutral1 placeholder:text-neutral4;
+    @apply w-full rounded-md border border-neutral6 px-[15px] py-[11px] text-neutral1 placeholder:text-neutral4 hover:border-accent1  focus:outline-accent1;
 }

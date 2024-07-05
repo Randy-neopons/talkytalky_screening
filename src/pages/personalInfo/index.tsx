@@ -1,9 +1,11 @@
 import { useCallback, useRef, useState, type ChangeEvent, type ReactNode, type RefObject } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch, type Control } from 'react-hook-form';
 import TextareaAutosize from 'react-textarea-autosize';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
+import { ErrorMessage } from '@hookform/error-message';
+import dayjs from 'dayjs';
 import { create, useStore } from 'zustand';
 
 import CheckBox, { CheckBoxGroupItem } from '@/components/common/CheckBox';
@@ -16,7 +18,7 @@ const makeRangeOptions = (min: number, max: number) => {
     return Array.from({ length: max - min + 1 }, (v, i) => ({ label: `${i + min}`, value: `${i + min}` }));
 };
 
-const yearOptions = makeRangeOptions(1940, new Date().getFullYear());
+const yearOptions = makeRangeOptions(1940, dayjs().year());
 const monthOptions = makeRangeOptions(1, 12);
 const dayOptions = makeRangeOptions(1, 31);
 
@@ -45,14 +47,14 @@ const useTestInfoStore = create<{
     testInfo: {
         testerName: '',
         certificateNumber: '',
-        testYear: `${new Date().getFullYear()}`,
-        testMonth: `${new Date().getMonth() + 1}`,
-        testDay: `${new Date().getDay() + 1}`,
+        testYear: `${dayjs().year()}`,
+        testMonth: `${dayjs().month() + 1}`,
+        testDay: `${dayjs().date()}`,
         patientName: '',
         gender: 'female',
-        birthYear: `${new Date().getFullYear()}`,
-        birthMonth: `${new Date().getMonth() + 1}`,
-        birthDay: `${new Date().getDay() + 1}`,
+        birthYear: `${dayjs().year()}`,
+        birthMonth: `${dayjs().month() + 1}`,
+        birthDay: `${dayjs().date()}`,
         brainLesions: [],
         medicalHistory: '',
         memo: '',
@@ -92,27 +94,51 @@ interface FormValues {
     memo: string;
 }
 
+// 만 나이 계산 custom hook
+const useAge = ({ control }: { control: Control<FormValues> }) => {
+    const birthYear = Number(useWatch({ control, name: 'birthYear' }));
+    const birthMonth = Number(useWatch({ control, name: 'birthMonth' }));
+    const birthDay = Number(useWatch({ control, name: 'birthDay' }));
+
+    // 만 나이 계산
+    const age = dayjs().diff(new Date(birthYear, birthMonth - 1, birthDay), 'year');
+
+    return age;
+};
+
+const ErrorText = ({ children }: { children: ReactNode }) => {
+    return <p className='mt-1 text-red1 text-body-2'>{children}</p>;
+};
+
 export default function PersonalInfoPage() {
-    const router = useRouter();
-    const { control, register, handleSubmit } = useForm<FormValues>({
+    const router = useRouter(); // next router
+    const { setTestInfo } = useTestInfoActions(); // 검사 정보 global state
+
+    // 검사 정보 입력 form
+    const {
+        control,
+        register,
+        formState: { errors },
+        handleSubmit,
+    } = useForm<FormValues>({
         defaultValues: {
-            testYear: `${new Date().getFullYear()}`,
-            testMonth: `${new Date().getMonth() + 1}`,
-            testDay: `${new Date().getDay() + 1}`,
-            birthYear: `${new Date().getFullYear()}`,
-            birthMonth: `${new Date().getMonth() + 1}`,
-            birthDay: `${new Date().getDay() + 1}`,
+            testYear: `${dayjs().year()}`,
+            testMonth: `${dayjs().month() + 1}`,
+            testDay: `${dayjs().date()}`,
+            birthYear: `${dayjs().year()}`,
+            birthMonth: `${dayjs().month() + 1}`,
+            birthDay: `${dayjs().date()}`,
             brainLesions: [],
         },
     });
+    const age = useAge({ control }); // 만 나이 계산
 
-    const { setTestInfo } = useTestInfoActions();
-
+    // 폼 제출
     const handleOnSubmit = useCallback(
         (data: any) => {
-            setTestInfo(data);
+            setTestInfo(data); // set global state
             console.log(data);
-            router.push('/selectTest');
+            router.push('/selectTest'); // 검사 선택 화면으로
         },
         [router, setTestInfo],
     );
@@ -121,38 +147,60 @@ export default function PersonalInfoPage() {
         <Container>
             <h1 className='font-jalnan text-head-1'>기본정보 입력</h1>
             <form className='mb-20 mt-[60px] w-[550px] rounded-[20px] bg-white px-[50px] pb-[50px] pt-[10px] shadow-base xl:mt-20'>
-                <Label htmlFor='testerName'>검사자명</Label>
-                <input {...register('testerName')} className={`${styles.input}`} placeholder='검사자명을 입력하세요.' />
-                <Label htmlFor='certificateNumber'>자격증 번호</Label>
-                <input {...register('certificateNumber')} className={`${styles.input}`} placeholder='자격증 번호를 입력하세요.' />
+                <Label htmlFor='testerName' required>
+                    검사자명
+                </Label>
+                <input
+                    {...register('testerName', { required: '검사자명을 입력하세요.' })}
+                    className={`${styles.input}`}
+                    placeholder='검사자명을 입력하세요.'
+                />
+                <ErrorMessage errors={errors} name='testerName' render={({ message }) => <ErrorText>{message}</ErrorText>} />
+
+                <Label htmlFor='certificateNumber' required>
+                    자격증 번호
+                </Label>
+                <input
+                    {...register('certificateNumber', { required: '자격증 번호를 입력하세요.' })}
+                    className={`${styles.input}`}
+                    placeholder='자격증 번호를 입력하세요.'
+                />
+                <ErrorMessage errors={errors} name='certificateNumber' render={({ message }) => <ErrorText>{message}</ErrorText>} />
+
                 <Label htmlFor='testDate'>검사일</Label>
                 <div className='flex gap-[15px]'>
                     <Select control={control} name='testYear' required options={yearOptions} />
                     <Select control={control} name='testMonth' required options={monthOptions} />
                     <Select control={control} name='testDay' required options={dayOptions} />
                 </div>
+
                 <div className='mb-[10px] mt-10 h-[1px] w-full bg-[#ced4da] xl:mt-[50px] '></div>
-                <Label htmlFor='testerName' required>
+
+                <Label htmlFor='patientName' required>
                     환자명
                 </Label>
                 <input
-                    {...register('testerName', { required: '이름을 입력하세요' })}
+                    {...register('patientName', { required: '환자명을 입력하세요' })}
                     className={`${styles.input}`}
                     placeholder='환자명을 입력하세요.'
                 />
-                <Label htmlFor='testerName' required>
+                <ErrorMessage errors={errors} name='patientName' render={({ message }) => <ErrorText>{message}</ErrorText>} />
+
+                <Label htmlFor='gender' required>
                     성별
                 </Label>
                 <Select control={control} name='gender' required options={genderOptions} defaultValue={genderOptions[0]} />
-                <Label htmlFor='testDate' required>
-                    생년월일(00세)
+
+                <Label htmlFor='birthDate' required>
+                    생년월일({age}세)
                 </Label>
                 <div className='flex gap-[15px]'>
                     <Select control={control} name='birthYear' required options={yearOptions} />
                     <Select control={control} name='birthMonth' required options={monthOptions} />
                     <Select control={control} name='birthDay' required options={dayOptions} />
                 </div>
-                <Label htmlFor='testerName'>마비말장애 관련 뇌병변</Label>
+
+                <Label htmlFor='brainLesions'>마비말장애 관련 뇌병변</Label>
                 <ul className='flex flex-row flex-wrap'>
                     {brainLesionOptions.map((option, i) => (
                         <li key={option.value} className='mb-[10px] basis-1/2 xl:mb-[11px]'>
@@ -162,6 +210,7 @@ export default function PersonalInfoPage() {
                         </li>
                     ))}
                 </ul>
+
                 <Label htmlFor='medicalHistory'>병력</Label>
                 <Controller
                     control={control}
@@ -174,9 +223,11 @@ export default function PersonalInfoPage() {
                             onChange={onChange}
                             onBlur={onBlur}
                             value={value}
+                            ref={ref}
                         />
                     )}
                 />
+
                 <Label htmlFor='memo'>개인관련 추가정보</Label>
                 <Controller
                     control={control}
@@ -189,6 +240,7 @@ export default function PersonalInfoPage() {
                             onChange={onChange}
                             onBlur={onBlur}
                             value={value}
+                            ref={ref}
                         />
                     )}
                 />

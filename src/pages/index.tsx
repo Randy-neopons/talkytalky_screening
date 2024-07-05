@@ -42,7 +42,7 @@ export default function Home() {
                         <br />
                         또한 문제를 보인 항목들에 대한 초기점검이 가능합니다.
                     </span>
-                    <button className='mt-auto text-head-1 btn btn-large btn-contained xl:mr-auto'>시작하기</button>
+                    <button className='mt-auto text-head-1 btn btn-small btn-contained xl:mr-auto'>결과보기</button>
                 </li>
             </ul>
         </Container>
