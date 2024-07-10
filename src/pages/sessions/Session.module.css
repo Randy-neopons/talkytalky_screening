@@ -1,0 +1,14 @@
+.tooltip {
+}
+
+.tooltip-content {
+    display: none;
+    position: absolute;
+}
+
+.tooltip:hover .tooltip-content {
+    display: block;
+    border-radius: 20px;
+    padding: 26px 30px;
+    @apply bg-white shadow-base;
+}
