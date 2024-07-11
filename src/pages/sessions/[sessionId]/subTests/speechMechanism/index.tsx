@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 
 import Container from '@/components/common/Container';
 
-import styles from './Session.module.css';
+import styles from '../SubTests.module.css';
 
 import infoIcon from 'public/static/images/info-icon.png';
 
