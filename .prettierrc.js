@@ -1,4 +1,3 @@
-/** @type {import('prettier').Config} */
 module.exports = {
     printWidth: 140, // 가로 줄 길이
     tabWidth: 4, // 탭 간격
@@ -10,7 +9,6 @@ module.exports = {
     semi: true, // 세미콜론 붙임
     arrowParens: 'avoid', // arrow function 가능한 경우엔 괄호 생략
     endOfLine: 'auto', // EoF 설정
-    formatOnSave: true,
 
     plugins: ['prettier-plugin-tailwindcss'],
 };

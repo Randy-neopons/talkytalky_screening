@@ -2,13 +2,13 @@
 }
 
 .tooltip-content {
-    display: none;
-    position: absolute;
+    @apply absolute left-1/2 hidden w-[610px] -translate-x-1/2 translate-y-5 rounded-[20px] bg-white px-[20px] py-[26px] font-noto shadow-base text-body-2 xl:w-full;
 }
 
 .tooltip:hover .tooltip-content {
     display: block;
-    border-radius: 20px;
-    padding: 26px 30px;
-    @apply bg-white shadow-base;
+}
+
+.part {
+    @apply rounded-base h-[264px] w-[236px] shadow-base;
 }

@@ -64,7 +64,7 @@ export default function SelectTestPage() {
                     </CheckBoxGroupItem>
                 </SubTestBox>
             </div>
-            <button className='mt-20 btn btn-large btn-contained' onClick={handleClickNext}>
+            <button type='button' className='mt-20 btn btn-large btn-contained' onClick={handleClickNext}>
                 다음
             </button>
         </Container>

@@ -10,6 +10,9 @@ const config: Config = {
                 'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
                 'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
             },
+            borderRadius: {
+                base: '1.25rem' /* 20px */,
+            },
             boxShadow: {
                 base: '0px 4px 8px 0px rgba(0, 0, 0, 0.08)',
             },
@@ -57,48 +60,48 @@ const config: Config = {
         plugin(function ({ addUtilities, theme }) {
             addUtilities({
                 '.text-head-1': {
-                    fontSize: '28px',
-                    lineHeight: '42px',
+                    fontSize: '1.75rem',
+                    lineHeight: '2.625rem',
 
                     '@media (min-width: 1280px)': {
-                        fontSize: '32px',
-                        lineHeight: '48px',
+                        fontSize: '2rem',
+                        lineHeight: '3rem',
                     },
                 },
                 '.text-head-2': {
-                    fontSize: '20px',
-                    lineHeight: '30px',
+                    fontSize: '1.25rem',
+                    lineHeight: '1.875rem',
 
                     '@media (min-width: 1280px)': {
-                        fontSize: '24px',
-                        lineHeight: '36px',
+                        fontSize: '1.5rem',
+                        lineHeight: '2.25rem',
                     },
                 },
                 '.text-head-3': {
-                    fontSize: '18px',
-                    lineHeight: '28px',
+                    fontSize: '1.125rem',
+                    lineHeight: '1.75rem',
 
                     '@media (min-width: 1280px)': {
-                        fontSize: '20px',
-                        lineHeight: '30px',
+                        fontSize: '1.25rem',
+                        lineHeight: '1.875rem',
                     },
                 },
                 '.text-body-1': {
-                    fontSize: '16px',
-                    lineHeight: '24px',
+                    fontSize: '1rem',
+                    lineHeight: '1.5rem',
 
                     '@media (min-width: 1280px)': {
-                        fontSize: '18px',
-                        lineHeight: '28px',
+                        fontSize: '1.125rem',
+                        lineHeight: '1.75rem',
                     },
                 },
                 '.text-body-2': {
-                    fontSize: '14px',
-                    lineHeight: '22px',
+                    fontSize: '0.875rem',
+                    lineHeight: '1.375rem',
 
                     '@media (min-width: 1280px)': {
-                        fontSize: '16px',
-                        lineHeight: '24px',
+                        fontSize: '1rem',
+                        lineHeight: '1.5rem',
                     },
                 },
 
@@ -108,32 +111,32 @@ const config: Config = {
                     fontWeight: '700',
                 },
                 '.btn-large': {
-                    width: '200px',
-                    height: '56px',
+                    width: '12.5rem',
+                    height: '3.5rem',
 
                     // body-2
-                    fontSize: '14px',
-                    lineHeight: '22px',
+                    fontSize: '0.875rem',
+                    lineHeight: '1.375rem',
 
                     '@media (min-width: 1280px)': {
-                        width: '220px',
-                        height: '60px',
+                        width: '13.75rem',
+                        height: '3.75rem',
 
-                        fontSize: '16px',
-                        lineHeight: '24px',
+                        fontSize: '1rem',
+                        lineHeight: '1.5rem',
                     },
                 },
                 '.btn-small': {
-                    width: '130px',
-                    height: '50px',
+                    width: '8.125rem',
+                    height: '3.125rem',
 
                     // body-1
-                    fontSize: '16px',
-                    lineHeight: '24px',
+                    fontSize: '1rem',
+                    lineHeight: '1.5rem',
 
                     '@media (min-width: 1280px)': {
-                        fontSize: '18px',
-                        lineHeight: '28px',
+                        fontSize: '1.125rem',
+                        lineHeight: '1.75rem',
                     },
                 },
                 '.btn-contained': {
