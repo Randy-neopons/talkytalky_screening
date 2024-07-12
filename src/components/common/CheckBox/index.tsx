@@ -29,18 +29,28 @@ export default function CheckBox<T extends FieldValues>({
 }) {
     const isControlled = checked !== undefined && onChange !== undefined; // controlled인지 폼 쓸것인지 구분
 
-    const { field } = useController({ name, control }) || {}; // useForm 사용
-
-    const isChecked = isControlled ? checked : field.value;
-    console.log(field.name, field.value);
-    const handleChange = isControlled ? onChange : field.onChange;
+    if (isControlled) {
+        return (
+            <label className='flex cursor-pointer items-center justify-center'>
+                <input type='checkbox' className='peer hidden' checked={checked} onChange={onChange} />
+                <CheckBoxIcon />
+                {children}
+            </label>
+        );
+    }
 
     return (
-        <label className='flex cursor-pointer items-center justify-center'>
-            <input type='checkbox' className='peer hidden' checked={isChecked} onChange={handleChange} />
-            <CheckBoxIcon />
-            {children}
-        </label>
+        <Controller
+            name={name}
+            control={control}
+            render={({ field }) => (
+                <label className='flex cursor-pointer items-center justify-center'>
+                    <input type='checkbox' className='peer hidden' checked={field.value} onChange={field.onChange} />
+                    <CheckBoxIcon />
+                    {children}
+                </label>
+            )}
+        />
     );
 }
 

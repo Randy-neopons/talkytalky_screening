@@ -18,18 +18,19 @@ const partList = [
 
 const PartListItem = ({ partName, questionCount }: { partName: string; questionCount: number }) => {
     return (
-        <li className='rounded-base flex h-[212px] w-[230px] flex-col overflow-hidden shadow-base xl:h-[264px]'>
+        <li className='flex h-[212px] w-[230px] flex-col overflow-hidden rounded-base shadow-base xl:h-[264px]'>
             <div className='flex flex-1 items-center justify-center whitespace-pre bg-accent3 font-bold text-head-3'>{partName}</div>
             <div className='flex h-[76px] flex-none items-center justify-center text-head-2'>총 {questionCount}문항</div>
         </li>
     );
 };
 
-export default function SpeechMechanismStartPage() {
+export default function SpeechMechanismMainPage() {
     const router = useRouter();
 
     const handleClickNext = useCallback(() => {
-        router.push('/start'); // 검사 ID로 이동
+        console.log(router.asPath);
+        router.push(`${router.asPath}/start`); // 검사 ID로 이동
     }, [router]);
 
     return (
