@@ -1,13 +1,12 @@
 import { useCallback, useRef, useState, type ChangeEvent, type ReactNode, type RefObject } from 'react';
 import { Controller, useForm, useWatch, type Control } from 'react-hook-form';
 import TextareaAutosize from 'react-textarea-autosize';
-import Image from 'next/image';
 import { useRouter } from 'next/router';
 
 import { ErrorMessage } from '@hookform/error-message';
 import dayjs from 'dayjs';
-import { create, useStore } from 'zustand';
 
+import { useTestInfo, useTestInfoActions } from '@/store/testInfoStore';
 import CheckBox, { CheckBoxGroupItem } from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import Select from '@/components/common/Select';
@@ -35,39 +34,6 @@ const brainLesionOptions = [
     { value: 'basalGangliaControlCircuit', label: '기저핵조절회로' },
     { value: 'unknown', label: '알 수 없음' },
 ];
-
-const useTestInfoStore = create<{
-    testInfo: FormValues;
-    tests: string[];
-    actions: {
-        setTestInfo: (newInfo: FormValues) => void;
-        setTests: (newTests: string[]) => void;
-    };
-}>(set => ({
-    testInfo: {
-        testerName: '',
-        certificateNumber: '',
-        testYear: `${dayjs().year()}`,
-        testMonth: `${dayjs().month() + 1}`,
-        testDay: `${dayjs().date()}`,
-        patientName: '',
-        gender: 'female',
-        birthYear: `${dayjs().year()}`,
-        birthMonth: `${dayjs().month() + 1}`,
-        birthDay: `${dayjs().date()}`,
-        brainLesions: [],
-        medicalHistory: '',
-        memo: '',
-    },
-    tests: [],
-    actions: {
-        setTestInfo: newInfo => set({ testInfo: newInfo }),
-        setTests: newTests => set({ tests: newTests }),
-    },
-}));
-export const useTestInfo = () => useTestInfoStore(state => state.testInfo);
-export const useTests = () => useTestInfoStore(state => state.tests);
-export const useTestInfoActions = () => useTestInfoStore(state => state.actions);
 
 const Label = ({ children, htmlFor, required }: { children: ReactNode; htmlFor: string; required?: boolean }) => {
     return (
