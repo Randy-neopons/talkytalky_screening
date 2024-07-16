@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 import { ErrorMessage } from '@hookform/error-message';
 import dayjs from 'dayjs';
 
-import { useTestInfo, useTestInfoActions } from '@/store/testInfoStore';
+import { useTestInfo, useTestInfoActions } from '@/stores/testInfoStore';
 import CheckBox, { CheckBoxGroupItem } from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import Select from '@/components/common/Select';

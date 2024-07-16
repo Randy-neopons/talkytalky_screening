@@ -1,12 +1,11 @@
 import { useCallback, useEffect, type ReactNode } from 'react';
 import { useRouter } from 'next/router';
 
+import { useTestInfo, useTestInfoActions, useTests } from '@/stores/testInfoStore';
 import { CheckBoxGroupItem } from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 
-import { useTestInfo, useTestInfoActions, useTests } from './personalInfo';
-
-const SubTestBox = ({ children }: { children: ReactNode }) => {
+const SubtestBox = ({ children }: { children: ReactNode }) => {
     return (
         <div className='flex w-full flex-col flex-wrap gap-x-[180px] gap-y-5 rounded-[20px] bg-white px-[50px] py-[27px] shadow-base xl:flex-row xl:gap-y-[37px]'>
             {children}
@@ -41,12 +40,12 @@ export default function SelectTestPage() {
                 누르세요.
             </span>
             <div className='mt-7 flex w-full max-w-[1000px] flex-col gap-[30px] xl:mt-20'>
-                <SubTestBox>
+                <SubtestBox>
                     <CheckBoxGroupItem name='tests' value={testList[0].value} values={tests} setValues={setTests}>
                         <span className='ml-3 font-bold text-head-2'>{testList[0].label}</span>
                     </CheckBoxGroupItem>
-                </SubTestBox>
-                <SubTestBox>
+                </SubtestBox>
+                <SubtestBox>
                     <CheckBoxGroupItem name='tests' value={testList[1].value} values={tests} setValues={setTests}>
                         <span className='ml-3 font-bold text-head-2'>{testList[1].label}</span>
                     </CheckBoxGroupItem>
@@ -54,15 +53,15 @@ export default function SelectTestPage() {
                     <CheckBoxGroupItem name='tests' value={testList[2].value} values={tests} setValues={setTests}>
                         <span className='ml-3 font-bold text-head-2'>{testList[2].label}</span>
                     </CheckBoxGroupItem>
-                </SubTestBox>
-                <SubTestBox>
+                </SubtestBox>
+                <SubtestBox>
                     <CheckBoxGroupItem name='tests' value={testList[3].value} values={tests} setValues={setTests}>
                         <span className='ml-3 font-bold text-head-2'>{testList[3].label}</span>
                     </CheckBoxGroupItem>
                     <CheckBoxGroupItem name='tests' value={testList[4].value} values={tests} setValues={setTests}>
                         <span className='ml-3 font-bold text-head-2'>{testList[4].label}</span>
                     </CheckBoxGroupItem>
-                </SubTestBox>
+                </SubtestBox>
             </div>
             <button type='button' className='mt-20 btn btn-large btn-contained' onClick={handleClickNext}>
                 다음

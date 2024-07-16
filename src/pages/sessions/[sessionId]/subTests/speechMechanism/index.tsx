@@ -77,7 +77,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
     // TODO: sessionId 통해 시험 세션 정보 얻음
     const testSession = {
         sessionId,
-        subTests: [],
+        subtests: [],
     };
 
     try {
