@@ -1,14 +1,17 @@
 import { useCallback, useState, type ChangeEventHandler } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import ReactTextareaAutosize from 'react-textarea-autosize';
+import type { GetServerSideProps, GetStaticProps } from 'next';
 
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
+import { useQuestionsQuery } from '@/hooks/questions';
+import { getQuestionListAPI } from '@/api/questions';
 
 import startStyles from './Start.module.css';
 
 // TODO: DB에서 불러옴
-const questionList = [
+const questionList1 = [
     { questionId: 1, title: '입 모양의 대칭' },
     { questionId: 2, title: '코 모양의 대칭' },
     { questionId: 3, title: '눈 모양의 대칭' },
@@ -27,20 +30,33 @@ const questionList2 = [
 ];
 
 // form default value
-const initialValues: {
-    answers: { questionId: number; title: string; answer?: string }[];
-} = {
-    answers: questionList.concat(questionList2).map(v => ({ ...v, answer: undefined })),
-};
+// const initialValues: {
+//     answers: { questionId: number; title: string; answer?: string }[];
+// } = {
+//     // answers: questionList1.concat(questionList2).map(v => ({ ...v, answer: undefined })),
+//     answers: questionList.map(v => ({ ...v, answer: undefined })),
+// };
 
 const SPLIT_QUESTION_ID = 6;
 
 // 말기제평가 페이지
-export default function SpeechMechanismStartPage() {
+export default function SpeechMechanismStartPage({
+    questionList,
+}: {
+    questionList: { questionId: number; questionText: string; answerType: string; partId: number; subtestId: number }[];
+}) {
     const [checkAll1, setCheckAll1] = useState(false);
     const [checkAll2, setCheckAll2] = useState(false);
 
-    const { control, register, setValue } = useForm({ defaultValues: initialValues });
+    // const { data: questionList } = useQuestionsQuery(1);
+
+    const { control, register, setValue } = useForm<{
+        answers: { questionId: number; questionText: string; answer?: string }[];
+    }>({
+        defaultValues: {
+            answers: questionList?.map(v => ({ ...v, answer: undefined })),
+        },
+    });
     const { fields } = useFieldArray({ name: 'answers', control });
 
     // 모두 정상 체크
@@ -48,7 +64,7 @@ export default function SpeechMechanismStartPage() {
         e => {
             if (e.target.checked === true) {
                 console.log('here');
-                questionList.map((v, i) => {
+                questionList1.map((v, i) => {
                     setValue(`answers.${v.questionId - 1}.answer`, 'normal');
                 });
             }
@@ -96,7 +112,7 @@ export default function SpeechMechanismStartPage() {
                     {fields.slice(0, SPLIT_QUESTION_ID).map((field, i) => (
                         <tr key={field.id}>
                             <td>{field.questionId}</td>
-                            <td>{field.title}</td>
+                            <td>{field.questionText}</td>
                             <td className='text-center'>
                                 <input type='radio' {...register(`answers.${field.questionId - 1}.answer`)} value='normal' />
                             </td>
@@ -138,7 +154,7 @@ export default function SpeechMechanismStartPage() {
                     {fields.slice(SPLIT_QUESTION_ID).map((field, i) => (
                         <tr key={field.id}>
                             <td>{field.questionId}</td>
-                            <td>{field.title}</td>
+                            <td>{field.questionText}</td>
                             <td className='text-center'>
                                 <input type='radio' {...register(`answers.${field.questionId - 1}.answer`)} value='normal' />
                             </td>
@@ -170,3 +186,41 @@ export default function SpeechMechanismStartPage() {
         </Container>
     );
 }
+
+export const getServerSideProps: GetServerSideProps = async context => {
+    const sessionId = Number(context.query.sessionId);
+
+    if (!sessionId) {
+        return {
+            redirect: {
+                destination: '/',
+                permanent: true,
+            },
+        };
+    }
+
+    try {
+        // TODO: sessionId 통해 시험 세션 정보 얻음
+        const testSession = {
+            sessionId,
+            subtests: [],
+        };
+
+        const responseData = await getQuestionListAPI(1);
+        const questionList = responseData.questions;
+
+        return {
+            props: {
+                testSession,
+                questionList,
+            },
+        };
+    } catch (err) {
+        return {
+            redirect: {
+                destination: '/',
+                permanent: true,
+            },
+        };
+    }
+};
