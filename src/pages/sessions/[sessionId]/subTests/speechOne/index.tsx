@@ -11,19 +11,19 @@ import { getQuestionListAPI } from '@/api/questions';
 import subtestStyles from '../SubTests.module.css';
 
 // 소검사 ID
-const CURRENT_SUBTEST_ID = 1;
+const CURRENT_SUBTEST_ID = 2;
 
 // 소검사 내 파트별 문항 index 정보
 // TODO: part title도 DB에서 가져오기
 const partIndexList = [
-    { start: 0, split: 6, end: 12, subtitle1: '휴식시', subtitle2: '활동시', partTitle: 'Facial (안면)' },
-    { start: 12, split: 13, end: 18, subtitle1: '휴식시', subtitle2: '활동시', partTitle: 'Jaw (턱)' },
-    { start: 18, split: 23, end: 30, subtitle1: '휴식시', subtitle2: '활동시', partTitle: 'Tongue (혀)' },
-    { start: 30, split: 35, end: 35, subtitle1: '활동시', partTitle: 'Velar (연구개)\nPharynx (인두)\nLarynx (후두)' },
+    { start: 0, split: 1, end: 6, subtitle1: '잠복시간', subtitle2: '음질', partTitle: 'Aspiration (호흡)\nPhonation (음성)' },
+    { start: 6, split: 11, end: 14, subtitle1: '음도', subtitle2: '강도', partTitle: 'Aspiration (호흡)\nPhonation (음성)' },
+    { start: 14, split: 18, end: 22, subtitle1: '과다비성', subtitle2: '비강누출', partTitle: 'Resonance (공명)' },
+    { start: 22, split: 27, end: 27, subtitle1: '따라하기', partTitle: 'Articulation (조음)' },
 ];
 
-// 말기제평가 페이지
-export default function SpeechMechanismStartPage({
+// SPEECH I 문항 페이지
+export default function SpeechOnePage({
     questionList,
 }: {
     questionList: { questionId: number; questionText: string; answerType: string; partId: number; subtestId: number }[];
@@ -109,7 +109,7 @@ export default function SpeechMechanismStartPage({
                 // TODO: 중간 저장 API
 
                 const sessionId = router.query.sessionId;
-                typeof sessionId === 'string' && router.push(`/sessions/${sessionId}/subTests/speechOne`);
+                typeof sessionId === 'string' && router.push(`/sessions/${sessionId}/subTests/speechTwo`);
             } catch (err) {
                 console.error(err);
             }
@@ -119,7 +119,7 @@ export default function SpeechMechanismStartPage({
 
     return (
         <Container>
-            <h2 className='flex items-center font-jalnan text-accent1 text-head-2'>SPEECH MECHANISM : 말기제평가</h2>
+            <h2 className='flex items-center font-jalnan text-accent1 text-head-2'>SPEECH I : 영역별 말평가</h2>
             <form onSubmit={handleSubmit(handleOnSubmit)} className='flex w-full flex-col flex-nowrap items-center px-5 xl:px-0'>
                 <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitle}</h1>
 
@@ -257,7 +257,6 @@ export default function SpeechMechanismStartPage({
     );
 }
 
-// SSR
 export const getServerSideProps: GetServerSideProps = async context => {
     const sessionId = Number(context.query.sessionId);
 
