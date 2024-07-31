@@ -1,8 +1,9 @@
 .tooltip {
+    @apply text-left;
 }
 
 .tooltip-content {
-    @apply absolute left-1/2 hidden w-[610px] -translate-x-1/2 translate-y-5 rounded-[20px] bg-white px-[20px] py-[26px] font-noto shadow-base text-body-2 xl:w-full;
+    @apply absolute left-1/2 hidden w-[610px] -translate-x-1/2 translate-y-5 rounded-[20px] px-[20px] py-[26px] font-noto shadow-base text-body-2 xl:w-full;
 }
 
 .tooltip:hover .tooltip-content {

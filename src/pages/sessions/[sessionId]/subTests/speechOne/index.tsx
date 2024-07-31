@@ -109,7 +109,7 @@ export default function SpeechOnePage({
                 // TODO: 중간 저장 API
 
                 const sessionId = router.query.sessionId;
-                typeof sessionId === 'string' && router.push(`/sessions/${sessionId}/subTests/speechTwo`);
+                typeof sessionId === 'string' && router.push(`/sessions/${sessionId}/subTests/speechTwo/paragraph`);
             } catch (err) {
                 console.error(err);
             }

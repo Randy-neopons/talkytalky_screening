@@ -3,6 +3,9 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 
 import Container from '@/components/common/Container';
+import { InfoIcon } from '@/components/icons';
+
+import styles from '../SubTests.module.css';
 
 import fontSizeIcon from 'public/static/images/font-size-icon.png';
 import memoIcon from 'public/static/images/memo-icon.png';
@@ -50,7 +53,21 @@ export default function PictureDescriptionPage() {
     return (
         <Container>
             <h2 className='flex items-center font-jalnan text-accent1 text-head-2'>SPEECH II : 종합적 말평가</h2>
-            <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{'그림설명하기'}</h1>
+            <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>
+                {'그림설명하기'}
+                <span className={`${styles['tooltip']}`}>
+                    <button>
+                        <InfoIcon color='#6979F8' width={40} height={40} />
+                    </button>
+                    <div className={`${styles['tooltip-content']} bg-accent3`}>
+                        <b>치료사 지시문</b>
+                        <br />
+                        “지금부터 그림을 보여드릴거예요. 그림을 잘 보시고 1분동안 최대한 자세히 설명해주세요. 가능하면 문장으로
+                        설명해주세요.” (필요시 그림에서 설명하지 못한 부분을 가리키며) “여기는 어떤 일이 일어나고 있나요?” 라고 발화
+                        유도하기
+                    </div>
+                </span>
+            </h1>
             <div className='ml-auto mt-8 flex items-center gap-[6px]'>
                 <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'>
                     <rect x='2.5' y='7.5' width='19' height='9' rx='0.5' stroke='#212529' />
