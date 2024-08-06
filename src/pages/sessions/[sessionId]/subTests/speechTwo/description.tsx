@@ -52,9 +52,9 @@ export default function PictureDescriptionPage() {
 
     return (
         <Container>
-            <h2 className='flex items-center font-jalnan text-accent1 text-head-2'>SPEECH II : 종합적 말평가</h2>
-            <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>
-                {'그림설명하기'}
+            <h2 className='font-jalnan text-accent1 text-head-2'>SPEECH II : 종합적 말평가</h2>
+            <h1 className='flex items-center whitespace-pre-line text-center font-jalnan text-head-1'>
+                그림설명하기
                 <span className={`${styles['tooltip']}`}>
                     <button>
                         <InfoIcon color='#6979F8' width={40} height={40} />

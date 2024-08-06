@@ -1,5 +1,5 @@
 .tooltip {
-    @apply text-left;
+    @apply ml-2 text-left;
 }
 
 .tooltip-content {

@@ -3,7 +3,11 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 
 import Container from '@/components/common/Container';
+import { InfoIcon } from '@/components/icons';
 
+import styles from '../SubTests.module.css';
+
+import conversationImg from 'public/static/images/conversation-img.png';
 import fontSizeIcon from 'public/static/images/font-size-icon.png';
 import memoIcon from 'public/static/images/memo-icon.png';
 import recordIcon from 'public/static/images/record-icon.png';
@@ -30,8 +34,20 @@ export default function ConversationPage() {
 
     return (
         <Container>
-            <h2 className='flex items-center font-jalnan text-accent1 text-head-2'>SPEECH II : 종합적 말평가</h2>
-            <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{'대화하기'}</h1>
+            <h2 className='font-jalnan text-accent1 text-head-2'>SPEECH II : 종합적 말평가</h2>
+            <h1 className='flex items-center whitespace-pre-line text-center font-jalnan text-head-1'>
+                {'대화하기'}
+                <span className={`${styles['tooltip']}`}>
+                    <button>
+                        <InfoIcon color='#6979F8' width={40} height={40} />
+                    </button>
+                    <div className={`${styles['tooltip-content']} bg-accent3`}>
+                        <b>치료사 지시문</b>
+                        <br />
+                        “오늘(또는 요즘에) 무슨 일을 하셨는지 예기해주세요. 될 수 있는대로 문자으로 설명해주세요. 시간은 1분 드릴게요.”
+                    </div>
+                </span>
+            </h1>
             <div className='ml-auto mt-8 flex items-center gap-[6px]'>
                 <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'>
                     <rect x='2.5' y='7.5' width='19' height='9' rx='0.5' stroke='#212529' />
@@ -46,7 +62,9 @@ export default function ConversationPage() {
                 </svg>
                 인쇄하기
             </div>
-            <div className='mt-5 rounded-[20px] bg-white px-[65px] py-5'></div>
+            <div className='mt-5 rounded-[20px] bg-white px-[65px] py-5'>
+                <Image src={conversationImg} alt='conversation' />
+            </div>
 
             <div className='mt-20 flex w-full flex-nowrap items-center'>
                 <button type='button' className='btn btn-large btn-outlined' onClick={handleClickPrev}>
@@ -59,7 +77,7 @@ export default function ConversationPage() {
                     <button type='button'>
                         <Image src={recordIcon} alt='memo-icon' className='h-auto w-[100px]' />
                     </button>
-                    <button type='button'>
+                    <button type='button' className='invisible'>
                         <Image src={fontSizeIcon} alt='memo-icon' className='h-auto w-[60px]' />
                     </button>
                 </div>
