@@ -6,25 +6,21 @@ import { useRouter } from 'next/router';
 
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
-import { MikeIcon, PlayIcon, StopIcon } from '@/components/icons';
 import { getQuestionListAPI } from '@/api/questions';
 
 import subtestStyles from '../SubTests.module.css';
 
 // 소검사 ID
-const CURRENT_SUBTEST_ID = 3;
+const CURRENT_SUBTEST_ID = 5;
 
 // 소검사 내 파트별 문항 index 정보
 // TODO: part title도 DB에서 가져오기
 const partIndexList = [
-    { start: 0, end: 6, subtitle: '호흡 & 음성', partTitle: 'Aspiration (호흡)\nPhonation (음성)' },
-    { start: 6, end: 8, subtitle: '공명', partTitle: 'Resonance (공명)' },
-    { start: 8, end: 11, subtitle: '조음', partTitle: 'Articulation (조음)' },
-    { start: 11, end: 18, subtitle: '운율', partTitle: 'Prosody (운율)' },
+    { start: 0, split: 1, end: 6, subtitle1: '피로도검사', subtitle2: '음질', partTitle: 'Aspiration (호흡)\nPhonation (음성)' },
 ];
 
-// SPEECH II 문항 페이지
-export default function SpeechTwoPage({
+// Stress Testing 문항 페이지
+export default function StressTestingPage({
     questionList,
 }: {
     questionList: { questionId: number; questionText: string; answerType: string; partId: number; subtestId: number }[];
@@ -32,11 +28,11 @@ export default function SpeechTwoPage({
     const router = useRouter();
 
     // 문항 전부 정상으로 체크
-    const [checkAll, setCheckAll] = useState(false);
+    const [checkAll1, setCheckAll1] = useState(false);
 
     // 소검사 내 현재 파트 정보
     const [currentPartId, setCurrentPartId] = useState(1);
-    const { start, end, subtitle, partTitle } = useMemo(() => partIndexList[currentPartId - 1], [currentPartId]);
+    const { start, split, end, subtitle1, subtitle2, partTitle } = useMemo(() => partIndexList[currentPartId - 1], [currentPartId]);
 
     // react-hook-form
     const { control, register, setValue, handleSubmit } = useForm<{
@@ -56,29 +52,29 @@ export default function SpeechTwoPage({
     const { fields } = useFieldArray({ name: 'answers', control });
 
     // 모두 정상 체크
-    const handleChangeCheckAll = useCallback<ChangeEventHandler<HTMLInputElement>>(
+    const handleChangeCheckAll1 = useCallback<ChangeEventHandler<HTMLInputElement>>(
         e => {
             if (e.target.checked === true) {
-                Array.from({ length: end - start }, (v, i) => start + i).map(v => {
+                Array.from({ length: split - start }, (v, i) => start + i).map(v => {
                     setValue(`answers.${v}.answer`, 'normal');
                 });
             }
 
-            setCheckAll(e.target.checked);
+            setCheckAll1(e.target.checked);
         },
-        [setValue, end, start],
+        [setValue, split, start],
     );
 
     // 이전 파트로
     const handleClickPrev = useCallback(() => {
-        setCheckAll(false);
+        setCheckAll1(false);
         currentPartId > 1 && setCurrentPartId(partId => partId - 1);
         typeof window !== 'undefined' && window.scrollTo(0, 0);
     }, [currentPartId]);
 
     // 다음 파트로
     const handleClickNext = useCallback(() => {
-        setCheckAll(false);
+        setCheckAll1(false);
         currentPartId < partIndexList.length && setCurrentPartId(partId => partId + 1);
         typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
     }, [currentPartId]);
@@ -92,7 +88,7 @@ export default function SpeechTwoPage({
                 // TODO: 중간 저장 API
 
                 const sessionId = router.query.sessionId;
-                typeof sessionId === 'string' && router.push(`/sessions/${sessionId}/subTests/stressTesting`);
+                typeof sessionId === 'string' && router.push(`/sessions/${sessionId}/unassessable`);
             } catch (err) {
                 console.error(err);
             }
@@ -102,60 +98,14 @@ export default function SpeechTwoPage({
 
     return (
         <Container>
-            <h2 className='flex items-center font-jalnan text-accent1 text-head-2'>SPEECH II : 종합적 말평가</h2>
+            <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>Stress Testing</h1>
+            <span className='text-center text-body-2'>본 검사는 중증 근무력증 선별검사로 필요시에만 실시합니다.</span>
             <form onSubmit={handleSubmit(handleOnSubmit)} className='flex w-full flex-col flex-nowrap items-center px-5 xl:px-0'>
-                <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitle}</h1>
-
-                <ul className='mt-20 flex flex-row flex-nowrap gap-5'>
-                    <li className='h-40 w-80 overflow-hidden rounded-base bg-white shadow-base'>
-                        <div className='flex h-12 w-full items-center justify-center bg-accent1'>
-                            <span className='font-bold text-white text-body-2'>문단읽기</span>
-                        </div>
-                        <div className='flex w-full justify-center gap-5 py-[35px]'>
-                            <button type='button' className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'>
-                                <StopIcon />
-                            </button>
-                            <button type='button' className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'>
-                                <PlayIcon />
-                            </button>
-                            <button type='button' className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'>
-                                <MikeIcon />
-                            </button>
-                        </div>
-                    </li>
-                    <li className='h-40 w-80 overflow-hidden rounded-base bg-white shadow-base'>
-                        <div className='flex h-12 w-full items-center justify-center bg-accent1'>
-                            <span className='font-bold text-white text-body-2'>그림 설명하기</span>
-                        </div>
-                        <div className='flex w-full justify-center gap-5 py-[35px]'>
-                            <button type='button' className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'>
-                                <StopIcon />
-                            </button>
-                            <button type='button' className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'>
-                                <PlayIcon />
-                            </button>
-                        </div>
-                    </li>
-                    <li className='h-40 w-80 overflow-hidden rounded-base bg-white shadow-base'>
-                        <div className='flex h-12 w-full items-center justify-center bg-accent1'>
-                            <span className='font-bold text-white text-body-2'>대화하기</span>
-                        </div>
-                        <div className='flex w-full justify-center gap-5 py-[35px]'>
-                            <button type='button' className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'>
-                                <StopIcon />
-                            </button>
-                            <button type='button' className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'>
-                                <PlayIcon />
-                            </button>
-                        </div>
-                    </li>
-                </ul>
-
                 <table className={`${subtestStyles['table']}`}>
                     <thead className={`${subtestStyles['table-head']}`}>
                         <tr className='bg-accent1 text-white text-body-2'>
                             <th className='rounded-tl-base'></th>
-                            <th>{subtitle}</th>
+                            <th>{subtitle1}</th>
                             <th>정상</th>
                             <th>경도</th>
                             <th>심도</th>
@@ -164,10 +114,10 @@ export default function SpeechTwoPage({
                         </tr>
                     </thead>
                     <tbody className={`${subtestStyles['table-body']}`}>
-                        {fields.slice(start, end).map((item, i) => (
+                        {fields.slice(start, split).map((item, i) => (
                             <tr key={item.id}>
                                 <td>{i + 1}</td>
-                                <td>{item.questionText}</td>
+                                <td className='whitespace-pre-line'>{item.questionText}</td>
                                 <td className='text-center'>
                                     <input type='radio' {...register(`answers.${start + i}.answer`)} value='normal' />
                                 </td>
@@ -199,28 +149,14 @@ export default function SpeechTwoPage({
                         ))}
                     </tbody>
                 </table>
-                <div className='flex w-full justify-end'>
-                    <CheckBox name='all' checked={checkAll} onChange={handleChangeCheckAll}>
-                        모두 정상
-                    </CheckBox>
-                </div>
 
                 <div>
-                    {currentPartId > 1 && (
-                        <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
-                            이전
-                        </button>
-                    )}
-                    {/* key 설정을 해야 다른 컴포넌트로 인식하여 type이 명확히 구분됨 */}
-                    {currentPartId < partIndexList.length ? (
-                        <button key='noSubmit' type='button' className='ml-5 mt-20 btn btn-large btn-contained' onClick={handleClickNext}>
-                            다음
-                        </button>
-                    ) : (
-                        <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained'>
-                            다음 검사로
-                        </button>
-                    )}
+                    <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
+                        이전
+                    </button>
+                    <button type='submit' className='ml-5 mt-20 btn btn-large btn-contained'>
+                        다음
+                    </button>
                 </div>
             </form>
         </Container>

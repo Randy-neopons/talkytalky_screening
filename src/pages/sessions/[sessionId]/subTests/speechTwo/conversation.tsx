@@ -32,6 +32,15 @@ export default function ConversationPage() {
         [router],
     );
 
+    const handleClickNext = useCallback(() => {
+        try {
+            const sessionId = router.query.sessionId;
+            typeof sessionId === 'string' && router.push(`/sessions/${sessionId}/subTests/speechTwo/questions`);
+        } catch (err) {
+            console.error(err);
+        }
+    }, [router]);
+
     return (
         <Container>
             <h2 className='font-jalnan text-accent1 text-head-2'>SPEECH II : 종합적 말평가</h2>
@@ -81,7 +90,7 @@ export default function ConversationPage() {
                         <Image src={fontSizeIcon} alt='memo-icon' className='h-auto w-[60px]' />
                     </button>
                 </div>
-                <button key='noSubmit' type='button' className='btn btn-large btn-contained' onClick={() => {}}>
+                <button key='noSubmit' type='button' className='btn btn-large btn-contained' onClick={handleClickNext}>
                     다음
                 </button>
             </div>

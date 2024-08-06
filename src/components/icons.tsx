@@ -12,11 +12,11 @@ export const MikeIcon = ({ color = 'white', width = 24, height = 24 }: IconProps
             <rect x='9.0004' y='3' width='6' height='10' rx='3' fill={color} />
             <path
                 d='M7.0004 12C7.33373 13.4286 8.53373 16 12.0004 16C13.4448 16 16.2004 15.4286 17.0004 12'
-                stroke='white'
+                stroke={color}
                 strokeWidth='2'
                 strokeLinecap='round'
             />
-            <path d='M12.0004 16.2344V20.2344' stroke='white' strokeWidth='2' strokeLinecap='round' />
+            <path d='M12.0004 16.2344V20.2344' stroke={color} strokeWidth='2' strokeLinecap='round' />
         </svg>
     );
 };
