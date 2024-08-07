@@ -1,15 +1,10 @@
 export interface TestInfoFormValues {
-    testerName: string;
-    certificateNumber: string;
-    testYear: string;
-    testMonth: string;
-    testDay: string;
+    therapistUserId: number;
+    testDate: string;
     patientName: string;
-    gender: string;
-    birthYear: string;
-    birthMonth: string;
-    birthDay: string;
+    patientGender: string;
+    patientBirthdate: string;
     brainLesions: string[];
-    medicalHistory: string;
-    memo: string;
+    medicalHistory?: string;
+    patientMemo?: string;
 }

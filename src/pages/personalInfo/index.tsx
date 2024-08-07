@@ -13,6 +13,8 @@ import Select from '@/components/common/Select';
 
 import styles from './PersonalInfo.module.css';
 
+import type { TestInfoFormValues } from '@/types/types';
+
 const makeRangeOptions = (min: number, max: number) => {
     return Array.from({ length: max - min + 1 }, (v, i) => ({ label: `${i + min}`, value: `${i + min}` }));
 };
@@ -44,21 +46,14 @@ const Label = ({ children, htmlFor, required }: { children: ReactNode; htmlFor: 
     );
 };
 
-interface FormValues {
-    testerName: string;
-    certificateNumber: string;
+type FormValues = Omit<TestInfoFormValues, 'testDate' | 'patientBirthdate'> & {
     testYear: string;
     testMonth: string;
     testDay: string;
-    patientName: string;
-    gender: string;
     birthYear: string;
     birthMonth: string;
     birthDay: string;
-    brainLesions: string[];
-    medicalHistory: string;
-    memo: string;
-}
+};
 
 // 만 나이 계산 custom hook
 const useAge = ({ control }: { control: Control<FormValues> }) => {
@@ -78,6 +73,7 @@ const ErrorText = ({ children }: { children: ReactNode }) => {
 
 export default function PersonalInfoPage() {
     const router = useRouter(); // next router
+    const testInfo = useTestInfo();
     const { setTestInfo } = useTestInfoActions(); // 검사 정보 global state
 
     // 검사 정보 입력 form
@@ -88,21 +84,27 @@ export default function PersonalInfoPage() {
         handleSubmit,
     } = useForm<FormValues>({
         defaultValues: {
-            testYear: `${dayjs().year()}`,
-            testMonth: `${dayjs().month() + 1}`,
-            testDay: `${dayjs().date()}`,
-            birthYear: `${dayjs().year()}`,
-            birthMonth: `${dayjs().month() + 1}`,
-            birthDay: `${dayjs().date()}`,
-            brainLesions: [],
+            ...testInfo,
+            testYear: `${dayjs(testInfo.testDate).year()}`,
+            testMonth: `${dayjs(testInfo.testDate).month() + 1}`,
+            testDay: `${dayjs(testInfo.testDate).date()}`,
+            birthYear: `${dayjs(testInfo.patientBirthdate).year()}`,
+            birthMonth: `${dayjs(testInfo.patientBirthdate).month() + 1}`,
+            birthDay: `${dayjs(testInfo.patientBirthdate).date()}`,
         },
     });
     const age = useAge({ control }); // 만 나이 계산
 
     // 폼 제출
     const handleOnSubmit = useCallback(
-        (data: any) => {
-            setTestInfo(data); // set global state
+        (data: FormValues) => {
+            const { testYear, testMonth, testDay, birthYear, birthMonth, birthDay, ...rest } = data;
+
+            const testDate = dayjs(new Date(Number(testYear), Number(testMonth) - 1, Number(testDay))).format('YYYY-MM-DD');
+            const patientBirthdate = dayjs(new Date(Number(birthYear), Number(birthMonth) - 1, Number(birthDay))).format('YYYY-MM-DD');
+
+            const formValues = { ...rest, testDate, patientBirthdate };
+            setTestInfo(formValues); // set global state
             console.log(data);
             router.push('/selectTest'); // 검사 선택 화면으로
         },
@@ -116,21 +118,13 @@ export default function PersonalInfoPage() {
                 <Label htmlFor='testerName' required>
                     검사자명
                 </Label>
-                <input
-                    {...register('testerName', { required: '검사자명을 입력하세요.' })}
-                    className={`${styles.input}`}
-                    placeholder='검사자명을 입력하세요.'
-                />
+                <input value={'조대형'} className={`${styles.input}`} placeholder='검사자명을 입력하세요.' readOnly />
                 <ErrorMessage errors={errors} name='testerName' render={({ message }) => <ErrorText>{message}</ErrorText>} />
 
                 <Label htmlFor='certificateNumber' required>
                     자격증 번호
                 </Label>
-                <input
-                    {...register('certificateNumber', { required: '자격증 번호를 입력하세요.' })}
-                    className={`${styles.input}`}
-                    placeholder='자격증 번호를 입력하세요.'
-                />
+                <input value={'s12345678'} className={`${styles.input}`} placeholder='자격증 번호를 입력하세요.' readOnly />
                 <ErrorMessage errors={errors} name='certificateNumber' render={({ message }) => <ErrorText>{message}</ErrorText>} />
 
                 <Label htmlFor='testDate'>검사일</Label>
@@ -152,12 +146,12 @@ export default function PersonalInfoPage() {
                 />
                 <ErrorMessage errors={errors} name='patientName' render={({ message }) => <ErrorText>{message}</ErrorText>} />
 
-                <Label htmlFor='gender' required>
+                <Label htmlFor='patientGender' required>
                     성별
                 </Label>
-                <Select control={control} name='gender' required options={genderOptions} defaultValue={genderOptions[0]} />
+                <Select control={control} name='patientGender' required options={genderOptions} defaultValue={genderOptions[0]} />
 
-                <Label htmlFor='birthDate' required>
+                <Label htmlFor='patientBirthDate' required>
                     생년월일({age}세)
                 </Label>
                 <div className='flex gap-[15px]'>
@@ -194,10 +188,10 @@ export default function PersonalInfoPage() {
                     )}
                 />
 
-                <Label htmlFor='memo'>개인관련 추가정보</Label>
+                <Label htmlFor='patientMemo'>개인관련 추가정보</Label>
                 <Controller
                     control={control}
-                    name='memo'
+                    name='patientMemo'
                     render={({ field: { onChange, onBlur, value, ref } }) => (
                         <TextareaAutosize
                             className={styles.textarea}

@@ -12,16 +12,11 @@ const useTestInfoStore = create<{
     };
 }>(set => ({
     testInfo: {
-        testerName: '',
-        certificateNumber: '',
-        testYear: `${dayjs().year()}`,
-        testMonth: `${dayjs().month() + 1}`,
-        testDay: `${dayjs().date()}`,
+        therapistUserId: 0,
+        testDate: dayjs().format('YYYY-MM-DD'),
         patientName: '',
-        gender: 'female',
-        birthYear: `${dayjs().year()}`,
-        birthMonth: `${dayjs().month() + 1}`,
-        birthDay: `${dayjs().date()}`,
+        patientGender: 'female',
+        patientBirthdate: dayjs().format('YYYY-MM-DD'),
         brainLesions: [],
         medicalHistory: '',
         memo: '',

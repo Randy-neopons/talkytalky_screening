@@ -47,7 +47,7 @@ export default function ParagraphReadingPage() {
                 </svg>
                 인쇄하기
             </div>
-            <div className='mt-5 rounded-[20px] bg-white p-[50px] text-head-2'>
+            <div className='mt-5 rounded-base bg-white p-[50px] text-head-2'>
                 (예시문단) 높은 산에 올라가 맑은 공기를 마시며 소리를 지르면 가슴이 활찍 열리는 듯하다. 바닷가에 나가 조개를 주으며 넓게
                 펼쳐 있는 바다를 바라보면 내 마음이 역시 넓어지는 것 같다. 가로수 길게 뻗어 있는 곧은 길을 따라 걸어가면서 마치 쭉쭉 뻗어
                 있는 나무들처럼, 그리고 반듯하게 놓여있는 길처럼 바른 마음으로 자연을 벗하며 살아야겠다는 생각을 한다. 아이들이 뛰어 노는
