@@ -11,7 +11,7 @@ export async function getQuestionListAPI(subtestId: number) {
 
 // 평가불가 문항 목록 조회
 export async function getUnassessableQuestionListAPI(sessionId: number) {
-    const response = await axios.get('/assessment/unassessable', { params: { sessionId } });
+    const response = await axios.get(`/assessment/session/${sessionId}/unassessable`);
     return response.data;
 }
 
@@ -27,15 +27,7 @@ export async function createSessionAPI({ testInfo, subtestIds }: { testInfo: Tes
 
 // 세션 업데이트
 export async function updateSessionAPI({ sessionId, currentPartId }: { sessionId: number; currentPartId: number }) {
-    const response = await axios.patch(
-        `/assessment/session/`,
-        { currentPartId },
-        {
-            params: {
-                sessionId,
-            },
-        },
-    );
+    const response = await axios.patch(`/assessment/session/${sessionId}`, { currentPartId });
 
     return response.data;
 }
