@@ -87,8 +87,8 @@ export default function StressTestingPage({
             try {
                 // TODO: 중간 저장 API
 
-                const sessionId = router.query.sessionId;
-                typeof sessionId === 'string' && router.push(`/sessions/${sessionId}/unassessable`);
+                const sessionId = Number(router.query.sessionId);
+                router.push(`/sessions/${sessionId}/unassessable`);
             } catch (err) {
                 console.error(err);
             }

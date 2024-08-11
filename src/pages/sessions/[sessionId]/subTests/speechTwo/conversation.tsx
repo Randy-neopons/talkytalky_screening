@@ -23,8 +23,8 @@ export default function ConversationPage() {
             try {
                 // TODO: 중간 저장 API
 
-                const sessionId = router.query.sessionId;
-                typeof sessionId === 'string' && router.push(`/sessions/${sessionId}/subTests/speechTwo/description`);
+                const sessionId = Number(router.query.sessionId);
+                router.push(`/sessions/${sessionId}/subTests/speechTwo/description`);
             } catch (err) {
                 console.error(err);
             }
@@ -34,8 +34,8 @@ export default function ConversationPage() {
 
     const handleClickNext = useCallback(() => {
         try {
-            const sessionId = router.query.sessionId;
-            typeof sessionId === 'string' && router.push(`/sessions/${sessionId}/subTests/speechTwo/questions`);
+            const sessionId = Number(router.query.sessionId);
+            router.push(`/sessions/${sessionId}/subTests/speechTwo/questions`);
         } catch (err) {
             console.error(err);
         }

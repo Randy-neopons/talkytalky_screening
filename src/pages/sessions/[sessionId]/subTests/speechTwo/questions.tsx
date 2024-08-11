@@ -4,10 +4,11 @@ import ReactTextareaAutosize from 'react-textarea-autosize';
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
+import { useCurrentSubTest, useSubtests, useTestInfoActions } from '@/stores/testInfoStore';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import { MikeIcon, PlayIcon, StopIcon } from '@/components/icons';
-import { getQuestionListAPI } from '@/api/questions';
+import { getQuestionListAPI, updateSessionAPI } from '@/api/questions';
 
 import subtestStyles from '../SubTests.module.css';
 
@@ -30,6 +31,11 @@ export default function SpeechTwoPage({
     questionList: { questionId: number; questionText: string; answerType: string; partId: number; subtestId: number }[];
 }) {
     const router = useRouter();
+
+    // 현재 소검사, 선택한 소검사 정보
+    const currentSubtest = useCurrentSubTest();
+    const subtests = useSubtests();
+    const { setCurrentSubtest } = useTestInfoActions();
 
     // 문항 전부 정상으로 체크
     const [checkAll, setCheckAll] = useState(false);
@@ -85,19 +91,21 @@ export default function SpeechTwoPage({
 
     // 폼 제출
     const handleOnSubmit = useCallback(
-        (data: any) => {
+        async (data: any) => {
             console.log(data);
 
             try {
-                // TODO: 중간 저장 API
+                const sessionId = Number(router.query.sessionId);
+                await updateSessionAPI({ sessionId, currentPartId });
 
-                const sessionId = router.query.sessionId;
-                typeof sessionId === 'string' && router.push(`/sessions/${sessionId}/subTests/speechMotor`);
+                const currentSubtestIndex = subtests.findIndex(v => v.subtestId === currentSubtest);
+                const nextSubtest = subtests[currentSubtestIndex + 1];
+                router.push(`/sessions/${sessionId}/subTests/${nextSubtest.pathname}`);
             } catch (err) {
                 console.error(err);
             }
         },
-        [router],
+        [currentPartId, currentSubtest, router, subtests],
     );
 
     return (

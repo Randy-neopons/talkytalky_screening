@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/router';
 
-import { useTestInfo, useTestInfoActions, useTests } from '@/stores/testInfoStore';
+import { subtestList, useTestInfo, useTestInfoActions, useSubtests } from '@/stores/testInfoStore';
 import { CheckBoxGroupItem } from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import { createSessionAPI } from '@/api/questions';
@@ -18,35 +18,32 @@ const SubtestBox = ({ children }: { children: ReactNode }) => {
     );
 };
 
-const testList = [
-    { subtestId: '1', subtestTitle: 'SPEECH MECHANISM : 말기제 평가', pathname: 'speechMechanism' },
-    { subtestId: '2', subtestTitle: 'SPEECH I : 영역별 말평가', pathname: 'speech1' },
-    { subtestId: '3', subtestTitle: 'SPEECH II : 종합적 말평가', pathname: 'speech2' },
-    { subtestId: '4', subtestTitle: 'SPEECH MOTOR : 말운동 평가', pathname: 'speechMotor' },
-    { subtestId: '5', subtestTitle: '피로도 검사 포함', pathname: 'stressTest' },
-];
-
 export default function SelectTestPage() {
     const router = useRouter(); // next router
 
+    // 현재 소검사, 선택한 소검사 정보
     const testInfo = useTestInfo();
-    const tests = useTests();
-    const { setTests } = useTestInfoActions();
+    const { setSubtests } = useTestInfoActions();
+    const [subtestIds, setSubtestIds] = useState<string[]>([]);
+
     const [error, setError] = useState(false);
 
     const handleClickNext = useCallback(async () => {
         try {
-            const subtestIds = tests.toSorted();
             console.log(subtestIds);
             if (subtestIds.length === 0) {
                 setError(true);
             } else {
                 setError(false);
 
+                const sortedSubtestIds = subtestIds.toSorted();
+                const subtests = subtestList.filter(v => sortedSubtestIds.includes(v.subtestId));
+                setSubtests(subtests);
+
                 // 세션 추가
                 const responseData = await createSessionAPI({ testInfo, subtestIds });
                 const sessionId = responseData.sessionId;
-                const pathname = testList.find(v => v.subtestId === subtestIds[0])?.pathname;
+                const pathname = subtests[0].pathname;
 
                 pathname && router.push(`/sessions/${sessionId}/subTests/${pathname}`);
             }
@@ -55,7 +52,7 @@ export default function SelectTestPage() {
         }
 
         // router.push('/'); // 검사 ID로 이동
-    }, [router, testInfo, tests]);
+    }, [router, setSubtests, subtestIds, testInfo]);
 
     return (
         <Container>
@@ -66,25 +63,25 @@ export default function SelectTestPage() {
             </span>
             <div className='mt-7 flex w-full max-w-[1000px] flex-col gap-[30px] xl:mt-20'>
                 <SubtestBox>
-                    <CheckBoxGroupItem name='tests' value={testList[0].subtestId} values={tests} setValues={setTests}>
-                        <span className='ml-3 font-bold text-head-2'>{testList[0].subtestTitle}</span>
+                    <CheckBoxGroupItem name='tests' value={subtestList[0].subtestId} values={subtestIds} setValues={setSubtestIds}>
+                        <span className='ml-3 font-bold text-head-2'>{subtestList[0].subtestTitle}</span>
                     </CheckBoxGroupItem>
                 </SubtestBox>
                 <SubtestBox>
-                    <CheckBoxGroupItem name='tests' value={testList[1].subtestId} values={tests} setValues={setTests}>
-                        <span className='ml-3 font-bold text-head-2'>{testList[1].subtestTitle}</span>
+                    <CheckBoxGroupItem name='tests' value={subtestList[1].subtestId} values={subtestIds} setValues={setSubtestIds}>
+                        <span className='ml-3 font-bold text-head-2'>{subtestList[1].subtestTitle}</span>
                     </CheckBoxGroupItem>
 
-                    <CheckBoxGroupItem name='tests' value={testList[2].subtestId} values={tests} setValues={setTests}>
-                        <span className='ml-3 font-bold text-head-2'>{testList[2].subtestTitle}</span>
+                    <CheckBoxGroupItem name='tests' value={subtestList[2].subtestId} values={subtestIds} setValues={setSubtestIds}>
+                        <span className='ml-3 font-bold text-head-2'>{subtestList[2].subtestTitle}</span>
                     </CheckBoxGroupItem>
                 </SubtestBox>
                 <SubtestBox>
-                    <CheckBoxGroupItem name='tests' value={testList[3].subtestId} values={tests} setValues={setTests}>
-                        <span className='ml-3 font-bold text-head-2'>{testList[3].subtestTitle}</span>
+                    <CheckBoxGroupItem name='tests' value={subtestList[3].subtestId} values={subtestIds} setValues={setSubtestIds}>
+                        <span className='ml-3 font-bold text-head-2'>{subtestList[3].subtestTitle}</span>
                     </CheckBoxGroupItem>
-                    <CheckBoxGroupItem name='tests' value={testList[4].subtestId} values={tests} setValues={setTests}>
-                        <span className='ml-3 font-bold text-head-2'>{testList[4].subtestTitle}</span>
+                    <CheckBoxGroupItem name='tests' value={subtestList[4].subtestId} values={subtestIds} setValues={setSubtestIds}>
+                        <span className='ml-3 font-bold text-head-2'>{subtestList[4].subtestTitle}</span>
                     </CheckBoxGroupItem>
                 </SubtestBox>
                 {error && <ErrorText>소검사를 하나 이상 체크해주세요</ErrorText>}

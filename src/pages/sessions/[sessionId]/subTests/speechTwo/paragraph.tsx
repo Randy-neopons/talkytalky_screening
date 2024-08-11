@@ -20,8 +20,8 @@ export default function ParagraphReadingPage() {
             try {
                 // TODO: 중간 저장 API
 
-                const sessionId = router.query.sessionId;
-                typeof sessionId === 'string' && router.push(`/sessions/${sessionId}/subTests/speechTwo/description`);
+                const sessionId = Number(router.query.sessionId);
+                router.push(`/sessions/${sessionId}/subTests/speechTwo/description`);
             } catch (err) {
                 console.error(err);
             }

@@ -4,14 +4,15 @@ import ReactTextareaAutosize from 'react-textarea-autosize';
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
+import { useCurrentSubTest, useSubtests, useTestInfoActions } from '@/stores/testInfoStore';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
-import { getQuestionListAPI } from '@/api/questions';
+import { getQuestionListAPI, updateSessionAPI } from '@/api/questions';
 
 import subtestStyles from '../SubTests.module.css';
 
 // 소검사 ID
-const CURRENT_SUBTEST_ID = 3;
+const CURRENT_SUBTEST_ID = 4;
 
 // 소검사 내 파트별 문항 index 정보
 // TODO: part title도 DB에서 가져오기
@@ -50,6 +51,11 @@ export default function SpeechMotorPage({
     questionList: { questionId: number; questionText: string; answerType: string; partId: number; subtestId: number }[];
 }) {
     const router = useRouter();
+
+    // 현재 소검사, 선택한 소검사 정보
+    const currentSubtest = useCurrentSubTest();
+    const subtests = useSubtests();
+    const { setCurrentSubtest } = useTestInfoActions();
 
     // 문항 전부 정상으로 체크
     const [checkAll, setCheckAll] = useState(false);
@@ -105,19 +111,21 @@ export default function SpeechMotorPage({
 
     // 폼 제출
     const handleOnSubmit = useCallback(
-        (data: any) => {
+        async (data: any) => {
             console.log(data);
 
             try {
-                // TODO: 중간 저장 API
+                const sessionId = Number(router.query.sessionId);
+                await updateSessionAPI({ sessionId, currentPartId });
 
-                const sessionId = router.query.sessionId;
-                typeof sessionId === 'string' && router.push(`/sessions/${sessionId}/subTests/stressTesting`);
+                const currentSubtestIndex = subtests.findIndex(v => v.subtestId === currentSubtest);
+                const nextSubtest = subtests[currentSubtestIndex + 1];
+                router.push(`/sessions/${sessionId}/subTests/${nextSubtest.pathname}`);
             } catch (err) {
                 console.error(err);
             }
         },
-        [router],
+        [currentPartId, currentSubtest, router, subtests],
     );
 
     return (
@@ -126,92 +134,88 @@ export default function SpeechMotorPage({
             <form onSubmit={handleSubmit(handleOnSubmit)} className='flex w-full flex-col flex-nowrap items-center px-5 xl:px-0'>
                 <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitle}</h1>
 
-                <table className={`${subtestStyles['table']}`}>
-                    <thead className={`${subtestStyles['table-head']}`}>
-                        <tr className='bg-accent1 text-white text-body-2'>
-                            <th className='rounded-tl-base'>AMR 측정 (5초)</th>
-                            <th></th>
-                            <th>녹음</th>
-                            <th>재생</th>
-                            <th className='rounded-tr-base'>반복횟수</th>
-                        </tr>
-                    </thead>
-                    <tbody className={`${subtestStyles['table-body']}`}>
-                        <tr>
-                            <td rowSpan={3}>
-                                숨을 크게 들어 마신 뒤, &apos;파&apos; 를 가능한 빨리 규칙적으로 반복해서 말해보세요. (&apos;타&apos; 와
-                                &apos;카&apos; 도 동일하게 시행)
-                            </td>
-                            <td>파</td>
-                            <td>
-                                <svg xmlns='http://www.w3.org/2000/svg' width='121' height='50' viewBox='0 0 121 50' fill='none'>
-                                    <rect x='0.5' y='0.5' width='120' height='49' fill='white' />
-                                    {/* <rect x='0.5' y='0.5' width='120' height='49' stroke='#CED4DA' /> */}
-                                    <circle cx='60.5' cy='24.5' r='8.5' fill='#FF647C' />
-                                </svg>
-                            </td>
-                            <td>
-                                <svg xmlns='http://www.w3.org/2000/svg' width='121' height='50' viewBox='0 0 121 50' fill='none'>
-                                    <rect x='0.5' y='0.5' width='120' height='49' fill='white' />
-                                    {/* <rect x='0.5' y='0.5' width='120' height='49' stroke='#CED4DA' /> */}
-                                    <path
-                                        d='M70 23.2679C71.3333 24.0377 71.3333 25.9623 70 26.7321L58 33.6603C56.6667 34.4301 55 33.4678 55 31.9282L55 18.0718C55 16.5322 56.6667 15.5699 58 16.3397L70 23.2679Z'
-                                        fill='#6979F8'
-                                    />
-                                </svg>
-                            </td>
-                            <td>
-                                <input />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>타</td>
-                            <td>
-                                <svg xmlns='http://www.w3.org/2000/svg' width='121' height='50' viewBox='0 0 121 50' fill='none'>
-                                    <rect x='0.5' y='0.5' width='120' height='49' fill='white' />
-                                    {/* <rect x='0.5' y='0.5' width='120' height='49' stroke='#CED4DA' /> */}
-                                    <circle cx='60.5' cy='24.5' r='8.5' fill='#FF647C' />
-                                </svg>
-                            </td>
-                            <td>
-                                <svg xmlns='http://www.w3.org/2000/svg' width='121' height='50' viewBox='0 0 121 50' fill='none'>
-                                    <rect x='0.5' y='0.5' width='120' height='49' fill='white' />
-                                    {/* <rect x='0.5' y='0.5' width='120' height='49' stroke='#CED4DA' /> */}
-                                    <path
-                                        d='M70 23.2679C71.3333 24.0377 71.3333 25.9623 70 26.7321L58 33.6603C56.6667 34.4301 55 33.4678 55 31.9282L55 18.0718C55 16.5322 56.6667 15.5699 58 16.3397L70 23.2679Z'
-                                        fill='#6979F8'
-                                    />
-                                </svg>
-                            </td>
-                            <td>
-                                <input />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>카</td>
-                            <td>
-                                <svg xmlns='http://www.w3.org/2000/svg' width='121' height='50' viewBox='0 0 121 50' fill='none'>
-                                    <rect x='0.5' y='0.5' width='120' height='49' fill='white' />
-                                    {/* <rect x='0.5' y='0.5' width='120' height='49' stroke='#CED4DA' /> */}
-                                    <circle cx='60.5' cy='24.5' r='8.5' fill='#FF647C' />
-                                </svg>
-                            </td>
-                            <td>
-                                <svg xmlns='http://www.w3.org/2000/svg' width='121' height='50' viewBox='0 0 121 50' fill='none'>
-                                    <rect x='0.5' y='0.5' width='120' height='49' fill='white' />
-                                    {/* <rect x='0.5' y='0.5' width='120' height='49' stroke='#CED4DA' /> */}
-                                    <path
-                                        d='M70 23.2679C71.3333 24.0377 71.3333 25.9623 70 26.7321L58 33.6603C56.6667 34.4301 55 33.4678 55 31.9282L55 18.0718C55 16.5322 56.6667 15.5699 58 16.3397L70 23.2679Z'
-                                        fill='#6979F8'
-                                    />
-                                </svg>
-                            </td>
-                            <td>
-                                <input />
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                {currentPartId === 1 ? (
+                    <table className={`${subtestStyles['table']}`}>
+                        <thead className={`${subtestStyles['table-head']}`}>
+                            <tr className='bg-accent1 text-white text-body-2'>
+                                <th className='rounded-tl-base'>SMR 측정 (5초)</th>
+                                <th></th>
+                                <th>녹음</th>
+                                <th>재생</th>
+                                <th className='rounded-tr-base'>반복횟수</th>
+                            </tr>
+                        </thead>
+                        <tbody className={`${subtestStyles['table-body']}`}>
+                            <tr>
+                                <td rowSpan={3}>
+                                    숨을 크게 들어 마신 뒤, &apos;파&apos; 를 가능한 빨리 규칙적으로 반복해서 말해보세요. (&apos;타&apos; 와
+                                    &apos;카&apos; 도 동일하게 시행)
+                                </td>
+                                <td>파</td>
+                                <td>
+                                    <RecordIcon />
+                                </td>
+                                <td>
+                                    <PlayIcon />
+                                </td>
+                                <td>
+                                    <input />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>타</td>
+                                <td>
+                                    <RecordIcon />
+                                </td>
+                                <td>
+                                    <PlayIcon />
+                                </td>
+                                <td>
+                                    <input />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>카</td>
+                                <td>
+                                    <RecordIcon />
+                                </td>
+                                <td>
+                                    <PlayIcon />
+                                </td>
+                                <td>
+                                    <input />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                ) : (
+                    <table className={`${subtestStyles['table']}`}>
+                        <thead className={`${subtestStyles['table-head']}`}>
+                            <tr className='bg-accent1 text-white text-body-2'>
+                                <th className='rounded-tl-base'>AMR 측정 (5초)</th>
+                                <th></th>
+                                <th>녹음</th>
+                                <th>재생</th>
+                                <th className='rounded-tr-base'>반복횟수</th>
+                            </tr>
+                        </thead>
+                        <tbody className={`${subtestStyles['table-body']}`}>
+                            <tr>
+                                <td>&apos;퍼-터-커&apos;를 가능한 한 빨리, 규칙적으로 반복해서 말해보세요.</td>
+                                <td>퍼터커</td>
+                                <td>
+                                    <RecordIcon />
+                                </td>
+                                <td>
+                                    <PlayIcon />
+                                </td>
+                                <td>
+                                    <input />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                )}
 
                 <table className={`${subtestStyles['table']}`}>
                     <thead className={`${subtestStyles['table-head']}`}>

@@ -24,8 +24,8 @@ export default function PictureDescriptionPage() {
             try {
                 // TODO: 중간 저장 API
 
-                const sessionId = router.query.sessionId;
-                typeof sessionId === 'string' && router.push(`/sessions/${sessionId}/subTests/speechTwo/paragraph`);
+                const sessionId = Number(router.query.sessionId);
+                router.push(`/sessions/${sessionId}/subTests/speechTwo/paragraph`);
             } catch (err) {
                 console.error(err);
             }
@@ -41,8 +41,8 @@ export default function PictureDescriptionPage() {
             try {
                 // TODO: 중간 저장 API
 
-                const sessionId = router.query.sessionId;
-                typeof sessionId === 'string' && router.push(`/sessions/${sessionId}/subTests/speechTwo/conversation`);
+                const sessionId = Number(router.query.sessionId);
+                router.push(`/sessions/${sessionId}/subTests/speechTwo/conversation`);
             } catch (err) {
                 console.error(err);
             }

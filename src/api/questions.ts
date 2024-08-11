@@ -24,3 +24,18 @@ export async function createSessionAPI({ testInfo, subtestIds }: { testInfo: Tes
 
     return response.data;
 }
+
+// 세션 업데이트
+export async function updateSessionAPI({ sessionId, currentPartId }: { sessionId: number; currentPartId: number }) {
+    const response = await axios.patch(
+        `/assessment/session/`,
+        { currentPartId },
+        {
+            params: {
+                sessionId,
+            },
+        },
+    );
+
+    return response.data;
+}
