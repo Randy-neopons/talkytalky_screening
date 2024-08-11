@@ -12,7 +12,7 @@ const useTestInfoStore = create<{
     };
 }>(set => ({
     testInfo: {
-        therapistUserId: 0,
+        therapistUserId: 178,
         testDate: dayjs().format('YYYY-MM-DD'),
         patientName: '',
         patientGender: 'female',

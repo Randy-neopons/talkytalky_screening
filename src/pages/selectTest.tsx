@@ -27,12 +27,12 @@ const testList = [
 ];
 
 export default function SelectTestPage() {
+    const router = useRouter(); // next router
+
     const testInfo = useTestInfo();
     const tests = useTests();
     const { setTests } = useTestInfoActions();
     const [error, setError] = useState(false);
-
-    const router = useRouter();
 
     const handleClickNext = useCallback(async () => {
         try {
@@ -46,7 +46,7 @@ export default function SelectTestPage() {
                 // 세션 추가
                 const responseData = await createSessionAPI({ testInfo, subtestIds });
                 const sessionId = responseData.sessionId;
-                const pathname = testList.find(v => v.subtestId === subtestIds[0]);
+                const pathname = testList.find(v => v.subtestId === subtestIds[0])?.pathname;
 
                 pathname && router.push(`/sessions/${sessionId}/subTests/${pathname}`);
             }
