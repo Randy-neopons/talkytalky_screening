@@ -31,3 +31,9 @@ export async function updateSessionAPI({ sessionId, currentPartId }: { sessionId
 
     return response.data;
 }
+
+export async function getTestResultAPI({ sessionId }: { sessionId: number }) {
+    const response = await axios.get(`/assessment/session/${sessionId}/result`);
+
+    return response.data;
+}
