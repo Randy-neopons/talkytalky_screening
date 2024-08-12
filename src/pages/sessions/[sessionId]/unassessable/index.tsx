@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState, type ChangeEventHandler } fr
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import ReactTextareaAutosize from 'react-textarea-autosize';
 import type { GetServerSideProps } from 'next';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 import { subtestList } from '@/stores/testInfoStore';
@@ -75,7 +76,20 @@ export default function UnassessableQuestionsPage({
                         <div key={subtest.subtestId} className='mt-20 w-full rounded-base bg-white px-10 pb-5 pt-[27px] text-head-2'>
                             <h2 className='font-bold text-accent1 text-head-2'>{subtest.subtestTitle}</h2>
                             {filtered.map(question => (
-                                <div key={question.answerId}>{question.questionText}</div>
+                                <div
+                                    key={question.answerId}
+                                    className='flex gap-[10px] border-b border-neutral7 py-[13px] text-body-2 last:border-none'
+                                >
+                                    <div className='w-[120px] flex-none whitespace-pre-line text-right font-bold'>{question.partTitle}</div>
+                                    <div className='flex w-[50px] flex-none items-center'>{question.questionId}번</div>
+                                    <div className='flex flex-auto items-center justify-between'>
+                                        {question.questionText}
+
+                                        <button onClick={() => {}} className='underline'>
+                                            이동하기
+                                        </button>
+                                    </div>
+                                </div>
                             ))}
                         </div>
                     );

@@ -25,7 +25,7 @@ export default function PictureDescriptionPage() {
                 // TODO: 중간 저장 API
 
                 const sessionId = Number(router.query.sessionId);
-                router.push(`/sessions/${sessionId}/subTests/speechTwo/paragraph`);
+                router.push(`/sessions/${sessionId}/subTests/speechTwo`);
             } catch (err) {
                 console.error(err);
             }
