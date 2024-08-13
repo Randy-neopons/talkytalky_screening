@@ -1,15 +1,36 @@
 import { useCallback, useState } from 'react';
 import type { GetServerSideProps } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 import dayjs from 'dayjs';
 
 import Container from '@/components/common/Container';
+import { PrintIcon } from '@/components/icons';
 import { getTestResultAPI } from '@/api/questions';
 
 import graphImg from 'public/static/images/graph-img.png';
+
+const genderOptionList = [
+    { value: 'male', label: '남' },
+    { value: 'female', label: '여' },
+];
+
+const defaultTestInfo = {
+    therapistUserId: 178,
+    testDate: '2024-08-02',
+    patientName: '조대형',
+    patientGender: 'male',
+    patientBirthdate: '1990-08-24',
+    brainLesions: [],
+    medicalHistory: '',
+    memo: '',
+};
+
+const user = {
+    therapistUserId: 178,
+    testerName: '김검사',
+};
 
 // Stress Testing 문항 페이지
 export default function TestResultPage({
@@ -40,62 +61,105 @@ export default function TestResultPage({
 
     return (
         <Container>
-            <div className='w-full rounded-t-base bg-accent1 px-5 py-[30px] xl:px-10 xl:pb-10'>
-                <h1 className='mb-[22px] text-center font-jalnan text-white text-head-1'>말운동 평가 검사 결과</h1>
-                <div className='flex justify-between'>
-                    <span className='text-white'>
-                        <b>검사일 : </b>
-                        {dayjs(testInfo.testDate).format('YYYY년 M월 D일')}
-                    </span>
-                    <Link href={`/personalInfo`} className='text-white underline'>
-                        수정하기
-                    </Link>
-                </div>
-                <ul className='mt-5 flex w-full overflow-hidden rounded-base'>
-                    <li className='flex-1 text-center'>
-                        <div className='bg-accent2 py-[15px] font-bold text-white'>환자명</div>
-                        <div className='bg-white py-[15px]'>말운동</div>
-                    </li>
-                    <li className='flex-1 text-center'>
-                        <div className='bg-accent2 py-[15px] font-bold text-white'>성별</div>
-                        <div className='bg-white py-[15px]'>말운동</div>
-                    </li>
-                    <li className='flex-1 text-center'>
-                        <div className='bg-accent2 py-[15px] font-bold text-white'>생년월일</div>
-                        <div className='bg-white py-[15px]'>말운동</div>
-                    </li>
-                </ul>
-                <ul className='mt-[30px] flex w-full overflow-hidden rounded-base'>
-                    <li className='flex-1 text-center'>
-                        <div className='bg-accent2 py-[15px] font-bold text-white'>환자명</div>
-                        <div className='bg-white py-[15px]'>말운동</div>
-                    </li>
-                    <li className='flex-1 text-center'>
-                        <div className='bg-accent2 py-[15px] font-bold text-white'>성별</div>
-                        <div className='bg-white py-[15px]'>말운동</div>
-                    </li>
-                    <li className='flex-1 text-center'>
-                        <div className='bg-accent2 py-[15px] font-bold text-white'>생년월일</div>
-                        <div className='bg-white py-[15px]'>말운동</div>
-                    </li>
-                </ul>
-            </div>
-
-            <div className='m-20 w-full'>
-                <h2 className='font-bold text-accent1 text-head-2'>SPEECH MECHANISM : 말기제평가</h2>
-                <div className='mt-[50px]'>
-                    <div>
-                        <span className='font-bold text-black text-head-3'>GRAPH</span>
-                        <Image src={graphImg} alt='graph' width={622} height={270} />
-                    </div>
-                </div>
-            </div>
-
-            <div>
-                <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={() => {}}>
-                    홈
+            <div className='relative w-full'>
+                <Link href={'/personalInfo'} className='absolute bottom-0 left-2 underline'>
+                    개인정보 수정
+                </Link>
+                <h1 className='text-center font-jalnan text-head-1'>말운동평가 검사 결과</h1>
+                <button className='absolute bottom-0 right-2 flex items-center gap-1'>
+                    <PrintIcon color={'#212529'} />
+                    <u>인쇄하기</u>
                 </button>
-                <button type='button' className='ml-5 mt-20 btn btn-large btn-contained' onClick={() => {}}>
+            </div>
+            <table className='mt-[50px] w-full overflow-hidden rounded-base'>
+                <tbody>
+                    <tr>
+                        <td className='bg-accent3 py-[18px] font-bold' align='center' width='25%'>
+                            환자명
+                        </td>
+                        <td className='border-l border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='25%'>
+                            성별
+                        </td>
+                        <td className='border-l border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='25%'>
+                            생년월일
+                        </td>
+                        <td className='border-l border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='25%'>
+                            검사자
+                        </td>
+                    </tr>
+                    <tr>
+                        <td className='bg-white py-[18px]' align='center'>
+                            {defaultTestInfo.patientName}
+                        </td>
+                        <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
+                            {genderOptionList.find(v => v.value === defaultTestInfo.patientGender)?.label}
+                        </td>
+                        <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
+                            {dayjs(defaultTestInfo.patientBirthdate).format('YYYY.MM.DD')}
+                        </td>
+                        <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
+                            {user.testerName}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td className='bg-accent3 py-[18px] font-bold' align='center' width='25%'>
+                            신경학적 진단명
+                        </td>
+                        <td className='border-l border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='25%'>
+                            병력
+                        </td>
+                        <td className='border-l border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='25%'>
+                            개인관련정보
+                        </td>
+                        <td className='border-l border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='25%'>
+                            검사일자
+                        </td>
+                    </tr>
+                    <tr>
+                        <td className='bg-white py-[18px]' align='center'>
+                            {defaultTestInfo.brainLesions.join(',')}
+                        </td>
+                        <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
+                            {defaultTestInfo.medicalHistory}
+                        </td>{' '}
+                        <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
+                            {defaultTestInfo.memo}
+                        </td>
+                        <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
+                            {dayjs(defaultTestInfo.testDate).format('YYYY.MM.DD')}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div className='mt-20 w-full'>
+                <h2 className='font-bold text-black text-head-2'>TOTAL SCORE</h2>
+                <div className='mt-[30px] flex gap-[30px]'>
+                    <div className='h-[346px] w-[390px] rounded-base bg-white shadow-base'></div>
+                    <div className='h-[346px] w-[580px] rounded-base bg-white shadow-base'></div>
+                </div>
+            </div>
+
+            <div className='mt-20 w-full'>
+                <h2 className='font-bold text-black text-head-2'>SPEECH MECHANISM : 말기제 평가</h2>
+                <div className='mt-[30px] h-[340px] w-full rounded-base bg-white shadow-base'></div>
+            </div>
+
+            <div className='mt-20 w-full'>
+                <h2 className='font-bold text-black text-head-2'>SPEECH I : 영역별 말평가 / SPEECH II : 종합적 말평가</h2>
+                <div className='mt-[30px] h-[340px] w-full rounded-base bg-white shadow-base'></div>
+            </div>
+
+            <div className='mt-20 w-full'>
+                <h2 className='font-bold text-black text-head-2'>SPEECH MOTOR : 말기제 평가</h2>
+                <div className='mt-[30px] h-[340px] w-full rounded-base bg-white shadow-base'></div>
+            </div>
+
+            <div className='mt-20'>
+                <Link href='/' className='inline-flex items-center justify-center btn btn-large btn-outlined'>
+                    홈
+                </Link>
+                <button type='button' className='ml-5 btn btn-large btn-contained' onClick={() => {}}>
                     다음
                 </button>
             </div>
