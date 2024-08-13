@@ -9,6 +9,6 @@ export const useQuestionsQuery = (subtestId: number) => {
         questions: { questionId: number; questionText: string; answerType: string; partId: number; subtestId: number }[];
     }>({
         queryKey: [questionsQueryKey, subtestId],
-        queryFn: () => getQuestionListAPI(subtestId),
+        queryFn: () => getQuestionListAPI({ subtestId }),
     });
 };

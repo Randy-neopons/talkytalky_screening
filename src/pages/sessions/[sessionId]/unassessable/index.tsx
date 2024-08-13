@@ -1,63 +1,41 @@
-import { useCallback, useEffect, useMemo, useState, type ChangeEventHandler } from 'react';
-import { Controller, useFieldArray, useForm } from 'react-hook-form';
-import ReactTextareaAutosize from 'react-textarea-autosize';
+import { useCallback } from 'react';
 import type { GetServerSideProps } from 'next';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-import { subtestList } from '@/stores/testInfoStore';
-import CheckBox from '@/components/common/CheckBox';
+import { partList, subtestList } from '@/stores/testInfoStore';
 import Container from '@/components/common/Container';
-import { getQuestionListAPI, getUnassessableQuestionListAPI } from '@/api/questions';
+import { getUnassessableQuestionListAPI } from '@/api/questions';
 
-// const subtestList = [
-//     { subtestId: 1, subtestTitle: 'SPEECH MECHANISM : 말기제 평가' },
-//     { subtestId: 2, subtestTitle: 'SPEECH I : 영역별 말평가' },
-//     { subtestId: 3, subtestTitle: 'SPEECH II : 종합적 말평가' },
-//     { subtestId: 4, subtestTitle: 'SPEECH MOTOR : 말운동 평가' },
-//     { subtestId: 5, subtestTitle: 'Stress Testing' },
-// ];
+import type { Answer } from '@/types/types';
 
 // Stress Testing 문항 페이지
-export default function UnassessableQuestionsPage({
-    questionList,
-}: {
-    questionList: {
-        answerId: number;
-        questionId: number;
-        questionText: string;
-        subtestId: number;
-        subtestTitle: string;
-        partId: number;
-        partTitle: string;
-    }[];
-}) {
-    // console.log('questionList', questionList);
-    const router = useRouter();
-
-    // 문항 전부 정상으로 체크
-    const [checkAll1, setCheckAll1] = useState(false);
-
-    // 소검사 내 현재 파트 정보
-    const [currentPartId, setCurrentPartId] = useState(1);
-
-    // 이전 파트로
-    const handleClickPrev = useCallback(() => {
-        setCheckAll1(false);
-        currentPartId > 1 && setCurrentPartId(partId => partId - 1);
-        typeof window !== 'undefined' && window.scrollTo(0, 0);
-    }, [currentPartId]);
+export default function UnassessableQuestionsPage({ questionList }: { questionList: Answer[] }) {
+    const router = useRouter(); // next router
 
     // 폼 제출
     const handleClickNext = useCallback(
         (data: any) => {
-            console.log(data);
-
             try {
                 // TODO: 중간 저장 API
 
                 const sessionId = Number(router.query.sessionId);
                 router.push(`/sessions/${sessionId}/result`);
+            } catch (err) {
+                console.error(err);
+            }
+        },
+        [router],
+    );
+
+    // 이동하기
+    const handleClickMove = useCallback(
+        (partId: number) => () => {
+            try {
+                const sessionId = Number(router.query.sessionId);
+
+                const subtestId = partList.find(v => v.partId === partId)?.subtestId;
+                const pathname = subtestList.find(v => v.subtestId === subtestId)?.pathname;
+                pathname && router.push(`/sessions/${sessionId}/subtests/${pathname}`);
             } catch (err) {
                 console.error(err);
             }
@@ -85,7 +63,7 @@ export default function UnassessableQuestionsPage({
                                     <div className='flex flex-auto items-center justify-between'>
                                         {question.questionText}
 
-                                        <button onClick={() => {}} className='underline'>
+                                        <button onClick={handleClickMove(question.partId)} className='underline'>
                                             이동하기
                                         </button>
                                     </div>
@@ -96,7 +74,7 @@ export default function UnassessableQuestionsPage({
                 }
             })}
             <div>
-                <button type='button' className='ml-5 mt-20 btn btn-large btn-contained' onClick={() => {}}>
+                <button type='button' className='mt-20 btn btn-large btn-contained' onClick={handleClickNext}>
                     건너뛰기
                 </button>
             </div>
@@ -124,7 +102,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         };
 
         // 소검사 문항 정보 fetch
-        const responseData = await getUnassessableQuestionListAPI(sessionId);
+        const responseData = await getUnassessableQuestionListAPI({ sessionId });
         const questionList = responseData.questions;
 
         return {

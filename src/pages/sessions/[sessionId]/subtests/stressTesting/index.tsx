@@ -4,7 +4,6 @@ import ReactTextareaAutosize from 'react-textarea-autosize';
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
-import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import { getQuestionListAPI } from '@/api/questions';
 
@@ -183,7 +182,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         };
 
         // 소검사 문항 정보 fetch
-        const responseData = await getQuestionListAPI(CURRENT_SUBTEST_ID);
+        const responseData = await getQuestionListAPI({ subtestId: CURRENT_SUBTEST_ID });
         const questionList = responseData.questions;
 
         return {

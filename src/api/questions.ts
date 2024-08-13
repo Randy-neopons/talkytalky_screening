@@ -1,17 +1,33 @@
 import axios from 'axios';
 
-import type { TestInfoFormValues } from '@/types/types';
+import type { Answer, TestInfoFormValues } from '@/types/types';
 axios.defaults.baseURL = 'http://localhost:5400/api/v1';
 
+const makeHeaders = (accessToken: string) => {
+    const token = accessToken;
+    return { Authorization: `Bearer ${token}` };
+};
+
+// 세션 목록
+export async function getSessionListAPI({ jwt }: { jwt: string }) {
+    const response = await axios.get('/assessment/sessions', {
+        headers: makeHeaders(jwt),
+    });
+    return response.data;
+}
+
 // 문항 목록 조회
-export async function getQuestionListAPI(subtestId: number) {
+export async function getQuestionListAPI({ subtestId }: { subtestId: number }) {
     const response = await axios.get('/assessment/questions', { params: { subtestId } });
     return response.data;
 }
 
 // 평가불가 문항 목록 조회
-export async function getUnassessableQuestionListAPI(sessionId: number) {
-    const response = await axios.get(`/assessment/session/${sessionId}/unassessable`);
+export async function getUnassessableQuestionListAPI({ sessionId }: { sessionId: number }) {
+    const response = await axios.get<{
+        result: boolean;
+        questions: Answer[];
+    }>(`/assessment/session/${sessionId}/unassessable`);
     return response.data;
 }
 

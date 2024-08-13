@@ -8,3 +8,14 @@ export interface TestInfoFormValues {
     medicalHistory?: string;
     patientMemo?: string;
 }
+
+// 정답
+export type Answer = {
+    answerId: number;
+    questionId: number;
+    questionText: string;
+    subtestId: number;
+    subtestTitle: string;
+    partId: number;
+    partTitle: string;
+};

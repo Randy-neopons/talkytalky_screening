@@ -1,6 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type ChangeEventHandler } from 'react';
-import { Controller, useFieldArray, useForm } from 'react-hook-form';
-import ReactTextareaAutosize from 'react-textarea-autosize';
+import { useCallback, useState } from 'react';
 import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -8,20 +6,10 @@ import { useRouter } from 'next/router';
 
 import dayjs from 'dayjs';
 
-import { subtestList } from '@/stores/testInfoStore';
-import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
-import { getQuestionListAPI, getTestResultAPI, getUnassessableQuestionListAPI } from '@/api/questions';
+import { getTestResultAPI } from '@/api/questions';
 
 import graphImg from 'public/static/images/graph-img.png';
-
-// const subtestList = [
-//     { subtestId: 1, subtestTitle: 'SPEECH MECHANISM : 말기제 평가' },
-//     { subtestId: 2, subtestTitle: 'SPEECH I : 영역별 말평가' },
-//     { subtestId: 3, subtestTitle: 'SPEECH II : 종합적 말평가' },
-//     { subtestId: 4, subtestTitle: 'SPEECH MOTOR : 말운동 평가' },
-//     { subtestId: 5, subtestTitle: 'Stress Testing' },
-// ];
 
 // Stress Testing 문항 페이지
 export default function TestResultPage({
@@ -31,21 +19,7 @@ export default function TestResultPage({
         testDate: string;
     };
 }) {
-    // console.log('questionList', questionList);
-    const router = useRouter();
-
-    // 문항 전부 정상으로 체크
-    const [checkAll1, setCheckAll1] = useState(false);
-
-    // 소검사 내 현재 파트 정보
-    const [currentPartId, setCurrentPartId] = useState(1);
-
-    // 이전 파트로
-    const handleClickPrev = useCallback(() => {
-        setCheckAll1(false);
-        currentPartId > 1 && setCurrentPartId(partId => partId - 1);
-        typeof window !== 'undefined' && window.scrollTo(0, 0);
-    }, [currentPartId]);
+    const router = useRouter(); // next router
 
     // 폼 제출
     const handleClickNext = useCallback(

@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 import Container from '@/components/common/Container';
 
@@ -7,6 +8,8 @@ import testResultIcon from 'public/static/images/test-result-icon.png';
 import testStartIcon from 'public/static/images/test-start-icon.png';
 
 export default function Home() {
+    const router = useRouter();
+
     return (
         <Container>
             <h1 className='font-jalnan text-head-1'>말운동 평가</h1>
@@ -42,7 +45,12 @@ export default function Home() {
                         <br />
                         또한 문제를 보인 항목들에 대한 초기점검이 가능합니다.
                     </span>
-                    <button className='mt-auto text-head-1 btn btn-small btn-contained xl:mr-auto'>결과보기</button>
+                    <Link
+                        href={`/sessions`}
+                        className='mt-auto flex items-center justify-center text-head-1 btn btn-small btn-contained xl:mr-auto'
+                    >
+                        결과보기
+                    </Link>
                 </li>
             </ul>
         </Container>

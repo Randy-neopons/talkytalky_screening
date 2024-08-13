@@ -255,7 +255,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         };
 
         // 소검사 문항 정보 fetch
-        const responseData = await getQuestionListAPI(CURRENT_SUBTEST_ID);
+        const responseData = await getQuestionListAPI({ subtestId: CURRENT_SUBTEST_ID });
         const questionList = responseData.questions;
 
         return {
