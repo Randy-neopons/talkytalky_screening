@@ -31,14 +31,16 @@ export const subtestList = [
 ];
 
 // 검사 store
-const useTestInfoStore = create<{
+const useTestStore = create<{
     testInfo: TestInfoFormValues;
     subtests: typeof subtestList;
     currentSubtest: string;
+    testTime: number;
     actions: {
         setTestInfo: (newInfo: TestInfoFormValues) => void;
         setCurrentSubtest: (subtest: string) => void;
         setSubtests: (newTests: typeof subtestList) => void;
+        setTestTime: (time: number) => void;
     };
 }>(set => ({
     testInfo: {
@@ -53,13 +55,16 @@ const useTestInfoStore = create<{
     },
     currentSubtest: '1',
     subtests: [],
+    testTime: 0,
     actions: {
         setTestInfo: newInfo => set({ testInfo: newInfo }),
         setCurrentSubtest: subtest => set({ currentSubtest: subtest }),
         setSubtests: newTests => set({ subtests: newTests }),
+        setTestTime: time => ({ testTime: time }),
     },
 }));
-export const useTestInfo = () => useTestInfoStore(state => state.testInfo);
-export const useSubtests = () => useTestInfoStore(state => state.subtests);
-export const useCurrentSubTest = () => useTestInfoStore(state => state.currentSubtest);
-export const useTestInfoActions = () => useTestInfoStore(state => state.actions);
+export const useTestInfo = () => useTestStore(state => state.testInfo);
+export const useSubtests = () => useTestStore(state => state.subtests);
+export const useCurrentSubTest = () => useTestStore(state => state.currentSubtest);
+export const useTestTime = () => useTestStore(state => state.testTime);
+export const useTestActions = () => useTestStore(state => state.actions);

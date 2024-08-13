@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/router';
 
-import { subtestList, useTestInfo, useTestInfoActions, useSubtests } from '@/stores/testInfoStore';
+import { subtestList, useTestInfo, useTestActions, useSubtests } from '@/stores/testStore';
 import { CheckBoxGroupItem } from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import { createSessionAPI } from '@/api/questions';
@@ -23,7 +23,7 @@ export default function SelectTestPage() {
 
     // 현재 소검사, 선택한 소검사 정보
     const testInfo = useTestInfo();
-    const { setSubtests } = useTestInfoActions();
+    const { setSubtests } = useTestActions();
     const [subtestIds, setSubtestIds] = useState<string[]>([]);
 
     const [error, setError] = useState(false);

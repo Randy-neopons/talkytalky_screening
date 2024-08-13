@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 import { ErrorMessage } from '@hookform/error-message';
 import dayjs from 'dayjs';
 
-import { useTestInfo, useTestInfoActions } from '@/stores/testInfoStore';
+import { useTestInfo, useTestActions } from '@/stores/testStore';
 import { CheckBoxGroupItem } from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import Select from '@/components/common/Select';
@@ -74,7 +74,7 @@ const ErrorText = ({ children }: { children: ReactNode }) => {
 export default function PersonalInfoPage() {
     const router = useRouter(); // next router
     const testInfo = useTestInfo();
-    const { setTestInfo } = useTestInfoActions(); // 검사 정보 global state
+    const { setTestInfo } = useTestActions(); // 검사 정보 global state
 
     // 검사 정보 입력 form
     const {

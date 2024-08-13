@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
-import { partList, subtestList } from '@/stores/testInfoStore';
+import { partList, subtestList } from '@/stores/testStore';
 import Container from '@/components/common/Container';
 import { getUnassessableQuestionListAPI } from '@/api/questions';
 

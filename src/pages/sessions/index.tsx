@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 
 import dayjs from 'dayjs';
 
-import { partList, subtestList } from '@/stores/testInfoStore';
+import { partList, subtestList } from '@/stores/testStore';
 import Container from '@/components/common/Container';
 import { getSessionListAPI } from '@/api/questions';
 

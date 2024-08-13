@@ -4,7 +4,7 @@ import ReactTextareaAutosize from 'react-textarea-autosize';
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
-import { useCurrentSubTest, useSubtests, useTestInfoActions } from '@/stores/testInfoStore';
+import { useCurrentSubTest, useSubtests, useTestActions } from '@/stores/testStore';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import { getQuestionListAPI, updateSessionAPI } from '@/api/questions';
@@ -55,7 +55,7 @@ export default function SpeechMotorPage({
     // 현재 소검사, 선택한 소검사 정보
     const currentSubtest = useCurrentSubTest();
     const subtests = useSubtests();
-    const { setCurrentSubtest } = useTestInfoActions();
+    const { setCurrentSubtest } = useTestActions();
 
     // 문항 전부 정상으로 체크
     const [checkAll, setCheckAll] = useState(false);
