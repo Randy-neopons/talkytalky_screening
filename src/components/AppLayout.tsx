@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 
-import { ClockIcon } from './icons';
+import Timer from './common/Timer';
 
 export default function AppLayout({ children }: { children: ReactNode }) {
     return (
@@ -13,10 +13,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                         <svg xmlns='http://www.w3.org/2000/svg' width='2' height='24' viewBox='0 0 2 24' fill='none'>
                             <path d='M1 1V23' stroke='white' strokeWidth='2' strokeLinecap='round' />
                         </svg>
-                        <div className='flex items-center gap-2 xl:gap-[10px]'>
-                            <ClockIcon />
-                            <span className='text-neutral11 text-head-2'>00:18:52</span>
-                        </div>
+                        <Timer />
                     </div>
                 </div>
             </header>
