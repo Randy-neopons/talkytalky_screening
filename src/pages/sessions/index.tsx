@@ -82,11 +82,12 @@ export default function SessionListPage() {
                         <div className='flex items-center gap-5'>
                             <span className='text-neutral4 text-body-2'>{dayjs(v.regDate).format('YYYY.MM.DD')}</span>
                             <div className='flex items-center gap-[6px]'>
-                                <div className='relative h-[14px] w-[94px] rounded-full bg-[#D9D9D9]'></div>
-                                <div
-                                    className={`absolute h-[14px] rounded-full bg-accent1`}
-                                    style={{ width: `${(94 * v.progress) / 100}px` }}
-                                ></div>
+                                <div className='relative h-[14px] w-[94px] rounded-full bg-[#D9D9D9]'>
+                                    <div
+                                        className={`absolute h-[14px] rounded-full bg-accent1`}
+                                        style={{ width: `${(94 * v.progress) / 100}px` }}
+                                    ></div>
+                                </div>
 
                                 <span className='text-neutral4 text-body-2'>{v.progress}%</span>
                             </div>
