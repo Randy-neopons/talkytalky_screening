@@ -137,7 +137,7 @@ const defaultTestInfo = {
     patientBirthdate: '1990-08-24',
     brainLesions: [],
     medicalHistory: '',
-    memo: '',
+    patientMemo: '',
 };
 
 const user = {
@@ -145,16 +145,22 @@ const user = {
     testerName: '김검사',
 };
 
+const subtestResultList = [
+    { subtestIds: [1], subtestTitle: 'SPEECH MECHANISM : 말기제 평가', pathname: 'speechMechanism', color: '#20C997' },
+    { subtestIds: [2, 3], subtestTitle: 'SPEECH I : 영역별 말평가 / SPEECH II : 종합적 말평가', pathname: 'speech', color: '#FFA26B' },
+    { subtestIds: [4], subtestTitle: 'SPEECH MOTOR : 말운동 평가', pathname: 'speechMotor', color: '#0084F4' },
+];
+
 const SubtestScore = ({
     id,
     subtestTitle,
-    averageScore,
+    totalScore,
     color,
     partList,
 }: {
     id: string;
     subtestTitle: string;
-    averageScore: number;
+    totalScore: number;
     color: string;
     partList: {
         partTitle: string;
@@ -171,7 +177,7 @@ const SubtestScore = ({
                         data={[
                             {
                                 id,
-                                data: [{ x: 'abc', y: averageScore, color }],
+                                data: [{ x: 'abc', y: totalScore, color }],
                             },
                         ]}
                     />
@@ -205,10 +211,26 @@ const SubtestScore = ({
 // Stress Testing 문항 페이지
 export default function TestResultPage({
     testInfo,
+    testScore,
 }: {
     testInfo: {
+        therapistUserId: number;
         testDate: string;
+        patientName: string;
+        patientGender: string;
+        patientBirthdate: string;
+        brainLesions: string[];
+        medicalHistory: string;
+        patientMemo: string;
     };
+    testScore: {
+        score: number;
+        maxScore: number;
+        partId: number;
+        partTitle: string;
+        subtestId: number;
+        subtestTitle: string;
+    }[];
 }) {
     const router = useRouter(); // next router
 
@@ -259,13 +281,13 @@ export default function TestResultPage({
                     </tr>
                     <tr>
                         <td className='bg-white py-[18px]' align='center'>
-                            {defaultTestInfo.patientName}
+                            {testInfo.patientName}
                         </td>
                         <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
-                            {genderOptionList.find(v => v.value === defaultTestInfo.patientGender)?.label}
+                            {genderOptionList.find(v => v.value === testInfo.patientGender)?.label}
                         </td>
                         <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
-                            {dayjs(defaultTestInfo.patientBirthdate).format('YYYY.MM.DD')}
+                            {dayjs(testInfo.patientBirthdate).format('YYYY.MM.DD')}
                         </td>
                         <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
                             {user.testerName}
@@ -287,16 +309,16 @@ export default function TestResultPage({
                     </tr>
                     <tr>
                         <td className='bg-white py-[18px]' align='center'>
-                            {defaultTestInfo.brainLesions.join(',')}
+                            {testInfo.brainLesions.join(',')}
                         </td>
                         <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
-                            {defaultTestInfo.medicalHistory}
+                            {testInfo.medicalHistory}
                         </td>{' '}
                         <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
-                            {defaultTestInfo.memo}
+                            {testInfo.patientMemo}
                         </td>
                         <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
-                            {dayjs(defaultTestInfo.testDate).format('YYYY.MM.DD')}
+                            {dayjs(testInfo.testDate).format('YYYY.MM.DD')}
                         </td>
                     </tr>
                 </tbody>
@@ -321,85 +343,26 @@ export default function TestResultPage({
                 </div>
             </div>
 
-            <SubtestScore
-                id='speechMechanism'
-                subtestTitle='SPEECH MECHANISM : 말기제 평가'
-                averageScore={90}
-                color={'#20C997'}
-                partList={[
-                    {
-                        partTitle: '안면(Facial)',
-                        partScore: 12,
-                        maxScore: 24,
-                    },
-                    {
-                        partTitle: '턱(Jaw)',
-                        partScore: 4,
-                        maxScore: 24,
-                    },
-                    {
-                        partTitle: '혀(Tongue)',
-                        partScore: 20,
-                        maxScore: 24,
-                    },
-                    {
-                        partTitle: '연구개(Velar)/인두(Pharynx)/후두(Larynx)',
-                        partScore: 8,
-                        maxScore: 24,
-                    },
-                ]}
-            />
-            <SubtestScore
-                id='speech'
-                subtestTitle='SPEECH I : 영역별 말평가 / SPEECH II : 종합적 말평가'
-                averageScore={20}
-                color={'#FFA26B'}
-                partList={[
-                    {
-                        partTitle: '호흡(Respiration)',
-                        partScore: 12,
-                        maxScore: 24,
-                    },
-                    {
-                        partTitle: '발성(Phonation)',
-                        partScore: 4,
-                        maxScore: 24,
-                    },
-                    {
-                        partTitle: '공명(Resonance)',
-                        partScore: 20,
-                        maxScore: 24,
-                    },
-                    {
-                        partTitle: '조음(Articulation)',
-                        partScore: 8,
-                        maxScore: 24,
-                    },
-                    {
-                        partTitle: '운율(Prosody)',
-                        partScore: 8,
-                        maxScore: 24,
-                    },
-                ]}
-            />
-            <SubtestScore
-                id='speechMotor'
-                subtestTitle='SPEECH MECHANISM : 말기제 평가'
-                averageScore={80}
-                color={'#0084F4'}
-                partList={[
-                    {
-                        partTitle: '교대운동속도(AMR)',
-                        partScore: 12,
-                        maxScore: 24,
-                    },
-                    {
-                        partTitle: '일련운동속도(SMR)',
-                        partScore: 4,
-                        maxScore: 24,
-                    },
-                ]}
-            />
+            {/* 소검사별 결과 */}
+            {subtestResultList.map(v => {
+                const partList = testScore.filter(score => v.subtestIds.includes(score.subtestId)).map(v => ({ ...v, partScore: v.score }));
+                const totalScore = partList.reduce((accum, curr) => {
+                    return accum + curr.score;
+                }, 0);
+
+                return (
+                    partList.length > 0 && (
+                        <SubtestScore
+                            id={v.pathname}
+                            key={v.pathname}
+                            subtestTitle={v.subtestTitle}
+                            totalScore={totalScore}
+                            color={v.color}
+                            partList={partList}
+                        />
+                    )
+                );
+            })}
 
             <div className='mt-20'>
                 <Link href='/' className='inline-flex items-center justify-center btn btn-large btn-outlined'>
@@ -434,12 +397,15 @@ export const getServerSideProps: GetServerSideProps = async context => {
 
         // 소검사 문항 정보 fetch
         const responseData = await getTestResultAPI({ sessionId });
-        const testInfo = responseData.testInfo;
+        const { testInfo, testScore } = responseData;
+
+        console.log(responseData);
 
         return {
             props: {
                 testSession,
                 testInfo,
+                testScore,
             },
         };
     } catch (err) {

@@ -48,8 +48,27 @@ export async function updateSessionAPI({ sessionId, currentPartId }: { sessionId
     return response.data;
 }
 
+// 세션 결과 보기
 export async function getTestResultAPI({ sessionId }: { sessionId: number }) {
-    const response = await axios.get(`/assessment/session/${sessionId}/result`);
+    const response = await axios.get<{
+        testInfo: {
+            therapistUserId: number;
+            testDate: string;
+            patientName: string;
+            patientGender: string;
+            patientBirthdate: string;
+            brainLesions: string[];
+            medicalHistory: string;
+            patientMemo: string;
+        };
+        testScore: {
+            score: number;
+            partId: number;
+            partTitle: string;
+            subtestId: number;
+            subtestTitle: string;
+        }[];
+    }>(`/assessment/session/${sessionId}/result`);
 
     return response.data;
 }
