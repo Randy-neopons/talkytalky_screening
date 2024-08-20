@@ -23,7 +23,7 @@
 }
 
 .table-body td {
-    @apply border border-solid border-neutral6 bg-white px-3 py-4 text-body-1;
+    @apply border border-solid border-neutral6 bg-white px-0 py-3 text-body-1;
 }
 
 .table-body tr:first-child td {
@@ -47,7 +47,7 @@
     @apply rounded-br-base;
 }
 .table-body tr td:last-child {
-    @apply px-2 pb-1 pt-3;
+    @apply px-2;
 }
 
 .textarea {

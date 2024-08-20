@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type ChangeEventHandler } from 'react';
+import { useCallback, useMemo, useState, type ChangeEventHandler, type MouseEventHandler } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import ReactTextareaAutosize from 'react-textarea-autosize';
 import type { GetServerSideProps } from 'next';
@@ -7,6 +7,7 @@ import { useRouter } from 'next/router';
 import { useCurrentSubTest, useSubtests, useTestActions } from '@/stores/testStore';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
+import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getQuestionListAPI, updateSessionAPI } from '@/api/questions';
 
 import subtestStyles from '../SubTests.module.css';
@@ -23,24 +24,78 @@ const partIndexList = [
 
 const RecordIcon = () => {
     return (
-        <svg xmlns='http://www.w3.org/2000/svg' width='121' height='50' viewBox='0 0 121 50' fill='none'>
-            <rect x='0.5' y='0.5' width='120' height='49' fill='white' />
-            {/* <rect x='0.5' y='0.5' width='120' height='49' stroke='#CED4DA' /> */}
-            <circle cx='60.5' cy='24.5' r='8.5' fill='#FF647C' />
+        <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'>
+            <circle cx='12' cy='12' r='8' fill='#FF647C' />
         </svg>
     );
 };
 
-const PlayIcon = () => {
+const StopRecordIcon = () => {
     return (
-        <svg xmlns='http://www.w3.org/2000/svg' width='121' height='50' viewBox='0 0 121 50' fill='none'>
-            <rect x='0.5' y='0.5' width='120' height='49' fill='white' />
-            {/* <rect x='0.5' y='0.5' width='120' height='49' stroke='#CED4DA' /> */}
-            <path
-                d='M70 23.2679C71.3333 24.0377 71.3333 25.9623 70 26.7321L58 33.6603C56.6667 34.4301 55 33.4678 55 31.9282L55 18.0718C55 16.5322 56.6667 15.5699 58 16.3397L70 23.2679Z'
-                fill='#6979F8'
-            />
+        <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'>
+            <rect x='5' y='5' width='14' height='14' rx='2' fill='#FF647C' />
         </svg>
+    );
+};
+
+const PlayIcon = ({ disabled }: { disabled?: boolean }) => {
+    return (
+        <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'>
+            <g clip-path='url(#clip0_13783_7609)'>
+                <path
+                    d='M20 10.2679C21.3333 11.0377 21.3333 12.9623 20 13.7321L8 20.6603C6.66667 21.4301 5 20.4678 5 18.9282L5 5.0718C5 3.5322 6.66667 2.56995 8 3.33975L20 10.2679Z'
+                    fill={disabled ? 'gray' : '#6979F8'}
+                />
+            </g>
+            <defs>
+                <clipPath id='clip0_13783_7609'>
+                    <rect width='24' height='24' fill='white' />
+                </clipPath>
+            </defs>
+        </svg>
+    );
+};
+
+const PauseIcon = () => {
+    return (
+        <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'>
+            <rect x='5' y='3' width='5' height='18' rx='1' fill='#6979F8' />
+            <rect x='14' y='3' width='5' height='18' rx='1' fill='#6979F8' />
+        </svg>
+    );
+};
+
+const RecordButton = ({
+    isRecording,
+    handleStop,
+    handleStart,
+}: {
+    isRecording: boolean;
+    handleStop: () => void;
+    handleStart: () => void;
+}) => {
+    return (
+        <button type='button' className='mx-12' onClick={isRecording ? handleStop : handleStart}>
+            {isRecording ? <StopRecordIcon /> : <RecordIcon />}
+        </button>
+    );
+};
+
+const PlayButton = ({
+    isPlaying,
+    handlePause,
+    handlePlay,
+    disabled,
+}: {
+    isPlaying: boolean;
+    handlePause: () => void;
+    handlePlay: () => void;
+    disabled?: boolean;
+}) => {
+    return (
+        <button type='button' className='mx-12' onClick={isPlaying ? handlePause : handlePlay} disabled={disabled}>
+            {isPlaying ? <PauseIcon /> : <PlayIcon disabled={disabled} />}
+        </button>
     );
 };
 
@@ -51,6 +106,35 @@ export default function SpeechMotorPage({
     questionList: { questionId: number; questionText: string; answerType: string; partId: number; subtestId: number }[];
 }) {
     const router = useRouter();
+
+    // 파타카 녹음
+    const {
+        isRecording: isRecording1,
+        isPlaying: isPlaying1,
+        audioUrl: audioUrl1,
+        handleStartRecording: handleStartRecording1,
+        handleStopRecording: handleStopRecording1,
+        handlePlay: handlePlay1,
+        handlePause: handlePause1,
+    } = useAudioRecorder();
+    const {
+        isRecording: isRecording2,
+        isPlaying: isPlaying2,
+        audioUrl: audioUrl2,
+        handleStartRecording: handleStartRecording2,
+        handleStopRecording: handleStopRecording2,
+        handlePlay: handlePlay2,
+        handlePause: handlePause2,
+    } = useAudioRecorder();
+    const {
+        isRecording: isRecording3,
+        isPlaying: isPlaying3,
+        audioUrl: audioUrl3,
+        handleStartRecording: handleStartRecording3,
+        handleStopRecording: handleStopRecording3,
+        handlePlay: handlePlay3,
+        handlePause: handlePause3,
+    } = useAudioRecorder();
 
     // 현재 소검사, 선택한 소검사 정보
     const currentSubtest = useCurrentSubTest();
@@ -153,37 +237,64 @@ export default function SpeechMotorPage({
                                 </td>
                                 <td>파</td>
                                 <td>
-                                    <RecordIcon />
+                                    <RecordButton
+                                        isRecording={isRecording1}
+                                        handleStart={handleStartRecording1}
+                                        handleStop={handleStopRecording1}
+                                    />
                                 </td>
                                 <td>
-                                    <PlayIcon />
+                                    <PlayButton
+                                        isPlaying={isPlaying1}
+                                        handlePlay={handlePlay1}
+                                        handlePause={handlePause1}
+                                        disabled={!audioUrl1}
+                                    />
                                 </td>
                                 <td>
-                                    <input />
+                                    <input className='outline-none' />
                                 </td>
                             </tr>
                             <tr>
                                 <td>타</td>
                                 <td>
-                                    <RecordIcon />
+                                    <RecordButton
+                                        isRecording={isRecording2}
+                                        handleStart={handleStartRecording2}
+                                        handleStop={handleStopRecording2}
+                                    />
                                 </td>
                                 <td>
-                                    <PlayIcon />
+                                    <PlayButton
+                                        isPlaying={isPlaying2}
+                                        handlePlay={handlePlay2}
+                                        handlePause={handlePause2}
+                                        disabled={!audioUrl2}
+                                    />
                                 </td>
                                 <td>
-                                    <input />
+                                    <input className='outline-none' />
                                 </td>
                             </tr>
                             <tr>
                                 <td>카</td>
                                 <td>
-                                    <RecordIcon />
+                                    <RecordButton
+                                        isRecording={isRecording3}
+                                        handleStart={handleStartRecording3}
+                                        handleStop={handleStopRecording3}
+                                    />
                                 </td>
                                 <td>
-                                    <PlayIcon />
+                                    <PlayButton
+                                        isPlaying={isPlaying3}
+                                        handlePlay={handlePlay3}
+                                        handlePause={handlePause3}
+                                        disabled={!audioUrl3}
+                                    />
                                 </td>
                                 <td>
-                                    <input />
+                                    <input className='outline-none' />
                                 </td>
                             </tr>
                         </tbody>
