@@ -12,6 +12,8 @@ import { getSessionListAPI } from '@/api/questions';
 
 import searchIcon from 'public/static/images/search-icon.png';
 
+import type { TestSession } from '@/types/types';
+
 const sessionList = [
     {
         sessionId: 1,
@@ -31,7 +33,7 @@ const sessionList = [
     },
 ];
 
-export default function SessionListPage() {
+export default function SessionListPage({ sessionList }: { sessionList: TestSession[] }) {
     const router = useRouter(); // next router
 
     const [searchInput, setSearchInput] = useState('');
@@ -69,7 +71,7 @@ export default function SessionListPage() {
 
             <ul className='mt-20 flex w-full flex-col gap-[30px]'>
                 {sessionList.map(v => (
-                    <li key={v.sessionId} className='flex items-center justify-between rounded-base bg-white p-[30px] shadow-base'>
+                    <li key={v.testSessionId} className='flex items-center justify-between rounded-base bg-white p-[30px] shadow-base'>
                         <div className='flex gap-[10px]'>
                             <div className='flex items-center gap-[10px]'>
                                 <span className='font-jalnan text-black text-head-2'>{v.patientName}</span>
@@ -85,19 +87,22 @@ export default function SessionListPage() {
                                 <div className='relative h-[14px] w-[94px] rounded-full bg-[#D9D9D9]'>
                                     <div
                                         className={`absolute h-[14px] rounded-full bg-accent1`}
-                                        style={{ width: `${(94 * v.progress) / 100}px` }}
+                                        style={{ width: `${(94 * (v.progress || 100)) / 100}px` }}
                                     ></div>
                                 </div>
 
-                                <span className='text-neutral4 text-body-2'>{v.progress}%</span>
+                                <span className='text-neutral4 text-body-2'>{v.progress || 100}%</span>
                             </div>
-                            {v.progress < 100 ? (
-                                <button className='btn btn-small btn-outlined' onClick={handleClickContinue(v.sessionId, v.currentPartId)}>
-                                    이어하기
+                            {v.status === '3' ? (
+                                <button className='btn btn-small btn-contained' onClick={handleClickResult(v.testSessionId)}>
+                                    결과보기
                                 </button>
                             ) : (
-                                <button className='btn btn-small btn-contained' onClick={handleClickResult(v.sessionId)}>
-                                    결과보기
+                                <button
+                                    className='btn btn-small btn-outlined'
+                                    onClick={handleClickContinue(v.testSessionId, v.currentPartId)}
+                                >
+                                    이어하기
                                 </button>
                             )}
                         </div>
@@ -117,14 +122,14 @@ export const getServerSideProps: GetServerSideProps = async context => {
 
         const jwt = 'temp';
 
-        // 소검사 문항 정보 fetch
-        // const responseData = await getSessionListAPI({ jwt });
-        // const questionList = responseData.questions;
+        // 세션 목록 fetch
+        const responseData = await getSessionListAPI({ jwt });
+        const sessionList = responseData.sessions;
 
         return {
             props: {
                 testSession,
-                // questionList,
+                sessionList,
             },
         };
     } catch (err) {

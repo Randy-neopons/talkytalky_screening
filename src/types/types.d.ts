@@ -29,3 +29,14 @@ export type Recording = {
     filePath: string | null;
     repeatCount: number | null;
 };
+
+export type TestSession = {
+    testSessionId: number;
+    testDate: string;
+    patientName: string;
+    patientBirthdate: string;
+    patientGender: string;
+    currentPartId: number;
+    status: string;
+    regDate: string;
+};
