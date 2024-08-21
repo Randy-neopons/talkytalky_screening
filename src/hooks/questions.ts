@@ -1,14 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getQuestionListAPI } from '@/api/questions';
+import { getQuestionAndAnswerListAPI } from '@/api/questions';
 
 export const questionsQueryKey = 'questions';
-export const useQuestionsQuery = (subtestId: number) => {
+export const useQuestionsQuery = ({ sessionId, subtestId }: { sessionId: number; subtestId: number }) => {
     return useQuery<{
         result: Boolean;
         questions: { questionId: number; questionText: string; answerType: string; partId: number; subtestId: number }[];
     }>({
-        queryKey: [questionsQueryKey, subtestId],
-        queryFn: () => getQuestionListAPI({ subtestId }),
+        queryKey: [questionsQueryKey, sessionId, subtestId],
+        queryFn: () => getQuestionAndAnswerListAPI({ sessionId, subtestId }),
     });
 };

@@ -1,13 +1,15 @@
-import { useCallback, useMemo, useState, type ChangeEventHandler } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ChangeEventHandler } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import ReactTextareaAutosize from 'react-textarea-autosize';
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
 import Container from '@/components/common/Container';
-import { getQuestionListAPI } from '@/api/questions';
+import { getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/questions';
 
 import subtestStyles from '../SubTests.module.css';
+
+import type { Answer, QuestionAnswer } from '@/types/types';
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 5;
@@ -19,11 +21,7 @@ const partIndexList = [
 ];
 
 // Stress Testing 문항 페이지
-export default function StressTestingPage({
-    questionList,
-}: {
-    questionList: { questionId: number; questionText: string; answerType: string; partId: number; subtestId: number }[];
-}) {
+export default function StressTestingPage({ questionList }: { questionList: QuestionAnswer[] }) {
     const router = useRouter();
 
     // 문항 전부 정상으로 체크
@@ -35,7 +33,7 @@ export default function StressTestingPage({
 
     // react-hook-form
     const { control, register, setValue, handleSubmit } = useForm<{
-        answers: { questionId: number; questionText: string; answer?: string; memo?: string }[];
+        answers: Answer[];
     }>({
         defaultValues: {
             answers: questionList?.map(({ questionId, questionText, partId, subtestId }) => ({
@@ -71,37 +69,44 @@ export default function StressTestingPage({
         typeof window !== 'undefined' && window.scrollTo(0, 0);
     }, [currentPartId]);
 
-    // 다음 파트로
-    const handleClickNext = useCallback(() => {
-        setCheckAll1(false);
-        currentPartId < partIndexList.length && setCurrentPartId(partId => partId + 1);
-        typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
-    }, [currentPartId]);
+    // 폼 데이터 제출
+    const handleSubmitData = useCallback(
+        async ({ sessionId, data }: { sessionId: number; data: any }) => {
+            const formData = new FormData();
+            formData.append('currentPartId', `${currentPartId}`);
+            formData.append('answers', JSON.stringify(data.answers));
 
-    // 폼 제출
+            await updateSessionAPI({ sessionId, formData });
+        },
+        [currentPartId],
+    );
+
+    // 폼 제출 후 redirect
     const handleOnSubmit = useCallback(
-        (data: any) => {
-            console.log(data);
-
+        async (data: any) => {
             try {
-                // TODO: 중간 저장 API
-
                 const sessionId = Number(router.query.sessionId);
+                await handleSubmitData({ sessionId, data });
+
                 router.push(`/sessions/${sessionId}/unassessable`);
             } catch (err) {
                 console.error(err);
             }
         },
-        [router],
+        [handleSubmitData, router],
     );
+
+    useEffect(() => {
+        return () => {};
+    }, []);
 
     return (
         <Container>
             <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>Stress Testing</h1>
             <span className='text-center text-body-2'>본 검사는 중증 근무력증 선별검사로 필요시에만 실시합니다.</span>
-            <form onSubmit={handleSubmit(handleOnSubmit)} className='flex w-full flex-col flex-nowrap items-center px-5 xl:px-0'>
-                <table className={`${subtestStyles['table']}`}>
-                    <thead className={`${subtestStyles['table-head']}`}>
+            <form onSubmit={handleSubmit(handleOnSubmit)} className={`${subtestStyles['subtest-form']}`}>
+                <table className={`${subtestStyles['question-table']}`}>
+                    <thead>
                         <tr className='bg-accent1 text-white text-body-2'>
                             <th className='rounded-tl-base'></th>
                             <th>{subtitle1}</th>
@@ -112,34 +117,34 @@ export default function StressTestingPage({
                             <th className='rounded-tr-base'>메모</th>
                         </tr>
                     </thead>
-                    <tbody className={`${subtestStyles['table-body']}`}>
+                    <tbody>
                         {fields.slice(start, split).map((item, i) => (
                             <tr key={item.id}>
-                                <td>{i + 1}</td>
-                                <td className='whitespace-pre-line'>{item.questionText}</td>
-                                <td className='text-center'>
+                                <td className={`${subtestStyles['num']}`}>{i + 1}</td>
+                                <td className='whitespace-pre-line px-5'>{item.questionText}</td>
+                                <td className={`${subtestStyles['option']}`}>
                                     <input type='radio' {...register(`answers.${start + i}.answer`)} value='normal' />
                                 </td>
-                                <td className='text-center'>
+                                <td className={`${subtestStyles['option']}`}>
                                     <input type='radio' {...register(`answers.${start + i}.answer`)} value='mild' />
                                 </td>
-                                <td className='text-center'>
+                                <td className={`${subtestStyles['option']}`}>
                                     <input type='radio' {...register(`answers.${start + i}.answer`)} value='moderate' />
                                 </td>
-                                <td className='text-center'>
+                                <td className={`${subtestStyles['option']}`}>
                                     <input type='radio' {...register(`answers.${start + i}.answer`)} value='unknown' />
                                 </td>
                                 <td className='p-0 text-center'>
                                     <Controller
                                         control={control}
-                                        name={`answers.${start + i}.memo`}
+                                        name={`answers.${start + i}.comment`}
                                         render={({ field }) => (
                                             <ReactTextareaAutosize
                                                 className={`${subtestStyles.textarea}`}
                                                 minRows={1}
                                                 onChange={field.onChange}
                                                 onBlur={field.onBlur}
-                                                value={field.value}
+                                                value={field.value || ''}
                                             />
                                         )}
                                     />
@@ -182,7 +187,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         };
 
         // 소검사 문항 정보 fetch
-        const responseData = await getQuestionListAPI({ subtestId: CURRENT_SUBTEST_ID });
+        const responseData = await getQuestionAndAnswerListAPI({ sessionId, subtestId: CURRENT_SUBTEST_ID });
         const questionList = responseData.questions;
 
         return {

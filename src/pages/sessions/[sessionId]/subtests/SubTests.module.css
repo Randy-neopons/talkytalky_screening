@@ -14,39 +14,99 @@
     @apply h-[264px] w-[236px] rounded-base shadow-base;
 }
 
-.table {
+.subtest-form {
+    @apply flex w-full flex-col flex-nowrap items-center px-5 xl:px-0;
+}
+
+.recording-table {
     @apply mb-5 mt-[60px] w-[728px] border-collapse rounded-base shadow-base xl:mt-[80px] xl:w-[1000px];
 }
 
-.table-head tr th {
+.recording-table thead tr th {
     @apply text-nowrap px-1 py-3;
 }
 
-.table-body td {
-    @apply border border-solid border-neutral6 bg-white px-0 py-3 text-body-1;
+.recording-table tbody td {
+    @apply border border-solid border-neutral6 bg-white py-3 text-body-1;
 }
 
-.table-body tr:first-child td {
+.recording-table tbody td.button {
+    @apply w-[88px] text-center xl:w-[120px];
+}
+
+.recording-table tbody tr:first-child td {
     @apply border-t-0;
 }
-.table-body tr:last-child td {
+.recording-table tbody tr:last-child td {
     @apply border-b-0;
 }
 
-.table-body tr td:first-child {
+.recording-table tbody tr td:first-child {
     @apply border-l-0;
 }
-.table-body tr td:last-child {
+.recording-table tbody tr td:last-child {
     @apply border-r-0;
 }
 
-.table-body tr:last-child td:first-child {
+.recording-table tbody tr:last-child td:first-child {
     @apply rounded-bl-base;
 }
-.table-body tr:last-child td:last-child {
+.recording-table tbody tr:last-child td:last-child {
     @apply rounded-br-base;
 }
-.table-body tr td:last-child {
+.recording-table tbody tr td:last-child {
+    @apply px-2;
+}
+
+.question-table {
+    @apply mb-5 mt-[60px] w-[728px] border-collapse rounded-base shadow-base xl:mt-[80px] xl:w-[1000px];
+}
+
+.question-table thead tr th {
+    @apply text-nowrap px-1 py-3;
+}
+
+.question-table tbody td {
+    @apply border border-solid border-neutral6 bg-white py-3 text-body-1;
+}
+
+.question-table tbody td.num {
+    @apply w-[35px] text-center xl:w-12;
+}
+
+.question-table tbody td.text {
+    @apply px-5;
+}
+
+.question-table tbody td.option {
+    @apply w-[45px] text-center xl:w-[65px];
+}
+
+.question-table tbody td.comment {
+    @apply p-0 text-center;
+}
+
+.question-table tbody tr:first-child td {
+    @apply border-t-0;
+}
+.question-table tbody tr:last-child td {
+    @apply border-b-0;
+}
+
+.question-table tbody tr td:first-child {
+    @apply border-l-0;
+}
+.question-table tbody tr td:last-child {
+    @apply border-r-0;
+}
+
+.question-table tbody tr:last-child td:first-child {
+    @apply rounded-bl-base;
+}
+.question-table tbody tr:last-child td:last-child {
+    @apply rounded-br-base;
+}
+.question-table tbody tr td:last-child {
     @apply px-2;
 }
 

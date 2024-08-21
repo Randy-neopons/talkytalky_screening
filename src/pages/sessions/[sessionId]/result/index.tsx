@@ -234,23 +234,6 @@ export default function TestResultPage({
 }) {
     const router = useRouter(); // next router
 
-    // 폼 제출
-    const handleClickNext = useCallback(
-        (data: any) => {
-            console.log(data);
-
-            try {
-                // TODO: 중간 저장 API
-
-                const sessionId = Number(router.query.sessionId);
-                router.push(`/sessions/${sessionId}/result`);
-            } catch (err) {
-                console.error(err);
-            }
-        },
-        [router],
-    );
-
     return (
         <Container>
             <div className='relative w-full'>

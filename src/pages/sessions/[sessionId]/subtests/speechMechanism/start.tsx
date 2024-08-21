@@ -7,9 +7,11 @@ import { useRouter } from 'next/router';
 import { useCurrentSubTest, useSubtests, useTestActions } from '@/stores/testStore';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
-import { getQuestionListAPI, updateSessionAPI } from '@/api/questions';
+import { getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/questions';
 
 import subtestStyles from '../SubTests.module.css';
+
+import type { Answer, QuestionAnswer } from '@/types/types';
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 1;
@@ -24,11 +26,7 @@ const partIndexList = [
 ];
 
 // 말기제평가 페이지
-export default function SpeechMechanismStartPage({
-    questionList,
-}: {
-    questionList: { questionId: number; questionText: string; answerType: string; partId: number; subtestId: number }[];
-}) {
+export default function SpeechMechanismStartPage({ questionList }: { questionList: QuestionAnswer[] }) {
     const router = useRouter();
 
     // 현재 소검사, 선택한 소검사 정보
@@ -46,7 +44,7 @@ export default function SpeechMechanismStartPage({
 
     // react-hook-form
     const { control, register, setValue, handleSubmit } = useForm<{
-        answers: { questionId: number; questionText: string; answer?: string; memo?: string }[];
+        answers: Answer[];
     }>({
         defaultValues: {
             answers: questionList?.map(({ questionId, questionText, partId, subtestId }) => ({
@@ -109,32 +107,33 @@ export default function SpeechMechanismStartPage({
     // 폼 제출
     const handleOnSubmit = useCallback(
         async (data: any) => {
-            console.log(data);
-
             try {
                 // TODO: 중간 저장 API
+                const formData = new FormData();
+                formData.append('currentPartId', `${currentPartId}`);
+                formData.append('answers', JSON.stringify(data.answers));
 
                 const sessionId = Number(router.query.sessionId);
-                await updateSessionAPI({ sessionId, currentPartId });
+                await updateSessionAPI({ sessionId, formData });
 
-                const currentSubtestIndex = subtests.findIndex(v => v.subtestId === currentSubtest);
+                const currentSubtestIndex = subtests.findIndex(v => v.subtestId === `${CURRENT_SUBTEST_ID}`);
                 const nextSubtest = subtests[currentSubtestIndex + 1];
-                router.push(`/sessions/${sessionId}/subTests/${nextSubtest.pathname}`);
+                router.push(`/sessions/${sessionId}/subtests/${nextSubtest.pathname}`);
             } catch (err) {
                 console.error(err);
             }
         },
-        [currentPartId, currentSubtest, router, subtests],
+        [currentPartId, router, subtests],
     );
 
     return (
         <Container>
             <h2 className='flex items-center font-jalnan text-accent1 text-head-2'>SPEECH MECHANISM : 말기제평가</h2>
-            <form onSubmit={handleSubmit(handleOnSubmit)} className='flex w-full flex-col flex-nowrap items-center px-5 xl:px-0'>
+            <form onSubmit={handleSubmit(handleOnSubmit)} className={`${subtestStyles['subtest-form']}`}>
                 <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitle}</h1>
 
-                <table className={`${subtestStyles['table']}`}>
-                    <thead className={`${subtestStyles['table-head']}`}>
+                <table className={`${subtestStyles['question-table']}`}>
+                    <thead>
                         <tr className='bg-accent1 text-white text-body-2'>
                             <th className='rounded-tl-base'></th>
                             <th>{subtitle1}</th>
@@ -145,34 +144,34 @@ export default function SpeechMechanismStartPage({
                             <th className='rounded-tr-base'>메모</th>
                         </tr>
                     </thead>
-                    <tbody className={`${subtestStyles['table-body']}`}>
+                    <tbody>
                         {fields.slice(start, split).map((item, i) => (
                             <tr key={item.id}>
-                                <td>{i + 1}</td>
-                                <td>{item.questionText}</td>
-                                <td className='text-center'>
+                                <td className={`${subtestStyles['num']}`}>{i + 1}</td>
+                                <td className={`${subtestStyles['text']}`}>{item.questionText}</td>
+                                <td className={`${subtestStyles['option']}`}>
                                     <input type='radio' {...register(`answers.${start + i}.answer`)} value='normal' />
                                 </td>
-                                <td className='text-center'>
+                                <td className={`${subtestStyles['option']}`}>
                                     <input type='radio' {...register(`answers.${start + i}.answer`)} value='mild' />
                                 </td>
-                                <td className='text-center'>
+                                <td className={`${subtestStyles['option']}`}>
                                     <input type='radio' {...register(`answers.${start + i}.answer`)} value='moderate' />
                                 </td>
-                                <td className='text-center'>
+                                <td className={`${subtestStyles['option']}`}>
                                     <input type='radio' {...register(`answers.${start + i}.answer`)} value='unknown' />
                                 </td>
                                 <td className='p-0 text-center'>
                                     <Controller
                                         control={control}
-                                        name={`answers.${start + i}.memo`}
+                                        name={`answers.${start + i}.comment`}
                                         render={({ field }) => (
                                             <ReactTextareaAutosize
                                                 className={`${subtestStyles.textarea}`}
                                                 minRows={1}
                                                 onChange={field.onChange}
                                                 onBlur={field.onBlur}
-                                                value={field.value}
+                                                value={field.value || ''}
                                             />
                                         )}
                                     />
@@ -189,8 +188,8 @@ export default function SpeechMechanismStartPage({
 
                 {end - split > 0 && (
                     <>
-                        <table className={`${subtestStyles['table']}`}>
-                            <thead className={`${subtestStyles['table-head']}`}>
+                        <table className={`${subtestStyles['question-table']}`}>
+                            <thead>
                                 <tr className='bg-accent2 text-white text-body-2'>
                                     <th className='rounded-tl-base'></th>
                                     <th>{subtitle2}</th>
@@ -201,34 +200,34 @@ export default function SpeechMechanismStartPage({
                                     <th className='rounded-tr-base'>메모</th>
                                 </tr>
                             </thead>
-                            <tbody className={`${subtestStyles['table-body']}`}>
+                            <tbody>
                                 {fields.slice(split, end).map((item, i) => (
                                     <tr key={item.id}>
-                                        <td>{split - start + i + 1}</td>
-                                        <td>{item.questionText}</td>
-                                        <td className='text-center'>
+                                        <td className={`${subtestStyles['num']}`}>{split - start + i + 1}</td>
+                                        <td className={`${subtestStyles['text']}`}>{item.questionText}</td>
+                                        <td className={`${subtestStyles['option']}`}>
                                             <input type='radio' {...register(`answers.${split + i}.answer`)} value='normal' />
                                         </td>
-                                        <td className='text-center'>
+                                        <td className={`${subtestStyles['option']}`}>
                                             <input type='radio' {...register(`answers.${split + i}.answer`)} value='mild' />
                                         </td>
-                                        <td className='text-center'>
+                                        <td className={`${subtestStyles['option']}`}>
                                             <input type='radio' {...register(`answers.${split + i}.answer`)} value='moderate' />
                                         </td>
-                                        <td className='text-center'>
+                                        <td className={`${subtestStyles['option']}`}>
                                             <input type='radio' {...register(`answers.${split + i}.answer`)} value='unknown' />
                                         </td>
                                         <td className='p-0 text-center'>
                                             <Controller
                                                 control={control}
-                                                name={`answers.${split + i}.memo`}
+                                                name={`answers.${split + i}.comment`}
                                                 render={({ field }) => (
                                                     <ReactTextareaAutosize
                                                         className={`${subtestStyles.textarea}`}
                                                         minRows={1}
                                                         onChange={field.onChange}
                                                         onBlur={field.onBlur}
-                                                        value={field.value}
+                                                        value={field.value || ''}
                                                     />
                                                 )}
                                             />
@@ -288,7 +287,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         };
 
         // 소검사 문항 정보 fetch
-        const responseData = await getQuestionListAPI({ subtestId: CURRENT_SUBTEST_ID });
+        const responseData = await getQuestionAndAnswerListAPI({ sessionId, subtestId: CURRENT_SUBTEST_ID });
         const questionList = responseData.questions;
 
         return {

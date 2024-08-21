@@ -19,13 +19,11 @@ export default function PictureDescriptionPage() {
     // 다음 클릭
     const handleClickPrev = useCallback(
         (data: any) => {
-            console.log(data);
-
             try {
                 // TODO: 중간 저장 API
 
                 const sessionId = Number(router.query.sessionId);
-                router.push(`/sessions/${sessionId}/subTests/speechTwo`);
+                router.push(`/sessions/${sessionId}/subtests/speechTwo`);
             } catch (err) {
                 console.error(err);
             }
@@ -36,13 +34,11 @@ export default function PictureDescriptionPage() {
     // 다음 클릭
     const handleClickNext = useCallback(
         (data: any) => {
-            console.log(data);
-
             try {
                 // TODO: 중간 저장 API
 
                 const sessionId = Number(router.query.sessionId);
-                router.push(`/sessions/${sessionId}/subTests/speechTwo/conversation`);
+                router.push(`/sessions/${sessionId}/subtests/speechTwo/conversation`);
             } catch (err) {
                 console.error(err);
             }

@@ -6,10 +6,10 @@ import { partList, subtestList } from '@/stores/testStore';
 import Container from '@/components/common/Container';
 import { getUnassessableQuestionListAPI } from '@/api/questions';
 
-import type { Answer } from '@/types/types';
+import type { QuestionAnswer } from '@/types/types';
 
 // Stress Testing 문항 페이지
-export default function UnassessableQuestionsPage({ questionList }: { questionList: Answer[] }) {
+export default function UnassessableQuestionsPage({ questionList }: { questionList: QuestionAnswer[] }) {
     const router = useRouter(); // next router
 
     // 폼 제출
@@ -55,7 +55,7 @@ export default function UnassessableQuestionsPage({ questionList }: { questionLi
                             <h2 className='font-bold text-accent1 text-head-2'>{subtest.subtestTitle}</h2>
                             {filtered.map(question => (
                                 <div
-                                    key={question.answerId}
+                                    key={question.questionId}
                                     className='flex gap-[10px] border-b border-neutral7 py-[13px] text-body-2 last:border-none'
                                 >
                                     <div className='w-[120px] flex-none whitespace-pre-line text-right font-bold'>{question.partTitle}</div>

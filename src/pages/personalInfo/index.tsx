@@ -105,7 +105,6 @@ export default function PersonalInfoPage() {
 
             const formValues = { ...rest, testDate, patientBirthdate };
             setTestInfo(formValues); // set global state
-            console.log(data);
             router.push('/selectTest'); // 검사 선택 화면으로
         },
         [router, setTestInfo],

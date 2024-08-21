@@ -24,8 +24,8 @@ export const partList = [
 // 소검사 목록
 export const subtestList = [
     { subtestId: '1', subtestTitle: 'SPEECH MECHANISM : 말기제 평가', pathname: 'speechMechanism' },
-    { subtestId: '2', subtestTitle: 'SPEECH I : 영역별 말평가', pathname: 'speech1' },
-    { subtestId: '3', subtestTitle: 'SPEECH II : 종합적 말평가', pathname: 'speech2' },
+    { subtestId: '2', subtestTitle: 'SPEECH I : 영역별 말평가', pathname: 'speechOne' },
+    { subtestId: '3', subtestTitle: 'SPEECH II : 종합적 말평가', pathname: 'speechTwo' },
     { subtestId: '4', subtestTitle: 'SPEECH MOTOR : 말운동 평가', pathname: 'speechMotor' },
     { subtestId: '5', subtestTitle: '피로도 검사 포함', pathname: 'stressTest' },
 ];

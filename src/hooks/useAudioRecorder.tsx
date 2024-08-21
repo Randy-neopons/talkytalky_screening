@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 const useAudioRecorder = () => {
     const [isRecording, setIsRecording] = useState(false);
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
+    const [audioBlob, setAudioBlob] = useState<Blob>();
     const [audioUrl, setAudioUrl] = useState<string>();
     const mediaRecorderRef = useRef<MediaRecorder>();
     const audioChunksRef = useRef<Blob[]>([]);
@@ -30,9 +31,9 @@ const useAudioRecorder = () => {
         mediaRecorder.onstop = () => {
             const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
             const audioUrl = URL.createObjectURL(audioBlob);
+            setAudioBlob(audioBlob);
             setAudioUrl(audioUrl);
             audioPlayer.src = audioUrl;
-            console.log('audioUrl', audioUrl);
         };
 
         mediaRecorder.start();
@@ -56,6 +57,7 @@ const useAudioRecorder = () => {
     return {
         isRecording,
         isPlaying,
+        audioBlob,
         audioUrl,
         handleStartRecording,
         handleStopRecording,

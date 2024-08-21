@@ -8,9 +8,11 @@ import { useCurrentSubTest, useSubtests, useTestActions } from '@/stores/testSto
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import { MikeIcon, PlayIcon, StopIcon } from '@/components/icons';
-import { getQuestionListAPI, updateSessionAPI } from '@/api/questions';
+import { getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/questions';
 
 import subtestStyles from '../SubTests.module.css';
+
+import type { Answer, QuestionAnswer } from '@/types/types';
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 3;
@@ -25,11 +27,7 @@ const partIndexList = [
 ];
 
 // SPEECH II 문항 페이지
-export default function SpeechTwoPage({
-    questionList,
-}: {
-    questionList: { questionId: number; questionText: string; answerType: string; partId: number; subtestId: number }[];
-}) {
+export default function SpeechTwoPage({ questionList }: { questionList: QuestionAnswer[] }) {
     const router = useRouter();
 
     // 현재 소검사, 선택한 소검사 정보
@@ -46,7 +44,7 @@ export default function SpeechTwoPage({
 
     // react-hook-form
     const { control, register, setValue, handleSubmit } = useForm<{
-        answers: { questionId: number; questionText: string; answer?: string; memo?: string }[];
+        answers: Answer[];
     }>({
         defaultValues: {
             answers: questionList?.map(({ questionId, questionText, partId, subtestId }) => ({
@@ -89,29 +87,39 @@ export default function SpeechTwoPage({
         typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
     }, [currentPartId]);
 
-    // 폼 제출
+    // 폼 데이터 제출
+    const handleSubmitData = useCallback(
+        async ({ sessionId, data }: { sessionId: number; data: any }) => {
+            const formData = new FormData();
+            formData.append('currentPartId', `${currentPartId}`);
+            formData.append('answers', JSON.stringify(data.answers));
+
+            await updateSessionAPI({ sessionId, formData });
+        },
+        [currentPartId],
+    );
+
+    // 폼 제출 후 redirect
     const handleOnSubmit = useCallback(
         async (data: any) => {
-            console.log(data);
-
             try {
                 const sessionId = Number(router.query.sessionId);
-                await updateSessionAPI({ sessionId, currentPartId });
+                await handleSubmitData({ sessionId, data });
 
-                const currentSubtestIndex = subtests.findIndex(v => v.subtestId === currentSubtest);
+                const currentSubtestIndex = subtests.findIndex(v => v.subtestId === `${CURRENT_SUBTEST_ID}`);
                 const nextSubtest = subtests[currentSubtestIndex + 1];
-                router.push(`/sessions/${sessionId}/subTests/${nextSubtest.pathname}`);
+                router.push(`/sessions/${sessionId}/subtests/${nextSubtest.pathname}`);
             } catch (err) {
                 console.error(err);
             }
         },
-        [currentPartId, currentSubtest, router, subtests],
+        [handleSubmitData, router, subtests],
     );
 
     return (
         <Container>
             <h2 className='flex items-center font-jalnan text-accent1 text-head-2'>SPEECH II : 종합적 말평가</h2>
-            <form onSubmit={handleSubmit(handleOnSubmit)} className='flex w-full flex-col flex-nowrap items-center px-5 xl:px-0'>
+            <form onSubmit={handleSubmit(handleOnSubmit)} className={`${subtestStyles['subtest-form']}`}>
                 <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitle}</h1>
 
                 <ul className='mt-20 flex flex-row flex-nowrap gap-5'>
@@ -159,8 +167,8 @@ export default function SpeechTwoPage({
                     </li>
                 </ul>
 
-                <table className={`${subtestStyles['table']}`}>
-                    <thead className={`${subtestStyles['table-head']}`}>
+                <table className={`${subtestStyles['question-table']}`}>
+                    <thead>
                         <tr className='bg-accent1 text-white text-body-2'>
                             <th className='rounded-tl-base'></th>
                             <th>{subtitle}</th>
@@ -171,34 +179,34 @@ export default function SpeechTwoPage({
                             <th className='rounded-tr-base'>메모</th>
                         </tr>
                     </thead>
-                    <tbody className={`${subtestStyles['table-body']}`}>
+                    <tbody>
                         {fields.slice(start, end).map((item, i) => (
                             <tr key={item.id}>
-                                <td>{i + 1}</td>
-                                <td>{item.questionText}</td>
-                                <td className='text-center'>
+                                <td className={`${subtestStyles['num']}`}>{i + 1}</td>
+                                <td className={`${subtestStyles['text']}`}>{item.questionText}</td>
+                                <td className={`${subtestStyles['option']}`}>
                                     <input type='radio' {...register(`answers.${start + i}.answer`)} value='normal' />
                                 </td>
-                                <td className='text-center'>
+                                <td className={`${subtestStyles['option']}`}>
                                     <input type='radio' {...register(`answers.${start + i}.answer`)} value='mild' />
                                 </td>
-                                <td className='text-center'>
+                                <td className={`${subtestStyles['option']}`}>
                                     <input type='radio' {...register(`answers.${start + i}.answer`)} value='moderate' />
                                 </td>
-                                <td className='text-center'>
+                                <td className={`${subtestStyles['option']}`}>
                                     <input type='radio' {...register(`answers.${start + i}.answer`)} value='unknown' />
                                 </td>
                                 <td className='p-0 text-center'>
                                     <Controller
                                         control={control}
-                                        name={`answers.${start + i}.memo`}
+                                        name={`answers.${start + i}.comment`}
                                         render={({ field }) => (
                                             <ReactTextareaAutosize
                                                 className={`${subtestStyles.textarea}`}
                                                 minRows={1}
                                                 onChange={field.onChange}
                                                 onBlur={field.onBlur}
-                                                value={field.value}
+                                                value={field.value || ''}
                                             />
                                         )}
                                     />
@@ -255,7 +263,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         };
 
         // 소검사 문항 정보 fetch
-        const responseData = await getQuestionListAPI({ subtestId: CURRENT_SUBTEST_ID });
+        const responseData = await getQuestionAndAnswerListAPI({ sessionId, subtestId: CURRENT_SUBTEST_ID });
         const questionList = responseData.questions;
 
         return {

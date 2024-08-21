@@ -30,7 +30,6 @@ export default function SelectTestPage() {
 
     const handleClickNext = useCallback(async () => {
         try {
-            console.log(subtestIds);
             if (subtestIds.length === 0) {
                 setError(true);
             } else {
@@ -45,7 +44,7 @@ export default function SelectTestPage() {
                 const sessionId = responseData.sessionId;
                 const pathname = subtests[0].pathname;
 
-                pathname && router.push(`/sessions/${sessionId}/subTests/${pathname}`);
+                pathname && router.push(`/sessions/${sessionId}/subtests/${pathname}`);
             }
         } catch (err) {
             console.error(err);

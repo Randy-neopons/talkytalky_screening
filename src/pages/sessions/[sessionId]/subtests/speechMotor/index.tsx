@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type ChangeEventHandler, type MouseEventHandler } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ChangeEventHandler, type MouseEventHandler } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import ReactTextareaAutosize from 'react-textarea-autosize';
 import type { GetServerSideProps } from 'next';
@@ -8,9 +8,11 @@ import { useCurrentSubTest, useSubtests, useTestActions } from '@/stores/testSto
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
-import { getQuestionListAPI, updateSessionAPI } from '@/api/questions';
+import { getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/questions';
 
 import subtestStyles from '../SubTests.module.css';
+
+import type { Answer, QuestionAnswer, Recording } from '@/types/types';
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 4;
@@ -75,7 +77,7 @@ const RecordButton = ({
     handleStart: () => void;
 }) => {
     return (
-        <button type='button' className='mx-12' onClick={isRecording ? handleStop : handleStart}>
+        <button type='button' onClick={isRecording ? handleStop : handleStart}>
             {isRecording ? <StopRecordIcon /> : <RecordIcon />}
         </button>
     );
@@ -93,18 +95,14 @@ const PlayButton = ({
     disabled?: boolean;
 }) => {
     return (
-        <button type='button' className='mx-12' onClick={isPlaying ? handlePause : handlePlay} disabled={disabled}>
+        <button type='button' onClick={isPlaying ? handlePause : handlePlay} disabled={disabled}>
             {isPlaying ? <PauseIcon /> : <PlayIcon disabled={disabled} />}
         </button>
     );
 };
 
 // SPEECH II 문항 페이지
-export default function SpeechMotorPage({
-    questionList,
-}: {
-    questionList: { questionId: number; questionText: string; answerType: string; partId: number; subtestId: number }[];
-}) {
+export default function SpeechMotorPage({ questionList }: { questionList: QuestionAnswer[] }) {
     const router = useRouter();
 
     // 파타카 녹음
@@ -112,6 +110,7 @@ export default function SpeechMotorPage({
         isRecording: isRecording1,
         isPlaying: isPlaying1,
         audioUrl: audioUrl1,
+        audioBlob: audioBlob1,
         handleStartRecording: handleStartRecording1,
         handleStopRecording: handleStopRecording1,
         handlePlay: handlePlay1,
@@ -121,6 +120,7 @@ export default function SpeechMotorPage({
         isRecording: isRecording2,
         isPlaying: isPlaying2,
         audioUrl: audioUrl2,
+        audioBlob: audioBlob2,
         handleStartRecording: handleStartRecording2,
         handleStopRecording: handleStopRecording2,
         handlePlay: handlePlay2,
@@ -130,10 +130,21 @@ export default function SpeechMotorPage({
         isRecording: isRecording3,
         isPlaying: isPlaying3,
         audioUrl: audioUrl3,
+        audioBlob: audioBlob3,
         handleStartRecording: handleStartRecording3,
         handleStopRecording: handleStopRecording3,
         handlePlay: handlePlay3,
         handlePause: handlePause3,
+    } = useAudioRecorder();
+    const {
+        isRecording: isRecording4,
+        isPlaying: isPlaying4,
+        audioUrl: audioUrl4,
+        audioBlob: audioBlob4,
+        handleStartRecording: handleStartRecording4,
+        handleStopRecording: handleStopRecording4,
+        handlePlay: handlePlay4,
+        handlePause: handlePause4,
     } = useAudioRecorder();
 
     // 현재 소검사, 선택한 소검사 정보
@@ -150,9 +161,16 @@ export default function SpeechMotorPage({
 
     // react-hook-form
     const { control, register, setValue, handleSubmit } = useForm<{
-        answers: { questionId: number; questionText: string; answer?: string; memo?: string }[];
+        recordings: Recording[];
+        answers: Answer[];
     }>({
         defaultValues: {
+            recordings: [
+                { filePath: null, repeatCount: null },
+                { filePath: null, repeatCount: null },
+                { filePath: null, repeatCount: null },
+                { filePath: null, repeatCount: null },
+            ],
             answers: questionList?.map(({ questionId, questionText, partId, subtestId }) => ({
                 questionId,
                 questionText,
@@ -193,34 +211,67 @@ export default function SpeechMotorPage({
         typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
     }, [currentPartId]);
 
-    // 폼 제출
+    // 폼 데이터 제출
+    const handleSubmitData = useCallback(
+        async ({ sessionId, data }: { sessionId: number; data: any }) => {
+            const formData = new FormData();
+            formData.append('audio', audioBlob1 || 'null');
+            formData.append('audio', audioBlob2 || 'null');
+            formData.append('audio', audioBlob3 || 'null');
+            formData.append('audio', audioBlob4 || 'null');
+            formData.append('recordings', JSON.stringify(data.recordings));
+
+            formData.append('currentPartId', `${currentPartId}`);
+            formData.append('answers', JSON.stringify(data.answers));
+
+            await updateSessionAPI({ sessionId, formData });
+        },
+        [audioBlob1, audioBlob2, audioBlob3, audioBlob4, currentPartId],
+    );
+
+    // 폼 제출 후 redirect
     const handleOnSubmit = useCallback(
         async (data: any) => {
-            console.log(data);
-
             try {
                 const sessionId = Number(router.query.sessionId);
-                await updateSessionAPI({ sessionId, currentPartId });
+                await handleSubmitData({ sessionId, data });
 
-                const currentSubtestIndex = subtests.findIndex(v => v.subtestId === currentSubtest);
+                const currentSubtestIndex = subtests.findIndex(v => v.subtestId === `${CURRENT_SUBTEST_ID}`);
                 const nextSubtest = subtests[currentSubtestIndex + 1];
-                router.push(`/sessions/${sessionId}/subTests/${nextSubtest.pathname}`);
+                router.push(`/sessions/${sessionId}/subtests/${nextSubtest.pathname}`);
             } catch (err) {
                 console.error(err);
             }
         },
-        [currentPartId, currentSubtest, router, subtests],
+        [handleSubmitData, router, subtests],
     );
+
+    // 녹음 파일 로컬 주소 form 세팅
+    useEffect(() => {
+        audioUrl1 && setValue(`recordings.0.filePath`, audioUrl1);
+    }, [audioUrl1, setValue]);
+
+    useEffect(() => {
+        audioUrl2 && setValue(`recordings.1.filePath`, audioUrl2);
+    }, [audioUrl2, setValue]);
+
+    useEffect(() => {
+        audioUrl3 && setValue(`recordings.2.filePath`, audioUrl3);
+    }, [audioUrl3, setValue]);
+
+    useEffect(() => {
+        audioUrl4 && setValue(`recordings.3.filePath`, audioUrl4);
+    }, [audioUrl4, setValue]);
 
     return (
         <Container>
             <h2 className='flex items-center font-jalnan text-accent1 text-head-2'>SPEECH Motor : 말운동평가</h2>
-            <form onSubmit={handleSubmit(handleOnSubmit)} className='flex w-full flex-col flex-nowrap items-center px-5 xl:px-0'>
+            <form onSubmit={handleSubmit(handleOnSubmit)} className={`${subtestStyles['subtest-form']}`}>
                 <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitle}</h1>
 
                 {currentPartId === 1 ? (
-                    <table className={`${subtestStyles['table']}`}>
-                        <thead className={`${subtestStyles['table-head']}`}>
+                    <table className={`${subtestStyles['question-table']}`}>
+                        <thead>
                             <tr className='bg-accent1 text-white text-body-2'>
                                 <th className='rounded-tl-base'>SMR 측정 (5초)</th>
                                 <th></th>
@@ -229,13 +280,13 @@ export default function SpeechMotorPage({
                                 <th className='rounded-tr-base'>반복횟수</th>
                             </tr>
                         </thead>
-                        <tbody className={`${subtestStyles['table-body']}`}>
+                        <tbody>
                             <tr>
                                 <td rowSpan={3}>
                                     숨을 크게 들어 마신 뒤, &apos;파&apos; 를 가능한 빨리 규칙적으로 반복해서 말해보세요. (&apos;타&apos; 와
                                     &apos;카&apos; 도 동일하게 시행)
                                 </td>
-                                <td>파</td>
+                                <td className={`${subtestStyles['button']}`}>파</td>
                                 <td>
                                     <RecordButton
                                         isRecording={isRecording1}
@@ -243,7 +294,7 @@ export default function SpeechMotorPage({
                                         handleStop={handleStopRecording1}
                                     />
                                 </td>
-                                <td>
+                                <td className={`${subtestStyles['button']}`}>
                                     <PlayButton
                                         isPlaying={isPlaying1}
                                         handlePlay={handlePlay1}
@@ -252,19 +303,19 @@ export default function SpeechMotorPage({
                                     />
                                 </td>
                                 <td>
-                                    <input className='outline-none' />
+                                    <input className='outline-none' {...register(`recordings.0.repeatCount`)} />
                                 </td>
                             </tr>
                             <tr>
                                 <td>타</td>
-                                <td>
+                                <td className={`${subtestStyles['button']}`}>
                                     <RecordButton
                                         isRecording={isRecording2}
                                         handleStart={handleStartRecording2}
                                         handleStop={handleStopRecording2}
                                     />
                                 </td>
-                                <td>
+                                <td className={`${subtestStyles['button']}`}>
                                     <PlayButton
                                         isPlaying={isPlaying2}
                                         handlePlay={handlePlay2}
@@ -273,19 +324,19 @@ export default function SpeechMotorPage({
                                     />
                                 </td>
                                 <td>
-                                    <input className='outline-none' />
+                                    <input className='outline-none' {...register(`recordings.1.repeatCount`)} />
                                 </td>
                             </tr>
                             <tr>
                                 <td>카</td>
-                                <td>
+                                <td className={`${subtestStyles['button']}`}>
                                     <RecordButton
                                         isRecording={isRecording3}
                                         handleStart={handleStartRecording3}
                                         handleStop={handleStopRecording3}
                                     />
                                 </td>
-                                <td>
+                                <td className={`${subtestStyles['button']}`}>
                                     <PlayButton
                                         isPlaying={isPlaying3}
                                         handlePlay={handlePlay3}
@@ -294,14 +345,14 @@ export default function SpeechMotorPage({
                                     />
                                 </td>
                                 <td>
-                                    <input className='outline-none' />
+                                    <input className='outline-none' {...register(`recordings.2.repeatCount`)} />
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 ) : (
-                    <table className={`${subtestStyles['table']}`}>
-                        <thead className={`${subtestStyles['table-head']}`}>
+                    <table className={`${subtestStyles['question-table']}`}>
+                        <thead>
                             <tr className='bg-accent1 text-white text-body-2'>
                                 <th className='rounded-tl-base'>AMR 측정 (5초)</th>
                                 <th></th>
@@ -310,26 +361,38 @@ export default function SpeechMotorPage({
                                 <th className='rounded-tr-base'>반복횟수</th>
                             </tr>
                         </thead>
-                        <tbody className={`${subtestStyles['table-body']}`}>
+                        <tbody>
                             <tr>
-                                <td>&apos;퍼-터-커&apos;를 가능한 한 빨리, 규칙적으로 반복해서 말해보세요.</td>
-                                <td>퍼터커</td>
-                                <td>
-                                    <RecordIcon />
+                                <td align='center'>
+                                    &apos;퍼-터-커&apos;를 가능한 한 빨리, 규칙적으로 <br />
+                                    반복해서 말해보세요.
                                 </td>
-                                <td>
-                                    <PlayIcon />
+                                <td className={`${subtestStyles['button']}`}>퍼터커</td>
+                                <td className={`${subtestStyles['button']}`}>
+                                    <RecordButton
+                                        isRecording={isRecording4}
+                                        handleStart={handleStartRecording4}
+                                        handleStop={handleStopRecording4}
+                                    />
                                 </td>
-                                <td>
-                                    <input />
+                                <td className={`${subtestStyles['button']}`}>
+                                    <PlayButton
+                                        isPlaying={isPlaying4}
+                                        handlePlay={handlePlay4}
+                                        handlePause={handlePause4}
+                                        disabled={!audioUrl4}
+                                    />
+                                </td>
+                                <td className={`${subtestStyles['button']}`}>
+                                    <input className='w-full outline-none' {...register(`recordings.3.repeatCount`)} />
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 )}
 
-                <table className={`${subtestStyles['table']}`}>
-                    <thead className={`${subtestStyles['table-head']}`}>
+                <table className={`${subtestStyles['question-table']}`}>
+                    <thead>
                         <tr className='bg-accent1 text-white text-body-2'>
                             <th className='rounded-tl-base'></th>
                             <th>{subtitle}</th>
@@ -340,34 +403,34 @@ export default function SpeechMotorPage({
                             <th className='rounded-tr-base'>메모</th>
                         </tr>
                     </thead>
-                    <tbody className={`${subtestStyles['table-body']}`}>
+                    <tbody>
                         {fields.slice(start, end).map((item, i) => (
                             <tr key={item.id}>
-                                <td>{i + 1}</td>
-                                <td>{item.questionText}</td>
-                                <td className='text-center'>
+                                <td className={`${subtestStyles['num']}`}>{i + 1}</td>
+                                <td className={`${subtestStyles['text']}`}>{item.questionText}</td>
+                                <td className={`${subtestStyles['option']}`}>
                                     <input type='radio' {...register(`answers.${start + i}.answer`)} value='normal' />
                                 </td>
-                                <td className='text-center'>
+                                <td className={`${subtestStyles['option']}`}>
                                     <input type='radio' {...register(`answers.${start + i}.answer`)} value='mild' />
                                 </td>
-                                <td className='text-center'>
+                                <td className={`${subtestStyles['option']}`}>
                                     <input type='radio' {...register(`answers.${start + i}.answer`)} value='moderate' />
                                 </td>
-                                <td className='text-center'>
+                                <td className={`${subtestStyles['option']}`}>
                                     <input type='radio' {...register(`answers.${start + i}.answer`)} value='unknown' />
                                 </td>
                                 <td className='p-0 text-center'>
                                     <Controller
                                         control={control}
-                                        name={`answers.${start + i}.memo`}
+                                        name={`answers.${start + i}.comment`}
                                         render={({ field }) => (
                                             <ReactTextareaAutosize
                                                 className={`${subtestStyles.textarea}`}
                                                 minRows={1}
                                                 onChange={field.onChange}
                                                 onBlur={field.onBlur}
-                                                value={field.value}
+                                                value={field.value || ''}
                                             />
                                         )}
                                     />
@@ -424,7 +487,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         };
 
         // 소검사 문항 정보 fetch
-        const responseData = await getQuestionListAPI({ subtestId: CURRENT_SUBTEST_ID });
+        const responseData = await getQuestionAndAnswerListAPI({ sessionId, subtestId: CURRENT_SUBTEST_ID });
         const questionList = responseData.questions;
 
         return {

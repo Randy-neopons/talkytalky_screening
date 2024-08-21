@@ -15,13 +15,11 @@ export default function ParagraphReadingPage() {
     // 다음 클릭
     const handleClickNext = useCallback(
         (data: any) => {
-            console.log(data);
-
             try {
                 // TODO: 중간 저장 API
 
                 const sessionId = Number(router.query.sessionId);
-                router.push(`/sessions/${sessionId}/subTests/speechTwo/description`);
+                router.push(`/sessions/${sessionId}/subtests/speechTwo/description`);
             } catch (err) {
                 console.error(err);
             }

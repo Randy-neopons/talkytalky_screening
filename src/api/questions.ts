@@ -17,8 +17,8 @@ export async function getSessionListAPI({ jwt }: { jwt: string }) {
 }
 
 // 문항 목록 조회
-export async function getQuestionListAPI({ subtestId }: { subtestId: number }) {
-    const response = await axios.get('/assessment/questions', { params: { subtestId } });
+export async function getQuestionAndAnswerListAPI({ sessionId, subtestId }: { sessionId: number; subtestId: number }) {
+    const response = await axios.get(`/assessment/session/${sessionId}/questions`, { params: { subtestId } });
     return response.data;
 }
 
@@ -42,8 +42,8 @@ export async function createSessionAPI({ testInfo, subtestIds }: { testInfo: Tes
 }
 
 // 세션 업데이트
-export async function updateSessionAPI({ sessionId, currentPartId }: { sessionId: number; currentPartId: number }) {
-    const response = await axios.patch(`/assessment/session/${sessionId}`, { currentPartId });
+export async function updateSessionAPI({ sessionId, formData }: { sessionId: number; formData: FormData }) {
+    const response = await axios.patch(`/assessment/session/${sessionId}`, formData);
 
     return response.data;
 }
