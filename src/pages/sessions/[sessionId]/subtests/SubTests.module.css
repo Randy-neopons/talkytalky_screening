@@ -58,6 +58,10 @@
     @apply px-2;
 }
 
+.recording-table input[type='radio'] {
+    @apply h-4 w-4;
+}
+
 .question-table {
     @apply mb-5 mt-[60px] w-[728px] border-collapse rounded-base shadow-base xl:mt-[80px] xl:w-[1000px];
 }
@@ -108,6 +112,10 @@
 }
 .question-table tbody tr td:last-child {
     @apply px-2;
+}
+
+.question-table input[type='radio'] {
+    @apply h-4 w-4;
 }
 
 .textarea {

@@ -43,7 +43,7 @@ const StopRecordIcon = () => {
 const PlayIcon = ({ disabled }: { disabled?: boolean }) => {
     return (
         <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'>
-            <g clip-path='url(#clip0_13783_7609)'>
+            <g clipPath='url(#clip0_13783_7609)'>
                 <path
                     d='M20 10.2679C21.3333 11.0377 21.3333 12.9623 20 13.7321L8 20.6603C6.66667 21.4301 5 20.4678 5 18.9282L5 5.0718C5 3.5322 6.66667 2.56995 8 3.33975L20 10.2679Z'
                     fill={disabled ? 'gray' : '#6979F8'}
@@ -102,7 +102,7 @@ const PlayButton = ({
 };
 
 // SPEECH II 문항 페이지
-export default function SpeechMotorPage({ questionList }: { questionList: QuestionAnswer[] }) {
+export default function SpeechMotorPage({ questionList }: { questionList: QuestionAnswer[]; recordingList: Recording[] }) {
     const router = useRouter();
 
     // 파타카 녹음
@@ -238,7 +238,11 @@ export default function SpeechMotorPage({ questionList }: { questionList: Questi
 
                 const currentSubtestIndex = subtests.findIndex(v => v.subtestId === `${CURRENT_SUBTEST_ID}`);
                 const nextSubtest = subtests[currentSubtestIndex + 1];
-                router.push(`/sessions/${sessionId}/subtests/${nextSubtest.pathname}`);
+                if (nextSubtest) {
+                    router.push(`/sessions/${sessionId}/subtests/${nextSubtest.pathname}`);
+                } else {
+                    router.push(`/sessions/${sessionId}/unassessable`);
+                }
             } catch (err) {
                 console.error(err);
             }
@@ -270,7 +274,7 @@ export default function SpeechMotorPage({ questionList }: { questionList: Questi
                 <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitle}</h1>
 
                 {currentPartId === 1 ? (
-                    <table className={`${subtestStyles['question-table']}`}>
+                    <table className={`${subtestStyles['recording-table']}`}>
                         <thead>
                             <tr className='bg-accent1 text-white text-body-2'>
                                 <th className='rounded-tl-base'>SMR 측정 (5초)</th>
@@ -287,7 +291,7 @@ export default function SpeechMotorPage({ questionList }: { questionList: Questi
                                     &apos;카&apos; 도 동일하게 시행)
                                 </td>
                                 <td className={`${subtestStyles['button']}`}>파</td>
-                                <td>
+                                <td className={`${subtestStyles['button']}`}>
                                     <RecordButton
                                         isRecording={isRecording1}
                                         handleStart={handleStartRecording1}
@@ -307,7 +311,7 @@ export default function SpeechMotorPage({ questionList }: { questionList: Questi
                                 </td>
                             </tr>
                             <tr>
-                                <td>타</td>
+                                <td className={`${subtestStyles['button']}`}>타</td>
                                 <td className={`${subtestStyles['button']}`}>
                                     <RecordButton
                                         isRecording={isRecording2}
@@ -328,7 +332,7 @@ export default function SpeechMotorPage({ questionList }: { questionList: Questi
                                 </td>
                             </tr>
                             <tr>
-                                <td>카</td>
+                                <td className={`${subtestStyles['button']}`}>카</td>
                                 <td className={`${subtestStyles['button']}`}>
                                     <RecordButton
                                         isRecording={isRecording3}
@@ -351,7 +355,7 @@ export default function SpeechMotorPage({ questionList }: { questionList: Questi
                         </tbody>
                     </table>
                 ) : (
-                    <table className={`${subtestStyles['question-table']}`}>
+                    <table className={`${subtestStyles['recording-table']}`}>
                         <thead>
                             <tr className='bg-accent1 text-white text-body-2'>
                                 <th className='rounded-tl-base'>AMR 측정 (5초)</th>
@@ -489,11 +493,13 @@ export const getServerSideProps: GetServerSideProps = async context => {
         // 소검사 문항 정보 fetch
         const responseData = await getQuestionAndAnswerListAPI({ sessionId, subtestId: CURRENT_SUBTEST_ID });
         const questionList = responseData.questions;
+        const recordingList = responseData.recordings;
 
         return {
             props: {
                 testSession,
                 questionList,
+                recordingList,
             },
         };
     } catch (err) {

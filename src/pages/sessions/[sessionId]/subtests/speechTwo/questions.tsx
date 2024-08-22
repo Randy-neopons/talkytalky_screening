@@ -108,7 +108,11 @@ export default function SpeechTwoPage({ questionList }: { questionList: Question
 
                 const currentSubtestIndex = subtests.findIndex(v => v.subtestId === `${CURRENT_SUBTEST_ID}`);
                 const nextSubtest = subtests[currentSubtestIndex + 1];
-                router.push(`/sessions/${sessionId}/subtests/${nextSubtest.pathname}`);
+                if (nextSubtest) {
+                    router.push(`/sessions/${sessionId}/subtests/${nextSubtest.pathname}`);
+                } else {
+                    router.push(`/sessions/${sessionId}/unassessable`);
+                }
             } catch (err) {
                 console.error(err);
             }

@@ -29,7 +29,7 @@ const useAudioRecorder = () => {
         };
 
         mediaRecorder.onstop = () => {
-            const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+            const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/mp3' });
             const audioUrl = URL.createObjectURL(audioBlob);
             setAudioBlob(audioBlob);
             setAudioUrl(audioUrl);
