@@ -1,8 +1,12 @@
 import { useCallback } from 'react';
+import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
+import { getCookie } from 'cookies-next';
+
 import Container from '@/components/common/Container';
+import useAudioRecorder from '@/hooks/useAudioRecorder';
 
 import fontSizeIcon from 'public/static/images/font-size-icon.png';
 import memoIcon from 'public/static/images/memo-icon.png';
@@ -11,6 +15,8 @@ import recordIcon from 'public/static/images/record-icon.png';
 // 문단읽기 페이지
 export default function ParagraphReadingPage() {
     const router = useRouter();
+
+    const { audioBlob, audioUrl, handleStartRecording, handleStopRecording } = useAudioRecorder();
 
     // 다음 클릭
     const handleClickNext = useCallback(
@@ -65,10 +71,10 @@ export default function ParagraphReadingPage() {
                         <Image src={memoIcon} alt='memo-icon' className='h-auto w-[60px]' />
                     </button>
                     <button type='button'>
-                        <Image src={recordIcon} alt='memo-icon' className='h-auto w-[100px]' />
+                        <Image src={recordIcon} alt='record-icon' className='h-auto w-[100px]' />
                     </button>
                     <button type='button'>
-                        <Image src={fontSizeIcon} alt='memo-icon' className='h-auto w-[60px]' />
+                        <Image src={fontSizeIcon} alt='font-icon' className='h-auto w-[60px]' />
                     </button>
                 </div>
                 <button key='noSubmit' type='button' className='btn btn-large btn-contained' onClick={handleClickNext}>
@@ -78,3 +84,39 @@ export default function ParagraphReadingPage() {
         </Container>
     );
 }
+
+export const getServerSideProps: GetServerSideProps = async context => {
+    try {
+        const sessionId = Number(context.query.sessionId);
+        if (!sessionId) {
+            return {
+                redirect: {
+                    destination: '/',
+                    permanent: true,
+                },
+            };
+        }
+
+        const accessToken = getCookie('jwt', context);
+        if (!accessToken || accessToken === 'undefined') {
+            return {
+                props: {
+                    isLoggedIn: false,
+                },
+            };
+        }
+
+        return {
+            props: {
+                isLoggedIn: true,
+            },
+        };
+    } catch (err) {
+        return {
+            redirect: {
+                destination: '/',
+                permanent: true,
+            },
+        };
+    }
+};

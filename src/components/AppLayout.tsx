@@ -9,26 +9,12 @@ export default function AppLayout({ isLoggedIn, children }: { isLoggedIn?: boole
     const { data: user, error } = useUserQuery();
 
     useEffect(() => {
-        user && console.log(user);
-    }, [user]);
-
-    useEffect(() => {
-        if (error) {
-            console.log(error);
-
+        if (error || !isLoggedIn) {
             alert('로그인이 필요합니다.\n토키토키 로그인 페이지로 이동합니다.');
             window.location.href = `${TALKYTALKY_URL}/login`;
             return;
         }
-    }, [error]);
-
-    useEffect(() => {
-        if (!isLoggedIn) {
-            alert('로그인이 필요합니다.\n토키토키 로그인 페이지로 이동합니다.');
-            window.location.href = `${TALKYTALKY_URL}/login`;
-            return;
-        }
-    }, [isLoggedIn]);
+    }, [error, isLoggedIn]);
 
     return (
         isLoggedIn && (

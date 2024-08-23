@@ -1,6 +1,9 @@
 import { useCallback } from 'react';
+import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
+
+import { getCookie } from 'cookies-next';
 
 import Container from '@/components/common/Container';
 import { InfoIcon } from '@/components/icons';
@@ -104,3 +107,39 @@ export default function PictureDescriptionPage() {
         </Container>
     );
 }
+
+export const getServerSideProps: GetServerSideProps = async context => {
+    try {
+        const sessionId = Number(context.query.sessionId);
+        if (!sessionId) {
+            return {
+                redirect: {
+                    destination: '/',
+                    permanent: true,
+                },
+            };
+        }
+
+        const accessToken = getCookie('jwt', context);
+        if (!accessToken || accessToken === 'undefined') {
+            return {
+                props: {
+                    isLoggedIn: false,
+                },
+            };
+        }
+
+        return {
+            props: {
+                isLoggedIn: true,
+            },
+        };
+    } catch (err) {
+        return {
+            redirect: {
+                destination: '/',
+                permanent: true,
+            },
+        };
+    }
+};

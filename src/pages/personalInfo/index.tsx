@@ -126,13 +126,18 @@ export default function PersonalInfoPage() {
                 <Label htmlFor='testerName' required>
                     검사자명
                 </Label>
-                <input value={'조대형'} className={`${styles.input}`} placeholder='검사자명을 입력하세요.' readOnly />
+                <input value={user?.data?.fullName || ''} className={`${styles.input}`} placeholder='검사자명을 입력하세요.' readOnly />
                 <ErrorMessage errors={errors} name='testerName' render={({ message }) => <ErrorText>{message}</ErrorText>} />
 
                 <Label htmlFor='certificateNumber' required>
                     자격증 번호
                 </Label>
-                <input value={'s12345678'} className={`${styles.input}`} placeholder='자격증 번호를 입력하세요.' readOnly />
+                <input
+                    value={user?.data?.certificateArr?.[0]?.certNum || ''}
+                    className={`${styles.input}`}
+                    placeholder='자격증 번호를 입력하세요.'
+                    readOnly
+                />
                 <ErrorMessage errors={errors} name='certificateNumber' render={({ message }) => <ErrorText>{message}</ErrorText>} />
 
                 <Label htmlFor='testDate'>검사일</Label>

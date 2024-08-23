@@ -120,6 +120,7 @@ export default function SpeechOnePage({ questionList }: { questionList: Question
                 const accessToken = getCookie('jwt') as string;
                 await updateSessionAPI({ sessionId, formData, jwt: accessToken });
             } catch (err) {
+                console.error(err);
                 if (isAxiosError(err)) {
                     if (err.response?.status === 401) {
                         deleteCookie('jwt');
