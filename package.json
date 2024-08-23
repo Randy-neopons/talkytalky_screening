@@ -3,10 +3,12 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "next dev",
-        "build": "next build",
+        "dev": "next dev -p 3004",
+        "build": "cross-env NODE_ENV=production next build",
         "start": "next start",
-        "lint": "next lint"
+        "lint": "next lint",
+        "deploy": "npm run build && gcloud app deploy --project talkytalky-platform-v2",
+        "deploy:staging": "npm run build && gcloud app deploy app-staging.yaml --project talkytalky-platform-v2"
     },
     "dependencies": {
         "@hookform/error-message": "^2.0.1",
@@ -17,6 +19,7 @@
         "@tanstack/react-query-devtools": "^5.29.0",
         "axios": "^1.7.2",
         "cookies-next": "^4.2.1",
+        "cross-env": "^7.0.3",
         "dayjs": "^1.11.11",
         "next": "14.1.4",
         "react": "^18",
