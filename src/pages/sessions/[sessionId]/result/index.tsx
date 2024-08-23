@@ -4,10 +4,12 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
+import { getCookie } from 'cookies-next';
 import dayjs from 'dayjs';
 
 import Container from '@/components/common/Container';
 import { PrintIcon } from '@/components/icons';
+import { useUserQuery } from '@/hooks/user';
 import { getTestResultAPI } from '@/api/questions';
 
 import styles from './TestResultPage.module.css';
@@ -129,22 +131,6 @@ const genderOptionList = [
     { value: 'female', label: '여' },
 ];
 
-const defaultTestInfo = {
-    therapistUserId: 178,
-    testDate: '2024-08-02',
-    patientName: '조대형',
-    patientGender: 'male',
-    patientBirthdate: '1990-08-24',
-    brainLesions: [],
-    medicalHistory: '',
-    patientMemo: '',
-};
-
-const user = {
-    therapistUserId: 178,
-    testerName: '김검사',
-};
-
 const subtestResultList = [
     { subtestIds: [1], subtestTitle: 'SPEECH MECHANISM : 말기제 평가', pathname: 'speechMechanism', color: '#20C997' },
     { subtestIds: [2, 3], subtestTitle: 'SPEECH I : 영역별 말평가 / SPEECH II : 종합적 말평가', pathname: 'speech', color: '#FFA26B' },
@@ -214,7 +200,6 @@ export default function TestResultPage({
     testScore,
 }: {
     testInfo: {
-        therapistUserId: number;
         testDate: string;
         patientName: string;
         patientGender: string;
@@ -233,6 +218,8 @@ export default function TestResultPage({
     }[];
 }) {
     const router = useRouter(); // next router
+
+    const { data: user } = useUserQuery();
 
     return (
         <Container>
@@ -273,7 +260,7 @@ export default function TestResultPage({
                             {dayjs(testInfo.patientBirthdate).format('YYYY.MM.DD')}
                         </td>
                         <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
-                            {user.testerName}
+                            {user?.data?.fullName}
                         </td>
                     </tr>
                     <tr>
@@ -360,33 +347,33 @@ export default function TestResultPage({
 }
 
 export const getServerSideProps: GetServerSideProps = async context => {
-    const sessionId = Number(context.query.sessionId);
-
-    if (!sessionId) {
-        return {
-            redirect: {
-                destination: '/',
-                permanent: true,
-            },
-        };
-    }
-
     try {
-        // TODO: sessionId 통해 시험 세션 정보 얻음
-        const testSession = {
-            sessionId,
-            subtests: [],
-        };
+        const sessionId = Number(context.query.sessionId);
+        if (!sessionId) {
+            return {
+                redirect: {
+                    destination: '/',
+                    permanent: true,
+                },
+            };
+        }
+
+        const accessToken = getCookie('jwt', context);
+        if (!accessToken || accessToken === 'undefined') {
+            return {
+                props: {
+                    isLoggedIn: false,
+                },
+            };
+        }
 
         // 소검사 문항 정보 fetch
-        const responseData = await getTestResultAPI({ sessionId });
+        const responseData = await getTestResultAPI({ sessionId, jwt: accessToken });
         const { testInfo, testScore } = responseData;
-
-        console.log(responseData);
 
         return {
             props: {
-                testSession,
+                isLoggedIn: true,
                 testInfo,
                 testScore,
             },

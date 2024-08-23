@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+import { API_URL } from '@/utils/const';
+
 import type { Answer, TestInfoFormValues } from '@/types/types';
-axios.defaults.baseURL = 'http://localhost:5400/api/v1';
+
+axios.defaults.baseURL = API_URL;
 
 const makeHeaders = (accessToken: string) => {
     const token = accessToken;
@@ -17,42 +20,57 @@ export async function getSessionListAPI({ jwt }: { jwt: string }) {
 }
 
 // 문항 목록 조회
-export async function getQuestionAndAnswerListAPI({ sessionId, subtestId }: { sessionId: number; subtestId: number }) {
-    const response = await axios.get(`/assessment/session/${sessionId}/questions`, { params: { subtestId } });
+export async function getQuestionAndAnswerListAPI({ sessionId, subtestId, jwt }: { sessionId: number; subtestId: number; jwt: string }) {
+    const response = await axios.get(`/assessment/session/${sessionId}/questions`, {
+        headers: makeHeaders(jwt),
+        params: { subtestId },
+    });
     return response.data;
 }
 
 // 평가불가 문항 목록 조회
-export async function getUnassessableQuestionListAPI({ sessionId }: { sessionId: number }) {
+export async function getUnassessableQuestionListAPI({ sessionId, jwt }: { sessionId: number; jwt: string }) {
     const response = await axios.get<{
         result: boolean;
         questions: Answer[];
-    }>(`/assessment/session/${sessionId}/unassessable`);
+    }>(`/assessment/session/${sessionId}/unassessable`, {
+        headers: makeHeaders(jwt),
+    });
     return response.data;
 }
 
 // 세션 생성
-export async function createSessionAPI({ testInfo, subtestIds }: { testInfo: TestInfoFormValues; subtestIds: string[] }) {
-    const response = await axios.post('/assessment/session', {
-        testInfo,
-        subtestIds,
-    });
+export async function createSessionAPI({ testInfo, subtestIds, jwt }: { testInfo: TestInfoFormValues; subtestIds: string[]; jwt: string }) {
+    const response = await axios.post(
+        '/assessment/session',
+        {
+            testInfo,
+            subtestIds,
+        },
+        { headers: makeHeaders(jwt) },
+    );
 
     return response.data;
 }
 
 // 세션 업데이트
-export async function updateSessionAPI({ sessionId, formData }: { sessionId: number; formData: FormData }) {
-    const response = await axios.patch(`/assessment/session/${sessionId}`, formData);
+export async function updateSessionAPI({ sessionId, formData, jwt }: { sessionId: number; formData: FormData; jwt: string }) {
+    const response = await axios.patch(`/assessment/session/${sessionId}`, formData, { headers: makeHeaders(jwt) });
+
+    return response.data;
+}
+
+// 세션 완료
+export async function completeSessionAPI({ sessionId, jwt }: { sessionId: number; jwt: string }) {
+    const response = await axios.patch(`/assessment/session/${sessionId}/complete`, {}, { headers: makeHeaders(jwt) });
 
     return response.data;
 }
 
 // 세션 결과 보기
-export async function getTestResultAPI({ sessionId }: { sessionId: number }) {
+export async function getTestResultAPI({ sessionId, jwt }: { sessionId: number; jwt: string }) {
     const response = await axios.get<{
         testInfo: {
-            therapistUserId: number;
             testDate: string;
             patientName: string;
             patientGender: string;
@@ -68,7 +86,9 @@ export async function getTestResultAPI({ sessionId }: { sessionId: number }) {
             subtestId: number;
             subtestTitle: string;
         }[];
-    }>(`/assessment/session/${sessionId}/result`);
+    }>(`/assessment/session/${sessionId}/result`, {
+        headers: makeHeaders(jwt),
+    });
 
     return response.data;
 }

@@ -1,15 +1,18 @@
 import { useCallback, type ReactNode } from 'react';
 import { Controller, useForm, useWatch, type Control } from 'react-hook-form';
 import TextareaAutosize from 'react-textarea-autosize';
+import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
 import { ErrorMessage } from '@hookform/error-message';
+import { getCookie } from 'cookies-next';
 import dayjs from 'dayjs';
 
 import { useTestInfo, useTestActions } from '@/stores/testStore';
 import { CheckBoxGroupItem } from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import Select from '@/components/common/Select';
+import { useUserQuery } from '@/hooks/user';
 
 import styles from './PersonalInfo.module.css';
 
@@ -75,6 +78,7 @@ export default function PersonalInfoPage() {
     const router = useRouter(); // next router
     const testInfo = useTestInfo();
     const { setTestInfo } = useTestActions(); // 검사 정보 global state
+    const { data: user } = useUserQuery();
 
     // 검사 정보 입력 form
     const {
@@ -103,11 +107,16 @@ export default function PersonalInfoPage() {
             const testDate = dayjs(new Date(Number(testYear), Number(testMonth) - 1, Number(testDay))).format('YYYY-MM-DD');
             const patientBirthdate = dayjs(new Date(Number(birthYear), Number(birthMonth) - 1, Number(birthDay))).format('YYYY-MM-DD');
 
-            const formValues = { ...rest, testDate, patientBirthdate };
+            const formValues = {
+                ...rest,
+                therapistUserId: user?.data.therapistUserId,
+                testDate,
+                patientBirthdate,
+            };
             setTestInfo(formValues); // set global state
             router.push('/selectTest'); // 검사 선택 화면으로
         },
-        [router, setTestInfo],
+        [router, setTestInfo, user],
     );
 
     return (
@@ -210,3 +219,29 @@ export default function PersonalInfoPage() {
         </Container>
     );
 }
+
+export const getServerSideProps: GetServerSideProps = async context => {
+    try {
+        const accessToken = getCookie('jwt', context);
+        if (!accessToken || accessToken === 'undefined') {
+            return {
+                props: {
+                    isLoggedIn: false,
+                },
+            };
+        }
+
+        return {
+            props: {
+                isLoggedIn: true,
+            },
+        };
+    } catch (err) {
+        return {
+            redirect: {
+                destination: '/',
+                permanent: true,
+            },
+        };
+    }
+};

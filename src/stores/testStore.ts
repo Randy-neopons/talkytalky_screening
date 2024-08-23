@@ -42,14 +42,13 @@ const useTestStore = create<{
     };
 }>(set => ({
     testInfo: {
-        therapistUserId: 178,
         testDate: dayjs().format('YYYY-MM-DD'),
         patientName: '',
         patientGender: 'female',
         patientBirthdate: dayjs().format('YYYY-MM-DD'),
         brainLesions: [],
         medicalHistory: '',
-        memo: '',
+        patientMemo: '',
     },
     currentSubtest: '1',
     subtests: [],

@@ -1,5 +1,4 @@
 export interface TestInfoFormValues {
-    therapistUserId: number;
     testDate: string;
     patientName: string;
     patientGender: string;

@@ -2,9 +2,13 @@ import { useCallback } from 'react';
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
+import { isAxiosError } from 'axios';
+import { deleteCookie, getCookie } from 'cookies-next';
+
 import { partList, subtestList } from '@/stores/testStore';
+import { TALKYTALKY_URL } from '@/utils/const';
 import Container from '@/components/common/Container';
-import { getUnassessableQuestionListAPI } from '@/api/questions';
+import { completeSessionAPI, getUnassessableQuestionListAPI } from '@/api/questions';
 
 import type { QuestionAnswer } from '@/types/types';
 
@@ -13,19 +17,26 @@ export default function UnassessableQuestionsPage({ questionList }: { questionLi
     const router = useRouter(); // next router
 
     // 폼 제출
-    const handleClickNext = useCallback(
-        (data: any) => {
-            try {
-                // TODO: 중간 저장 API
+    const handleClickNext = useCallback(async () => {
+        try {
+            // 세션 완료 처리
+            const accessToken = getCookie('jwt') as string;
+            const sessionId = Number(router.query.sessionId);
+            await completeSessionAPI({ sessionId, jwt: accessToken });
 
-                const sessionId = Number(router.query.sessionId);
-                router.push(`/sessions/${sessionId}/result`);
-            } catch (err) {
-                console.error(err);
+            router.push(`/sessions/${sessionId}/result`);
+        } catch (err) {
+            if (isAxiosError(err)) {
+                if (err.response?.status === 401) {
+                    deleteCookie('jwt');
+                    alert('로그인이 필요합니다.\n토키토키 로그인 페이지로 이동합니다.');
+                    window.location.href = `${TALKYTALKY_URL}/login`;
+                    return;
+                }
             }
-        },
-        [router],
-    );
+            console.error(err);
+        }
+    }, [router]);
 
     // 이동하기
     const handleClickMove = useCallback(
@@ -83,35 +94,47 @@ export default function UnassessableQuestionsPage({ questionList }: { questionLi
 }
 
 export const getServerSideProps: GetServerSideProps = async context => {
-    const sessionId = Number(context.query.sessionId);
-
-    if (!sessionId) {
-        return {
-            redirect: {
-                destination: '/',
-                permanent: true,
-            },
-        };
-    }
-
     try {
-        // TODO: sessionId 통해 시험 세션 정보 얻음
-        const testSession = {
-            sessionId,
-            subtests: [],
-        };
+        const sessionId = Number(context.query.sessionId);
+        if (!sessionId) {
+            return {
+                redirect: {
+                    destination: '/',
+                    permanent: true,
+                },
+            };
+        }
+
+        const accessToken = getCookie('jwt', context);
+        if (!accessToken || accessToken === 'undefined') {
+            return {
+                props: {
+                    isLoggedIn: false,
+                },
+            };
+        }
 
         // 소검사 문항 정보 fetch
-        const responseData = await getUnassessableQuestionListAPI({ sessionId });
+        const responseData = await getUnassessableQuestionListAPI({ sessionId, jwt: accessToken });
         const questionList = responseData.questions;
 
         return {
             props: {
-                testSession,
+                isLoggedIn: true,
                 questionList,
             },
         };
     } catch (err) {
+        if (isAxiosError(err)) {
+            if (err.response?.status === 401) {
+                return {
+                    redirect: {
+                        destination: '/',
+                        permanent: true,
+                    },
+                };
+            }
+        }
         return {
             redirect: {
                 destination: '/',

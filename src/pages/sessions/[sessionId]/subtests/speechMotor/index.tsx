@@ -4,7 +4,11 @@ import ReactTextareaAutosize from 'react-textarea-autosize';
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
+import { isAxiosError } from 'axios';
+import { deleteCookie, getCookie } from 'cookies-next';
+
 import { useCurrentSubTest, useSubtests, useTestActions } from '@/stores/testStore';
+import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
@@ -177,7 +181,7 @@ export default function SpeechMotorPage({ questionList }: { questionList: Questi
                 partId,
                 subtestId,
                 answer: undefined,
-                memo: undefined,
+                comment: undefined,
             })),
         },
     });
@@ -214,17 +218,31 @@ export default function SpeechMotorPage({ questionList }: { questionList: Questi
     // 폼 데이터 제출
     const handleSubmitData = useCallback(
         async ({ sessionId, data }: { sessionId: number; data: any }) => {
-            const formData = new FormData();
-            formData.append('audio', audioBlob1 || 'null');
-            formData.append('audio', audioBlob2 || 'null');
-            formData.append('audio', audioBlob3 || 'null');
-            formData.append('audio', audioBlob4 || 'null');
-            formData.append('recordings', JSON.stringify(data.recordings));
+            try {
+                const formData = new FormData();
+                formData.append('audio', audioBlob1 || 'null');
+                formData.append('audio', audioBlob2 || 'null');
+                formData.append('audio', audioBlob3 || 'null');
+                formData.append('audio', audioBlob4 || 'null');
+                formData.append('recordings', JSON.stringify(data.recordings));
 
-            formData.append('currentPartId', `${currentPartId}`);
-            formData.append('answers', JSON.stringify(data.answers));
+                formData.append('currentPartId', `${currentPartId}`);
+                formData.append('answers', JSON.stringify(data.answers));
 
-            await updateSessionAPI({ sessionId, formData });
+                // 세션 갱신
+                const accessToken = getCookie('jwt') as string;
+                await updateSessionAPI({ sessionId, formData, jwt: accessToken });
+            } catch (err) {
+                if (isAxiosError(err)) {
+                    if (err.response?.status === 401) {
+                        deleteCookie('jwt');
+                        alert('로그인이 필요합니다.\n토키토키 로그인 페이지로 이동합니다.');
+                        window.location.href = `${TALKYTALKY_URL}/login`;
+                        return;
+                    }
+                }
+                console.error(err);
+            }
         },
         [audioBlob1, audioBlob2, audioBlob3, audioBlob4, currentPartId],
     );
@@ -472,32 +490,34 @@ export default function SpeechMotorPage({ questionList }: { questionList: Questi
 }
 
 export const getServerSideProps: GetServerSideProps = async context => {
-    const sessionId = Number(context.query.sessionId);
-
-    if (!sessionId) {
-        return {
-            redirect: {
-                destination: '/',
-                permanent: true,
-            },
-        };
-    }
-
     try {
-        // TODO: sessionId 통해 시험 세션 정보 얻음
-        const testSession = {
-            sessionId,
-            subtests: [],
-        };
+        const sessionId = Number(context.query.sessionId);
+        if (!sessionId) {
+            return {
+                redirect: {
+                    destination: '/',
+                    permanent: true,
+                },
+            };
+        }
+
+        const accessToken = getCookie('jwt', context);
+        if (!accessToken || accessToken === 'undefined') {
+            return {
+                props: {
+                    isLoggedIn: false,
+                },
+            };
+        }
 
         // 소검사 문항 정보 fetch
-        const responseData = await getQuestionAndAnswerListAPI({ sessionId, subtestId: CURRENT_SUBTEST_ID });
+        const responseData = await getQuestionAndAnswerListAPI({ sessionId, subtestId: CURRENT_SUBTEST_ID, jwt: accessToken });
         const questionList = responseData.questions;
         const recordingList = responseData.recordings;
 
         return {
             props: {
-                testSession,
+                isLoggedIn: true,
                 questionList,
                 recordingList,
             },

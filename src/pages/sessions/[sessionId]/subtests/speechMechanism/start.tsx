@@ -4,7 +4,11 @@ import ReactTextareaAutosize from 'react-textarea-autosize';
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
+import { isAxiosError } from 'axios';
+import { deleteCookie, getCookie } from 'cookies-next';
+
 import { useCurrentSubTest, useSubtests, useTestActions } from '@/stores/testStore';
+import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import { getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/questions';
@@ -53,7 +57,7 @@ export default function SpeechMechanismStartPage({ questionList }: { questionLis
                 partId,
                 subtestId,
                 answer: undefined,
-                memo: undefined,
+                comment: undefined,
             })),
         },
     });
@@ -104,17 +108,38 @@ export default function SpeechMechanismStartPage({ questionList }: { questionLis
         typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
     }, [currentPartId]);
 
-    // 폼 제출
-    const handleOnSubmit = useCallback(
-        async (data: any) => {
+    // 폼 데이터 제출
+    const handleSubmitData = useCallback(
+        async ({ sessionId, data }: { sessionId: number; data: any }) => {
             try {
-                // TODO: 중간 저장 API
                 const formData = new FormData();
                 formData.append('currentPartId', `${currentPartId}`);
                 formData.append('answers', JSON.stringify(data.answers));
 
+                // 세션 갱신
+                const accessToken = getCookie('jwt') as string;
+                await updateSessionAPI({ sessionId, formData, jwt: accessToken });
+            } catch (err) {
+                if (isAxiosError(err)) {
+                    if (err.response?.status === 401) {
+                        deleteCookie('jwt');
+                        alert('로그인이 필요합니다.\n토키토키 로그인 페이지로 이동합니다.');
+                        window.location.href = `${TALKYTALKY_URL}/login`;
+                        return;
+                    }
+                }
+                console.error(err);
+            }
+        },
+        [currentPartId],
+    );
+
+    // 폼 제출
+    const handleOnSubmit = useCallback(
+        async (data: any) => {
+            try {
                 const sessionId = Number(router.query.sessionId);
-                await updateSessionAPI({ sessionId, formData });
+                await handleSubmitData({ sessionId, data });
 
                 const currentSubtestIndex = subtests.findIndex(v => v.subtestId === `${CURRENT_SUBTEST_ID}`);
                 const nextSubtest = subtests[currentSubtestIndex + 1];
@@ -127,7 +152,7 @@ export default function SpeechMechanismStartPage({ questionList }: { questionLis
                 console.error(err);
             }
         },
-        [currentPartId, router, subtests],
+        [handleSubmitData, router, subtests],
     );
 
     return (
@@ -272,31 +297,33 @@ export default function SpeechMechanismStartPage({ questionList }: { questionLis
 
 // SSR
 export const getServerSideProps: GetServerSideProps = async context => {
-    const sessionId = Number(context.query.sessionId);
-
-    if (!sessionId) {
-        return {
-            redirect: {
-                destination: '/',
-                permanent: true,
-            },
-        };
-    }
-
     try {
-        // TODO: sessionId 통해 시험 세션 정보 얻음
-        const testSession = {
-            sessionId,
-            subtests: [],
-        };
+        const sessionId = Number(context.query.sessionId);
+        if (!sessionId) {
+            return {
+                redirect: {
+                    destination: '/',
+                    permanent: true,
+                },
+            };
+        }
+
+        const accessToken = getCookie('jwt', context);
+        if (!accessToken || accessToken === 'undefined') {
+            return {
+                props: {
+                    isLoggedIn: false,
+                },
+            };
+        }
 
         // 소검사 문항 정보 fetch
-        const responseData = await getQuestionAndAnswerListAPI({ sessionId, subtestId: CURRENT_SUBTEST_ID });
+        const responseData = await getQuestionAndAnswerListAPI({ sessionId, subtestId: CURRENT_SUBTEST_ID, jwt: accessToken });
         const questionList = responseData.questions;
 
         return {
             props: {
-                testSession,
+                isLoggedIn: true,
                 questionList,
             },
         };

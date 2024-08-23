@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
+import { isAxiosError } from 'axios';
+import { deleteCookie, getCookie, setCookie } from 'cookies-next';
+
 import { subtestList, useTestInfo, useTestActions, useSubtests } from '@/stores/testStore';
+import { TALKYTALKY_URL } from '@/utils/const';
 import { CheckBoxGroupItem } from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import { createSessionAPI } from '@/api/questions';
@@ -40,13 +45,22 @@ export default function SelectTestPage() {
                 setSubtests(subtests);
 
                 // 세션 추가
-                const responseData = await createSessionAPI({ testInfo, subtestIds });
+                const accessToken = getCookie('jwt') as string;
+                const responseData = await createSessionAPI({ testInfo, subtestIds, jwt: accessToken });
                 const sessionId = responseData.sessionId;
                 const pathname = subtests[0].pathname;
 
                 pathname && router.push(`/sessions/${sessionId}/subtests/${pathname}`);
             }
         } catch (err) {
+            if (isAxiosError(err)) {
+                if (err.response?.status === 401) {
+                    deleteCookie('jwt');
+                    alert('로그인이 필요합니다.\n토키토키 로그인 페이지로 이동합니다.');
+                    window.location.href = `${TALKYTALKY_URL}/login`;
+                    return;
+                }
+            }
             console.error(err);
         }
 
@@ -91,3 +105,29 @@ export default function SelectTestPage() {
         </Container>
     );
 }
+
+export const getServerSideProps: GetServerSideProps = async context => {
+    try {
+        const accessToken = getCookie('jwt', context);
+        if (!accessToken || accessToken === 'undefined') {
+            return {
+                props: {
+                    isLoggedIn: false,
+                },
+            };
+        }
+
+        return {
+            props: {
+                isLoggedIn: true,
+            },
+        };
+    } catch (err) {
+        return {
+            redirect: {
+                destination: '/',
+                permanent: true,
+            },
+        };
+    }
+};

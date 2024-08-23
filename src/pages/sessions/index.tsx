@@ -4,6 +4,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
+import { isAxiosError } from 'axios';
+import { getCookie } from 'cookies-next';
 import dayjs from 'dayjs';
 
 import { partList, subtestList } from '@/stores/testStore';
@@ -87,11 +89,11 @@ export default function SessionListPage({ sessionList }: { sessionList: TestSess
                                 <div className='relative h-[14px] w-[94px] rounded-full bg-[#D9D9D9]'>
                                     <div
                                         className={`absolute h-[14px] rounded-full bg-accent1`}
-                                        style={{ width: `${(94 * (v.progress || 100)) / 100}px` }}
+                                        style={{ width: `${(94 * 100) / 100}px` }}
                                     ></div>
                                 </div>
 
-                                <span className='text-neutral4 text-body-2'>{v.progress || 100}%</span>
+                                <span className='text-neutral4 text-body-2'>{100}%</span>
                             </div>
                             {v.status === '3' ? (
                                 <button className='btn btn-small btn-contained' onClick={handleClickResult(v.testSessionId)}>
@@ -115,24 +117,36 @@ export default function SessionListPage({ sessionList }: { sessionList: TestSess
 
 export const getServerSideProps: GetServerSideProps = async context => {
     try {
-        // TODO: sessionId 통해 시험 세션 정보 얻음
-        const testSession = {
-            subtests: [],
-        };
-
-        const jwt = 'temp';
+        const accessToken = getCookie('jwt', context);
+        if (!accessToken || accessToken === 'undefined') {
+            return {
+                props: {
+                    isLoggedIn: false,
+                },
+            };
+        }
 
         // 세션 목록 fetch
-        const responseData = await getSessionListAPI({ jwt });
+        const responseData = await getSessionListAPI({ jwt: accessToken });
         const sessionList = responseData.sessions;
 
         return {
             props: {
-                testSession,
+                isLoggedIn: true,
                 sessionList,
             },
         };
     } catch (err) {
+        if (isAxiosError(err)) {
+            if (err.response?.status === 401) {
+                return {
+                    props: {
+                        isLoggedIn: false,
+                    },
+                };
+            }
+        }
+
         return {
             redirect: {
                 destination: '/',

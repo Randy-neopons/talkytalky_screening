@@ -3,6 +3,8 @@ import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
+import { getCookie } from 'cookies-next';
+
 import Container from '@/components/common/Container';
 
 import styles from '../SubTests.module.css';
@@ -62,28 +64,29 @@ export default function SpeechMechanismMainPage() {
 }
 
 export const getServerSideProps: GetServerSideProps = async context => {
-    context.params;
-    const sessionId = Number(context.query.sessionId);
-
-    if (!sessionId) {
-        return {
-            redirect: {
-                destination: '/',
-                permanent: true,
-            },
-        };
-    }
-
-    // TODO: sessionId 통해 시험 세션 정보 얻음
-    const testSession = {
-        sessionId,
-        subtests: [],
-    };
-
     try {
+        const sessionId = Number(context.query.sessionId);
+        if (!sessionId) {
+            return {
+                redirect: {
+                    destination: '/',
+                    permanent: true,
+                },
+            };
+        }
+
+        const accessToken = getCookie('jwt', context);
+        if (!accessToken || accessToken === 'undefined') {
+            return {
+                props: {
+                    isLoggedIn: false,
+                },
+            };
+        }
+
         return {
             props: {
-                testSession,
+                isLoggedIn: true,
             },
         };
     } catch (err) {

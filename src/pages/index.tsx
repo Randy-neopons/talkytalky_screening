@@ -1,6 +1,9 @@
+import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+
+import { getCookie, setCookie } from 'cookies-next';
 
 import Container from '@/components/common/Container';
 
@@ -57,3 +60,34 @@ export default function Home() {
         </Container>
     );
 }
+
+export const getServerSideProps: GetServerSideProps = async context => {
+    try {
+        const newToken = context.query.token;
+        if (newToken) {
+            setCookie('jwt', context.query.token, { req: context.req, res: context.res, maxAge: 60 * 6 * 24 });
+        }
+
+        const accessToken = getCookie('jwt', context);
+        if (!accessToken || accessToken === 'undefined') {
+            return {
+                props: {
+                    isLoggedIn: true,
+                },
+            };
+        }
+
+        return {
+            props: {
+                isLoggedIn: true,
+            },
+        };
+    } catch (err) {
+        return {
+            redirect: {
+                destination: '/',
+                permanent: true,
+            },
+        };
+    }
+};
