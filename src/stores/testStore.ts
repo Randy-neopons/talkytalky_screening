@@ -21,8 +21,14 @@ export const partList = [
     { partId: 14, subtestId: '5' },
 ];
 
+type Subtest = {
+    subtestId: string;
+    subtestTitle: string;
+    pathname: string;
+};
+
 // 소검사 목록
-export const subtestList = [
+export const subtestList: Subtest[] = [
     { subtestId: '1', subtestTitle: 'SPEECH MECHANISM : 말기제 평가', pathname: 'speechMechanism' },
     { subtestId: '2', subtestTitle: 'SPEECH I : 영역별 말평가', pathname: 'speechOne' },
     { subtestId: '3', subtestTitle: 'SPEECH II : 종합적 말평가', pathname: 'speechTwo' },
@@ -33,12 +39,14 @@ export const subtestList = [
 // 검사 store
 const useTestStore = create<{
     testInfo: TestInfoFormValues;
-    subtests: typeof subtestList;
+    subtests: Subtest[];
     currentSubtest: string;
+    progress: number;
     actions: {
         setTestInfo: (newInfo: TestInfoFormValues) => void;
         setCurrentSubtest: (subtest: string) => void;
         setSubtests: (newTests: typeof subtestList) => void;
+        setProgress: (newProgress: number) => void;
     };
 }>(set => ({
     testInfo: {
@@ -52,13 +60,16 @@ const useTestStore = create<{
     },
     currentSubtest: '1',
     subtests: [],
+    progress: 0,
     actions: {
         setTestInfo: newInfo => set({ testInfo: newInfo }),
         setCurrentSubtest: subtest => set({ currentSubtest: subtest }),
         setSubtests: newTests => set({ subtests: newTests }),
+        setProgress: newProgress => set({ progress: newProgress }),
     },
 }));
 export const useTestInfo = () => useTestStore(state => state.testInfo);
 export const useSubtests = () => useTestStore(state => state.subtests);
 export const useCurrentSubTest = () => useTestStore(state => state.currentSubtest);
+export const useProgress = () => useTestStore(state => state.progress);
 export const useTestActions = () => useTestStore(state => state.actions);

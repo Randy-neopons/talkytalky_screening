@@ -7,16 +7,19 @@ import { getCookie } from 'cookies-next';
 
 import Container from '@/components/common/Container';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
+import { getAnswersCountAPI } from '@/api/questions';
 
 import fontSizeIcon from 'public/static/images/font-size-icon.png';
 import memoIcon from 'public/static/images/memo-icon.png';
+import playRecordIcon from 'public/static/images/play-record-icon.png';
 import recordIcon from 'public/static/images/record-icon.png';
+import stopIcon from 'public/static/images/stop-icon.png';
 
 // 문단읽기 페이지
 export default function ParagraphReadingPage() {
     const router = useRouter();
 
-    const { audioBlob, audioUrl, handleStartRecording, handleStopRecording } = useAudioRecorder();
+    const { audioBlob, audioUrl, isRecording, handlePlay, handleStartRecording, handleStopRecording } = useAudioRecorder();
 
     // 다음 클릭
     const handleClickNext = useCallback(
@@ -63,20 +66,28 @@ export default function ParagraphReadingPage() {
             </div>
 
             <div className='mt-20 flex w-full flex-nowrap items-center'>
-                <button type='button' className='btn btn-large btn-outlined'>
-                    이전
-                </button>
                 <div className='mx-auto flex gap-[45px]'>
                     <button type='button'>
                         <Image src={memoIcon} alt='memo-icon' className='h-auto w-[60px]' />
                     </button>
-                    <button type='button'>
-                        <Image src={recordIcon} alt='record-icon' className='h-auto w-[100px]' />
+                    <button type='button' onClick={isRecording ? handleStopRecording : audioUrl ? handlePlay : handleStartRecording}>
+                        {isRecording ? (
+                            <Image src={stopIcon} alt='stop-icon' className='h-auto w-[100px]' />
+                        ) : audioUrl ? (
+                            <Image src={playRecordIcon} alt='play-record-icon' className='h-[100px] w-auto' />
+                        ) : (
+                            <Image src={recordIcon} alt='record-icon' className='h-auto w-[100px]' />
+                        )}
                     </button>
                     <button type='button'>
                         <Image src={fontSizeIcon} alt='font-icon' className='h-auto w-[60px]' />
                     </button>
                 </div>
+            </div>
+            <div className='mt-20 flex gap-5'>
+                <button type='button' className='btn btn-large btn-outlined' onClick={() => {}}>
+                    이전
+                </button>
                 <button key='noSubmit' type='button' className='btn btn-large btn-contained' onClick={handleClickNext}>
                     다음
                 </button>
@@ -106,9 +117,14 @@ export const getServerSideProps: GetServerSideProps = async context => {
             };
         }
 
+        // 검사 시작할 때마다 진행률 불러오기
+        const { totalCount, notNullCount } = await getAnswersCountAPI({ sessionId, jwt: accessToken });
+        const progress = (notNullCount / totalCount) * 100;
+
         return {
             props: {
                 isLoggedIn: true,
+                progress,
             },
         };
     } catch (err) {

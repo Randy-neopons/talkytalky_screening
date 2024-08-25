@@ -12,7 +12,7 @@ import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
-import { getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/questions';
+import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/questions';
 
 import subtestStyles from '../SubTests.module.css';
 
@@ -510,6 +510,10 @@ export const getServerSideProps: GetServerSideProps = async context => {
             };
         }
 
+        // 검사 시작할 때마다 진행률 불러오기
+        const { totalCount, notNullCount } = await getAnswersCountAPI({ sessionId, jwt: accessToken });
+        const progress = (notNullCount / totalCount) * 100;
+
         // 소검사 문항 정보 fetch
         const responseData = await getQuestionAndAnswerListAPI({ sessionId, subtestId: CURRENT_SUBTEST_ID, jwt: accessToken });
         const questionList = responseData.questions;
@@ -520,6 +524,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
                 isLoggedIn: true,
                 questionList,
                 recordingList,
+                progress,
             },
         };
     } catch (err) {

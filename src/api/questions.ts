@@ -40,11 +40,22 @@ export async function getUnassessableQuestionListAPI({ sessionId, jwt }: { sessi
 }
 
 // 세션 생성
-export async function createSessionAPI({ testInfo, subtestIds, jwt }: { testInfo: TestInfoFormValues; subtestIds: string[]; jwt: string }) {
+export async function createSessionAPI({
+    testInfo,
+    currentPartId,
+    subtestIds,
+    jwt,
+}: {
+    testInfo: TestInfoFormValues;
+    currentPartId: number;
+    subtestIds: string[];
+    jwt: string;
+}) {
     const response = await axios.post(
         '/assessment/session',
         {
             testInfo,
+            currentPartId,
             subtestIds,
         },
         { headers: makeHeaders(jwt) },
@@ -89,6 +100,25 @@ export async function getTestResultAPI({ sessionId, jwt }: { sessionId: number; 
     }>(`/assessment/session/${sessionId}/result`, {
         headers: makeHeaders(jwt),
     });
+
+    return response.data;
+}
+
+export async function getAnswersCountAPI({ sessionId, jwt }: { sessionId: number; jwt: string }) {
+    const response = await axios.get<{ totalCount: number; notNullCount: number }>(`/assessment/session/${sessionId}/answersCount`, {
+        headers: makeHeaders(jwt),
+    });
+
+    return response.data;
+}
+
+export async function getConductedSubtestsAPI({ sessionId, jwt }: { sessionId: number; jwt: string }) {
+    const response = await axios.get<{ result: boolean; subtests: { subtestId: Number; subtestTitle: String; pathname: string }[] }>(
+        `/assessment/session/${sessionId}/conductedSubtests`,
+        {
+            headers: makeHeaders(jwt),
+        },
+    );
 
     return response.data;
 }

@@ -18,6 +18,15 @@ const TestTotalScoreGraph = dynamic(() => import('@/components/TestTotalScoreGra
 const TestScoreBarGraph = dynamic(() => import('@/components/TestScoreBarGraph'), { ssr: false });
 const SubtestScoreGraph = dynamic(() => import('@/components/SubtestScoreGraph'), { ssr: false });
 
+const brainLesionOptions = [
+    { value: 'bilateralUpperMotorNeuron', label: '양측상부운동신경손상' },
+    { value: 'unilateralUpperMotorNeuron', label: '일측상부운동신경손상' },
+    { value: 'lowerMotorNeuron', label: '하부운동신경손상' },
+    { value: 'cerebellarControlCircuit', label: '소뇌조절회로' },
+    { value: 'basalGangliaControlCircuit', label: '기저핵조절회로' },
+    { value: 'unknown', label: '알 수 없음' },
+];
+
 const barData = [
     {
         country: 'AD',
@@ -279,7 +288,9 @@ export default function TestResultPage({
                     </tr>
                     <tr>
                         <td className='bg-white py-[18px]' align='center'>
-                            {testInfo.brainLesions.join(',')}
+                            {testInfo.brainLesions
+                                .map(brainLesion => brainLesionOptions.find(option => option.value === brainLesion)?.label || '')
+                                .join(',')}
                         </td>
                         <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
                             {testInfo.medicalHistory}

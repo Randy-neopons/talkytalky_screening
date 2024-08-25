@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import { isAxiosError } from 'axios';
 import { deleteCookie, getCookie, setCookie } from 'cookies-next';
 
-import { subtestList, useTestInfo, useTestActions, useSubtests } from '@/stores/testStore';
+import { subtestList, useTestInfo, useTestActions, useSubtests, partList } from '@/stores/testStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import { CheckBoxGroupItem } from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
@@ -42,11 +42,16 @@ export default function SelectTestPage() {
 
                 const sortedSubtestIds = subtestIds.toSorted();
                 const subtests = subtestList.filter(v => sortedSubtestIds.includes(v.subtestId));
+                const currentPartId = partList.find(v => v.subtestId === subtestIds[0])?.partId;
+                if (!currentPartId) {
+                    throw new Error('파트가 필요합니다.');
+                }
+
                 setSubtests(subtests);
 
                 // 세션 추가
                 const accessToken = getCookie('jwt') as string;
-                const responseData = await createSessionAPI({ testInfo, subtestIds, jwt: accessToken });
+                const responseData = await createSessionAPI({ testInfo, currentPartId, subtestIds, jwt: accessToken });
                 const sessionId = responseData.sessionId;
                 const pathname = subtests[0].pathname;
 
