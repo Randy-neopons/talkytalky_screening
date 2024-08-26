@@ -11,6 +11,7 @@ import { useCurrentSubTest, useSubtests, useTestActions } from '@/stores/testSto
 import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
+import { useConductedSubtestsQuery } from '@/hooks/questions';
 import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/questions';
 
 import subtestStyles from '../SubTests.module.css';
@@ -35,7 +36,7 @@ export default function SpeechOnePage({ questionList }: { questionList: Question
 
     // 현재 소검사, 선택한 소검사 정보
     const currentSubtest = useCurrentSubTest();
-    const subtests = useSubtests();
+    const { data: subtestsData } = useConductedSubtestsQuery({ sessionId: Number(router.query.sessionId), jwt: getCookie('jwt') || '' });
     const { setCurrentSubtest } = useTestActions();
 
     // 문항 전부 정상으로 체크
@@ -142,8 +143,11 @@ export default function SpeechOnePage({ questionList }: { questionList: Question
                 const sessionId = Number(router.query.sessionId);
                 await handleSubmitData({ sessionId, data });
 
-                const currentSubtestIndex = subtests.findIndex(v => v.subtestId === `${CURRENT_SUBTEST_ID}`);
-
+                const subtests = subtestsData?.subtests;
+                if (!subtests) {
+                    throw new Error('수행할 소검사가 없습니다');
+                }
+                const currentSubtestIndex = subtests.findIndex(v => v.subtestId === CURRENT_SUBTEST_ID);
                 const nextSubtest = subtests[currentSubtestIndex + 1];
                 if (nextSubtest) {
                     router.push(`/sessions/${sessionId}/subtests/${nextSubtest.pathname}`);
@@ -154,7 +158,7 @@ export default function SpeechOnePage({ questionList }: { questionList: Question
                 console.error(err);
             }
         },
-        [handleSubmitData, router, subtests],
+        [handleSubmitData, router, subtestsData],
     );
 
     return (

@@ -36,6 +36,7 @@ export type TestSession = {
     patientBirthdate: string;
     patientGender: string;
     currentPartId: number;
+    progress: number;
     status: string;
     regDate: string;
 };

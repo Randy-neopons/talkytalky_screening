@@ -19,12 +19,14 @@ export default function UnassessableQuestionsPage({ questionList }: { questionLi
     // 폼 제출
     const handleClickNext = useCallback(async () => {
         try {
-            // 세션 완료 처리
-            const accessToken = getCookie('jwt') as string;
-            const sessionId = Number(router.query.sessionId);
-            await completeSessionAPI({ sessionId, jwt: accessToken });
+            if (window.confirm('검사를 완료처리 하고 결과를 확인하시겠습니까?')) {
+                // 세션 완료 처리
+                const accessToken = getCookie('jwt') as string;
+                const sessionId = Number(router.query.sessionId);
+                await completeSessionAPI({ sessionId, jwt: accessToken });
 
-            router.push(`/sessions/${sessionId}/result`);
+                router.push(`/sessions/${sessionId}/result`);
+            }
         } catch (err) {
             if (isAxiosError(err)) {
                 if (err.response?.status === 401) {

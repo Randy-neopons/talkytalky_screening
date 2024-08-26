@@ -40,13 +40,13 @@ export default function StressTestingPage({ questionList }: { questionList: Ques
         answers: Answer[];
     }>({
         defaultValues: {
-            answers: questionList?.map(({ questionId, questionText, partId, subtestId }) => ({
+            answers: questionList?.map(({ questionId, questionText, partId, subtestId, answer, comment }) => ({
                 questionId,
                 questionText,
                 partId,
                 subtestId,
-                answer: undefined,
-                comment: undefined,
+                answer,
+                comment,
             })),
         },
     });

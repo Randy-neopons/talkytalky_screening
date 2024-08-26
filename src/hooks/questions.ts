@@ -21,5 +21,6 @@ export const useConductedSubtestsQuery = ({ sessionId, jwt }: { sessionId: numbe
     }>({
         queryKey: [conductedSubtestsQueryKey, sessionId, jwt],
         queryFn: () => getConductedSubtestsAPI({ sessionId, jwt }),
+        enabled: !!sessionId && !!jwt,
     });
 };

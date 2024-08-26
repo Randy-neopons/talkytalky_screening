@@ -91,11 +91,11 @@ export default function SessionListPage({ sessionList }: { sessionList: TestSess
                                 <div className='relative h-[14px] w-[94px] rounded-full bg-[#D9D9D9]'>
                                     <div
                                         className={`absolute h-[14px] rounded-full bg-accent1`}
-                                        style={{ width: `${(94 * 100) / 100}px` }}
+                                        style={{ width: `${(v.progress * 94) / 100}px` }}
                                     ></div>
                                 </div>
 
-                                <span className='text-neutral4 text-body-2'>{100}%</span>
+                                <span className='text-neutral4 text-body-2'>{v.progress}%</span>
                             </div>
                             {v.status === '3' ? (
                                 <button className='btn btn-small btn-contained' onClick={handleClickResult(v.testSessionId)}>
