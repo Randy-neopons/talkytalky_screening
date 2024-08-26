@@ -1,14 +1,16 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
-import { getCookie } from 'cookies-next';
+import { isAxiosError } from 'axios';
+import { deleteCookie, getCookie } from 'cookies-next';
 
+import { TALKYTALKY_URL } from '@/utils/const';
 import Container from '@/components/common/Container';
 import { InfoIcon } from '@/components/icons';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
-import { getAnswersCountAPI } from '@/api/questions';
+import { getAnswersCountAPI, updateSessionAPI } from '@/api/questions';
 
 import styles from '../SubTests.module.css';
 
@@ -19,11 +21,17 @@ import playRecordIcon from 'public/static/images/play-record-icon.png';
 import recordIcon from 'public/static/images/record-icon.png';
 import stopIcon from 'public/static/images/stop-icon.png';
 
+// 소검사 ID
+const CURRENT_SUBTEST_ID = 3;
+const CURRENT_PART_ID_START = 8;
+
 // 그림설명하기 페이지
 export default function PictureDescriptionPage() {
     const router = useRouter();
 
     const { audioBlob, audioUrl, isRecording, handlePlay, handleStartRecording, handleStopRecording } = useAudioRecorder();
+
+    const [currentPartId, setCurrentPartId] = useState(CURRENT_PART_ID_START);
 
     // 다음 클릭
     const handleClickPrev = useCallback(
@@ -40,19 +48,47 @@ export default function PictureDescriptionPage() {
         [router],
     );
 
+    // 폼 데이터 제출
+    const handleSubmitData = useCallback(
+        async ({ sessionId }: { sessionId: number }) => {
+            try {
+                const formData = new FormData();
+                formData.append('audio1', audioBlob || 'null');
+                formData.append('recordings', JSON.stringify([{ filePath: null, repeatCount: null }]));
+
+                formData.append('currentPartId', `${currentPartId}`);
+
+                // 세션 갱신
+                const accessToken = getCookie('jwt') as string;
+                await updateSessionAPI({ sessionId, formData, jwt: accessToken });
+            } catch (err) {
+                if (isAxiosError(err)) {
+                    if (err.response?.status === 401) {
+                        deleteCookie('jwt');
+                        alert('로그인이 필요합니다.\n토키토키 로그인 페이지로 이동합니다.');
+                        window.location.href = `${TALKYTALKY_URL}/login`;
+                        return;
+                    }
+                }
+                console.error(err);
+            }
+        },
+        [audioBlob, currentPartId],
+    );
+
     // 다음 클릭
     const handleClickNext = useCallback(
-        (data: any) => {
+        async (data: any) => {
             try {
-                // TODO: 중간 저장 API
-
                 const sessionId = Number(router.query.sessionId);
+                await handleSubmitData({ sessionId });
+
                 router.push(`/sessions/${sessionId}/subtests/speechTwo/conversation`);
             } catch (err) {
                 console.error(err);
             }
         },
-        [router],
+        [handleSubmitData, router],
     );
 
     return (
@@ -93,9 +129,9 @@ export default function PictureDescriptionPage() {
 
             <div className='mt-20 flex w-full flex-nowrap items-center'>
                 <div className='mx-auto flex gap-[45px]'>
-                    <button type='button'>
+                    {/* <button type='button'>
                         <Image src={memoIcon} alt='memo-icon' className='h-auto w-[60px]' />
-                    </button>
+                    </button> */}
                     <button type='button' onClick={isRecording ? handleStopRecording : audioUrl ? handlePlay : handleStartRecording}>
                         {isRecording ? (
                             <Image src={stopIcon} alt='stop-icon' className='h-auto w-[100px]' />
@@ -105,9 +141,9 @@ export default function PictureDescriptionPage() {
                             <Image src={recordIcon} alt='record-icon' className='h-auto w-[100px]' />
                         )}
                     </button>
-                    <button type='button' className='invisible'>
+                    {/* <button type='button' className='invisible'>
                         <Image src={fontSizeIcon} alt='memo-icon' className='h-auto w-[60px]' />
-                    </button>
+                    </button> */}
                 </div>
             </div>
             <div className='mt-20 flex gap-5'>

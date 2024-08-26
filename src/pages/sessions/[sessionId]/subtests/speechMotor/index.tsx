@@ -21,12 +21,13 @@ import type { Answer, QuestionAnswer, Recording } from '@/types/types';
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 4;
+const CURRENT_PART_ID_START = 12;
 
 // 소검사 내 파트별 문항 index 정보
 // TODO: part title도 DB에서 가져오기
 const partIndexList = [
-    { start: 0, end: 10, subtitle: '휴식 시', partTitle: 'AMR' },
-    { start: 10, end: 20, subtitle: '휴식 시', partTitle: 'SMR' },
+    { start: 0, end: 10, subtitle: '휴식 시', partTitle: 'AMR', partId: 12 },
+    { start: 10, end: 20, subtitle: '휴식 시', partTitle: 'SMR', partId: 13 },
 ];
 
 const RecordIcon = () => {
@@ -107,7 +108,7 @@ const PlayButton = ({
 };
 
 // SPEECH II 문항 페이지
-export default function SpeechMotorPage({ questionList }: { questionList: QuestionAnswer[]; recordingList: Recording[] }) {
+export default function SpeechMotorPage({ questionList, recordingList }: { questionList: QuestionAnswer[]; recordingList: Recording[] }) {
     const router = useRouter();
 
     // 파타카 녹음
@@ -120,7 +121,7 @@ export default function SpeechMotorPage({ questionList }: { questionList: Questi
         handleStopRecording: handleStopRecording1,
         handlePlay: handlePlay1,
         handlePause: handlePause1,
-    } = useAudioRecorder();
+    } = useAudioRecorder(recordingList[0]?.filePath);
     const {
         isRecording: isRecording2,
         isPlaying: isPlaying2,
@@ -130,7 +131,7 @@ export default function SpeechMotorPage({ questionList }: { questionList: Questi
         handleStopRecording: handleStopRecording2,
         handlePlay: handlePlay2,
         handlePause: handlePause2,
-    } = useAudioRecorder();
+    } = useAudioRecorder(recordingList[1]?.filePath);
     const {
         isRecording: isRecording3,
         isPlaying: isPlaying3,
@@ -140,7 +141,7 @@ export default function SpeechMotorPage({ questionList }: { questionList: Questi
         handleStopRecording: handleStopRecording3,
         handlePlay: handlePlay3,
         handlePause: handlePause3,
-    } = useAudioRecorder();
+    } = useAudioRecorder(recordingList[2]?.filePath);
     const {
         isRecording: isRecording4,
         isPlaying: isPlaying4,
@@ -150,7 +151,7 @@ export default function SpeechMotorPage({ questionList }: { questionList: Questi
         handleStopRecording: handleStopRecording4,
         handlePlay: handlePlay4,
         handlePause: handlePause4,
-    } = useAudioRecorder();
+    } = useAudioRecorder(recordingList[3]?.filePath);
 
     // 현재 소검사, 선택한 소검사 정보
     const currentSubtest = useCurrentSubTest();
@@ -161,8 +162,11 @@ export default function SpeechMotorPage({ questionList }: { questionList: Questi
     const [checkAll, setCheckAll] = useState(false);
 
     // 소검사 내 현재 파트 정보
-    const [currentPartId, setCurrentPartId] = useState(1);
-    const { start, end, subtitle, partTitle } = useMemo(() => partIndexList[currentPartId - 1], [currentPartId]);
+    const [currentPartId, setCurrentPartId] = useState(CURRENT_PART_ID_START);
+    const { start, end, subtitle, partTitle } = useMemo(
+        () => partIndexList.find(v => v.partId === currentPartId) || partIndexList[0],
+        [currentPartId],
+    );
 
     // react-hook-form
     const { control, register, setValue, handleSubmit } = useForm<{
@@ -170,12 +174,15 @@ export default function SpeechMotorPage({ questionList }: { questionList: Questi
         answers: Answer[];
     }>({
         defaultValues: {
-            recordings: [
-                { filePath: null, repeatCount: null },
-                { filePath: null, repeatCount: null },
-                { filePath: null, repeatCount: null },
-                { filePath: null, repeatCount: null },
-            ],
+            recordings:
+                recordingList.length > 0
+                    ? recordingList
+                    : [
+                          { filePath: null, repeatCount: null },
+                          { filePath: null, repeatCount: null },
+                          { filePath: null, repeatCount: null },
+                          { filePath: null, repeatCount: null },
+                      ],
             answers: questionList?.map(({ questionId, questionText, partId, subtestId, answer, comment }) => ({
                 questionId,
                 questionText,
@@ -205,14 +212,14 @@ export default function SpeechMotorPage({ questionList }: { questionList: Questi
     // 이전 파트로
     const handleClickPrev = useCallback(() => {
         setCheckAll(false);
-        currentPartId > 1 && setCurrentPartId(partId => partId - 1);
+        currentPartId > CURRENT_PART_ID_START && setCurrentPartId(partId => partId - 1);
         typeof window !== 'undefined' && window.scrollTo(0, 0);
     }, [currentPartId]);
 
     // 다음 파트로
     const handleClickNext = useCallback(() => {
         setCheckAll(false);
-        currentPartId < partIndexList.length && setCurrentPartId(partId => partId + 1);
+        currentPartId < partIndexList[partIndexList.length - 1].partId && setCurrentPartId(partId => partId + 1);
         typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
     }, [currentPartId]);
 
@@ -221,10 +228,10 @@ export default function SpeechMotorPage({ questionList }: { questionList: Questi
         async ({ sessionId, data }: { sessionId: number; data: any }) => {
             try {
                 const formData = new FormData();
-                formData.append('audio', audioBlob1 || 'null');
-                formData.append('audio', audioBlob2 || 'null');
-                formData.append('audio', audioBlob3 || 'null');
-                formData.append('audio', audioBlob4 || 'null');
+                formData.append('audio1', audioBlob1 || 'null');
+                formData.append('audio2', audioBlob2 || 'null');
+                formData.append('audio3', audioBlob3 || 'null');
+                formData.append('audio4', audioBlob4 || 'null');
                 formData.append('recordings', JSON.stringify(data.recordings));
 
                 formData.append('currentPartId', `${currentPartId}`);
@@ -296,7 +303,7 @@ export default function SpeechMotorPage({ questionList }: { questionList: Questi
             <form onSubmit={handleSubmit(handleOnSubmit)} className={`${subtestStyles['subtest-form']}`}>
                 <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitle}</h1>
 
-                {currentPartId === 1 ? (
+                {currentPartId === CURRENT_PART_ID_START ? (
                     <table className={`${subtestStyles['recording-table']}`}>
                         <thead>
                             <tr className='bg-accent1 text-white text-body-2'>
@@ -473,13 +480,13 @@ export default function SpeechMotorPage({ questionList }: { questionList: Questi
                 </div>
 
                 <div>
-                    {currentPartId > 1 && (
+                    {currentPartId > CURRENT_PART_ID_START && (
                         <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
                             이전
                         </button>
                     )}
                     {/* key 설정을 해야 다른 컴포넌트로 인식하여 type이 명확히 구분됨 */}
-                    {currentPartId < partIndexList.length ? (
+                    {currentPartId < partIndexList[partIndexList.length - 1].partId ? (
                         <button key='noSubmit' type='button' className='ml-5 mt-20 btn btn-large btn-contained' onClick={handleClickNext}>
                             다음
                         </button>

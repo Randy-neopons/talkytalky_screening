@@ -20,21 +20,20 @@ import type { Answer, QuestionAnswer } from '@/types/types';
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 1;
+const CURRENT_PART_ID_START = 1;
 
 // 소검사 내 파트별 문항 index 정보
 // TODO: part title도 DB에서 가져오기
 const partIndexList = [
-    { start: 0, split: 6, end: 12, subtitle1: '휴식시', subtitle2: '활동시', partTitle: 'Facial (안면)' },
-    { start: 12, split: 13, end: 18, subtitle1: '휴식시', subtitle2: '활동시', partTitle: 'Jaw (턱)' },
-    { start: 18, split: 23, end: 30, subtitle1: '휴식시', subtitle2: '활동시', partTitle: 'Tongue (혀)' },
-    { start: 30, split: 35, end: 35, subtitle1: '활동시', partTitle: 'Velar (연구개)\nPharynx (인두)\nLarynx (후두)' },
+    { start: 0, split: 6, end: 12, subtitle1: '휴식시', subtitle2: '활동시', partTitle: 'Facial (안면)', partId: 1 },
+    { start: 12, split: 13, end: 18, subtitle1: '휴식시', subtitle2: '활동시', partTitle: 'Jaw (턱)', partId: 2 },
+    { start: 18, split: 23, end: 30, subtitle1: '휴식시', subtitle2: '활동시', partTitle: 'Tongue (혀)', partId: 3 },
+    { start: 30, split: 35, end: 35, subtitle1: '활동시', partTitle: 'Velar (연구개)\nPharynx (인두)\nLarynx (후두)', partId: 4 },
 ];
 
 // 말기제평가 페이지
 export default function SpeechMechanismStartPage({ questionList }: { questionList: QuestionAnswer[] }) {
     const router = useRouter();
-
-    console.log(questionList);
 
     // 현재 소검사, 선택한 소검사 정보
     const currentSubtest = useCurrentSubTest();
@@ -46,8 +45,11 @@ export default function SpeechMechanismStartPage({ questionList }: { questionLis
     const [checkAll2, setCheckAll2] = useState(false);
 
     // 소검사 내 현재 파트 정보
-    const [currentPartId, setCurrentPartId] = useState(1);
-    const { start, split, end, subtitle1, subtitle2, partTitle } = useMemo(() => partIndexList[currentPartId - 1], [currentPartId]);
+    const [currentPartId, setCurrentPartId] = useState(CURRENT_PART_ID_START);
+    const { start, split, end, subtitle1, subtitle2, partTitle } = useMemo(
+        () => partIndexList.find(v => v.partId === currentPartId) || partIndexList[0],
+        [currentPartId],
+    );
 
     // react-hook-form
     const { control, register, setValue, handleSubmit } = useForm<{
@@ -99,7 +101,7 @@ export default function SpeechMechanismStartPage({ questionList }: { questionLis
     const handleClickPrev = useCallback(() => {
         setCheckAll1(false);
         setCheckAll2(false);
-        currentPartId > 1 && setCurrentPartId(partId => partId - 1);
+        currentPartId > CURRENT_PART_ID_START && setCurrentPartId(partId => partId - 1);
         typeof window !== 'undefined' && window.scrollTo(0, 0);
     }, [currentPartId]);
 
@@ -107,7 +109,7 @@ export default function SpeechMechanismStartPage({ questionList }: { questionLis
     const handleClickNext = useCallback(() => {
         setCheckAll1(false);
         setCheckAll2(false);
-        currentPartId < partIndexList.length && setCurrentPartId(partId => partId + 1);
+        currentPartId < partIndexList[partIndexList.length - 1].partId && setCurrentPartId(partId => partId + 1);
         typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
     }, [currentPartId]);
 
@@ -149,13 +151,12 @@ export default function SpeechMechanismStartPage({ questionList }: { questionLis
                     throw new Error('수행할 소검사가 없습니다');
                 }
                 const currentSubtestIndex = subtests.findIndex(v => v.subtestId === CURRENT_SUBTEST_ID);
-                console.log(subtests);
                 const nextSubtest = subtests?.[currentSubtestIndex + 1];
-                // if (nextSubtest) {
-                //     router.push(`/sessions/${sessionId}/subtests/${nextSubtest.pathname}`);
-                // } else {
-                //     router.push(`/sessions/${sessionId}/unassessable`);
-                // }
+                if (nextSubtest) {
+                    router.push(`/sessions/${sessionId}/subtests/${nextSubtest.pathname}`);
+                } else {
+                    router.push(`/sessions/${sessionId}/unassessable`);
+                }
             } catch (err) {
                 console.error(err);
             }
@@ -282,13 +283,13 @@ export default function SpeechMechanismStartPage({ questionList }: { questionLis
                 )}
 
                 <div>
-                    {currentPartId > 1 && (
+                    {currentPartId > CURRENT_PART_ID_START && (
                         <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
                             이전
                         </button>
                     )}
                     {/* key 설정을 해야 다른 컴포넌트로 인식하여 type이 명확히 구분됨 */}
-                    {currentPartId < partIndexList.length ? (
+                    {currentPartId < partIndexList[partIndexList.length - 1].partId ? (
                         <button key='noSubmit' type='button' className='ml-5 mt-20 btn btn-large btn-contained' onClick={handleClickNext}>
                             다음
                         </button>

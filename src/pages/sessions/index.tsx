@@ -16,25 +16,6 @@ import searchIcon from 'public/static/images/search-icon.png';
 
 import type { TestSession } from '@/types/types';
 
-const sessionList = [
-    {
-        sessionId: 1,
-        patientName: '조대형',
-        patientBirthdate: '1992-07-24',
-        regDate: '2024-05-18',
-        progress: 45,
-        currentPartId: 3,
-    },
-    {
-        sessionId: 3,
-        patientName: '조대형',
-        patientBirthdate: '1992-07-24',
-        regDate: '2024-05-18',
-        progress: 100,
-        currentPartId: 3,
-    },
-];
-
 export default function SessionListPage({ sessionList }: { sessionList: TestSession[] }) {
     const router = useRouter(); // next router
 

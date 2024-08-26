@@ -20,14 +20,15 @@ import type { Answer, QuestionAnswer } from '@/types/types';
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 2;
+const CURRENT_PART_ID_START = 5;
 
 // 소검사 내 파트별 문항 index 정보
 // TODO: part title도 DB에서 가져오기
 const partIndexList = [
-    { start: 0, split: 1, end: 6, subtitle1: '잠복시간', subtitle2: '음질', partTitle: 'Aspiration (호흡)\nPhonation (음성)' },
-    { start: 6, split: 11, end: 14, subtitle1: '음도', subtitle2: '강도', partTitle: 'Aspiration (호흡)\nPhonation (음성)' },
-    { start: 14, split: 18, end: 22, subtitle1: '과다비성', subtitle2: '비강누출', partTitle: 'Resonance (공명)' },
-    { start: 22, split: 27, end: 27, subtitle1: '따라하기', partTitle: 'Articulation (조음)' },
+    { start: 0, split: 1, end: 6, subtitle1: '잠복시간', subtitle2: '음질', partTitle: 'Aspiration (호흡)\nPhonation (음성)', partId: 5 },
+    { start: 6, split: 11, end: 14, subtitle1: '음도', subtitle2: '강도', partTitle: 'Aspiration (호흡)\nPhonation (음성)', partId: 5 },
+    { start: 14, split: 18, end: 22, subtitle1: '과다비성', subtitle2: '비강누출', partTitle: 'Resonance (공명)', partId: 6 },
+    { start: 22, split: 27, end: 27, subtitle1: '따라하기', partTitle: 'Articulation (조음)', partId: 7 },
 ];
 
 // SPEECH I 문항 페이지
@@ -44,8 +45,11 @@ export default function SpeechOnePage({ questionList }: { questionList: Question
     const [checkAll2, setCheckAll2] = useState(false);
 
     // 소검사 내 현재 파트 정보
-    const [currentPartId, setCurrentPartId] = useState(1);
-    const { start, split, end, subtitle1, subtitle2, partTitle } = useMemo(() => partIndexList[currentPartId - 1], [currentPartId]);
+    const [currentPartId, setCurrentPartId] = useState(CURRENT_PART_ID_START);
+    const { start, split, end, subtitle1, subtitle2, partTitle } = useMemo(
+        () => partIndexList.find(v => v.partId === currentPartId) || partIndexList[0],
+        [currentPartId],
+    );
 
     // react-hook-form
     const { control, register, setValue, handleSubmit } = useForm<{
@@ -97,7 +101,7 @@ export default function SpeechOnePage({ questionList }: { questionList: Question
     const handleClickPrev = useCallback(() => {
         setCheckAll1(false);
         setCheckAll2(false);
-        currentPartId > 1 && setCurrentPartId(partId => partId - 1);
+        currentPartId > CURRENT_PART_ID_START && setCurrentPartId(partId => partId - 1);
         typeof window !== 'undefined' && window.scrollTo(0, 0);
     }, [currentPartId]);
 
@@ -105,7 +109,7 @@ export default function SpeechOnePage({ questionList }: { questionList: Question
     const handleClickNext = useCallback(() => {
         setCheckAll1(false);
         setCheckAll2(false);
-        currentPartId < partIndexList.length && setCurrentPartId(partId => partId + 1);
+        currentPartId < partIndexList[partIndexList.length - 1].partId && setCurrentPartId(partId => partId + 1);
         typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
     }, [currentPartId]);
 
@@ -280,13 +284,13 @@ export default function SpeechOnePage({ questionList }: { questionList: Question
                 )}
 
                 <div>
-                    {currentPartId > 1 && (
+                    {currentPartId > CURRENT_PART_ID_START && (
                         <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
                             이전
                         </button>
                     )}
                     {/* key 설정을 해야 다른 컴포넌트로 인식하여 type이 명확히 구분됨 */}
-                    {currentPartId < partIndexList.length ? (
+                    {currentPartId < partIndexList[partIndexList.length - 1].partId ? (
                         <button key='noSubmit' type='button' className='ml-5 mt-20 btn btn-large btn-contained' onClick={handleClickNext}>
                             다음
                         </button>

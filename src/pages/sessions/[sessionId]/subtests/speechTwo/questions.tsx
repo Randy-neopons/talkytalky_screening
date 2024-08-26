@@ -21,14 +21,15 @@ import type { Answer, QuestionAnswer } from '@/types/types';
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 3;
+const CURRENT_PART_ID_START = 8;
 
 // 소검사 내 파트별 문항 index 정보
 // TODO: part title도 DB에서 가져오기
 const partIndexList = [
-    { start: 0, end: 6, subtitle: '호흡 & 음성', partTitle: 'Aspiration (호흡)\nPhonation (음성)' },
-    { start: 6, end: 8, subtitle: '공명', partTitle: 'Resonance (공명)' },
-    { start: 8, end: 11, subtitle: '조음', partTitle: 'Articulation (조음)' },
-    { start: 11, end: 18, subtitle: '운율', partTitle: 'Prosody (운율)' },
+    { start: 0, end: 6, subtitle: '호흡 & 음성', partTitle: 'Aspiration (호흡)\nPhonation (음성)', partId: 8 },
+    { start: 6, end: 8, subtitle: '공명', partTitle: 'Resonance (공명)', partId: 9 },
+    { start: 8, end: 11, subtitle: '조음', partTitle: 'Articulation (조음)', partId: 10 },
+    { start: 11, end: 18, subtitle: '운율', partTitle: 'Prosody (운율)', partId: 11 },
 ];
 
 // SPEECH II 문항 페이지
@@ -44,8 +45,11 @@ export default function SpeechTwoPage({ questionList }: { questionList: Question
     const [checkAll, setCheckAll] = useState(false);
 
     // 소검사 내 현재 파트 정보
-    const [currentPartId, setCurrentPartId] = useState(1);
-    const { start, end, subtitle, partTitle } = useMemo(() => partIndexList[currentPartId - 1], [currentPartId]);
+    const [currentPartId, setCurrentPartId] = useState(CURRENT_PART_ID_START);
+    const { start, end, subtitle, partTitle } = useMemo(
+        () => partIndexList.find(v => v.partId === currentPartId) || partIndexList[0],
+        [currentPartId],
+    );
 
     // react-hook-form
     const { control, register, setValue, handleSubmit } = useForm<{
@@ -81,14 +85,14 @@ export default function SpeechTwoPage({ questionList }: { questionList: Question
     // 이전 파트로
     const handleClickPrev = useCallback(() => {
         setCheckAll(false);
-        currentPartId > 1 && setCurrentPartId(partId => partId - 1);
+        currentPartId > CURRENT_PART_ID_START && setCurrentPartId(partId => partId - 1);
         typeof window !== 'undefined' && window.scrollTo(0, 0);
     }, [currentPartId]);
 
     // 다음 파트로
     const handleClickNext = useCallback(() => {
         setCheckAll(false);
-        currentPartId < partIndexList.length && setCurrentPartId(partId => partId + 1);
+        currentPartId < partIndexList[partIndexList.length - 1].partId && setCurrentPartId(partId => partId + 1);
         typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
     }, [currentPartId]);
 
@@ -249,13 +253,13 @@ export default function SpeechTwoPage({ questionList }: { questionList: Question
                 </div>
 
                 <div>
-                    {currentPartId > 1 && (
+                    {currentPartId > CURRENT_PART_ID_START && (
                         <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
                             이전
                         </button>
                     )}
                     {/* key 설정을 해야 다른 컴포넌트로 인식하여 type이 명확히 구분됨 */}
-                    {currentPartId < partIndexList.length ? (
+                    {currentPartId < partIndexList[partIndexList.length - 1].partId ? (
                         <button key='noSubmit' type='button' className='ml-5 mt-20 btn btn-large btn-contained' onClick={handleClickNext}>
                             다음
                         </button>
