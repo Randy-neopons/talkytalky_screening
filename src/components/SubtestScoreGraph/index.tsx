@@ -4,7 +4,7 @@ type Datum = RadialBarDatum & {
     color: string;
 };
 
-export default function SubtestScoreGraph({ data /* see data tab */ }: { data: RadialBarSerie<Datum>[] }) {
+export default function SubtestScoreGraph({ data /* see data tab */, maxScore }: { data: RadialBarSerie<Datum>[]; maxScore?: number }) {
     return (
         <div className={`relative h-40 w-40 xl:h-[200px] xl:w-[200px]`}>
             <ResponsiveRadialBar<Datum>
@@ -15,7 +15,7 @@ export default function SubtestScoreGraph({ data /* see data tab */ }: { data: R
                 cornerRadius={20}
                 startAngle={90}
                 endAngle={450}
-                maxValue={100}
+                maxValue={maxScore || 100}
                 circularAxisOuter={null}
                 enableRadialGrid={false}
                 enableCircularGrid={false}
@@ -30,7 +30,7 @@ export default function SubtestScoreGraph({ data /* see data tab */ }: { data: R
                     <span className='text-[26px] font-bold leading-none text-black xl:text-[34px]'>{data[0]?.data[0]?.y}</span>
                     <span className='font-bold text-black'>점</span>
                 </div>
-                <span className='text-[14px] text-neutral4'>100점 만점기준</span>
+                <span className='text-[14px] text-neutral4'>{maxScore}점 만점기준</span>
             </div>
         </div>
     );

@@ -92,6 +92,7 @@ export async function getTestResultAPI({ sessionId, jwt }: { sessionId: number; 
         };
         testScore: {
             score: number;
+            maxScore: number;
             partId: number;
             partTitle: string;
             subtestId: number;

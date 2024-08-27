@@ -11,13 +11,15 @@ export default function TestScoreBarGraph({ data /* see data tab */ }: { data: B
     return (
         <ResponsiveBar
             data={data}
-            keys={['hot dog', 'burger', 'sandwich', 'kebab', 'fries', 'donut']}
-            indexBy='country'
+            keys={['totalScore']}
+            indexBy='subtestTitle'
+            groupMode='grouped'
             margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
             padding={0.3}
             valueScale={{ type: 'linear' }}
             indexScale={{ type: 'band', round: true }}
             colors={{ scheme: 'nivo' }}
+            colorBy='indexValue'
             defs={[
                 {
                     id: 'dots',
@@ -82,30 +84,30 @@ export default function TestScoreBarGraph({ data /* see data tab */ }: { data: B
                 from: 'color',
                 modifiers: [['darker', 1.6]],
             }}
-            legends={[
-                {
-                    dataFrom: 'keys',
-                    anchor: 'bottom-right',
-                    direction: 'column',
-                    justify: false,
-                    translateX: 120,
-                    translateY: 0,
-                    itemsSpacing: 2,
-                    itemWidth: 100,
-                    itemHeight: 20,
-                    itemDirection: 'left-to-right',
-                    itemOpacity: 0.85,
-                    symbolSize: 20,
-                    effects: [
-                        {
-                            on: 'hover',
-                            style: {
-                                itemOpacity: 1,
-                            },
-                        },
-                    ],
-                },
-            ]}
+            // legends={[
+            //     {
+            //         dataFrom: 'keys',
+            //         anchor: 'bottom-right',
+            //         direction: 'column',
+            //         justify: false,
+            //         translateX: 120,
+            //         translateY: 0,
+            //         itemsSpacing: 2,
+            //         itemWidth: 100,
+            //         itemHeight: 20,
+            //         itemDirection: 'left-to-right',
+            //         itemOpacity: 0.85,
+            //         symbolSize: 20,
+            //         effects: [
+            //             {
+            //                 on: 'hover',
+            //                 style: {
+            //                     itemOpacity: 1,
+            //                 },
+            //             },
+            //         ],
+            //     },
+            // ]}
             role='application'
             ariaLabel='Nivo bar chart demo'
             barAriaLabel={e => e.id + ': ' + e.formattedValue + ' in country: ' + e.indexValue}

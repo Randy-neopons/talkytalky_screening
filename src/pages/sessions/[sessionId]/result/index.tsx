@@ -29,109 +29,16 @@ const brainLesionOptions = [
 
 const barData = [
     {
-        country: 'AD',
-        'hot dog': 27,
-        'hot dogColor': 'hsl(327, 70%, 50%)',
-        burger: 2,
-        burgerColor: 'hsl(47, 70%, 50%)',
-        sandwich: 168,
-        sandwichColor: 'hsl(265, 70%, 50%)',
-        kebab: 33,
-        kebabColor: 'hsl(192, 70%, 50%)',
-        fries: 17,
-        friesColor: 'hsl(163, 70%, 50%)',
-        donut: 185,
-        donutColor: 'hsl(307, 70%, 50%)',
+        subtest: 'AD',
+        score: 27,
     },
     {
-        country: 'AE',
-        'hot dog': 153,
-        'hot dogColor': 'hsl(331, 70%, 50%)',
-        burger: 181,
-        burgerColor: 'hsl(281, 70%, 50%)',
-        sandwich: 71,
-        sandwichColor: 'hsl(26, 70%, 50%)',
-        kebab: 62,
-        kebabColor: 'hsl(128, 70%, 50%)',
-        fries: 73,
-        friesColor: 'hsl(183, 70%, 50%)',
-        donut: 89,
-        donutColor: 'hsl(145, 70%, 50%)',
+        subtest: 'AE',
+        score: 181,
     },
     {
-        country: 'AF',
-        'hot dog': 108,
-        'hot dogColor': 'hsl(144, 70%, 50%)',
-        burger: 81,
-        burgerColor: 'hsl(130, 70%, 50%)',
-        sandwich: 150,
-        sandwichColor: 'hsl(346, 70%, 50%)',
-        kebab: 74,
-        kebabColor: 'hsl(47, 70%, 50%)',
-        fries: 121,
-        friesColor: 'hsl(13, 70%, 50%)',
-        donut: 109,
-        donutColor: 'hsl(170, 70%, 50%)',
-    },
-    {
-        country: 'AG',
-        'hot dog': 25,
-        'hot dogColor': 'hsl(225, 70%, 50%)',
-        burger: 173,
-        burgerColor: 'hsl(342, 70%, 50%)',
-        sandwich: 157,
-        sandwichColor: 'hsl(84, 70%, 50%)',
-        kebab: 70,
-        kebabColor: 'hsl(12, 70%, 50%)',
-        fries: 128,
-        friesColor: 'hsl(278, 70%, 50%)',
-        donut: 189,
-        donutColor: 'hsl(41, 70%, 50%)',
-    },
-    {
-        country: 'AI',
-        'hot dog': 79,
-        'hot dogColor': 'hsl(249, 70%, 50%)',
-        burger: 80,
-        burgerColor: 'hsl(337, 70%, 50%)',
-        sandwich: 160,
-        sandwichColor: 'hsl(194, 70%, 50%)',
-        kebab: 94,
-        kebabColor: 'hsl(4, 70%, 50%)',
-        fries: 121,
-        friesColor: 'hsl(21, 70%, 50%)',
-        donut: 70,
-        donutColor: 'hsl(243, 70%, 50%)',
-    },
-    {
-        country: 'AL',
-        'hot dog': 24,
-        'hot dogColor': 'hsl(301, 70%, 50%)',
-        burger: 64,
-        burgerColor: 'hsl(37, 70%, 50%)',
-        sandwich: 82,
-        sandwichColor: 'hsl(135, 70%, 50%)',
-        kebab: 29,
-        kebabColor: 'hsl(164, 70%, 50%)',
-        fries: 166,
-        friesColor: 'hsl(204, 70%, 50%)',
-        donut: 170,
-        donutColor: 'hsl(337, 70%, 50%)',
-    },
-    {
-        country: 'AM',
-        'hot dog': 10,
-        'hot dogColor': 'hsl(288, 70%, 50%)',
-        burger: 63,
-        burgerColor: 'hsl(42, 70%, 50%)',
-        sandwich: 143,
-        sandwichColor: 'hsl(274, 70%, 50%)',
-        kebab: 23,
-        kebabColor: 'hsl(1, 70%, 50%)',
-        fries: 18,
-        friesColor: 'hsl(24, 70%, 50%)',
-        donut: 183,
-        donutColor: 'hsl(143, 70%, 50%)',
+        subtest: 'AF',
+        score: 150,
     },
 ];
 
@@ -150,16 +57,18 @@ const SubtestScore = ({
     id,
     subtestTitle,
     totalScore,
+    maxScore,
     color,
     partList,
 }: {
     id: string;
     subtestTitle: string;
     totalScore: number;
+    maxScore: number;
     color: string;
     partList: {
         partTitle: string;
-        partScore: number;
+        score: number;
         maxScore: number;
     }[];
 }) => {
@@ -175,6 +84,7 @@ const SubtestScore = ({
                                 data: [{ x: 'abc', y: totalScore, color }],
                             },
                         ]}
+                        maxScore={maxScore}
                     />
                     <button className='mt-5 underline text-body-2' onClick={() => {}}>
                         평가항목 리스트
@@ -186,13 +96,13 @@ const SubtestScore = ({
                             <div className='ml-1 mr-2 flex justify-between'>
                                 <span className='text-neutral3 text-body-2'>{part.partTitle}</span>
                                 <span className='text-neutral3 text-body-2'>
-                                    {part.partScore}/{part.maxScore}
+                                    {part.score}/{part.maxScore}
                                 </span>
                             </div>
                             <div className='relative mt-1.5 h-5 w-full rounded-full bg-[#D9D9D9] xl:mt-2'>
                                 <div
                                     className={`absolute left-0 h-full rounded-full`}
-                                    style={{ width: `${(100 * part.partScore) / part.maxScore}%`, backgroundColor: color }}
+                                    style={{ width: `${(100 * part.score) / part.maxScore}%`, backgroundColor: color }}
                                 ></div>
                             </div>
                         </div>
@@ -206,7 +116,7 @@ const SubtestScore = ({
 // Stress Testing 문항 페이지
 export default function TestResultPage({
     testInfo,
-    testScore,
+    testResultList,
 }: {
     testInfo: {
         testDate: string;
@@ -217,13 +127,20 @@ export default function TestResultPage({
         medicalHistory: string;
         patientMemo: string;
     };
-    testScore: {
-        score: number;
-        maxScore: number;
-        partId: number;
-        partTitle: string;
-        subtestId: number;
+    testResultList: {
+        pathname: string;
         subtestTitle: string;
+        color: string;
+        totalScore: number;
+        maxScore: number;
+        partList: {
+            score: number;
+            maxScore: number;
+            partId: number;
+            partTitle: string;
+            subtestId: number;
+            subtestTitle: string;
+        }[];
     }[];
 }) {
     const router = useRouter(); // next router
@@ -319,27 +236,23 @@ export default function TestResultPage({
                         />
                     </div>
                     <div className='h-[295px] w-full rounded-base bg-white shadow-base xl:h-[346px] xl:w-[580px]'>
-                        <TestScoreBarGraph data={barData} />
+                        <TestScoreBarGraph data={testResultList.map(v => ({ subtestTitle: v.subtestTitle, totalScore: v.totalScore }))} />
                     </div>
                 </div>
             </div>
 
             {/* 소검사별 결과 */}
-            {subtestResultList.map(v => {
-                const partList = testScore.filter(score => v.subtestIds.includes(score.subtestId)).map(v => ({ ...v, partScore: v.score }));
-                const totalScore = partList.reduce((accum, curr) => {
-                    return accum + curr.score;
-                }, 0);
-
+            {testResultList.map(v => {
                 return (
-                    partList.length > 0 && (
+                    v.partList.length > 0 && (
                         <SubtestScore
                             id={v.pathname}
                             key={v.pathname}
                             subtestTitle={v.subtestTitle}
-                            totalScore={totalScore}
+                            totalScore={v.totalScore}
+                            maxScore={v.maxScore}
                             color={v.color}
-                            partList={partList}
+                            partList={v.partList}
                         />
                     )
                 );
@@ -382,11 +295,32 @@ export const getServerSideProps: GetServerSideProps = async context => {
         const responseData = await getTestResultAPI({ sessionId, jwt: accessToken });
         const { testInfo, testScore } = responseData;
 
+        const testResultList = subtestResultList.map(v => {
+            const partList = testScore.filter(score => v.subtestIds.includes(score.subtestId));
+            const { totalScore, maxScore } = partList.reduce(
+                (accum, curr) => {
+                    const totalScore = accum.totalScore + curr.score;
+                    const maxScore = accum.maxScore + curr.maxScore;
+                    return { totalScore, maxScore };
+                },
+                { totalScore: 0, maxScore: 0 },
+            );
+
+            return {
+                pathname: v.pathname,
+                subtestTitle: v.subtestTitle,
+                totalScore,
+                maxScore,
+                color: v.color,
+                partList,
+            };
+        });
+
         return {
             props: {
                 isLoggedIn: true,
                 testInfo,
-                testScore,
+                testResultList,
             },
         };
     } catch (err) {
