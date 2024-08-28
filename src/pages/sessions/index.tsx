@@ -33,6 +33,7 @@ export default function SessionListPage({ sessionList }: { sessionList: TestSess
                 console.log(sessionId, currentPartId);
                 console.log('pathname', pathname);
                 pathname && router.push(`/sessions/${sessionId}/subtests/${pathname}`);
+            } else {
             }
         },
         [router],

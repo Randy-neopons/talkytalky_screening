@@ -5,10 +5,11 @@
     "scripts": {
         "dev": "next dev -p 3004",
         "build": "cross-env NODE_ENV=production next build",
+        "build:staging": "env-cmd -f .env.staging next build",
         "start": "next start",
         "lint": "next lint",
         "deploy": "npm run build && gcloud app deploy --project talkytalky-platform-v2",
-        "deploy:staging": "npm run build && gcloud app deploy app-staging.yaml --project talkytalky-platform-v2"
+        "deploy:staging": "npm run build:staging && gcloud app deploy app-staging.yaml --project talkytalky-platform-v2"
     },
     "dependencies": {
         "@hookform/error-message": "^2.0.1",
@@ -21,6 +22,7 @@
         "cookies-next": "^4.2.1",
         "cross-env": "^7.0.3",
         "dayjs": "^1.11.11",
+        "env-cmd": "^10.1.0",
         "next": "14.1.4",
         "react": "^18",
         "react-dom": "^18",
