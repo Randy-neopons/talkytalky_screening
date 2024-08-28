@@ -27,31 +27,88 @@ const brainLesionOptions = [
     { value: 'unknown', label: '알 수 없음' },
 ];
 
-const barData = [
-    {
-        subtest: 'AD',
-        score: 27,
-    },
-    {
-        subtest: 'AE',
-        score: 181,
-    },
-    {
-        subtest: 'AF',
-        score: 150,
-    },
-];
-
 const genderOptionList = [
     { value: 'male', label: '남' },
     { value: 'female', label: '여' },
 ];
 
 const subtestResultList = [
-    { subtestIds: [1], subtestTitle: 'SPEECH MECHANISM : 말기제 평가', pathname: 'speechMechanism', color: '#20C997' },
-    { subtestIds: [2, 3], subtestTitle: 'SPEECH I : 영역별 말평가 / SPEECH II : 종합적 말평가', pathname: 'speech', color: '#FFA26B' },
-    { subtestIds: [4], subtestTitle: 'SPEECH MOTOR : 말운동 평가', pathname: 'speechMotor', color: '#0084F4' },
+    {
+        subtestIds: [1],
+        subtestTitle: 'SPEECH MECHANISM : 말기제 평가',
+        graphTitle: 'SPEECH\nMECHANISM',
+        pathname: 'speechMechanism',
+        color: '#20C997',
+    },
+    {
+        subtestIds: [2, 3],
+        subtestTitle: 'SPEECH I : 영역별 말평가 / SPEECH II : 종합적 말평가',
+        graphTitle: 'SPEECH',
+        pathname: 'speech',
+        color: '#FFA26B',
+    },
+    {
+        subtestIds: [4],
+        subtestTitle: 'SPEECH MOTOR : 말운동 평가',
+        graphTitle: 'SPEECH\nMOTOR',
+        pathname: 'speechMotor',
+        color: '#0084F4',
+    },
 ];
+
+const makeTotalScoreGraphData = (
+    testResultList: {
+        pathname: string;
+        subtestTitle: string;
+        graphTitle: string;
+        color: string;
+        totalScore: number;
+        maxScore: number;
+        partList: {
+            score: number;
+            maxScore: number;
+            partId: number;
+            partTitle: string;
+            subtestId: number;
+            subtestTitle: string;
+        }[];
+    }[],
+) => {
+    const score = testResultList.reduce((accum, curr) => {
+        return accum + curr.totalScore;
+    }, 0);
+
+    return [
+        {
+            id: 'total',
+            data: [{ x: 'score', y: score, color: '#6979F8' }],
+        },
+    ];
+};
+
+const makeScoreBarGraphData = (
+    testResultList: {
+        pathname: string;
+        subtestTitle: string;
+        graphTitle: string;
+        color: string;
+        totalScore: number;
+        maxScore: number;
+        partList: {
+            score: number;
+            maxScore: number;
+            partId: number;
+            partTitle: string;
+            subtestId: number;
+            subtestTitle: string;
+        }[];
+    }[],
+) => {
+    return testResultList.map(v => ({
+        graphTitle: v.graphTitle,
+        score: Math.floor((v.totalScore / v.maxScore) * 100),
+    }));
+};
 
 const SubtestScore = ({
     id,
@@ -130,6 +187,7 @@ export default function TestResultPage({
     testResultList: {
         pathname: string;
         subtestTitle: string;
+        graphTitle: string;
         color: string;
         totalScore: number;
         maxScore: number;
@@ -226,17 +284,10 @@ export default function TestResultPage({
                 <h2 className='font-bold text-black text-head-2'>TOTAL SCORE</h2>
                 <div className='mt-[30px] flex gap-[30px]'>
                     <div className='flex h-[295px] min-w-[280px] items-center justify-center rounded-base bg-white shadow-base xl:h-[346px] xl:w-[390px]'>
-                        <TestTotalScoreGraph
-                            data={[
-                                {
-                                    id: 'total',
-                                    data: [{ x: 'abc', y: 210, color: '#6979F8' }],
-                                },
-                            ]}
-                        />
+                        <TestTotalScoreGraph data={makeTotalScoreGraphData(testResultList)} />
                     </div>
                     <div className='h-[295px] w-full rounded-base bg-white shadow-base xl:h-[346px] xl:w-[580px]'>
-                        <TestScoreBarGraph data={testResultList.map(v => ({ subtestTitle: v.subtestTitle, totalScore: v.totalScore }))} />
+                        <TestScoreBarGraph data={makeScoreBarGraphData(testResultList)} />
                     </div>
                 </div>
             </div>
@@ -309,6 +360,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
             return {
                 pathname: v.pathname,
                 subtestTitle: v.subtestTitle,
+                graphTitle: v.graphTitle,
                 totalScore,
                 maxScore,
                 color: v.color,

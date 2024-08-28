@@ -6,6 +6,7 @@ import { isAxiosError } from 'axios';
 import { deleteCookie, getCookie, setCookie } from 'cookies-next';
 
 import { subtestList, useTestInfo, useTestActions, useSubtests, partList } from '@/stores/testStore';
+import { useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import { CheckBoxGroupItem } from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
@@ -29,6 +30,7 @@ export default function SelectTestPage() {
     // 현재 소검사, 선택한 소검사 정보
     const testInfo = useTestInfo();
     const { setSubtests } = useTestActions();
+    const { setTestStart } = useTimerActions();
     const [subtestIds, setSubtestIds] = useState<string[]>([]);
 
     const [error, setError] = useState(false);
@@ -55,6 +57,7 @@ export default function SelectTestPage() {
                 const sessionId = responseData.sessionId;
                 const pathname = subtests[0].pathname;
 
+                setTestStart(true);
                 pathname && router.push(`/sessions/${sessionId}/subtests/${pathname}`);
             }
         } catch (err) {
@@ -70,7 +73,7 @@ export default function SelectTestPage() {
         }
 
         // router.push('/'); // 검사 ID로 이동
-    }, [router, setSubtests, subtestIds, testInfo]);
+    }, [router, setSubtests, setTestStart, subtestIds, testInfo]);
 
     return (
         <Container>

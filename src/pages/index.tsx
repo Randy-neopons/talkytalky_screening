@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -5,6 +6,7 @@ import { useRouter } from 'next/router';
 
 import { getCookie, setCookie } from 'cookies-next';
 
+import { useTimerActions } from '@/stores/timerStore';
 import Container from '@/components/common/Container';
 
 import testResultIcon from 'public/static/images/test-result-icon.png';
@@ -12,6 +14,13 @@ import testStartIcon from 'public/static/images/test-start-icon.png';
 
 export default function Home() {
     const router = useRouter();
+
+    const { setTestStart, reset } = useTimerActions();
+
+    useEffect(() => {
+        setTestStart && setTestStart(false);
+        reset && reset();
+    }, [setTestStart, reset]);
 
     return (
         <Container>

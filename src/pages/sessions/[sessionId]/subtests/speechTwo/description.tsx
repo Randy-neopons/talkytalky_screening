@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import { isAxiosError } from 'axios';
 import { deleteCookie, getCookie } from 'cookies-next';
 
+import { useTestTime } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import Container from '@/components/common/Container';
 import { InfoIcon } from '@/components/icons';
@@ -33,6 +34,8 @@ export default function PictureDescriptionPage() {
 
     const [currentPartId, setCurrentPartId] = useState(CURRENT_PART_ID_START);
 
+    const testTime = useTestTime();
+
     // 다음 클릭
     const handleClickPrev = useCallback(
         (data: any) => {
@@ -56,6 +59,7 @@ export default function PictureDescriptionPage() {
                 formData.append('audio1', audioBlob || 'null');
                 formData.append('recordings', JSON.stringify([{ filePath: null, repeatCount: null }]));
 
+                formData.append('testTime', `${testTime}`);
                 formData.append('currentPartId', `${currentPartId}`);
 
                 // 세션 갱신
@@ -73,7 +77,7 @@ export default function PictureDescriptionPage() {
                 console.error(err);
             }
         },
-        [audioBlob, currentPartId],
+        [audioBlob, currentPartId, testTime],
     );
 
     // 다음 클릭

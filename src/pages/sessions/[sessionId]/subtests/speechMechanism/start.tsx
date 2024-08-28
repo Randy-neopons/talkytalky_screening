@@ -8,6 +8,7 @@ import { isAxiosError } from 'axios';
 import { deleteCookie, getCookie } from 'cookies-next';
 
 import { useCurrentSubTest, useSubtests, useTestActions } from '@/stores/testStore';
+import { useTestTime } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
@@ -36,9 +37,8 @@ export default function SpeechMechanismStartPage({ questionList }: { questionLis
     const router = useRouter();
 
     // 현재 소검사, 선택한 소검사 정보
-    const currentSubtest = useCurrentSubTest();
     const { data: subtestsData } = useConductedSubtestsQuery({ sessionId: Number(router.query.sessionId), jwt: getCookie('jwt') || '' });
-    const { setCurrentSubtest } = useTestActions();
+    const testTime = useTestTime();
 
     // 문항 전부 정상으로 체크
     const [checkAll1, setCheckAll1] = useState(false);
@@ -118,6 +118,7 @@ export default function SpeechMechanismStartPage({ questionList }: { questionLis
         async ({ sessionId, data }: { sessionId: number; data: any }) => {
             try {
                 const formData = new FormData();
+                formData.append('testTime', `${testTime}`);
                 formData.append('currentPartId', `${currentPartId}`);
                 formData.append('answers', JSON.stringify(data.answers));
 
@@ -136,7 +137,7 @@ export default function SpeechMechanismStartPage({ questionList }: { questionLis
                 console.error(err);
             }
         },
-        [currentPartId],
+        [currentPartId, testTime],
     );
 
     // 폼 제출

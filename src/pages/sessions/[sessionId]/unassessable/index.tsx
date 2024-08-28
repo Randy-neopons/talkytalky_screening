@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
@@ -6,6 +6,7 @@ import { isAxiosError } from 'axios';
 import { deleteCookie, getCookie } from 'cookies-next';
 
 import { partList, subtestList } from '@/stores/testStore';
+import { useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import Container from '@/components/common/Container';
 import { completeSessionAPI, getUnassessableQuestionListAPI } from '@/api/questions';
@@ -15,6 +16,8 @@ import type { QuestionAnswer } from '@/types/types';
 // Stress Testing 문항 페이지
 export default function UnassessableQuestionsPage({ questionList }: { questionList: QuestionAnswer[] }) {
     const router = useRouter(); // next router
+
+    const { setTestStart } = useTimerActions();
 
     // 폼 제출
     const handleClickNext = useCallback(async () => {
@@ -55,6 +58,12 @@ export default function UnassessableQuestionsPage({ questionList }: { questionLi
         },
         [router],
     );
+
+    useEffect(() => {
+        if (setTestStart) {
+            setTestStart(false);
+        }
+    }, [setTestStart]);
 
     return (
         <Container>

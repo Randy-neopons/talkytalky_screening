@@ -27,11 +27,13 @@ export default function SessionListPage({ sessionList }: { sessionList: TestSess
     // 이어하기
     const handleClickContinue = useCallback(
         (sessionId: number, currentPartId: number) => () => {
-            const subtestId = partList.find(v => v.partId === currentPartId)?.subtestId;
-            const pathname = subtestList.find(v => v.subtestId === subtestId)?.pathname;
-            console.log(sessionId, currentPartId);
-            console.log('pathname', pathname);
-            pathname && router.push(`/sessions/${sessionId}/subtests/${pathname}`);
+            if (currentPartId) {
+                const subtestId = partList.find(v => v.partId === currentPartId)?.subtestId;
+                const pathname = subtestList.find(v => v.subtestId === subtestId)?.pathname;
+                console.log(sessionId, currentPartId);
+                console.log('pathname', pathname);
+                pathname && router.push(`/sessions/${sessionId}/subtests/${pathname}`);
+            }
         },
         [router],
     );

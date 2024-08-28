@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import { isAxiosError } from 'axios';
 import { deleteCookie, getCookie } from 'cookies-next';
 
+import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import Container from '@/components/common/Container';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
@@ -30,9 +31,8 @@ export default function ParagraphReadingPage() {
 
     const [currentPartId, setCurrentPartId] = useState(CURRENT_PART_ID_START);
 
-    useEffect(() => {
-        console.log(audioUrl);
-    }, [audioUrl]);
+    const testTime = useTestTime();
+    const { setTestStart } = useTimerActions();
 
     // 폼 데이터 제출
     const handleSubmitData = useCallback(
@@ -42,6 +42,7 @@ export default function ParagraphReadingPage() {
                 formData.append('audio1', audioBlob || 'null');
                 formData.append('recordings', JSON.stringify([{ filePath: null, repeatCount: null }]));
 
+                formData.append('testTime', `${testTime}`);
                 formData.append('currentPartId', `${currentPartId}`);
 
                 // 세션 갱신
@@ -59,7 +60,7 @@ export default function ParagraphReadingPage() {
                 console.error(err);
             }
         },
-        [audioBlob, currentPartId],
+        [audioBlob, currentPartId, testTime],
     );
 
     // 다음 클릭
@@ -73,6 +74,10 @@ export default function ParagraphReadingPage() {
             console.error(err);
         }
     }, [handleSubmitData, router]);
+
+    useEffect(() => {
+        setTestStart(true);
+    }, [setTestStart]);
 
     return (
         <Container>

@@ -8,6 +8,7 @@ import { isAxiosError } from 'axios';
 import { deleteCookie, getCookie } from 'cookies-next';
 
 import { useCurrentSubTest, useSubtests, useTestActions } from '@/stores/testStore';
+import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
@@ -154,9 +155,9 @@ export default function SpeechMotorPage({ questionList, recordingList }: { quest
     } = useAudioRecorder(recordingList[3]?.filePath);
 
     // 현재 소검사, 선택한 소검사 정보
-    const currentSubtest = useCurrentSubTest();
     const { data: subtestsData } = useConductedSubtestsQuery({ sessionId: Number(router.query.sessionId), jwt: getCookie('jwt') || '' });
-    const { setCurrentSubtest } = useTestActions();
+    const testTime = useTestTime();
+    const { setTestStart } = useTimerActions();
 
     // 문항 전부 정상으로 체크
     const [checkAll, setCheckAll] = useState(false);
@@ -234,6 +235,7 @@ export default function SpeechMotorPage({ questionList, recordingList }: { quest
                 formData.append('audio4', audioBlob4 || 'null');
                 formData.append('recordings', JSON.stringify(data.recordings));
 
+                formData.append('testTime', `${testTime}`);
                 formData.append('currentPartId', `${currentPartId}`);
                 formData.append('answers', JSON.stringify(data.answers));
 
@@ -252,7 +254,7 @@ export default function SpeechMotorPage({ questionList, recordingList }: { quest
                 console.error(err);
             }
         },
-        [audioBlob1, audioBlob2, audioBlob3, audioBlob4, currentPartId],
+        [audioBlob1, audioBlob2, audioBlob3, audioBlob4, currentPartId, testTime],
     );
 
     // 폼 제출 후 redirect
@@ -280,20 +282,28 @@ export default function SpeechMotorPage({ questionList, recordingList }: { quest
         [handleSubmitData, router, subtestsData],
     );
 
+    useEffect(() => {
+        setTestStart(true);
+    }, [setTestStart]);
+
     // 녹음 파일 로컬 주소 form 세팅
     useEffect(() => {
+        console.log(audioUrl1);
         audioUrl1 && setValue(`recordings.0.filePath`, audioUrl1);
     }, [audioUrl1, setValue]);
 
     useEffect(() => {
+        console.log(audioUrl2);
         audioUrl2 && setValue(`recordings.1.filePath`, audioUrl2);
     }, [audioUrl2, setValue]);
 
     useEffect(() => {
+        console.log(audioUrl3);
         audioUrl3 && setValue(`recordings.2.filePath`, audioUrl3);
     }, [audioUrl3, setValue]);
 
     useEffect(() => {
+        console.log(audioUrl4);
         audioUrl4 && setValue(`recordings.3.filePath`, audioUrl4);
     }, [audioUrl4, setValue]);
 

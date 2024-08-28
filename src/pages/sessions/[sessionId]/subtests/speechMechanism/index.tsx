@@ -1,10 +1,11 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
 import { getCookie } from 'cookies-next';
 
+import { useTimerActions } from '@/stores/timerStore';
 import Container from '@/components/common/Container';
 
 import styles from '../SubTests.module.css';
@@ -29,6 +30,12 @@ const PartListItem = ({ partName, questionCount }: { partName: string; questionC
 
 export default function SpeechMechanismMainPage() {
     const router = useRouter();
+
+    const { setTestStart } = useTimerActions();
+
+    useEffect(() => {
+        setTestStart(true);
+    }, [setTestStart]);
 
     const handleClickNext = useCallback(() => {
         console.log(router.asPath);
