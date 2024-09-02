@@ -185,7 +185,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
 
         // 검사 시작할 때마다 진행률 불러오기
         const { totalCount, notNullCount } = await getAnswersCountAPI({ sessionId, jwt: accessToken });
-        const progress = (notNullCount / totalCount) * 100;
+        const progress = Math.ceil((notNullCount / totalCount) * 100);
 
         return {
             props: {

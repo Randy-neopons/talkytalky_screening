@@ -266,7 +266,7 @@ export default function SpeechTwoPage({ questionList }: { questionList: Question
                         </button>
                     ) : (
                         <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained'>
-                            다음 검사로
+                            다음 검사
                         </button>
                     )}
                 </div>
@@ -298,7 +298,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
 
         // 검사 시작할 때마다 진행률 불러오기
         const { totalCount, notNullCount } = await getAnswersCountAPI({ sessionId, jwt: accessToken });
-        const progress = (notNullCount / totalCount) * 100;
+        const progress = Math.ceil((notNullCount / totalCount) * 100);
 
         // 소검사 문항 정보 fetch
         const responseData = await getQuestionAndAnswerListAPI({ sessionId, subtestId: CURRENT_SUBTEST_ID, jwt: accessToken });

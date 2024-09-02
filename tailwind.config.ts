@@ -153,6 +153,7 @@ const config: Config = {
                 '.btn-disabled': {
                     backgroundColor: theme('colors.neutral7'),
                     color: theme('colors.neutral4'),
+                    borderColor: theme('colors.neutral7'),
                 },
             });
         }),

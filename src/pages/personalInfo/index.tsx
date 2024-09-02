@@ -84,7 +84,7 @@ export default function PersonalInfoPage() {
     const {
         control,
         register,
-        formState: { errors },
+        formState: { errors, isDirty, isValid },
         handleSubmit,
     } = useForm<FormValues>({
         defaultValues: {
@@ -92,16 +92,18 @@ export default function PersonalInfoPage() {
             testYear: `${dayjs(testInfo.testDate).year()}`,
             testMonth: `${dayjs(testInfo.testDate).month() + 1}`,
             testDay: `${dayjs(testInfo.testDate).date()}`,
-            birthYear: `${dayjs(testInfo.patientBirthdate).year()}`,
-            birthMonth: `${dayjs(testInfo.patientBirthdate).month() + 1}`,
-            birthDay: `${dayjs(testInfo.patientBirthdate).date()}`,
+            birthYear: '',
+            birthMonth: '',
+            birthDay: '',
         },
+        mode: 'onChange',
     });
     const age = useAge({ control }); // 만 나이 계산
 
     // 폼 제출
     const handleOnSubmit = useCallback(
         (data: FormValues) => {
+            console.log(data);
             const { testYear, testMonth, testDay, birthYear, birthMonth, birthDay, ...rest } = data;
 
             const testDate = dayjs(new Date(Number(testYear), Number(testMonth) - 1, Number(testDay))).format('YYYY-MM-DD');
@@ -142,9 +144,9 @@ export default function PersonalInfoPage() {
 
                 <Label htmlFor='testDate'>검사일</Label>
                 <div className='flex gap-[15px]'>
-                    <Select control={control} name='testYear' required options={yearOptions} />
-                    <Select control={control} name='testMonth' required options={monthOptions} />
-                    <Select control={control} name='testDay' required options={dayOptions} />
+                    <Select control={control} name='testYear' required options={yearOptions} placeholder='년' />
+                    <Select control={control} name='testMonth' required options={monthOptions} placeholder='월' />
+                    <Select control={control} name='testDay' required options={dayOptions} placeholder='일' />
                 </div>
 
                 <div className='mb-[10px] mt-10 h-[1px] w-full bg-[#ced4da] xl:mt-[50px] '></div>
@@ -162,15 +164,15 @@ export default function PersonalInfoPage() {
                 <Label htmlFor='patientGender' required>
                     성별
                 </Label>
-                <Select control={control} name='patientGender' required options={genderOptions} defaultValue={genderOptions[0]} />
+                <Select control={control} name='patientGender' required options={genderOptions} placeholder='성별' />
 
                 <Label htmlFor='patientBirthDate' required>
                     생년월일({age}세)
                 </Label>
                 <div className='flex gap-[15px]'>
-                    <Select control={control} name='birthYear' required options={yearOptions} />
-                    <Select control={control} name='birthMonth' required options={monthOptions} />
-                    <Select control={control} name='birthDay' required options={dayOptions} />
+                    <Select control={control} name='birthYear' required options={yearOptions} placeholder='년' />
+                    <Select control={control} name='birthMonth' required options={monthOptions} placeholder='월' />
+                    <Select control={control} name='birthDay' required options={dayOptions} placeholder='일' />
                 </div>
 
                 <Label htmlFor='brainLesions'>마비말장애 관련 뇌병변</Label>
@@ -218,7 +220,12 @@ export default function PersonalInfoPage() {
                     )}
                 />
             </form>
-            <button className='btn btn-large btn-contained' type='button' onClick={handleSubmit(handleOnSubmit)}>
+            <button
+                className='btn btn-large btn-contained disabled:btn-disabled'
+                type='button'
+                onClick={handleSubmit(handleOnSubmit)}
+                disabled={!isDirty || !isValid}
+            >
                 다음
             </button>
         </Container>

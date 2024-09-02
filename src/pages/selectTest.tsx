@@ -33,7 +33,7 @@ export default function SelectTestPage() {
     const { setTestStart } = useTimerActions();
     const [subtestIds, setSubtestIds] = useState<string[]>([]);
 
-    const [error, setError] = useState(false);
+    const [error, setError] = useState(subtestIds.length === 0);
 
     const handleClickNext = useCallback(async () => {
         try {
@@ -50,6 +50,8 @@ export default function SelectTestPage() {
                 }
 
                 setSubtests(subtests);
+
+                console.log(testInfo);
 
                 // 세션 추가
                 const accessToken = getCookie('jwt') as string;
@@ -105,9 +107,13 @@ export default function SelectTestPage() {
                         <span className='ml-3 font-bold text-head-2'>{subtestList[4].subtestTitle}</span>
                     </CheckBoxGroupItem>
                 </SubtestBox>
-                {error && <ErrorText>소검사를 하나 이상 체크해주세요</ErrorText>}
             </div>
-            <button type='button' className='mt-20 btn btn-large btn-contained' onClick={handleClickNext}>
+            <button
+                type='button'
+                className='mt-20 btn btn-large btn-contained disabled:btn-disabled'
+                onClick={handleClickNext}
+                disabled={subtestIds.length === 0}
+            >
                 다음
             </button>
         </Container>

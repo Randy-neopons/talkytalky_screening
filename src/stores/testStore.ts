@@ -52,8 +52,8 @@ const useTestStore = create<{
     testInfo: {
         testDate: dayjs().format('YYYY-MM-DD'),
         patientName: '',
-        patientGender: 'female',
-        patientBirthdate: dayjs().format('YYYY-MM-DD'),
+        patientGender: '',
+        patientBirthdate: '',
         brainLesions: [],
         medicalHistory: '',
         patientMemo: '',

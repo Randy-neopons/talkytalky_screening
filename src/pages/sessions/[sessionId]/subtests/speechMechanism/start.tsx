@@ -52,7 +52,13 @@ export default function SpeechMechanismStartPage({ questionList }: { questionLis
     );
 
     // react-hook-form
-    const { control, register, setValue, handleSubmit } = useForm<{
+    const {
+        control,
+        register,
+        setValue,
+        handleSubmit,
+        formState: { isDirty, isValid },
+    } = useForm<{
         answers: Answer[];
     }>({
         defaultValues: {
@@ -87,7 +93,6 @@ export default function SpeechMechanismStartPage({ questionList }: { questionLis
         e => {
             if (e.target.checked === true) {
                 Array.from({ length: end - split }, (v, i) => split + i).map(v => {
-                    console.log(v);
                     setValue(`answers.${v}.answer`, 'normal');
                 });
             }
@@ -189,16 +194,16 @@ export default function SpeechMechanismStartPage({ questionList }: { questionLis
                                 <td className={`${subtestStyles['num']}`}>{i + 1}</td>
                                 <td className={`${subtestStyles['text']}`}>{item.questionText}</td>
                                 <td className={`${subtestStyles['option']}`}>
-                                    <input type='radio' {...register(`answers.${start + i}.answer`)} value='normal' />
+                                    <input type='radio' {...register(`answers.${start + i}.answer`, { required: true })} value='normal' />
                                 </td>
                                 <td className={`${subtestStyles['option']}`}>
-                                    <input type='radio' {...register(`answers.${start + i}.answer`)} value='mild' />
+                                    <input type='radio' {...register(`answers.${start + i}.answer`, { required: true })} value='mild' />
                                 </td>
                                 <td className={`${subtestStyles['option']}`}>
-                                    <input type='radio' {...register(`answers.${start + i}.answer`)} value='moderate' />
+                                    <input type='radio' {...register(`answers.${start + i}.answer`, { required: true })} value='moderate' />
                                 </td>
                                 <td className={`${subtestStyles['option']}`}>
-                                    <input type='radio' {...register(`answers.${start + i}.answer`)} value='unknown' />
+                                    <input type='radio' {...register(`answers.${start + i}.answer`, { required: true })} value='unknown' />
                                 </td>
                                 <td className='p-0 text-center'>
                                     <Controller
@@ -245,16 +250,32 @@ export default function SpeechMechanismStartPage({ questionList }: { questionLis
                                         <td className={`${subtestStyles['num']}`}>{split - start + i + 1}</td>
                                         <td className={`${subtestStyles['text']}`}>{item.questionText}</td>
                                         <td className={`${subtestStyles['option']}`}>
-                                            <input type='radio' {...register(`answers.${split + i}.answer`)} value='normal' />
+                                            <input
+                                                type='radio'
+                                                {...register(`answers.${split + i}.answer`, { required: true })}
+                                                value='normal'
+                                            />
                                         </td>
                                         <td className={`${subtestStyles['option']}`}>
-                                            <input type='radio' {...register(`answers.${split + i}.answer`)} value='mild' />
+                                            <input
+                                                type='radio'
+                                                {...register(`answers.${split + i}.answer`, { required: true })}
+                                                value='mild'
+                                            />
                                         </td>
                                         <td className={`${subtestStyles['option']}`}>
-                                            <input type='radio' {...register(`answers.${split + i}.answer`)} value='moderate' />
+                                            <input
+                                                type='radio'
+                                                {...register(`answers.${split + i}.answer`, { required: true })}
+                                                value='moderate'
+                                            />
                                         </td>
                                         <td className={`${subtestStyles['option']}`}>
-                                            <input type='radio' {...register(`answers.${split + i}.answer`)} value='unknown' />
+                                            <input
+                                                type='radio'
+                                                {...register(`answers.${split + i}.answer`, { required: true })}
+                                                value='unknown'
+                                            />
                                         </td>
                                         <td className='p-0 text-center'>
                                             <Controller
@@ -291,12 +312,18 @@ export default function SpeechMechanismStartPage({ questionList }: { questionLis
                     )}
                     {/* key 설정을 해야 다른 컴포넌트로 인식하여 type이 명확히 구분됨 */}
                     {currentPartId < partIndexList[partIndexList.length - 1].partId ? (
-                        <button key='noSubmit' type='button' className='ml-5 mt-20 btn btn-large btn-contained' onClick={handleClickNext}>
+                        <button
+                            key='noSubmit'
+                            type='button'
+                            className='ml-5 mt-20 btn btn-large btn-contained disabled:btn-disabled'
+                            onClick={handleClickNext}
+                            disabled={!isDirty || !isValid}
+                        >
                             다음
                         </button>
                     ) : (
                         <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained'>
-                            다음 검사로
+                            다음 검사
                         </button>
                     )}
                 </div>
@@ -329,7 +356,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
 
         // 검사 시작할 때마다 진행률 불러오기
         const { totalCount, notNullCount } = await getAnswersCountAPI({ sessionId, jwt: accessToken });
-        const progress = (notNullCount / totalCount) * 100;
+        const progress = Math.ceil((notNullCount / totalCount) * 100);
 
         // 소검사 문항 정보 fetch
         const responseData = await getQuestionAndAnswerListAPI({ sessionId, subtestId: CURRENT_SUBTEST_ID, jwt: accessToken });
