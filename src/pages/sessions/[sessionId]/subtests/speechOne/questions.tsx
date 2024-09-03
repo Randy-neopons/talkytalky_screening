@@ -21,19 +21,60 @@ import type { Answer, QuestionAnswer } from '@/types/types';
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 2;
-const CURRENT_PART_ID_START = 5;
+const PART_ID_START = 5;
 
 // 소검사 내 파트별 문항 index 정보
 // TODO: part title도 DB에서 가져오기
 const partIndexList = [
-    { start: 0, split: 1, end: 6, subtitle1: '잠복시간', subtitle2: '음질', partTitle: 'Aspiration (호흡)\nPhonation (음성)', partId: 5 },
-    { start: 6, split: 11, end: 14, subtitle1: '음도', subtitle2: '강도', partTitle: 'Aspiration (호흡)\nPhonation (음성)', partId: 5 },
-    { start: 14, split: 18, end: 22, subtitle1: '과다비성', subtitle2: '비강누출', partTitle: 'Resonance (공명)', partId: 6 },
-    { start: 22, split: 27, end: 27, subtitle1: '따라하기', partTitle: 'Articulation (조음)', partId: 7 },
+    {
+        start: 0,
+        split: 1,
+        end: 6,
+        subtitle1: '잠복시간',
+        subtitle2: '음질',
+        partTitle: '호흡 / 음성',
+        partTitleEn: 'Respiration / Phonation',
+        partId: 5,
+    },
+    {
+        start: 6,
+        split: 11,
+        end: 14,
+        subtitle1: '음도',
+        subtitle2: '강도',
+        partTitle: '호흡 / 음성',
+        partTitleEn: 'Respiration / Phonation',
+        partId: 5,
+    },
+    {
+        start: 14,
+        split: 18,
+        end: 22,
+        subtitle1: '과다비성',
+        subtitle2: '비강누출',
+        partTitle: '공명',
+        partTitleEn: 'Resonance',
+        partId: 6,
+    },
+    {
+        start: 22,
+        split: 27,
+        end: 27,
+        subtitle1: '따라하기',
+        partTitle: '조음',
+        partTitleEn: 'Articulation',
+        partId: 7,
+    },
 ];
 
 // SPEECH I 문항 페이지
-export default function SpeechOnePage({ questionList }: { questionList: QuestionAnswer[] }) {
+export default function SpeechOneQuestionsPage({
+    questionList,
+    currentPartId,
+}: {
+    questionList: QuestionAnswer[];
+    currentPartId: number | null;
+}) {
     const router = useRouter();
 
     // 현재 소검사, 선택한 소검사 정보
@@ -46,10 +87,10 @@ export default function SpeechOnePage({ questionList }: { questionList: Question
     const [checkAll2, setCheckAll2] = useState(false);
 
     // 소검사 내 현재 파트 정보
-    const [currentPartId, setCurrentPartId] = useState(CURRENT_PART_ID_START);
-    const { start, split, end, subtitle1, subtitle2, partTitle } = useMemo(
-        () => partIndexList.find(v => v.partId === currentPartId) || partIndexList[0],
-        [currentPartId],
+    const [partId, setCurrentPartId] = useState(currentPartId || PART_ID_START);
+    const { start, split, end, subtitle1, subtitle2, partTitle, partTitleEn } = useMemo(
+        () => partIndexList.find(v => v.partId === partId) || partIndexList[0],
+        [partId],
     );
 
     // react-hook-form
@@ -102,17 +143,17 @@ export default function SpeechOnePage({ questionList }: { questionList: Question
     const handleClickPrev = useCallback(() => {
         setCheckAll1(false);
         setCheckAll2(false);
-        currentPartId > CURRENT_PART_ID_START && setCurrentPartId(partId => partId - 1);
+        partId > PART_ID_START && setCurrentPartId(partId => partId - 1);
         typeof window !== 'undefined' && window.scrollTo(0, 0);
-    }, [currentPartId]);
+    }, [partId]);
 
     // 다음 파트로
     const handleClickNext = useCallback(() => {
         setCheckAll1(false);
         setCheckAll2(false);
-        currentPartId < partIndexList[partIndexList.length - 1].partId && setCurrentPartId(partId => partId + 1);
+        partId < partIndexList[partIndexList.length - 1].partId && setCurrentPartId(partId => partId + 1);
         typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
-    }, [currentPartId]);
+    }, [partId]);
 
     // 폼 데이터 제출
     const handleSubmitData = useCallback(
@@ -120,7 +161,7 @@ export default function SpeechOnePage({ questionList }: { questionList: Question
             try {
                 const formData = new FormData();
                 formData.append('testTime', `${testTime}`);
-                formData.append('currentPartId', `${currentPartId}`);
+                formData.append('currentPartId', `${partId}`);
                 formData.append('answers', JSON.stringify(data.answers));
 
                 // 세션 갱신
@@ -139,7 +180,7 @@ export default function SpeechOnePage({ questionList }: { questionList: Question
                 console.error(err);
             }
         },
-        [currentPartId, testTime],
+        [partId, testTime],
     );
 
     // 폼 제출 후 redirect
@@ -173,9 +214,10 @@ export default function SpeechOnePage({ questionList }: { questionList: Question
 
     return (
         <Container>
-            <h2 className='flex items-center font-jalnan text-accent1 text-head-2'>SPEECH I : 영역별 말평가</h2>
+            <h2 className='flex items-center font-noto font-bold text-accent1 text-head-2'>SPEECH I : 영역별 말평가</h2>
             <form onSubmit={handleSubmit(handleOnSubmit)} className={`${subtestStyles['subtest-form']}`}>
-                <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitle}</h1>
+                <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitleEn}</h1>
+                <h2 className='whitespace-pre-line text-center font-jalnan text-head-2'>{partTitle}</h2>
 
                 <table className={`${subtestStyles['question-table']}`}>
                     <thead>
@@ -290,13 +332,13 @@ export default function SpeechOnePage({ questionList }: { questionList: Question
                 )}
 
                 <div>
-                    {currentPartId > CURRENT_PART_ID_START && (
+                    {partId > PART_ID_START && (
                         <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
                             이전
                         </button>
                     )}
                     {/* key 설정을 해야 다른 컴포넌트로 인식하여 type이 명확히 구분됨 */}
-                    {currentPartId < partIndexList[partIndexList.length - 1].partId ? (
+                    {partId < partIndexList[partIndexList.length - 1].partId ? (
                         <button key='noSubmit' type='button' className='ml-5 mt-20 btn btn-large btn-contained' onClick={handleClickNext}>
                             다음
                         </button>
@@ -314,6 +356,8 @@ export default function SpeechOnePage({ questionList }: { questionList: Question
 export const getServerSideProps: GetServerSideProps = async context => {
     try {
         const sessionId = Number(context.query.sessionId);
+        const currentPartId = context.query.currentPartId ? Number(context.query.currentPartId) : null;
+
         if (!sessionId) {
             return {
                 redirect: {
@@ -345,6 +389,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
                 isLoggedIn: true,
                 questionList,
                 progress,
+                currentPartId,
             },
         };
     } catch (err) {

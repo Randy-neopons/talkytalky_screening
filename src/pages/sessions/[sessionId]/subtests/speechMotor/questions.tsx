@@ -22,7 +22,7 @@ import type { Answer, QuestionAnswer, Recording } from '@/types/types';
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 4;
-const CURRENT_PART_ID_START = 12;
+const PART_ID_START = 12;
 
 // 소검사 내 파트별 문항 index 정보
 // TODO: part title도 DB에서 가져오기
@@ -109,7 +109,15 @@ const PlayButton = ({
 };
 
 // SPEECH II 문항 페이지
-export default function SpeechMotorPage({ questionList, recordingList }: { questionList: QuestionAnswer[]; recordingList: Recording[] }) {
+export default function SpeechMotorQuestionsPage({
+    questionList,
+    recordingList,
+    currentPartId,
+}: {
+    questionList: QuestionAnswer[];
+    recordingList: Recording[];
+    currentPartId: number | null;
+}) {
     const router = useRouter();
 
     // 파타카 녹음
@@ -163,11 +171,8 @@ export default function SpeechMotorPage({ questionList, recordingList }: { quest
     const [checkAll, setCheckAll] = useState(false);
 
     // 소검사 내 현재 파트 정보
-    const [currentPartId, setCurrentPartId] = useState(CURRENT_PART_ID_START);
-    const { start, end, subtitle, partTitle } = useMemo(
-        () => partIndexList.find(v => v.partId === currentPartId) || partIndexList[0],
-        [currentPartId],
-    );
+    const [partId, setPartId] = useState(currentPartId || PART_ID_START);
+    const { start, end, subtitle, partTitle } = useMemo(() => partIndexList.find(v => v.partId === partId) || partIndexList[0], [partId]);
 
     // react-hook-form
     const { control, register, setValue, handleSubmit } = useForm<{
@@ -213,16 +218,16 @@ export default function SpeechMotorPage({ questionList, recordingList }: { quest
     // 이전 파트로
     const handleClickPrev = useCallback(() => {
         setCheckAll(false);
-        currentPartId > CURRENT_PART_ID_START && setCurrentPartId(partId => partId - 1);
+        partId > PART_ID_START && setPartId(partId => partId - 1);
         typeof window !== 'undefined' && window.scrollTo(0, 0);
-    }, [currentPartId]);
+    }, [partId]);
 
     // 다음 파트로
     const handleClickNext = useCallback(() => {
         setCheckAll(false);
-        currentPartId < partIndexList[partIndexList.length - 1].partId && setCurrentPartId(partId => partId + 1);
+        partId < partIndexList[partIndexList.length - 1].partId && setPartId(partId => partId + 1);
         typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
-    }, [currentPartId]);
+    }, [partId]);
 
     // 폼 데이터 제출
     const handleSubmitData = useCallback(
@@ -236,7 +241,7 @@ export default function SpeechMotorPage({ questionList, recordingList }: { quest
                 formData.append('recordings', JSON.stringify(data.recordings));
 
                 formData.append('testTime', `${testTime}`);
-                formData.append('currentPartId', `${currentPartId}`);
+                formData.append('currentPartId', `${partId}`);
                 formData.append('answers', JSON.stringify(data.answers));
 
                 // 세션 갱신
@@ -254,7 +259,7 @@ export default function SpeechMotorPage({ questionList, recordingList }: { quest
                 console.error(err);
             }
         },
-        [audioBlob1, audioBlob2, audioBlob3, audioBlob4, currentPartId, testTime],
+        [audioBlob1, audioBlob2, audioBlob3, audioBlob4, partId, testTime],
     );
 
     // 폼 제출 후 redirect
@@ -309,11 +314,11 @@ export default function SpeechMotorPage({ questionList, recordingList }: { quest
 
     return (
         <Container>
-            <h2 className='flex items-center font-jalnan text-accent1 text-head-2'>SPEECH Motor : 말운동평가</h2>
+            <h2 className='flex items-center font-noto font-bold text-accent1 text-head-2'>SPEECH Motor : 말운동평가</h2>
             <form onSubmit={handleSubmit(handleOnSubmit)} className={`${subtestStyles['subtest-form']}`}>
-                <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitle}</h1>
+                <h2 className='whitespace-pre-line text-center font-jalnan text-head-2'>{partTitle}</h2>
 
-                {currentPartId === CURRENT_PART_ID_START ? (
+                {partId === PART_ID_START ? (
                     <table className={`${subtestStyles['recording-table']}`}>
                         <thead>
                             <tr className='bg-accent1 text-white text-body-2'>
@@ -490,13 +495,13 @@ export default function SpeechMotorPage({ questionList, recordingList }: { quest
                 </div>
 
                 <div>
-                    {currentPartId > CURRENT_PART_ID_START && (
+                    {partId > PART_ID_START && (
                         <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
                             이전
                         </button>
                     )}
                     {/* key 설정을 해야 다른 컴포넌트로 인식하여 type이 명확히 구분됨 */}
-                    {currentPartId < partIndexList[partIndexList.length - 1].partId ? (
+                    {partId < partIndexList[partIndexList.length - 1].partId ? (
                         <button key='noSubmit' type='button' className='ml-5 mt-20 btn btn-large btn-contained' onClick={handleClickNext}>
                             다음
                         </button>
@@ -514,6 +519,8 @@ export default function SpeechMotorPage({ questionList, recordingList }: { quest
 export const getServerSideProps: GetServerSideProps = async context => {
     try {
         const sessionId = Number(context.query.sessionId);
+        const currentPartId = context.query.currentPartId ? Number(context.query.currentPartId) : null;
+
         if (!sessionId) {
             return {
                 redirect: {
@@ -547,6 +554,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
                 questionList,
                 recordingList,
                 progress,
+                currentPartId,
             },
         };
     } catch (err) {

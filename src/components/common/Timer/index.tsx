@@ -29,7 +29,7 @@ export default function Timer() {
             <ClockIcon />
             <span className='text-neutral11 text-head-2'>
                 {Math.floor(testTime / 3600)}:
-                {Math.floor(testTime / 60)
+                {Math.floor((testTime % 3600) / 60)
                     .toString()
                     .padStart(2, '0')}
                 :{(testTime % 60).toString().padStart(2, '0')}

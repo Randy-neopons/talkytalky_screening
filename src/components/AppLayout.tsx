@@ -6,7 +6,7 @@ import { useUserQuery } from '@/hooks/user';
 
 import Timer from './common/Timer';
 
-export default function AppLayout({ isLoggedIn, progress, children }: { isLoggedIn?: boolean; progress: number; children: ReactNode }) {
+export default function AppLayout({ isLoggedIn, progress, children }: { isLoggedIn?: boolean; progress?: number; children: ReactNode }) {
     const { data: user, error } = useUserQuery();
     const testStart = useTestStart();
 
@@ -26,10 +26,14 @@ export default function AppLayout({ isLoggedIn, progress, children }: { isLogged
                         <span className='mr-auto font-bold text-neutral11 text-head-2'>말운동 평가</span>
                         {testStart && (
                             <div className='flex items-center gap-5 xl:gap-[30px]'>
-                                <span className='text-neutral11 text-head-2'>진행률 {progress}%</span>
-                                <svg xmlns='http://www.w3.org/2000/svg' width='2' height='24' viewBox='0 0 2 24' fill='none'>
-                                    <path d='M1 1V23' stroke='white' strokeWidth='2' strokeLinecap='round' />
-                                </svg>
+                                {progress !== undefined && progress !== null && (
+                                    <>
+                                        <span className='text-neutral11 text-head-2'>진행률 {progress}%</span>
+                                        <svg xmlns='http://www.w3.org/2000/svg' width='2' height='24' viewBox='0 0 2 24' fill='none'>
+                                            <path d='M1 1V23' stroke='white' strokeWidth='2' strokeLinecap='round' />
+                                        </svg>
+                                    </>
+                                )}
 
                                 <Timer />
                             </div>

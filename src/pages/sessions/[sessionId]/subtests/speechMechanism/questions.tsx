@@ -21,7 +21,7 @@ import type { Answer, QuestionAnswer } from '@/types/types';
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 1;
-const CURRENT_PART_ID_START = 1;
+const PART_ID_START = 1;
 
 // 소검사 내 파트별 문항 index 정보
 // TODO: part title도 DB에서 가져오기
@@ -68,7 +68,13 @@ const partIndexList = [
 ];
 
 // 말기제평가 페이지
-export default function SpeechMechanismPage({ questionList }: { questionList: QuestionAnswer[] }) {
+export default function SpeechMechanismQuestionsPage({
+    questionList,
+    currentPartId,
+}: {
+    questionList: QuestionAnswer[];
+    currentPartId: number | null;
+}) {
     const router = useRouter();
 
     // 현재 소검사, 선택한 소검사 정보
@@ -80,10 +86,10 @@ export default function SpeechMechanismPage({ questionList }: { questionList: Qu
     const [checkAll2, setCheckAll2] = useState(false);
 
     // 소검사 내 현재 파트 정보
-    const [currentPartId, setCurrentPartId] = useState(CURRENT_PART_ID_START);
+    const [partId, setPartId] = useState(currentPartId || PART_ID_START);
     const { start, split, end, subtitle1, subtitle2, partTitle, partTitleEn } = useMemo(
-        () => partIndexList.find(v => v.partId === currentPartId) || partIndexList[0],
-        [currentPartId],
+        () => partIndexList.find(v => v.partId === partId) || partIndexList[0],
+        [partId],
     );
 
     // react-hook-form
@@ -141,17 +147,17 @@ export default function SpeechMechanismPage({ questionList }: { questionList: Qu
     const handleClickPrev = useCallback(() => {
         setCheckAll1(false);
         setCheckAll2(false);
-        currentPartId > CURRENT_PART_ID_START && setCurrentPartId(partId => partId - 1);
+        partId > PART_ID_START && setPartId(partId => partId - 1);
         typeof window !== 'undefined' && window.scrollTo(0, 0);
-    }, [currentPartId]);
+    }, [partId]);
 
     // 다음 파트로
     const handleClickNext = useCallback(() => {
         setCheckAll1(false);
         setCheckAll2(false);
-        currentPartId < partIndexList[partIndexList.length - 1].partId && setCurrentPartId(partId => partId + 1);
+        partId < partIndexList[partIndexList.length - 1].partId && setPartId(partId => partId + 1);
         typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
-    }, [currentPartId]);
+    }, [partId]);
 
     // 폼 데이터 제출
     const handleSubmitData = useCallback(
@@ -159,7 +165,7 @@ export default function SpeechMechanismPage({ questionList }: { questionList: Qu
             try {
                 const formData = new FormData();
                 formData.append('testTime', `${testTime}`);
-                formData.append('currentPartId', `${currentPartId}`);
+                formData.append('currentPartId', `${partId}`);
                 formData.append('answers', JSON.stringify(data.answers));
 
                 // 세션 갱신
@@ -177,7 +183,7 @@ export default function SpeechMechanismPage({ questionList }: { questionList: Qu
                 console.error(err);
             }
         },
-        [currentPartId, testTime],
+        [partId, testTime],
     );
 
     // 폼 제출
@@ -341,13 +347,13 @@ export default function SpeechMechanismPage({ questionList }: { questionList: Qu
                 )}
 
                 <div>
-                    {currentPartId > CURRENT_PART_ID_START && (
+                    {partId > PART_ID_START && (
                         <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
                             이전
                         </button>
                     )}
                     {/* key 설정을 해야 다른 컴포넌트로 인식하여 type이 명확히 구분됨 */}
-                    {currentPartId < partIndexList[partIndexList.length - 1].partId ? (
+                    {partId < partIndexList[partIndexList.length - 1].partId ? (
                         <button
                             key='noSubmit'
                             type='button'
@@ -371,6 +377,8 @@ export default function SpeechMechanismPage({ questionList }: { questionList: Qu
 export const getServerSideProps: GetServerSideProps = async context => {
     try {
         const sessionId = Number(context.query.sessionId);
+        const currentPartId = context.query.currentPartId ? Number(context.query.currentPartId) : null;
+
         if (!sessionId) {
             return {
                 redirect: {
@@ -402,6 +410,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
                 isLoggedIn: true,
                 questionList,
                 progress,
+                currentPartId,
             },
         };
     } catch (err) {

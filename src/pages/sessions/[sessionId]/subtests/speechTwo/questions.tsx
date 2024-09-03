@@ -22,19 +22,25 @@ import type { Answer, QuestionAnswer } from '@/types/types';
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 3;
-const CURRENT_PART_ID_START = 8;
+const PART_ID_START = 8;
 
 // 소검사 내 파트별 문항 index 정보
 // TODO: part title도 DB에서 가져오기
 const partIndexList = [
-    { start: 0, end: 6, subtitle: '호흡 & 음성', partTitle: 'Aspiration (호흡)\nPhonation (음성)', partId: 8 },
-    { start: 6, end: 8, subtitle: '공명', partTitle: 'Resonance (공명)', partId: 9 },
-    { start: 8, end: 11, subtitle: '조음', partTitle: 'Articulation (조음)', partId: 10 },
-    { start: 11, end: 18, subtitle: '운율', partTitle: 'Prosody (운율)', partId: 11 },
+    { start: 0, end: 6, subtitle: '호흡 & 음성', partTitle: '호흡 / 음성', partTitleEn: 'Respiration / Phonation', partId: 8 },
+    { start: 6, end: 8, subtitle: '공명', partTitle: '공명', partTitleEn: 'Resonance', partId: 9 },
+    { start: 8, end: 11, subtitle: '조음', partTitle: '조음', partTitleEn: 'Articulation', partId: 10 },
+    { start: 11, end: 18, subtitle: '운율', partTitle: '운율', partTitleEn: 'Prosody', partId: 11 },
 ];
 
 // SPEECH II 문항 페이지
-export default function SpeechTwoPage({ questionList }: { questionList: QuestionAnswer[] }) {
+export default function SpeechTwoQuestionsPage({
+    questionList,
+    currentPartId,
+}: {
+    questionList: QuestionAnswer[];
+    currentPartId: number | null;
+}) {
     const router = useRouter();
 
     // 현재 소검사, 선택한 소검사 정보
@@ -45,10 +51,10 @@ export default function SpeechTwoPage({ questionList }: { questionList: Question
     const [checkAll, setCheckAll] = useState(false);
 
     // 소검사 내 현재 파트 정보
-    const [currentPartId, setCurrentPartId] = useState(CURRENT_PART_ID_START);
-    const { start, end, subtitle, partTitle } = useMemo(
-        () => partIndexList.find(v => v.partId === currentPartId) || partIndexList[0],
-        [currentPartId],
+    const [partId, setPartId] = useState(currentPartId || PART_ID_START);
+    const { start, end, subtitle, partTitle, partTitleEn } = useMemo(
+        () => partIndexList.find(v => v.partId === partId) || partIndexList[0],
+        [partId],
     );
 
     // react-hook-form
@@ -85,16 +91,16 @@ export default function SpeechTwoPage({ questionList }: { questionList: Question
     // 이전 파트로
     const handleClickPrev = useCallback(() => {
         setCheckAll(false);
-        currentPartId > CURRENT_PART_ID_START && setCurrentPartId(partId => partId - 1);
+        partId > PART_ID_START && setPartId(partId => partId - 1);
         typeof window !== 'undefined' && window.scrollTo(0, 0);
-    }, [currentPartId]);
+    }, [partId]);
 
     // 다음 파트로
     const handleClickNext = useCallback(() => {
         setCheckAll(false);
-        currentPartId < partIndexList[partIndexList.length - 1].partId && setCurrentPartId(partId => partId + 1);
+        partId < partIndexList[partIndexList.length - 1].partId && setPartId(partId => partId + 1);
         typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
-    }, [currentPartId]);
+    }, [partId]);
 
     // 폼 데이터 제출
     const handleSubmitData = useCallback(
@@ -102,7 +108,7 @@ export default function SpeechTwoPage({ questionList }: { questionList: Question
             try {
                 const formData = new FormData();
                 formData.append('testTime', `${testTime}`);
-                formData.append('currentPartId', `${currentPartId}`);
+                formData.append('currentPartId', `${partId}`);
                 formData.append('answers', JSON.stringify(data.answers));
 
                 // 세션 갱신
@@ -120,7 +126,7 @@ export default function SpeechTwoPage({ questionList }: { questionList: Question
                 console.error(err);
             }
         },
-        [currentPartId, testTime],
+        [partId, testTime],
     );
 
     // 폼 제출 후 redirect
@@ -150,9 +156,10 @@ export default function SpeechTwoPage({ questionList }: { questionList: Question
 
     return (
         <Container>
-            <h2 className='flex items-center font-jalnan text-accent1 text-head-2'>SPEECH II : 종합적 말평가</h2>
+            <h2 className='flex items-center font-noto font-bold text-accent1 text-head-2'>SPEECH II : 종합적 말평가</h2>
             <form onSubmit={handleSubmit(handleOnSubmit)} className={`${subtestStyles['subtest-form']}`}>
-                <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitle}</h1>
+                <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitleEn}</h1>
+                <h2 className='whitespace-pre-line text-center font-jalnan text-head-2'>{partTitle}</h2>
 
                 <ul className='mt-20 flex flex-row flex-nowrap gap-5'>
                     <li className='h-40 w-80 overflow-hidden rounded-base bg-white shadow-base'>
@@ -165,9 +172,6 @@ export default function SpeechTwoPage({ questionList }: { questionList: Question
                             </button>
                             <button type='button' className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'>
                                 <PlayIcon />
-                            </button>
-                            <button type='button' className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'>
-                                <MikeIcon />
                             </button>
                         </div>
                     </li>
@@ -254,13 +258,13 @@ export default function SpeechTwoPage({ questionList }: { questionList: Question
                 </div>
 
                 <div>
-                    {currentPartId > CURRENT_PART_ID_START && (
+                    {partId > PART_ID_START && (
                         <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
                             이전
                         </button>
                     )}
                     {/* key 설정을 해야 다른 컴포넌트로 인식하여 type이 명확히 구분됨 */}
-                    {currentPartId < partIndexList[partIndexList.length - 1].partId ? (
+                    {partId < partIndexList[partIndexList.length - 1].partId ? (
                         <button key='noSubmit' type='button' className='ml-5 mt-20 btn btn-large btn-contained' onClick={handleClickNext}>
                             다음
                         </button>
@@ -278,6 +282,8 @@ export default function SpeechTwoPage({ questionList }: { questionList: Question
 export const getServerSideProps: GetServerSideProps = async context => {
     try {
         const sessionId = Number(context.query.sessionId);
+        const currentPartId = context.query.currentPartId ? Number(context.query.currentPartId) : null;
+
         if (!sessionId) {
             return {
                 redirect: {
@@ -309,6 +315,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
                 isLoggedIn: true,
                 questionList,
                 progress,
+                currentPartId,
             },
         };
     } catch (err) {

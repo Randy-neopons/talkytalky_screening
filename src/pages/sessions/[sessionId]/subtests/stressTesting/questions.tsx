@@ -18,7 +18,7 @@ import type { Answer, QuestionAnswer } from '@/types/types';
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 5;
-const CURRENT_PART_ID_START = 14;
+const PART_ID_START = 14;
 
 // 소검사 내 파트별 문항 index 정보
 // TODO: part title도 DB에서 가져오기
@@ -29,13 +29,13 @@ const partIndexList = [
         end: 6,
         subtitle1: '피로도검사',
         subtitle2: '음질',
-        partTitle: 'Aspiration (호흡)\nPhonation (음성)',
+        partTitle: 'Respiration (호흡)\nPhonation (음성)',
         partId: 14,
     },
 ];
 
 // Stress Testing 문항 페이지
-export default function StressTestingPage({ questionList }: { questionList: QuestionAnswer[] }) {
+export default function StressTestingQuestionsPage({ questionList }: { questionList: QuestionAnswer[] }) {
     const router = useRouter();
 
     const testTime = useTestTime();
@@ -45,10 +45,10 @@ export default function StressTestingPage({ questionList }: { questionList: Ques
     const [checkAll1, setCheckAll1] = useState(false);
 
     // 소검사 내 현재 파트 정보
-    const [currentPartId, setCurrentPartId] = useState(CURRENT_PART_ID_START);
+    const [partId, setPartId] = useState(PART_ID_START);
     const { start, split, end, subtitle1, subtitle2, partTitle } = useMemo(
-        () => partIndexList.find(v => v.partId === currentPartId) || partIndexList[0],
-        [currentPartId],
+        () => partIndexList.find(v => v.partId === partId) || partIndexList[0],
+        [partId],
     );
 
     // react-hook-form
@@ -85,9 +85,9 @@ export default function StressTestingPage({ questionList }: { questionList: Ques
     // 이전 파트로
     const handleClickPrev = useCallback(() => {
         setCheckAll1(false);
-        currentPartId > CURRENT_PART_ID_START && setCurrentPartId(partId => partId - 1);
+        partId > PART_ID_START && setPartId(partId => partId - 1);
         typeof window !== 'undefined' && window.scrollTo(0, 0);
-    }, [currentPartId]);
+    }, [partId]);
 
     // 폼 데이터 제출
     const handleSubmitData = useCallback(
@@ -95,7 +95,7 @@ export default function StressTestingPage({ questionList }: { questionList: Ques
             try {
                 const formData = new FormData();
                 formData.append('testTime', `${testTime}`);
-                formData.append('currentPartId', `${currentPartId}`);
+                formData.append('currentPartId', `${partId}`);
                 formData.append('answers', JSON.stringify(data.answers));
 
                 // 세션 갱신
@@ -113,7 +113,7 @@ export default function StressTestingPage({ questionList }: { questionList: Ques
                 console.error(err);
             }
         },
-        [currentPartId, testTime],
+        [partId, testTime],
     );
 
     // 폼 제출 후 redirect
