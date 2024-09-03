@@ -24,14 +24,14 @@ import stopIcon from 'public/static/images/stop-icon.png';
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 3;
-const CURRENT_PART_ID_START = 8;
+const PART_ID_START = 8;
 
 export default function ConversationPage() {
     const router = useRouter();
 
     const { audioBlob, audioUrl, isRecording, handlePlay, handleStartRecording, handleStopRecording } = useAudioRecorder();
 
-    const [currentPartId, setCurrentPartId] = useState(CURRENT_PART_ID_START);
+    const [partId, setPartId] = useState(PART_ID_START);
 
     const testTime = useTestTime();
 
@@ -59,7 +59,7 @@ export default function ConversationPage() {
                 formData.append('recordings', JSON.stringify([{ filePath: null, repeatCount: null }]));
 
                 formData.append('testTime', `${testTime}`);
-                formData.append('currentPartId', `${currentPartId}`);
+                formData.append('currentPartId', `${partId}`);
 
                 // 세션 갱신
                 const accessToken = getCookie('jwt') as string;
@@ -76,7 +76,7 @@ export default function ConversationPage() {
                 console.error(err);
             }
         },
-        [audioBlob, currentPartId, testTime],
+        [audioBlob, partId, testTime],
     );
 
     const handleClickNext = useCallback(async () => {
@@ -92,7 +92,7 @@ export default function ConversationPage() {
 
     return (
         <Container>
-            <h2 className='font-jalnan text-accent1 text-head-2'>SPEECH II : 종합적 말평가</h2>
+            <h2 className='font-noto font-bold text-accent1 text-head-2'>SPEECH II : 종합적 말평가</h2>
             <h1 className='flex items-center whitespace-pre-line text-center font-jalnan text-head-1'>
                 {'대화하기'}
                 <span className={`${styles['tooltip']}`}>
