@@ -115,6 +115,15 @@ export const PlayIcon = ({ color = 'white', width = 24, height = 24 }: IconProps
     );
 };
 
+export const PauseIcon = ({ color = 'white', width = 24, height = 24 }: IconProps) => {
+    return (
+        <svg xmlns='http://www.w3.org/2000/svg' width={width} height={height} viewBox='0 0 50 50' fill='none'>
+            <rect x='16' y='13' width='4' height='25' rx='2' fill={color} />
+            <rect x='30' y='13' width='4' height='25' rx='2' fill={color} />
+        </svg>
+    );
+};
+
 export const StopIcon = ({ color = 'white', width = 24, height = 24 }: IconProps) => {
     return (
         <svg xmlns='http://www.w3.org/2000/svg' width={width} height={height} viewBox='0 0 24 24' fill='none'>

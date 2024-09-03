@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type ChangeEventHandler } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ChangeEventHandler } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import ReactTextareaAutosize from 'react-textarea-autosize';
 import type { GetServerSideProps } from 'next';
@@ -14,31 +14,34 @@ import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import { MikeIcon, PlayIcon, StopIcon } from '@/components/icons';
 import { useConductedSubtestsQuery } from '@/hooks/questions';
+import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/questions';
 
 import subtestStyles from '../SubTests.module.css';
 
-import type { Answer, QuestionAnswer } from '@/types/types';
+import type { Answer, QuestionAnswer, Recording } from '@/types/types';
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 3;
-const PART_ID_START = 8;
+const PART_ID_START = 11;
 
 // 소검사 내 파트별 문항 index 정보
 // TODO: part title도 DB에서 가져오기
 const partIndexList = [
-    { start: 0, end: 6, subtitle: '호흡 & 음성', partTitle: '호흡 / 음성', partTitleEn: 'Respiration / Phonation', partId: 8 },
-    { start: 6, end: 8, subtitle: '공명', partTitle: '공명', partTitleEn: 'Resonance', partId: 9 },
-    { start: 8, end: 11, subtitle: '조음', partTitle: '조음', partTitleEn: 'Articulation', partId: 10 },
-    { start: 11, end: 18, subtitle: '운율', partTitle: '운율', partTitleEn: 'Prosody', partId: 11 },
+    { start: 0, end: 6, subtitle: '호흡 & 음성', partTitle: '호흡 / 음성', partTitleEn: 'Respiration / Phonation', partId: 11 },
+    { start: 6, end: 8, subtitle: '공명', partTitle: '공명', partTitleEn: 'Resonance', partId: 12 },
+    { start: 8, end: 11, subtitle: '조음', partTitle: '조음', partTitleEn: 'Articulation', partId: 13 },
+    { start: 11, end: 18, subtitle: '운율', partTitle: '운율', partTitleEn: 'Prosody', partId: 14 },
 ];
 
 // SPEECH II 문항 페이지
 export default function SpeechTwoQuestionsPage({
     questionList,
+    recordingList,
     currentPartId,
 }: {
     questionList: QuestionAnswer[];
+    recordingList: Recording[];
     currentPartId: number | null;
 }) {
     const router = useRouter();
@@ -56,6 +59,42 @@ export default function SpeechTwoQuestionsPage({
         () => partIndexList.find(v => v.partId === partId) || partIndexList[0],
         [partId],
     );
+
+    useEffect(() => {
+        console.log('recordingList', recordingList);
+    }, [recordingList]);
+
+    // 문단,그림,대화 녹음
+    const {
+        isRecording: isRecording1,
+        isPlaying: isPlaying1,
+        audioUrl: audioUrl1,
+        audioBlob: audioBlob1,
+        handleStartRecording: handleStartRecording1,
+        handleStopRecording: handleStopRecording1,
+        handlePlay: handlePlay1,
+        handlePause: handlePause1,
+    } = useAudioRecorder(recordingList[0]?.filePath);
+    const {
+        isRecording: isRecording2,
+        isPlaying: isPlaying2,
+        audioUrl: audioUrl2,
+        audioBlob: audioBlob2,
+        handleStartRecording: handleStartRecording2,
+        handleStopRecording: handleStopRecording2,
+        handlePlay: handlePlay2,
+        handlePause: handlePause2,
+    } = useAudioRecorder(recordingList[1]?.filePath);
+    const {
+        isRecording: isRecording3,
+        isPlaying: isPlaying3,
+        audioUrl: audioUrl3,
+        audioBlob: audioBlob3,
+        handleStartRecording: handleStartRecording3,
+        handleStopRecording: handleStopRecording3,
+        handlePlay: handlePlay3,
+        handlePause: handlePause3,
+    } = useAudioRecorder(recordingList[2]?.filePath);
 
     // react-hook-form
     const { control, register, setValue, handleSubmit } = useForm<{
@@ -167,10 +206,18 @@ export default function SpeechTwoQuestionsPage({
                             <span className='font-bold text-white text-body-2'>문단읽기</span>
                         </div>
                         <div className='flex w-full justify-center gap-5 py-[35px]'>
-                            <button type='button' className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'>
+                            <button
+                                type='button'
+                                className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'
+                                onClick={handlePause1}
+                            >
                                 <StopIcon />
                             </button>
-                            <button type='button' className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'>
+                            <button
+                                type='button'
+                                className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'
+                                onClick={handlePlay1}
+                            >
                                 <PlayIcon />
                             </button>
                         </div>
@@ -180,10 +227,18 @@ export default function SpeechTwoQuestionsPage({
                             <span className='font-bold text-white text-body-2'>그림 설명하기</span>
                         </div>
                         <div className='flex w-full justify-center gap-5 py-[35px]'>
-                            <button type='button' className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'>
+                            <button
+                                type='button'
+                                className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'
+                                onClick={handlePause2}
+                            >
                                 <StopIcon />
                             </button>
-                            <button type='button' className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'>
+                            <button
+                                type='button'
+                                className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'
+                                onClick={handlePlay2}
+                            >
                                 <PlayIcon />
                             </button>
                         </div>
@@ -193,10 +248,18 @@ export default function SpeechTwoQuestionsPage({
                             <span className='font-bold text-white text-body-2'>대화하기</span>
                         </div>
                         <div className='flex w-full justify-center gap-5 py-[35px]'>
-                            <button type='button' className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'>
+                            <button
+                                type='button'
+                                className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'
+                                onClick={handlePause3}
+                            >
                                 <StopIcon />
                             </button>
-                            <button type='button' className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'>
+                            <button
+                                type='button'
+                                className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'
+                                onClick={handlePlay3}
+                            >
                                 <PlayIcon />
                             </button>
                         </div>
@@ -309,11 +372,13 @@ export const getServerSideProps: GetServerSideProps = async context => {
         // 소검사 문항 정보 fetch
         const responseData = await getQuestionAndAnswerListAPI({ sessionId, subtestId: CURRENT_SUBTEST_ID, jwt: accessToken });
         const questionList = responseData.questions;
+        const recordingList = responseData.recordings;
 
         return {
             props: {
                 isLoggedIn: true,
                 questionList,
+                recordingList,
                 progress,
                 currentPartId,
             },

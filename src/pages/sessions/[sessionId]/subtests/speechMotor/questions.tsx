@@ -22,13 +22,13 @@ import type { Answer, QuestionAnswer, Recording } from '@/types/types';
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 4;
-const PART_ID_START = 12;
+const PART_ID_START = 15;
 
 // 소검사 내 파트별 문항 index 정보
 // TODO: part title도 DB에서 가져오기
 const partIndexList = [
-    { start: 0, end: 10, subtitle: '휴식 시', partTitle: 'AMR', partId: 12 },
-    { start: 10, end: 20, subtitle: '휴식 시', partTitle: 'SMR', partId: 13 },
+    { start: 0, end: 10, subtitle: '휴식 시', partTitle: 'AMR', partId: 15 },
+    { start: 10, end: 20, subtitle: '휴식 시', partTitle: 'SMR', partId: 16 },
 ];
 
 const RecordIcon = () => {

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type MouseEventHandler, type ReactNode } from 'react';
 import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
@@ -9,25 +9,93 @@ import { deleteCookie, getCookie } from 'cookies-next';
 import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import Container from '@/components/common/Container';
+import { MikeIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/icons';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getAnswersCountAPI, updateSessionAPI } from '@/api/questions';
 
-import fontSizeIcon from 'public/static/images/font-size-icon.png';
-import memoIcon from 'public/static/images/memo-icon.png';
-import playIcon from 'public/static/images/play-icon.png';
-import playRecordIcon from 'public/static/images/play-record-icon.png';
-import recordIcon from 'public/static/images/record-icon.png';
-import stopIcon from 'public/static/images/stop-icon.png';
+import styles from '../SubTests.module.css';
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 3;
 const PART_ID_START = 8;
 
+// 주위에 테두리 효과 주기
+// TODO: 테두리 반짝이게 하는 법
+export const RoundedBox = ({ isShining, children }: { isShining?: boolean; children: ReactNode }) => {
+    return (
+        <div className='overflow-hidden rounded-full border-[9px] border-accent1/10'>
+            <div className='flex items-center justify-center bg-accent1'>{children}</div>
+        </div>
+    );
+};
+
+// 녹음, 재생, 정지, 일시정지 버튼 렌더링
+export const AudioButton = ({
+    audioUrl,
+    isRecording,
+    isPlaying,
+    handleStartRecording,
+    handleStopRecording,
+    handlePause,
+    handlePlay,
+}: {
+    audioUrl?: string | null;
+    isRecording: boolean;
+    isPlaying: boolean;
+    handleStartRecording: () => Promise<void>;
+    handleStopRecording: () => void;
+    handlePause: () => void;
+    handlePlay: () => void;
+}) => {
+    if (isRecording) {
+        return (
+            <button type='button' className={styles['rounded-button']} onClick={handleStopRecording}>
+                <StopIcon width={50} height={50} />
+            </button>
+        );
+    }
+
+    if (audioUrl) {
+        if (isPlaying) {
+            return (
+                <>
+                    <button type='button' className={styles['rounded-button']} onClick={handlePause}>
+                        <PauseIcon width={50} height={50} />
+                    </button>
+                    <div className='h-9 w-[2px] bg-white'></div>
+                    <button type='button' className={styles['rounded-button']} onClick={handleStartRecording}>
+                        <MikeIcon width={50} height={50} />
+                    </button>
+                </>
+            );
+        }
+
+        return (
+            <>
+                <button type='button' className={styles['rounded-button']} onClick={handlePlay}>
+                    <PlayIcon width={50} height={50} />
+                </button>
+                <div className='h-9 w-[2px] bg-white'></div>
+                <button type='button' className={styles['rounded-button']} onClick={handleStartRecording}>
+                    <MikeIcon width={50} height={50} />
+                </button>
+            </>
+        );
+    }
+
+    return (
+        <button type='button' className={styles['rounded-button']} onClick={handleStartRecording}>
+            <MikeIcon width={50} height={50} />
+        </button>
+    );
+};
+
 // 문단읽기 페이지
 export default function ParagraphReadingPage() {
     const router = useRouter();
 
-    const { audioBlob, audioUrl, isRecording, handlePlay, handleStartRecording, handleStopRecording } = useAudioRecorder();
+    const { audioBlob, audioUrl, isRecording, isPlaying, handlePlay, handlePause, handleStartRecording, handleStopRecording } =
+        useAudioRecorder();
 
     const [partId, setPartId] = useState(PART_ID_START);
 
@@ -110,21 +178,17 @@ export default function ParagraphReadingPage() {
 
             <div className='mt-20 flex w-full flex-nowrap items-center'>
                 <div className='mx-auto flex gap-[45px]'>
-                    {/* <button type='button'>
-                        <Image src={memoIcon} alt='memo-icon' className='h-auto w-[60px]' />
-                    </button> */}
-                    <button type='button' onClick={isRecording ? handleStopRecording : audioUrl ? handlePlay : handleStartRecording}>
-                        {isRecording ? (
-                            <Image src={stopIcon} alt='stop-icon' className='h-auto w-[100px]' />
-                        ) : audioUrl ? (
-                            <Image src={playIcon} alt='play-record-icon' className='h-[100px] w-auto' />
-                        ) : (
-                            <Image src={recordIcon} alt='record-icon' className='h-auto w-[100px]' />
-                        )}
-                    </button>
-                    {/* <button type='button'>
-                        <Image src={fontSizeIcon} alt='font-icon' className='h-auto w-[60px]' />
-                    </button> */}
+                    <RoundedBox>
+                        <AudioButton
+                            audioUrl={audioUrl}
+                            isRecording={isRecording}
+                            isPlaying={isPlaying}
+                            handleStartRecording={handleStartRecording}
+                            handleStopRecording={handleStopRecording}
+                            handlePause={handlePause}
+                            handlePlay={handlePlay}
+                        />
+                    </RoundedBox>
                 </div>
             </div>
             <div className='mt-20 flex gap-5'>
