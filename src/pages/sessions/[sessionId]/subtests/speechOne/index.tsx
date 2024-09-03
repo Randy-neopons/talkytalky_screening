@@ -206,13 +206,13 @@ export default function SpeechOnePage({ questionList }: { questionList: Question
                                 <td className={`${subtestStyles['option']}`}>
                                     <input type='radio' {...register(`answers.${start + i}.answer`)} value='unknown' />
                                 </td>
-                                <td className='p-0 text-center'>
+                                <td className={`${subtestStyles['comment']}`}>
                                     <Controller
                                         control={control}
                                         name={`answers.${start + i}.comment`}
                                         render={({ field }) => (
                                             <ReactTextareaAutosize
-                                                className={`${subtestStyles.textarea}`}
+                                                className={`${subtestStyles['textarea-no-border']}`}
                                                 minRows={1}
                                                 onChange={field.onChange}
                                                 onBlur={field.onBlur}
@@ -262,13 +262,13 @@ export default function SpeechOnePage({ questionList }: { questionList: Question
                                         <td className={`${subtestStyles['option']}`}>
                                             <input type='radio' {...register(`answers.${split + i}.answer`)} value='unknown' />
                                         </td>
-                                        <td className='p-0 text-center'>
+                                        <td className={`${subtestStyles['comment']}`}>
                                             <Controller
                                                 control={control}
                                                 name={`answers.${split + i}.comment`}
                                                 render={({ field }) => (
                                                     <ReactTextareaAutosize
-                                                        className={`${subtestStyles.textarea}`}
+                                                        className={`${subtestStyles['textarea-no-border']}`}
                                                         minRows={1}
                                                         onChange={field.onChange}
                                                         onBlur={field.onBlur}

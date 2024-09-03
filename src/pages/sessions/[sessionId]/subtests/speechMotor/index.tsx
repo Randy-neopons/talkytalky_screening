@@ -464,13 +464,13 @@ export default function SpeechMotorPage({ questionList, recordingList }: { quest
                                 <td className={`${subtestStyles['option']}`}>
                                     <input type='radio' {...register(`answers.${start + i}.answer`)} value='unknown' />
                                 </td>
-                                <td className='p-0 text-center'>
+                                <td className={`${subtestStyles['comment']}`}>
                                     <Controller
                                         control={control}
                                         name={`answers.${start + i}.comment`}
                                         render={({ field }) => (
                                             <ReactTextareaAutosize
-                                                className={`${subtestStyles.textarea}`}
+                                                className={`${subtestStyles['textarea-no-border']}`}
                                                 minRows={1}
                                                 onChange={field.onChange}
                                                 onBlur={field.onBlur}

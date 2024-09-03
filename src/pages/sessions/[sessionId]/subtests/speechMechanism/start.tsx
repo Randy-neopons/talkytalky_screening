@@ -26,10 +26,45 @@ const CURRENT_PART_ID_START = 1;
 // 소검사 내 파트별 문항 index 정보
 // TODO: part title도 DB에서 가져오기
 const partIndexList = [
-    { start: 0, split: 6, end: 12, subtitle1: '휴식시', subtitle2: '활동시', partTitle: 'Facial (안면)', partId: 1 },
-    { start: 12, split: 13, end: 18, subtitle1: '휴식시', subtitle2: '활동시', partTitle: 'Jaw (턱)', partId: 2 },
-    { start: 18, split: 23, end: 30, subtitle1: '휴식시', subtitle2: '활동시', partTitle: 'Tongue (혀)', partId: 3 },
-    { start: 30, split: 35, end: 35, subtitle1: '활동시', partTitle: 'Velar (연구개)\nPharynx (인두)\nLarynx (후두)', partId: 4 },
+    {
+        start: 0,
+        split: 6,
+        end: 12,
+        subtitle1: '휴식시',
+        subtitle2: '활동시',
+        partTitle: '안면',
+        partTitleEn: 'Facial',
+        partId: 1,
+    },
+    {
+        start: 12,
+        split: 13,
+        end: 18,
+        subtitle1: '휴식시',
+        subtitle2: '활동시',
+        partTitle: '아랫턱 근육',
+        partTitleEn: 'Jaw',
+        partId: 2,
+    },
+    {
+        start: 18,
+        split: 23,
+        end: 30,
+        subtitle1: '휴식시',
+        subtitle2: '활동시',
+        partTitle: '혀',
+        partTitleEn: 'Tongue',
+        partId: 3,
+    },
+    {
+        start: 30,
+        split: 35,
+        end: 35,
+        subtitle1: '활동시',
+        partTitle: '연구개 / 인두 / 후두',
+        partTitleEn: 'Velar / Pharynx / Larynx',
+        partId: 4,
+    },
 ];
 
 // 말기제평가 페이지
@@ -46,7 +81,7 @@ export default function SpeechMechanismStartPage({ questionList }: { questionLis
 
     // 소검사 내 현재 파트 정보
     const [currentPartId, setCurrentPartId] = useState(CURRENT_PART_ID_START);
-    const { start, split, end, subtitle1, subtitle2, partTitle } = useMemo(
+    const { start, split, end, subtitle1, subtitle2, partTitle, partTitleEn } = useMemo(
         () => partIndexList.find(v => v.partId === currentPartId) || partIndexList[0],
         [currentPartId],
     );
@@ -172,9 +207,10 @@ export default function SpeechMechanismStartPage({ questionList }: { questionLis
 
     return (
         <Container>
-            <h2 className='flex items-center font-jalnan text-accent1 text-head-2'>SPEECH MECHANISM : 말기제평가</h2>
+            <h2 className='flex items-center font-noto font-bold text-accent1 text-head-3'>SPEECH MECHANISM : 말기제평가</h2>
             <form onSubmit={handleSubmit(handleOnSubmit)} className={`${subtestStyles['subtest-form']}`}>
-                <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitle}</h1>
+                <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitleEn}</h1>
+                <h2 className='whitespace-pre-line text-center font-jalnan text-head-2'>{partTitle}</h2>
 
                 <table className={`${subtestStyles['question-table']}`}>
                     <thead>
@@ -205,13 +241,13 @@ export default function SpeechMechanismStartPage({ questionList }: { questionLis
                                 <td className={`${subtestStyles['option']}`}>
                                     <input type='radio' {...register(`answers.${start + i}.answer`, { required: true })} value='unknown' />
                                 </td>
-                                <td className='p-0 text-center'>
+                                <td className={`${subtestStyles['comment']}`}>
                                     <Controller
                                         control={control}
                                         name={`answers.${start + i}.comment`}
                                         render={({ field }) => (
                                             <ReactTextareaAutosize
-                                                className={`${subtestStyles.textarea}`}
+                                                className={`${subtestStyles['textarea-no-border']}`}
                                                 minRows={1}
                                                 onChange={field.onChange}
                                                 onBlur={field.onBlur}
@@ -277,13 +313,13 @@ export default function SpeechMechanismStartPage({ questionList }: { questionLis
                                                 value='unknown'
                                             />
                                         </td>
-                                        <td className='p-0 text-center'>
+                                        <td className={`${subtestStyles['comment']}`}>
                                             <Controller
                                                 control={control}
                                                 name={`answers.${split + i}.comment`}
                                                 render={({ field }) => (
                                                     <ReactTextareaAutosize
-                                                        className={`${subtestStyles.textarea}`}
+                                                        className={`${subtestStyles['textarea-no-border']}`}
                                                         minRows={1}
                                                         onChange={field.onChange}
                                                         onBlur={field.onBlur}
@@ -317,7 +353,6 @@ export default function SpeechMechanismStartPage({ questionList }: { questionLis
                             type='button'
                             className='ml-5 mt-20 btn btn-large btn-contained disabled:btn-disabled'
                             onClick={handleClickNext}
-                            disabled={!isDirty || !isValid}
                         >
                             다음
                         </button>

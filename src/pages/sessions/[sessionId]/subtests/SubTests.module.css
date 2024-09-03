@@ -75,7 +75,7 @@
 }
 
 .question-table tbody td.num {
-    @apply w-[35px] text-center xl:w-12;
+    @apply w-10 text-center xl:w-12;
 }
 
 .question-table tbody td.text {
@@ -87,7 +87,7 @@
 }
 
 .question-table tbody td.comment {
-    @apply p-0 text-center;
+    @apply w-40 p-0 text-center xl:w-[228px];
 }
 
 .question-table tbody tr:first-child td {
@@ -110,9 +110,9 @@
 .question-table tbody tr:last-child td:last-child {
     @apply rounded-br-base;
 }
-.question-table tbody tr td:last-child {
+/* .question-table tbody tr td:last-child {
     @apply px-2;
-}
+} */
 
 .question-table input[type='radio'] {
     @apply h-4 w-4;
@@ -120,4 +120,8 @@
 
 .textarea {
     @apply my-auto h-full w-full rounded-md border border-neutral6 px-[15px] py-[11px]  text-neutral1 placeholder:text-neutral4 hover:border-accent1 focus:outline-accent1;
+}
+
+.textarea-no-border {
+    @apply my-auto h-full w-full rounded-md px-[15px] py-[11px] text-neutral1 placeholder:text-neutral4 hover:border-none focus:outline-none;
 }
