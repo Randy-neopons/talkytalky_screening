@@ -236,16 +236,16 @@ export default function SpeechMechanismQuestionsPage({
                                 <td className={`${subtestStyles['num']}`}>{i + 1}</td>
                                 <td className={`${subtestStyles['text']}`}>{item.questionText}</td>
                                 <td className={`${subtestStyles['option']}`}>
-                                    <input type='radio' {...register(`answers.${start + i}.answer`, { required: true })} value='normal' />
+                                    <input type='radio' {...register(`answers.${start + i}.answer`)} value='normal' />
                                 </td>
                                 <td className={`${subtestStyles['option']}`}>
-                                    <input type='radio' {...register(`answers.${start + i}.answer`, { required: true })} value='mild' />
+                                    <input type='radio' {...register(`answers.${start + i}.answer`)} value='mild' />
                                 </td>
                                 <td className={`${subtestStyles['option']}`}>
-                                    <input type='radio' {...register(`answers.${start + i}.answer`, { required: true })} value='moderate' />
+                                    <input type='radio' {...register(`answers.${start + i}.answer`)} value='moderate' />
                                 </td>
                                 <td className={`${subtestStyles['option']}`}>
-                                    <input type='radio' {...register(`answers.${start + i}.answer`, { required: true })} value='unknown' />
+                                    <input type='radio' {...register(`answers.${start + i}.answer`)} value='unknown' />
                                 </td>
                                 <td className={`${subtestStyles['comment']}`}>
                                     <Controller
@@ -292,32 +292,16 @@ export default function SpeechMechanismQuestionsPage({
                                         <td className={`${subtestStyles['num']}`}>{split - start + i + 1}</td>
                                         <td className={`${subtestStyles['text']}`}>{item.questionText}</td>
                                         <td className={`${subtestStyles['option']}`}>
-                                            <input
-                                                type='radio'
-                                                {...register(`answers.${split + i}.answer`, { required: true })}
-                                                value='normal'
-                                            />
+                                            <input type='radio' {...register(`answers.${split + i}.answer`)} value='normal' />
                                         </td>
                                         <td className={`${subtestStyles['option']}`}>
-                                            <input
-                                                type='radio'
-                                                {...register(`answers.${split + i}.answer`, { required: true })}
-                                                value='mild'
-                                            />
+                                            <input type='radio' {...register(`answers.${split + i}.answer`)} value='mild' />
                                         </td>
                                         <td className={`${subtestStyles['option']}`}>
-                                            <input
-                                                type='radio'
-                                                {...register(`answers.${split + i}.answer`, { required: true })}
-                                                value='moderate'
-                                            />
+                                            <input type='radio' {...register(`answers.${split + i}.answer`)} value='moderate' />
                                         </td>
                                         <td className={`${subtestStyles['option']}`}>
-                                            <input
-                                                type='radio'
-                                                {...register(`answers.${split + i}.answer`, { required: true })}
-                                                value='unknown'
-                                            />
+                                            <input type='radio' {...register(`answers.${split + i}.answer`)} value='unknown' />
                                         </td>
                                         <td className={`${subtestStyles['comment']}`}>
                                             <Controller

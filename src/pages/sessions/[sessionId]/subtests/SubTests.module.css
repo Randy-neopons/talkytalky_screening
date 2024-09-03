@@ -125,3 +125,7 @@
 .textarea-no-border {
     @apply my-auto h-full w-full rounded-md px-[15px] py-[11px] text-neutral1 placeholder:text-neutral4 hover:border-none focus:outline-none;
 }
+
+.rounded-button {
+    @apply flex h-[82px] w-[82px] items-center justify-center rounded-full bg-accent1;
+}

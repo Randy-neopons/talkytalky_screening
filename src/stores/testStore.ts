@@ -12,13 +12,13 @@ export const partList = [
     { partId: 5, subtestId: '2' },
     { partId: 6, subtestId: '2' },
     { partId: 7, subtestId: '2' },
-    { partId: 8, subtestId: '3' },
-    { partId: 9, subtestId: '3' },
-    { partId: 10, subtestId: '3' },
     { partId: 11, subtestId: '3' },
-    { partId: 12, subtestId: '4' },
-    { partId: 13, subtestId: '4' },
-    { partId: 14, subtestId: '5' },
+    { partId: 12, subtestId: '3' },
+    { partId: 13, subtestId: '3' },
+    { partId: 14, subtestId: '3' },
+    { partId: 15, subtestId: '4' },
+    { partId: 16, subtestId: '4' },
+    { partId: 17, subtestId: '5' },
 ];
 
 type Subtest = {

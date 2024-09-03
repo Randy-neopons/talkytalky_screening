@@ -35,6 +35,7 @@ const partIndexList = [
         partTitle: '호흡 / 음성',
         partTitleEn: 'Respiration / Phonation',
         partId: 5,
+        page: 0,
     },
     {
         start: 6,
@@ -45,6 +46,7 @@ const partIndexList = [
         partTitle: '호흡 / 음성',
         partTitleEn: 'Respiration / Phonation',
         partId: 5,
+        page: 1,
     },
     {
         start: 14,
@@ -55,6 +57,7 @@ const partIndexList = [
         partTitle: '공명',
         partTitleEn: 'Resonance',
         partId: 6,
+        page: 0,
     },
     {
         start: 22,
@@ -64,6 +67,7 @@ const partIndexList = [
         partTitle: '조음',
         partTitleEn: 'Articulation',
         partId: 7,
+        page: 0,
     },
 ];
 
@@ -87,10 +91,14 @@ export default function SpeechOneQuestionsPage({
     const [checkAll2, setCheckAll2] = useState(false);
 
     // 소검사 내 현재 파트 정보
-    const [partId, setCurrentPartId] = useState(currentPartId || PART_ID_START);
+    const [partId, setPartId] = useState(currentPartId || PART_ID_START);
+    // SPEECH I에서 Respiration & Phonation은 문항이 많아 한 파트가 여러 페이지를 차지함.
+    // 다른 파트는 다 1페이지 구성임.
+    const [page, setPage] = useState(0);
+
     const { start, split, end, subtitle1, subtitle2, partTitle, partTitleEn } = useMemo(
-        () => partIndexList.find(v => v.partId === partId) || partIndexList[0],
-        [partId],
+        () => partIndexList.find(v => v.partId === partId && v.page === page) || partIndexList[0],
+        [page, partId],
     );
 
     // react-hook-form
@@ -143,7 +151,7 @@ export default function SpeechOneQuestionsPage({
     const handleClickPrev = useCallback(() => {
         setCheckAll1(false);
         setCheckAll2(false);
-        partId > PART_ID_START && setCurrentPartId(partId => partId - 1);
+        partId > PART_ID_START && setPartId(partId => partId - 1);
         typeof window !== 'undefined' && window.scrollTo(0, 0);
     }, [partId]);
 
@@ -151,9 +159,17 @@ export default function SpeechOneQuestionsPage({
     const handleClickNext = useCallback(() => {
         setCheckAll1(false);
         setCheckAll2(false);
-        partId < partIndexList[partIndexList.length - 1].partId && setCurrentPartId(partId => partId + 1);
-        typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
-    }, [partId]);
+
+        if (partId === PART_ID_START && page === 0) {
+            setPage(1);
+        } else {
+            if (partId < partIndexList[partIndexList.length - 1].partId) {
+                setPartId(partId => partId + 1);
+                setPage(0);
+            }
+            typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
+        }
+    }, [page, partId]);
 
     // 폼 데이터 제출
     const handleSubmitData = useCallback(
@@ -332,7 +348,7 @@ export default function SpeechOneQuestionsPage({
                 )}
 
                 <div>
-                    {partId > PART_ID_START && (
+                    {(partId > PART_ID_START || page === 1) && (
                         <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
                             이전
                         </button>

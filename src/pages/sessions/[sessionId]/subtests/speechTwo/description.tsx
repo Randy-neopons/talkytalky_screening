@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, type ReactNode } from 'react';
 import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
@@ -13,24 +13,23 @@ import { InfoIcon } from '@/components/icons';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getAnswersCountAPI, updateSessionAPI } from '@/api/questions';
 
+import { AudioButton, RoundedBox } from '.';
 import styles from '../SubTests.module.css';
 
 import fontSizeIcon from 'public/static/images/font-size-icon.png';
 import memoIcon from 'public/static/images/memo-icon.png';
 import pictureDescImg from 'public/static/images/picture-desc-img.png';
-import playRecordIcon from 'public/static/images/play-record-icon.png';
-import recordIcon from 'public/static/images/record-icon.png';
-import stopIcon from 'public/static/images/stop-icon.png';
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 3;
-const PART_ID_START = 8;
+const PART_ID_START = 9;
 
 // 그림설명하기 페이지
 export default function PictureDescriptionPage() {
     const router = useRouter();
 
-    const { audioBlob, audioUrl, isRecording, handlePlay, handleStartRecording, handleStopRecording } = useAudioRecorder();
+    const { audioBlob, audioUrl, isPlaying, isRecording, handlePause, handlePlay, handleStartRecording, handleStopRecording } =
+        useAudioRecorder();
 
     const [partId, setPartId] = useState(PART_ID_START);
 
@@ -136,15 +135,17 @@ export default function PictureDescriptionPage() {
                     {/* <button type='button'>
                         <Image src={memoIcon} alt='memo-icon' className='h-auto w-[60px]' />
                     </button> */}
-                    <button type='button' onClick={isRecording ? handleStopRecording : audioUrl ? handlePlay : handleStartRecording}>
-                        {isRecording ? (
-                            <Image src={stopIcon} alt='stop-icon' className='h-auto w-[100px]' />
-                        ) : audioUrl ? (
-                            <Image src={playRecordIcon} alt='play-record-icon' className='h-auto w-[100px]' />
-                        ) : (
-                            <Image src={recordIcon} alt='record-icon' className='h-auto w-[100px]' />
-                        )}
-                    </button>
+                    <RoundedBox>
+                        <AudioButton
+                            audioUrl={audioUrl}
+                            isRecording={isRecording}
+                            isPlaying={isPlaying}
+                            handleStartRecording={handleStartRecording}
+                            handleStopRecording={handleStopRecording}
+                            handlePause={handlePause}
+                            handlePlay={handlePlay}
+                        />
+                    </RoundedBox>
                     {/* <button type='button' className='invisible'>
                         <Image src={fontSizeIcon} alt='memo-icon' className='h-auto w-[60px]' />
                     </button> */}
