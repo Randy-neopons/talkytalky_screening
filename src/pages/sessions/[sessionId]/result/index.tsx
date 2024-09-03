@@ -10,7 +10,7 @@ import dayjs from 'dayjs';
 import Container from '@/components/common/Container';
 import { PrintIcon } from '@/components/icons';
 import { useUserQuery } from '@/hooks/user';
-import { getTestResultAPI } from '@/api/questions';
+import { getTestInfoAPI, getTestResultAPI } from '@/api/questions';
 
 import styles from './TestResultPage.module.css';
 
@@ -208,7 +208,7 @@ export default function TestResultPage({
     return (
         <Container>
             <div className='relative w-full'>
-                <Link href={'/personalInfo'} className='absolute bottom-0 left-2 underline'>
+                <Link href={`/sessions/${router.query.sessionId}/editInfo`} className='absolute bottom-0 left-2 underline'>
                     개인정보 수정
                 </Link>
                 <h1 className='text-center font-jalnan text-head-1'>말운동평가 검사 결과</h1>
@@ -342,9 +342,10 @@ export const getServerSideProps: GetServerSideProps = async context => {
             };
         }
 
+        const { testInfo } = await getTestInfoAPI({ sessionId, jwt: accessToken });
+
         // 소검사 문항 정보 fetch
-        const responseData = await getTestResultAPI({ sessionId, jwt: accessToken });
-        const { testInfo, testScore } = responseData;
+        const { testScore } = await getTestResultAPI({ sessionId, jwt: accessToken });
 
         const testResultList = subtestResultList.map(v => {
             const partList = testScore.filter(score => v.subtestIds.includes(score.subtestId));
@@ -371,8 +372,8 @@ export const getServerSideProps: GetServerSideProps = async context => {
         return {
             props: {
                 isLoggedIn: true,
-                testInfo,
                 testResultList,
+                testInfo,
             },
         };
     } catch (err) {
