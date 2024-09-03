@@ -11,6 +11,30 @@ const makeHeaders = (accessToken: string) => {
     return { Authorization: `Bearer ${token}` };
 };
 
+// 검사 정보 조회
+export async function getTestInfoAPI({ sessionId, jwt }: { sessionId: number; jwt: string }) {
+    const response = await axios.get<{
+        result: string;
+        testInfo: {
+            testDate: string;
+            patientName: string;
+            patientGender: string;
+            patientBirthdate: string;
+            brainLesions: string[];
+            medicalHistory: string;
+            patientMemo: string;
+        };
+    }>(`/assessment/session/${sessionId}`, { headers: makeHeaders(jwt) });
+    return response.data;
+}
+
+// 검사 정보 업데이트
+export async function updateTestInfoAPI({ sessionId, testInfo, jwt }: { sessionId: number; testInfo: any; jwt: string }) {
+    const response = await axios.patch(`/assessment/session/${sessionId}/testInfo`, { testInfo }, { headers: makeHeaders(jwt) });
+
+    return response.data;
+}
+
 // 세션 목록
 export async function getSessionListAPI({ jwt }: { jwt: string }) {
     const response = await axios.get('/assessment/sessions', {
@@ -81,15 +105,6 @@ export async function completeSessionAPI({ sessionId, jwt }: { sessionId: number
 // 세션 결과 보기
 export async function getTestResultAPI({ sessionId, jwt }: { sessionId: number; jwt: string }) {
     const response = await axios.get<{
-        testInfo: {
-            testDate: string;
-            patientName: string;
-            patientGender: string;
-            patientBirthdate: string;
-            brainLesions: string[];
-            medicalHistory: string;
-            patientMemo: string;
-        };
         testScore: {
             score: number;
             maxScore: number;
