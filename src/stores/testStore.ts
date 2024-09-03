@@ -33,7 +33,7 @@ export const subtestList: Subtest[] = [
     { subtestId: '2', subtestTitle: 'SPEECH I : 영역별 말평가', pathname: 'speechOne' },
     { subtestId: '3', subtestTitle: 'SPEECH II : 종합적 말평가', pathname: 'speechTwo' },
     { subtestId: '4', subtestTitle: 'SPEECH MOTOR : 말운동 평가', pathname: 'speechMotor' },
-    { subtestId: '5', subtestTitle: '피로도 검사 포함', pathname: 'stressTest' },
+    { subtestId: '5', subtestTitle: '피로도 검사 포함', pathname: 'stressTesting/questions' },
 ];
 
 // 검사 store

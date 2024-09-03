@@ -68,7 +68,7 @@ const partIndexList = [
 ];
 
 // 말기제평가 페이지
-export default function SpeechMechanismStartPage({ questionList }: { questionList: QuestionAnswer[] }) {
+export default function SpeechMechanismPage({ questionList }: { questionList: QuestionAnswer[] }) {
     const router = useRouter();
 
     // 현재 소검사, 선택한 소검사 정보
