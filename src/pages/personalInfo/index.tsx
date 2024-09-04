@@ -64,6 +64,10 @@ const useAge = ({ control }: { control: Control<FormValues> }) => {
     const birthMonth = Number(useWatch({ control, name: 'birthMonth' }));
     const birthDay = Number(useWatch({ control, name: 'birthDay' }));
 
+    if (!birthYear) {
+        return null;
+    }
+
     // 만 나이 계산
     const age = dayjs().diff(new Date(birthYear, birthMonth - 1, birthDay), 'year');
 
