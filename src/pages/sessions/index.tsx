@@ -1,7 +1,6 @@
 import { useCallback, useState, type ChangeEventHandler } from 'react';
 import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 import { isAxiosError } from 'axios';

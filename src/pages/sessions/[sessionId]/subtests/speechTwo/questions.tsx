@@ -12,7 +12,7 @@ import { useTestTime } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
-import { MikeIcon, PlayIcon, StopIcon } from '@/components/icons';
+import { MemoIcon, MikeIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/icons';
 import { useConductedSubtestsQuery } from '@/hooks/questions';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/questions';
@@ -206,19 +206,19 @@ export default function SpeechTwoQuestionsPage({
                             <span className='font-bold text-white text-body-2'>문단읽기</span>
                         </div>
                         <div className='flex w-full justify-center gap-5 py-[35px]'>
-                            <button
+                            {/* <button
                                 type='button'
                                 className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'
                                 onClick={handlePause1}
                             >
-                                <StopIcon />
-                            </button>
+                                <MemoIcon width={24} height={24} />
+                            </button> */}
                             <button
                                 type='button'
                                 className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'
-                                onClick={handlePlay1}
+                                onClick={isPlaying1 ? handlePause1 : handlePlay1}
                             >
-                                <PlayIcon />
+                                {isPlaying1 ? <PauseIcon width={36} height={36} /> : <PlayIcon width={36} height={36} />}
                             </button>
                         </div>
                     </li>
@@ -227,19 +227,19 @@ export default function SpeechTwoQuestionsPage({
                             <span className='font-bold text-white text-body-2'>그림 설명하기</span>
                         </div>
                         <div className='flex w-full justify-center gap-5 py-[35px]'>
-                            <button
+                            {/* <button
                                 type='button'
                                 className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'
                                 onClick={handlePause2}
                             >
-                                <StopIcon />
-                            </button>
+                                <MemoIcon width={24} height={24} />
+                            </button> */}
                             <button
                                 type='button'
                                 className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'
-                                onClick={handlePlay2}
+                                onClick={isPlaying2 ? handlePause2 : handlePlay2}
                             >
-                                <PlayIcon />
+                                {isPlaying2 ? <PauseIcon width={36} height={36} /> : <PlayIcon width={36} height={36} />}
                             </button>
                         </div>
                     </li>
@@ -248,19 +248,19 @@ export default function SpeechTwoQuestionsPage({
                             <span className='font-bold text-white text-body-2'>대화하기</span>
                         </div>
                         <div className='flex w-full justify-center gap-5 py-[35px]'>
-                            <button
+                            {/* <button
                                 type='button'
                                 className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'
                                 onClick={handlePause3}
                             >
-                                <StopIcon />
-                            </button>
+                                <MemoIcon width={24} height={24} />
+                            </button> */}
                             <button
                                 type='button'
                                 className='flex h-10 w-10 items-center justify-center rounded-full bg-accent1'
-                                onClick={handlePlay3}
+                                onClick={isPlaying3 ? handlePause3 : handlePlay3}
                             >
-                                <PlayIcon />
+                                {isPlaying3 ? <PauseIcon width={36} height={36} /> : <PlayIcon width={36} height={36} />}
                             </button>
                         </div>
                     </li>

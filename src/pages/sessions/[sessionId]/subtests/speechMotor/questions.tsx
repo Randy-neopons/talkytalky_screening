@@ -7,7 +7,6 @@ import { useRouter } from 'next/router';
 import { isAxiosError } from 'axios';
 import { deleteCookie, getCookie } from 'cookies-next';
 
-import { useCurrentSubTest, useSubtests, useTestActions } from '@/stores/testStore';
 import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
@@ -331,9 +330,10 @@ export default function SpeechMotorQuestionsPage({
                         </thead>
                         <tbody>
                             <tr>
-                                <td rowSpan={3}>
-                                    숨을 크게 들어 마신 뒤, &apos;파&apos; 를 가능한 빨리 규칙적으로 반복해서 말해보세요. (&apos;타&apos; 와
-                                    &apos;카&apos; 도 동일하게 시행)
+                                <td rowSpan={3} align='center' className='rounded-bl-base'>
+                                    숨을 크게 들어 마신 뒤, &apos;파&apos; 를 가능한 빨리
+                                    <br /> 규칙적으로 반복해서 말해보세요. <br />
+                                    (&apos;타&apos; 와 &apos;카&apos; 도 동일하게 시행)
                                 </td>
                                 <td className={`${subtestStyles['button']}`}>파</td>
                                 <td className={`${subtestStyles['button']}`}>
@@ -351,11 +351,11 @@ export default function SpeechMotorQuestionsPage({
                                         disabled={!audioUrl1}
                                     />
                                 </td>
-                                <td>
+                                <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.0.repeatCount`)} />
                                 </td>
                             </tr>
-                            <tr>
+                            <tr className={`${subtestStyles['repeat-count']}`}>
                                 <td className={`${subtestStyles['button']}`}>타</td>
                                 <td className={`${subtestStyles['button']}`}>
                                     <RecordButton
@@ -372,7 +372,7 @@ export default function SpeechMotorQuestionsPage({
                                         disabled={!audioUrl2}
                                     />
                                 </td>
-                                <td>
+                                <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.1.repeatCount`)} />
                                 </td>
                             </tr>
@@ -393,7 +393,7 @@ export default function SpeechMotorQuestionsPage({
                                         disabled={!audioUrl3}
                                     />
                                 </td>
-                                <td>
+                                <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.2.repeatCount`)} />
                                 </td>
                             </tr>
@@ -412,7 +412,7 @@ export default function SpeechMotorQuestionsPage({
                         </thead>
                         <tbody>
                             <tr>
-                                <td align='center'>
+                                <td align='center' className='rounded-bl-base'>
                                     &apos;퍼-터-커&apos;를 가능한 한 빨리, 규칙적으로 <br />
                                     반복해서 말해보세요.
                                 </td>
@@ -432,7 +432,7 @@ export default function SpeechMotorQuestionsPage({
                                         disabled={!audioUrl4}
                                     />
                                 </td>
-                                <td className={`${subtestStyles['button']}`}>
+                                <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='w-full outline-none' {...register(`recordings.3.repeatCount`)} />
                                 </td>
                             </tr>

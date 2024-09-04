@@ -13,11 +13,12 @@ import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import { useConductedSubtestsQuery } from '@/hooks/questions';
+import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/questions';
 
 import subtestStyles from '../SubTests.module.css';
 
-import type { Answer, QuestionAnswer } from '@/types/types';
+import type { Answer, QuestionAnswer, Recording } from '@/types/types';
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 2;
@@ -71,15 +72,126 @@ const partIndexList = [
     },
 ];
 
+const RecordIcon = () => {
+    return (
+        <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'>
+            <circle cx='12' cy='12' r='8' fill='#FF647C' />
+        </svg>
+    );
+};
+
+const StopRecordIcon = () => {
+    return (
+        <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'>
+            <rect x='5' y='5' width='14' height='14' rx='2' fill='#FF647C' />
+        </svg>
+    );
+};
+
+const PlayIcon = ({ disabled }: { disabled?: boolean }) => {
+    return (
+        <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'>
+            <g clipPath='url(#clip0_13783_7609)'>
+                <path
+                    d='M20 10.2679C21.3333 11.0377 21.3333 12.9623 20 13.7321L8 20.6603C6.66667 21.4301 5 20.4678 5 18.9282L5 5.0718C5 3.5322 6.66667 2.56995 8 3.33975L20 10.2679Z'
+                    fill={disabled ? 'gray' : '#6979F8'}
+                />
+            </g>
+            <defs>
+                <clipPath id='clip0_13783_7609'>
+                    <rect width='24' height='24' fill='white' />
+                </clipPath>
+            </defs>
+        </svg>
+    );
+};
+
+const PauseIcon = () => {
+    return (
+        <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'>
+            <rect x='5' y='3' width='5' height='18' rx='1' fill='#6979F8' />
+            <rect x='14' y='3' width='5' height='18' rx='1' fill='#6979F8' />
+        </svg>
+    );
+};
+
+const RecordButton = ({
+    isRecording,
+    handleStop,
+    handleStart,
+}: {
+    isRecording: boolean;
+    handleStop: () => void;
+    handleStart: () => void;
+}) => {
+    return (
+        <button type='button' onClick={isRecording ? handleStop : handleStart}>
+            {isRecording ? <StopRecordIcon /> : <RecordIcon />}
+        </button>
+    );
+};
+
+const PlayButton = ({
+    isPlaying,
+    handlePause,
+    handlePlay,
+    disabled,
+}: {
+    isPlaying: boolean;
+    handlePause: () => void;
+    handlePlay: () => void;
+    disabled?: boolean;
+}) => {
+    return (
+        <button type='button' onClick={isPlaying ? handlePause : handlePlay} disabled={disabled}>
+            {isPlaying ? <PauseIcon /> : <PlayIcon disabled={disabled} />}
+        </button>
+    );
+};
+
 // SPEECH I 문항 페이지
 export default function SpeechOneQuestionsPage({
     questionList,
+    recordingList,
     currentPartId,
 }: {
     questionList: QuestionAnswer[];
+    recordingList: Recording[];
     currentPartId: number | null;
 }) {
     const router = useRouter();
+
+    // MPT 측정 녹음
+    const {
+        isRecording: isRecording1,
+        isPlaying: isPlaying1,
+        audioUrl: audioUrl1,
+        audioBlob: audioBlob1,
+        handleStartRecording: handleStartRecording1,
+        handleStopRecording: handleStopRecording1,
+        handlePlay: handlePlay1,
+        handlePause: handlePause1,
+    } = useAudioRecorder(recordingList[0]?.filePath);
+    const {
+        isRecording: isRecording2,
+        isPlaying: isPlaying2,
+        audioUrl: audioUrl2,
+        audioBlob: audioBlob2,
+        handleStartRecording: handleStartRecording2,
+        handleStopRecording: handleStopRecording2,
+        handlePlay: handlePlay2,
+        handlePause: handlePause2,
+    } = useAudioRecorder(recordingList[1]?.filePath);
+    const {
+        isRecording: isRecording3,
+        isPlaying: isPlaying3,
+        audioUrl: audioUrl3,
+        audioBlob: audioBlob3,
+        handleStartRecording: handleStartRecording3,
+        handleStopRecording: handleStopRecording3,
+        handlePlay: handlePlay3,
+        handlePause: handlePause3,
+    } = useAudioRecorder(recordingList[2]?.filePath);
 
     // 현재 소검사, 선택한 소검사 정보
     const { data: subtestsData } = useConductedSubtestsQuery({ sessionId: Number(router.query.sessionId), jwt: getCookie('jwt') || '' });
@@ -103,9 +215,19 @@ export default function SpeechOneQuestionsPage({
 
     // react-hook-form
     const { control, register, setValue, handleSubmit } = useForm<{
+        recordings: Recording[];
         answers: Answer[];
     }>({
         defaultValues: {
+            recordings:
+                recordingList.length > 0
+                    ? recordingList
+                    : [
+                          { filePath: null, repeatCount: null },
+                          { filePath: null, repeatCount: null },
+                          { filePath: null, repeatCount: null },
+                          { filePath: null, repeatCount: null },
+                      ],
             answers: questionList?.map(({ questionId, questionText, partId, subtestId, answer, comment }) => ({
                 questionId,
                 questionText,
@@ -176,6 +298,11 @@ export default function SpeechOneQuestionsPage({
         async ({ sessionId, data }: { sessionId: number; data: any }) => {
             try {
                 const formData = new FormData();
+                formData.append('audio1', audioBlob1 || 'null');
+                formData.append('audio2', audioBlob2 || 'null');
+                formData.append('audio3', audioBlob3 || 'null');
+                formData.append('recordings', JSON.stringify(data.recordings));
+
                 formData.append('testTime', `${testTime}`);
                 formData.append('currentPartId', `${partId}`);
                 formData.append('answers', JSON.stringify(data.answers));
@@ -196,7 +323,7 @@ export default function SpeechOneQuestionsPage({
                 console.error(err);
             }
         },
-        [partId, testTime],
+        [audioBlob1, audioBlob2, audioBlob3, partId, testTime],
     );
 
     // 폼 제출 후 redirect
@@ -235,6 +362,89 @@ export default function SpeechOneQuestionsPage({
                 <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitleEn}</h1>
                 <h2 className='whitespace-pre-line text-center font-jalnan text-head-2'>{partTitle}</h2>
 
+                {partId === PART_ID_START && (
+                    <table className={`${subtestStyles['recording-table']}`}>
+                        <thead>
+                            <tr className='bg-accent1 text-white text-body-2'>
+                                <th className='rounded-tl-base'>SMR 측정 (5초)</th>
+                                <th></th>
+                                <th>녹음</th>
+                                <th>재생</th>
+                                <th className='rounded-tr-base'>반복횟수</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td rowSpan={3} className='rounded-bl-base text-center'>
+                                    숨을 크게 들어 마신 뒤, 쉬지 말고 최대한 길게
+                                    <br />
+                                    편안하게 ‘아~’ 소리를 내보세요.
+                                </td>
+                                <td className={`${subtestStyles['button']}`}>파</td>
+                                <td className={`${subtestStyles['button']}`}>
+                                    <RecordButton
+                                        isRecording={isRecording1}
+                                        handleStart={handleStartRecording1}
+                                        handleStop={handleStopRecording1}
+                                    />
+                                </td>
+                                <td className={`${subtestStyles['button']}`}>
+                                    <PlayButton
+                                        isPlaying={isPlaying1}
+                                        handlePlay={handlePlay1}
+                                        handlePause={handlePause1}
+                                        disabled={!audioUrl1}
+                                    />
+                                </td>
+                                <td className={`${subtestStyles['repeat-count']}`}>
+                                    <input className='outline-none' {...register(`recordings.0.repeatCount`)} />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className={`${subtestStyles['button']}`}>타</td>
+                                <td className={`${subtestStyles['button']}`}>
+                                    <RecordButton
+                                        isRecording={isRecording2}
+                                        handleStart={handleStartRecording2}
+                                        handleStop={handleStopRecording2}
+                                    />
+                                </td>
+                                <td className={`${subtestStyles['button']}`}>
+                                    <PlayButton
+                                        isPlaying={isPlaying2}
+                                        handlePlay={handlePlay2}
+                                        handlePause={handlePause2}
+                                        disabled={!audioUrl2}
+                                    />
+                                </td>
+                                <td className={`${subtestStyles['repeat-count']}`}>
+                                    <input className='outline-none' {...register(`recordings.1.repeatCount`)} />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className={`${subtestStyles['button']}`}>카</td>
+                                <td className={`${subtestStyles['button']}`}>
+                                    <RecordButton
+                                        isRecording={isRecording3}
+                                        handleStart={handleStartRecording3}
+                                        handleStop={handleStopRecording3}
+                                    />
+                                </td>
+                                <td className={`${subtestStyles['button']}`}>
+                                    <PlayButton
+                                        isPlaying={isPlaying3}
+                                        handlePlay={handlePlay3}
+                                        handlePause={handlePause3}
+                                        disabled={!audioUrl3}
+                                    />
+                                </td>
+                                <td className={`${subtestStyles['repeat-count']}`}>
+                                    <input className='outline-none' {...register(`recordings.2.repeatCount`)} />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                )}
                 <table className={`${subtestStyles['question-table']}`}>
                     <thead>
                         <tr className='bg-accent1 text-white text-body-2'>
@@ -399,11 +609,13 @@ export const getServerSideProps: GetServerSideProps = async context => {
         // 소검사 문항 정보 fetch
         const responseData = await getQuestionAndAnswerListAPI({ sessionId, subtestId: CURRENT_SUBTEST_ID, jwt: accessToken });
         const questionList = responseData.questions;
+        const recordingList = responseData.recordings;
 
         return {
             props: {
                 isLoggedIn: true,
                 questionList,
+                recordingList,
                 progress,
                 currentPartId,
             },
