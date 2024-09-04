@@ -180,9 +180,13 @@ export default function SpeechTwoQuestionsPage({
                     throw new Error('수행할 소검사가 없습니다');
                 }
                 const currentSubtestIndex = subtests.findIndex(v => v.subtestId === CURRENT_SUBTEST_ID);
-                const nextSubtest = subtests[currentSubtestIndex + 1];
-                if (nextSubtest) {
-                    router.push(`/sessions/${sessionId}/subtests/${nextSubtest.pathname}`);
+                const nextSubtestItem = subtests[currentSubtestIndex + 1];
+                if (nextSubtestItem) {
+                    if (nextSubtestItem.subtestId === 5) {
+                        router.push(`/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}/questions`);
+                    } else {
+                        router.push(`/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}`);
+                    }
                 } else {
                     router.push(`/sessions/${sessionId}/unassessable`);
                 }

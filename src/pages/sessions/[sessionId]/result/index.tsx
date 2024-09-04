@@ -313,9 +313,9 @@ export default function TestResultPage({
                 <Link href='/' className='inline-flex items-center justify-center btn btn-large btn-outlined'>
                     홈
                 </Link>
-                <button type='button' className='ml-5 btn btn-large btn-contained' onClick={() => {}}>
+                {/* <button type='button' className='ml-5 btn btn-large btn-contained' onClick={() => {}}>
                     다음
-                </button>
+                </button> */}
             </div>
         </Container>
     );

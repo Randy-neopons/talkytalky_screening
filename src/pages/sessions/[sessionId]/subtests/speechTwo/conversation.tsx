@@ -101,7 +101,7 @@ export default function ConversationPage() {
                     <div className={`${styles['tooltip-content']} bg-accent3`}>
                         <b>치료사 지시문</b>
                         <br />
-                        “오늘(또는 요즘에) 무슨 일을 하셨는지 예기해 주세요. 될 수 있는 대로 문장으로 설명해 주세요. 시간은 1분 드릴게요.”
+                        “오늘(또는 요즘에) 무슨 일을 하셨는지 얘기해 주세요. 될 수 있는 대로 문장으로 설명해 주세요. 시간은 1분 드릴게요.”
                     </div>
                 </span>
             </h1>

@@ -50,8 +50,11 @@ export default function UnassessableQuestionsPage({ questionList }: { questionLi
                 const sessionId = Number(router.query.sessionId);
 
                 const subtestId = partList.find(v => v.partId === partId)?.subtestId;
-                const pathname = subtestList.find(v => v.subtestId === subtestId)?.pathname;
-                pathname && router.push(`/sessions/${sessionId}/subtests/${pathname}`);
+                const subtestItem = subtestList.find(v => v.subtestId === subtestId);
+
+                if (subtestItem) {
+                    router.push(`/sessions/${sessionId}/subtests/${subtestItem.pathname}/questions?currentPartId=${partId}`);
+                }
             } catch (err) {
                 console.error(err);
             }
