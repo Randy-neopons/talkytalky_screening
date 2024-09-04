@@ -17,7 +17,7 @@ export const conductedSubtestsQueryKey = 'subtests';
 export const useConductedSubtestsQuery = ({ sessionId, jwt }: { sessionId: number; jwt: string }) => {
     return useQuery<{
         result: boolean;
-        subtests: { subtestId: Number; subtestTitle: String; pathname: string }[];
+        subtests: { subtestId: number; subtestTitle: string; pathname: string }[];
     }>({
         queryKey: [conductedSubtestsQueryKey, sessionId, jwt],
         queryFn: () => getConductedSubtestsAPI({ sessionId, jwt }),

@@ -245,8 +245,7 @@ export default function SpeechOneQuestionsPage({
                 recordingList.length > 0
                     ? recordingList
                     : [
-                          { filePath: null, repeatCount: null },
-                          { filePath: null, repeatCount: null },
+                          { filePath: null, repeatCount: null }, // 이름은 repeatCount지만 지속시간 기록함 (추후 property name 변경 필요)
                           { filePath: null, repeatCount: null },
                           { filePath: null, repeatCount: null },
                       ],
@@ -361,9 +360,13 @@ export default function SpeechOneQuestionsPage({
                     throw new Error('수행할 소검사가 없습니다');
                 }
                 const currentSubtestIndex = subtests.findIndex(v => v.subtestId === CURRENT_SUBTEST_ID);
-                const nextSubtest = subtests[currentSubtestIndex + 1];
-                if (nextSubtest) {
-                    router.push(`/sessions/${sessionId}/subtests/${nextSubtest.pathname}`);
+                const nextSubtestItem = subtests[currentSubtestIndex + 1];
+                if (nextSubtestItem) {
+                    if (nextSubtestItem.subtestId === 5) {
+                        router.push(`/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}/questions`);
+                    } else {
+                        router.push(`/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}`);
+                    }
                 } else {
                     router.push(`/sessions/${sessionId}/unassessable`);
                 }
@@ -377,6 +380,10 @@ export default function SpeechOneQuestionsPage({
     useEffect(() => {
         setTestStart(true);
     }, [setTestStart]);
+
+    useEffect(() => {
+        console.log('page', page);
+    }, [page]);
 
     return (
         <Container>
@@ -393,7 +400,7 @@ export default function SpeechOneQuestionsPage({
                                 <th></th>
                                 <th>녹음</th>
                                 <th>재생</th>
-                                <th className='rounded-tr-base'>반복횟수</th>
+                                <th className='rounded-tr-base'>지속시간</th>
                             </tr>
                         </thead>
                         <tbody>

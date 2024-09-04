@@ -28,16 +28,10 @@ export default function SessionListPage({ sessionList }: { sessionList: TestSess
         (sessionId: number, currentPartId: number) => () => {
             if (currentPartId) {
                 const subtestId = partList.find(v => v.partId === currentPartId)?.subtestId;
-                const pathname = subtestList.find(v => v.subtestId === subtestId)?.pathname;
-                console.log(sessionId, currentPartId);
-                console.log('pathname', pathname);
+                const subtestItem = subtestList.find(v => v.subtestId === subtestId);
 
-                if (pathname) {
-                    if (pathname === 'stressTesting') {
-                        router.push(`/sessions/${sessionId}/subtests/${pathname}?currentPartId=${currentPartId}`);
-                    } else {
-                        router.push(`/sessions/${sessionId}/subtests/${pathname}/questions?currentPartId=${currentPartId}`);
-                    }
+                if (subtestItem) {
+                    router.push(`/sessions/${sessionId}/subtests/${subtestItem.pathname}/questions?currentPartId=${currentPartId}`);
                 }
             } else {
             }

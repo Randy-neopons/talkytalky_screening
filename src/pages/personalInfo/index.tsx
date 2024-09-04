@@ -125,7 +125,7 @@ export const PersonalInfoForm = ({
                 <Label htmlFor='testerName' required>
                     검사자명
                 </Label>
-                <input value={userInfo?.fullName || ''} className={`${styles.input}`} placeholder='검사자명을 입력하세요.' disabled />
+                <input value={userInfo?.fullName || ''} className={`${styles.input}`} placeholder='검사자명을 입력해주세요.' disabled />
                 <ErrorMessage errors={errors} name='testerName' render={({ message }) => <ErrorText>{message}</ErrorText>} />
 
                 <Label htmlFor='certificateNumber' required>
@@ -134,7 +134,7 @@ export const PersonalInfoForm = ({
                 <input
                     value={userInfo?.certificateArr?.[0]?.certNum || ''}
                     className={`${styles.input}`}
-                    placeholder='자격증 번호를 입력하세요.'
+                    placeholder='자격증 번호를 입력해주세요.'
                     disabled
                 />
                 <ErrorMessage errors={errors} name='certificateNumber' render={({ message }) => <ErrorText>{message}</ErrorText>} />
@@ -152,9 +152,9 @@ export const PersonalInfoForm = ({
                     환자명
                 </Label>
                 <input
-                    {...register('patientName', { required: '환자명을 입력하세요' })}
+                    {...register('patientName', { required: '환자명을 입력해주세요.' })}
                     className={`${styles.input}`}
-                    placeholder='환자명을 입력하세요.'
+                    placeholder='환자명을 입력해주세요.'
                 />
                 <ErrorMessage errors={errors} name='patientName' render={({ message }) => <ErrorText>{message}</ErrorText>} />
 
@@ -191,7 +191,7 @@ export const PersonalInfoForm = ({
                         <TextareaAutosize
                             className={styles.textarea}
                             minRows={3}
-                            placeholder='병력을 입력해주세요'
+                            placeholder='병력을 입력해주세요.'
                             onChange={onChange}
                             onBlur={onBlur}
                             value={value}
@@ -208,7 +208,7 @@ export const PersonalInfoForm = ({
                         <TextareaAutosize
                             className={styles.textarea}
                             minRows={3}
-                            placeholder='추가정보를 입력해주세요'
+                            placeholder='환자의 개인관련 추가정보를 입력해주세요.'
                             onChange={onChange}
                             onBlur={onBlur}
                             value={value}

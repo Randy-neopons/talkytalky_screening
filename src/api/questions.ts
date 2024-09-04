@@ -129,7 +129,7 @@ export async function getAnswersCountAPI({ sessionId, jwt }: { sessionId: number
 }
 
 export async function getConductedSubtestsAPI({ sessionId, jwt }: { sessionId: number; jwt: string }) {
-    const response = await axios.get<{ result: boolean; subtests: { subtestId: Number; subtestTitle: String; pathname: string }[] }>(
+    const response = await axios.get<{ result: boolean; subtests: { subtestId: number; subtestTitle: string; pathname: string }[] }>(
         `/assessment/session/${sessionId}/conductedSubtests`,
         {
             headers: makeHeaders(jwt),
