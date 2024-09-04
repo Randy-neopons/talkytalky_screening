@@ -145,7 +145,7 @@ const config: Config = {
                     borderColor: theme('colors.accent1'),
                 },
                 '.btn-outlined': {
-                    backgroundColor: theme('colors.neutral11'),
+                    backgroundColor: 'transparent',
                     color: theme('colors.accent1'),
                     borderColor: theme('colors.accent1'),
                     // '@apply bg-neutral11 text-accent1 border-accent1': '',

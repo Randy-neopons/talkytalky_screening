@@ -23,7 +23,7 @@ const PartListItem = ({ partName, questionCount }: { partName: string; questionC
     return (
         <li className='flex h-[212px] w-[230px] flex-col overflow-hidden rounded-base shadow-base xl:h-[264px]'>
             <div className='flex flex-1 items-center justify-center whitespace-pre bg-accent3 font-bold text-head-3'>{partName}</div>
-            <div className='flex h-[76px] flex-none items-center justify-center text-head-2'>총 {questionCount}문항</div>
+            <div className='flex h-[76px] flex-none items-center justify-center bg-white text-head-2'>총 {questionCount}문항</div>
         </li>
     );
 };
