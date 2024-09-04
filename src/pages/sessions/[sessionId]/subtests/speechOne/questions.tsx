@@ -29,25 +29,47 @@ const PART_ID_START = 5;
 const partIndexList = [
     {
         start: 0,
-        split: 1,
-        end: 6,
+        split: 0,
+        end: 1,
         subtitle1: '잠복시간',
-        subtitle2: '음질',
+        subtitle2: '잠복시간',
         partTitle: '호흡 / 음성',
         partTitleEn: 'Respiration / Phonation',
         partId: 5,
         page: 0,
     },
     {
-        start: 6,
-        split: 11,
-        end: 14,
-        subtitle1: '음도',
-        subtitle2: '강도',
+        start: 1,
+        split: 1,
+        end: 6,
+        subtitle1: '음질',
+        subtitle2: '음질',
         partTitle: '호흡 / 음성',
         partTitleEn: 'Respiration / Phonation',
         partId: 5,
         page: 1,
+    },
+    {
+        start: 6,
+        split: 6,
+        end: 11,
+        subtitle1: '음도',
+        subtitle2: '음도',
+        partTitle: '호흡 / 음성',
+        partTitleEn: 'Respiration / Phonation',
+        partId: 5,
+        page: 2,
+    },
+    {
+        start: 11,
+        split: 11,
+        end: 14,
+        subtitle1: '강도',
+        subtitle2: '강도',
+        partTitle: '호흡 / 음성',
+        partTitleEn: 'Respiration / Phonation',
+        partId: 5,
+        page: 3,
     },
     {
         start: 14,
@@ -282,15 +304,16 @@ export default function SpeechOneQuestionsPage({
         setCheckAll1(false);
         setCheckAll2(false);
 
-        if (partId === PART_ID_START && page === 0) {
-            setPage(1);
+        if (partId === PART_ID_START && page < 3) {
+            setPage(page => page + 1);
         } else {
             if (partId < partIndexList[partIndexList.length - 1].partId) {
                 setPartId(partId => partId + 1);
                 setPage(0);
             }
-            typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
         }
+
+        typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
     }, [page, partId]);
 
     // 폼 데이터 제출
@@ -366,7 +389,7 @@ export default function SpeechOneQuestionsPage({
                     <table className={`${subtestStyles['recording-table']}`}>
                         <thead>
                             <tr className='bg-accent1 text-white text-body-2'>
-                                <th className='rounded-tl-base'>SMR 측정 (5초)</th>
+                                <th className='rounded-tl-base'>MPT 측정</th>
                                 <th></th>
                                 <th>녹음</th>
                                 <th>재생</th>
@@ -380,7 +403,7 @@ export default function SpeechOneQuestionsPage({
                                     <br />
                                     편안하게 ‘아~’ 소리를 내보세요.
                                 </td>
-                                <td className={`${subtestStyles['button']}`}>파</td>
+                                <td className={`${subtestStyles['button']}`}>1차</td>
                                 <td className={`${subtestStyles['button']}`}>
                                     <RecordButton
                                         isRecording={isRecording1}
@@ -401,7 +424,7 @@ export default function SpeechOneQuestionsPage({
                                 </td>
                             </tr>
                             <tr>
-                                <td className={`${subtestStyles['button']}`}>타</td>
+                                <td className={`${subtestStyles['button']}`}>2차</td>
                                 <td className={`${subtestStyles['button']}`}>
                                     <RecordButton
                                         isRecording={isRecording2}
@@ -422,7 +445,7 @@ export default function SpeechOneQuestionsPage({
                                 </td>
                             </tr>
                             <tr>
-                                <td className={`${subtestStyles['button']}`}>카</td>
+                                <td className={`${subtestStyles['button']}`}>3차</td>
                                 <td className={`${subtestStyles['button']}`}>
                                     <RecordButton
                                         isRecording={isRecording3}
@@ -445,59 +468,63 @@ export default function SpeechOneQuestionsPage({
                         </tbody>
                     </table>
                 )}
-                <table className={`${subtestStyles['question-table']}`}>
-                    <thead>
-                        <tr className='bg-accent1 text-white text-body-2'>
-                            <th className='rounded-tl-base'></th>
-                            <th>{subtitle1}</th>
-                            <th>정상</th>
-                            <th>경도</th>
-                            <th>심도</th>
-                            <th>평가불가</th>
-                            <th className='rounded-tr-base'>메모</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {fields.slice(start, split).map((item, i) => (
-                            <tr key={item.id}>
-                                <td className={`${subtestStyles['num']}`}>{i + 1}</td>
-                                <td className={`${subtestStyles['text']}`}>{item.questionText}</td>
-                                <td className={`${subtestStyles['option']}`}>
-                                    <input type='radio' {...register(`answers.${start + i}.answer`)} value='normal' />
-                                </td>
-                                <td className={`${subtestStyles['option']}`}>
-                                    <input type='radio' {...register(`answers.${start + i}.answer`)} value='mild' />
-                                </td>
-                                <td className={`${subtestStyles['option']}`}>
-                                    <input type='radio' {...register(`answers.${start + i}.answer`)} value='moderate' />
-                                </td>
-                                <td className={`${subtestStyles['option']}`}>
-                                    <input type='radio' {...register(`answers.${start + i}.answer`)} value='unknown' />
-                                </td>
-                                <td className={`${subtestStyles['comment']}`}>
-                                    <Controller
-                                        control={control}
-                                        name={`answers.${start + i}.comment`}
-                                        render={({ field }) => (
-                                            <ReactTextareaAutosize
-                                                className={`${subtestStyles['textarea-no-border']}`}
-                                                minRows={1}
-                                                onChange={field.onChange}
-                                                onBlur={field.onBlur}
-                                                value={field.value || ''}
+                {split - start > 0 && (
+                    <>
+                        <table className={`${subtestStyles['question-table']}`}>
+                            <thead>
+                                <tr className='bg-accent1 text-white text-body-2'>
+                                    <th className='rounded-tl-base'></th>
+                                    <th>{subtitle1}</th>
+                                    <th>정상</th>
+                                    <th>경도</th>
+                                    <th>심도</th>
+                                    <th>평가불가</th>
+                                    <th className='rounded-tr-base'>메모</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {fields.slice(start, split).map((item, i) => (
+                                    <tr key={item.id}>
+                                        <td className={`${subtestStyles['num']}`}>{i + 1}</td>
+                                        <td className={`${subtestStyles['text']}`}>{item.questionText}</td>
+                                        <td className={`${subtestStyles['option']}`}>
+                                            <input type='radio' {...register(`answers.${start + i}.answer`)} value='normal' />
+                                        </td>
+                                        <td className={`${subtestStyles['option']}`}>
+                                            <input type='radio' {...register(`answers.${start + i}.answer`)} value='mild' />
+                                        </td>
+                                        <td className={`${subtestStyles['option']}`}>
+                                            <input type='radio' {...register(`answers.${start + i}.answer`)} value='moderate' />
+                                        </td>
+                                        <td className={`${subtestStyles['option']}`}>
+                                            <input type='radio' {...register(`answers.${start + i}.answer`)} value='unknown' />
+                                        </td>
+                                        <td className={`${subtestStyles['comment']}`}>
+                                            <Controller
+                                                control={control}
+                                                name={`answers.${start + i}.comment`}
+                                                render={({ field }) => (
+                                                    <ReactTextareaAutosize
+                                                        className={`${subtestStyles['textarea-no-border']}`}
+                                                        minRows={1}
+                                                        onChange={field.onChange}
+                                                        onBlur={field.onBlur}
+                                                        value={field.value || ''}
+                                                    />
+                                                )}
                                             />
-                                        )}
-                                    />
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-                <div className='flex w-full justify-end'>
-                    <CheckBox name='all' checked={checkAll1} onChange={handleChangeCheckAll1}>
-                        모두 정상
-                    </CheckBox>
-                </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        <div className='flex w-full justify-end'>
+                            <CheckBox name='all' checked={checkAll1} onChange={handleChangeCheckAll1}>
+                                모두 정상
+                            </CheckBox>
+                        </div>
+                    </>
+                )}
 
                 {end - split > 0 && (
                     <>
@@ -558,7 +585,7 @@ export default function SpeechOneQuestionsPage({
                 )}
 
                 <div>
-                    {(partId > PART_ID_START || page === 1) && (
+                    {(partId > PART_ID_START || page > 0) && (
                         <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
                             이전
                         </button>
