@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
+/* :root {
     --foreground-rgb: 0, 0, 0;
     --background-start-rgb: 214, 219, 220;
     --background-end-rgb: 255, 255, 255;
@@ -14,11 +14,48 @@
         --background-start-rgb: 0, 0, 0;
         --background-end-rgb: 0, 0, 0;
     }
-}
+} */
 
 body {
     color: rgb(var(--foreground-rgb));
     background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+}
+
+@layer base {
+    @font-face {
+        font-family: 'Jalnan';
+        src:
+            url('/static/fonts/Jalnan/Jalnan.woff2') format('woff2'),
+            url('/static/fonts/Jalnan/Jalnan.otf') format('opentype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    @font-face {
+        font-family: 'Noto Sans KR';
+        src:
+            url('/static/fonts/Noto_Sans_KR/NotoSansKR-Regular.woff2') format('woff2'),
+            url('/static/fonts/Noto_Sans_KR/NotoSansKR-Regular.otf') format('opentype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    @font-face {
+        font-family: 'Noto Sans KR';
+        src:
+            url('/static/fonts/Noto_Sans_KR/NotoSansKR-Bold.woff2') format('woff2'),
+            url('/static/fonts/Noto_Sans_KR/NotoSansKR-Bold.otf') format('opentype');
+        font-weight: bold;
+        font-style: normal;
+    }
+
+    html {
+        font-family: 'Noto Sans KR', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: theme(colors.neutral1);
+        background: #f5f7fc;
+    }
 }
 
 @layer utilities {

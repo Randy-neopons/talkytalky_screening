@@ -3,17 +3,33 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "next dev",
-        "build": "next build",
+        "dev": "next dev -p 3004",
+        "build": "cross-env NODE_ENV=production next build",
+        "build:staging": "env-cmd -f .env.staging next build",
         "start": "next start",
-        "lint": "next lint"
+        "lint": "next lint",
+        "deploy": "npm run build && gcloud app deploy --project talkytalky-platform-v2",
+        "deploy:staging": "npm run build:staging && gcloud app deploy app-staging.yaml --project talkytalky-platform-v2"
     },
     "dependencies": {
+        "@hookform/error-message": "^2.0.1",
+        "@nivo/bar": "^0.87.0",
+        "@nivo/core": "^0.87.0",
+        "@nivo/radial-bar": "^0.87.0",
         "@tanstack/react-query": "^5.28.14",
         "@tanstack/react-query-devtools": "^5.29.0",
+        "axios": "^1.7.2",
+        "cookies-next": "^4.2.1",
+        "cross-env": "^7.0.3",
+        "dayjs": "^1.11.11",
+        "env-cmd": "^10.1.0",
         "next": "14.1.4",
         "react": "^18",
-        "react-dom": "^18"
+        "react-dom": "^18",
+        "react-hook-form": "^7.52.0",
+        "react-select": "^5.8.0",
+        "react-textarea-autosize": "^8.5.3",
+        "zustand": "^4.5.4"
     },
     "devDependencies": {
         "@tanstack/eslint-plugin-query": "^5.28.11",
