@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, type ReactElement } from 'react';
 import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -8,11 +8,14 @@ import { getCookie, setCookie } from 'cookies-next';
 
 import { useTimerActions } from '@/stores/timerStore';
 import Container from '@/components/common/Container';
+import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
 
 import testResultIcon from 'public/static/images/test-result-icon.png';
 import testStartIcon from 'public/static/images/test-start-icon.png';
 
-export default function Home() {
+import type { NextPageWithLayout } from '@/types/types';
+
+const ScreeningHome: NextPageWithLayout = () => {
     const router = useRouter();
 
     const { setTestStart, reset } = useTimerActions();
@@ -24,22 +27,21 @@ export default function Home() {
 
     return (
         <Container>
-            <h1 className='font-jalnan text-head-1'>말운동 평가</h1>
+            <h1 className='font-jalnan text-head-1'>간이언어평가</h1>
             <span className='mt-[10px] text-center font-noto text-body-2'>
-                말운동장애(motor speech disorder)란 운동계의 기능 이상에 의해 초래되는 <br className='xl:hidden' />
-                말산출장애(마비말장애, 말실행증 등)를 말합니다.
+                의사소통장애(Communication disorder)는 발화, 인지의 문제로 인하여 의사소통에 어려움을 겪는 상태를 말합니다.
                 <br />
-                말운동 평가는 말운동 체계의 기능을 알아보기 위해{' '}
-                <span className='mt-[10px] font-bold text-accent1'>호흡, 발성, 공명, 조음, 운율 영역을 평가하는 검사</span>로
+                간이언어평가는 개인의 발화 능력과 언어적 이해 및 표현 능력의 발달 수준을 간략하게 평가하여
                 <br />
-                말실행증보다는 마비말장애 여부를 판단하는 데에 초점을 두고 있습니다.
+                <span className='font-bold text-accent1'>언어 발달 지연이나 인지능력의 이상 여부를 신속히 식별</span>하고 추가적인 정밀
+                평가나 치료 개입의 필요성을 판단하는 데 중점을 둔 검사입니다.
             </span>
             <ul className='mt-[60px]'>
                 <li className='float-left mr-[30px] flex h-[467px] w-[300px] flex-col flex-nowrap items-center rounded-[20px] bg-white px-[58px] py-[30px] shadow-base xl:h-[440px] xl:w-[477px] xl:items-start'>
                     <Image src={testStartIcon} alt='test-start' width={120} height={100} />
                     <span className='mt-5 font-bold leading-normal text-accent1 text-head-2 xl:leading-tight'>테스트 시작하기</span>
                     <span className='mt-[10px] text-center text-neutral4 text-body-2 xl:mt-2 xl:text-left'>
-                        환자의 기본정보 입력 후 원하는 소검사를 선택하여 평가를 진행할 수 있습니다.
+                        환자의 기본정보 입력 후 연령 구간에 맞는 간이언어평가를 진행할 수 있습니다.
                     </span>
                     <Link
                         className='px-auto mt-auto flex items-center justify-center btn btn-small btn-contained xl:mr-auto'
@@ -53,10 +55,9 @@ export default function Home() {
                     <Image src={testResultIcon} alt='test-result' width={120} height={100} />
                     <span className='mt-5 font-bold leading-normal text-accent1 text-head-2 xl:leading-tight'>테스트 결과보기</span>
                     <span className='mt-[10px] text-neutral4 text-body-2 xl:mt-2'>
-                        평가 후, 결과보기를 통해 소검사 영역별 점수와 총점이 제공되며 그래프를 통해 환자가 가진 말운동 기능의 영역별
-                        강약점을 파악할 수 있습니다.
+                        평가 후, 결과보기를 통해 인지발달 평가와 발화능력평가에 대한 보고서가 제공됩니다.
                         <br />
-                        또한 문제를 보인 항목들에 대한 초기점검이 가능합니다.
+                        또한 사용자 맞춤형 피드백이 제공되며 필요시 전문가 상담 및 정밀 평가를 진행할 수 있습니다.
                     </span>
                     <Link
                         href={`/sessions`}
@@ -68,7 +69,13 @@ export default function Home() {
             </ul>
         </Container>
     );
-}
+};
+
+ScreeningHome.getLayout = function getLayout(page: ReactElement) {
+    return <ScreeningAppLayout>{page}</ScreeningAppLayout>;
+};
+
+export default ScreeningHome;
 
 export const getServerSideProps: GetServerSideProps = async context => {
     try {
