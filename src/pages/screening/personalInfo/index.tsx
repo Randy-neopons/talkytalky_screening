@@ -1,6 +1,5 @@
 import { useCallback, type ReactElement, type ReactNode } from 'react';
 import { Controller, useForm, useWatch, type Control } from 'react-hook-form';
-import TextareaAutosize from 'react-textarea-autosize';
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
@@ -8,8 +7,6 @@ import { ErrorMessage } from '@hookform/error-message';
 import { getCookie } from 'cookies-next';
 import dayjs from 'dayjs';
 
-import { useTestInfo, useTestActions } from '@/stores/testStore';
-import { CheckBoxGroupItem } from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import Select from '@/components/common/Select';
 import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
@@ -18,11 +15,7 @@ import { useUserQuery } from '@/hooks/user';
 import styles from './PersonalInfo.module.css';
 
 import type { ScreeningTestInfo } from '@/types/screening';
-import type { NextPageWithLayout, TestInfoFormValues } from '@/types/types';
-
-const makeRangeOptions = (min: number, max: number) => {
-    return Array.from({ length: max - min + 1 }, (v, i) => ({ label: `${i + min}`, value: `${i + min}` }));
-};
+import type { NextPageWithLayout } from '@/types/types';
 
 const genderOptions = [
     { value: 'female', label: '여' },
@@ -79,10 +72,12 @@ export const ScreeningPersonalInfoForm = ({
         handleSubmit,
     } = useForm<FormValues>({
         defaultValues: {
-            ...testInfo,
-            birthYear: '',
-            birthMonth: '',
-            birthDay: '',
+            testeeName: testInfo?.testeeName,
+            testeeGender: testInfo?.testeeGender,
+            birthYear: testInfo?.testeeBirthdate ? `${dayjs(testInfo.testeeBirthdate).year()}` : '',
+            birthMonth: testInfo?.testeeBirthdate ? `${dayjs(testInfo.testeeBirthdate).month() + 1}` : '',
+            birthDay: testInfo?.testeeBirthdate ? `${dayjs(testInfo.testeeBirthdate).date()}` : '',
+            testeePhoneNumber: testInfo?.testeePhoneNumber,
         },
         mode: 'onChange',
     });
@@ -113,29 +108,37 @@ export const ScreeningPersonalInfoForm = ({
                         className={`${styles.input}`}
                         type='number'
                         placeholder='년'
+                        min={1940}
+                        max={dayjs().year()}
                     />
                     <input
                         {...register('birthMonth', { required: '생년월일을 입력해주세요.' })}
                         className={`${styles.input}`}
                         type='number'
                         placeholder='월'
+                        min={1}
+                        max={12}
                     />
                     <input
                         {...register('birthDay', { required: '생년월일을 입력해주세요.' })}
                         className={`${styles.input}`}
                         type='number'
                         placeholder='일'
+                        min={1}
+                        max={31}
                     />
                 </div>
+                <ErrorMessage errors={errors} name='birthYear' render={({ message }) => <ErrorText>{message}</ErrorText>} />
+                <ErrorMessage errors={errors} name='birthYear' render={({ message }) => <ErrorText>{message}</ErrorText>} />
 
                 <Label htmlFor='testeeContact'>전화번호</Label>
-                <input {...register('testeeName')} className={`${styles.input}`} placeholder='전화번호를 입력해주세요.' />
+                <input {...register('testeePhoneNumber')} className={`${styles.input}`} placeholder='전화번호를 입력해주세요.' />
             </form>
             <button
                 className='btn btn-large btn-contained disabled:btn-disabled'
                 type='button'
                 onClick={handleSubmit(onSubmit)}
-                disabled={!isDirty || !isValid}
+                disabled={!isValid}
             >
                 시작하기
             </button>
