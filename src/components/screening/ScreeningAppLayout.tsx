@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-// 간이언어검사 공통 레이아웃
+// 간이언어평가 공통 레이아웃
 export default function ScreeningAppLayout({ children }: { children: ReactNode }) {
     return (
         <>

@@ -1,4 +1,4 @@
-import { useEffect, type ReactElement } from 'react';
+import { useCallback, useEffect, type ReactElement } from 'react';
 import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -7,23 +7,46 @@ import { useRouter } from 'next/router';
 import { getCookie, setCookie } from 'cookies-next';
 
 import { useTimerActions } from '@/stores/timerStore';
+import { TALKYTALKY_URL } from '@/utils/const';
 import Container from '@/components/common/Container';
 import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
+import { useUserQuery } from '@/hooks/user';
 
 import testResultIcon from 'public/static/images/test-result-icon.png';
 import testStartIcon from 'public/static/images/test-start-icon.png';
 
 import type { NextPageWithLayout } from '@/types/types';
 
+// 선별검사 메인
 const ScreeningHome: NextPageWithLayout = () => {
     const router = useRouter();
 
-    const { setTestStart, reset } = useTimerActions();
+    const { data: user } = useUserQuery(); // 세션 유지되는지 조회
 
-    useEffect(() => {
-        setTestStart && setTestStart(false);
-        reset && reset();
-    }, [setTestStart, reset]);
+    // 시작하기 클릭
+    const handleClickStart = useCallback(() => {
+        if (user) {
+            router.push(`/screening/sessions`);
+            return;
+        } else if (window.confirm('비회원으로 이용하실 경우\n추후에 결과를 재확인 하실 수 없습니다.')) {
+            // 로그인 버튼 누르면 로그인
+            window.location.href = `${TALKYTALKY_URL}/login`;
+        } else {
+            // 비회원검사하기 버튼 누르면 바로 이동
+            router.push(`/screening/personalInfo`);
+        }
+    }, [router, user]);
+
+    // 결과 보기 클릭
+    const handleClickResult = useCallback(() => {
+        if (user) {
+            // 로그인 되어있으면 세션으로 이동
+            router.push(`/screening/sessions`);
+        } else {
+            // 아니면 로그인 페이지로 이동
+            window.location.href = `${TALKYTALKY_URL}/login`;
+        }
+    }, [router, user]);
 
     return (
         <Container>
@@ -43,12 +66,12 @@ const ScreeningHome: NextPageWithLayout = () => {
                     <span className='mt-[10px] text-center text-neutral4 text-body-2 xl:mt-2 xl:text-left'>
                         환자의 기본정보 입력 후 연령 구간에 맞는 간이언어평가를 진행할 수 있습니다.
                     </span>
-                    <Link
+                    <button
                         className='px-auto mt-auto flex items-center justify-center btn btn-small btn-contained xl:mr-auto'
-                        href='/personalInfo'
+                        onClick={handleClickStart}
                     >
                         시작하기
-                    </Link>
+                    </button>
                 </li>
 
                 <li className='float-left flex h-[467px] w-[300px] flex-col flex-nowrap items-center rounded-[20px] bg-white px-[58px] py-[30px] text-center shadow-base xl:h-[440px] xl:w-[477px] xl:items-start xl:text-left'>
@@ -59,12 +82,12 @@ const ScreeningHome: NextPageWithLayout = () => {
                         <br />
                         또한 사용자 맞춤형 피드백이 제공되며 필요시 전문가 상담 및 정밀 평가를 진행할 수 있습니다.
                     </span>
-                    <Link
-                        href={`/sessions`}
+                    <button
                         className='mt-auto flex items-center justify-center text-head-1 btn btn-small btn-contained xl:mr-auto'
+                        onClick={handleClickResult}
                     >
                         결과보기
-                    </Link>
+                    </button>
                 </li>
             </ul>
         </Container>

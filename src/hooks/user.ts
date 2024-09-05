@@ -15,6 +15,7 @@ export const useUserQuery = () => {
     }>({
         queryKey: [userQueryKey, accessToken],
         queryFn: () => getLoggedInUser({ jwt: accessToken }),
+        enabled: !!accessToken,
     });
 };
 
