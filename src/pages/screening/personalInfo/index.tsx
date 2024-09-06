@@ -135,7 +135,7 @@ export const ScreeningPersonalInfoForm = ({
                 <input {...register('testeePhoneNumber')} className={`${styles.input}`} placeholder='전화번호를 입력해주세요.' />
             </form>
             <button
-                className='btn btn-large btn-contained disabled:btn-disabled'
+                className='disabled:btn-contained-disabled btn btn-large btn-contained'
                 type='button'
                 onClick={handleSubmit(onSubmit)}
                 disabled={!isValid}

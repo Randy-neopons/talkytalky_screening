@@ -150,8 +150,13 @@ const config: Config = {
                     borderColor: theme('colors.accent1'),
                     // '@apply bg-neutral11 text-accent1 border-accent1': '',
                 },
-                '.btn-disabled': {
+                '.btn-contained-disabled': {
                     backgroundColor: theme('colors.neutral7'),
+                    color: theme('colors.neutral4'),
+                    borderColor: theme('colors.neutral7'),
+                },
+                '.btn-outlined-disabled': {
+                    backgroundColor: 'transparent',
                     color: theme('colors.neutral4'),
                     borderColor: theme('colors.neutral7'),
                 },

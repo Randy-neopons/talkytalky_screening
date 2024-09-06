@@ -345,7 +345,7 @@ export default function SpeechMechanismQuestionsPage({
                         <button
                             key='noSubmit'
                             type='button'
-                            className='ml-5 mt-20 btn btn-large btn-contained disabled:btn-disabled'
+                            className='disabled:btn-contained-disabled ml-5 mt-20 btn btn-large btn-contained'
                             onClick={handleClickNext}
                         >
                             다음

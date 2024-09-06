@@ -1,9 +1,10 @@
-import { useCallback, type ReactElement, type ReactNode } from 'react';
+import { useCallback, useMemo, useState, type ChangeEventHandler, type ReactElement, type ReactNode } from 'react';
 import { Controller, useForm, useWatch, type Control } from 'react-hook-form';
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
 import { ErrorMessage } from '@hookform/error-message';
+import { isAxiosError } from 'axios';
 import { getCookie } from 'cookies-next';
 import dayjs from 'dayjs';
 
@@ -12,10 +13,20 @@ import Select from '@/components/common/Select';
 import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
 import { useUserQuery } from '@/hooks/user';
 
-import styles from './PersonalInfo.module.css';
+import styles from './initialQuestion.module.css';
 
 import type { ScreeningTestInfo } from '@/types/screening';
 import type { NextPageWithLayout } from '@/types/types';
+
+const ageGroupList = [
+    { desc: '만3세 미만', status: '1' },
+    { desc: '만3~4세', status: '2' },
+    { desc: '만4~5세', status: '3' },
+    { desc: '만5~6세', status: '4' },
+    { desc: '만6~7세', status: '5' },
+    { desc: '학령기', status: '6' },
+    { desc: '성인', status: '7' },
+];
 
 const genderOptions = [
     { value: 'female', label: '여' },
@@ -35,82 +46,115 @@ const ErrorText = ({ children }: { children: ReactNode }) => {
     return <p className='mt-1 text-red1 text-body-2'>{children}</p>;
 };
 
-const ScreeningInitialQuestionPage: NextPageWithLayout = () => {
+type QuestionAnswer = {
+    questionId: number;
+    questionText: string;
+    questionDesc?: string;
+    answer?: string | null;
+};
+
+const AnswerButton = ({
+    name,
+    label,
+    value,
+    onChange,
+    checked,
+}: {
+    name: string;
+    label: string;
+    value: string;
+    onChange: ChangeEventHandler<HTMLInputElement>;
+    checked?: boolean;
+}) => {
+    return (
+        <div>
+            <input type='radio' className='appearance-none' name={name} id={value} value={value} onChange={onChange} checked={checked} />
+            <label htmlFor={value} className={styles['radio-label']}>
+                {label}
+                <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'>
+                    <rect x='1' y='1' width='22' height='22' rx='11' stroke='#CED4DA' strokeWidth='2' />
+                    <circle cx='12' cy='12' r='7' fill='#CED4DA' />
+                </svg>
+            </label>
+        </div>
+    );
+};
+
+const ScreeningInitialQuestionPage: NextPageWithLayout<{
+    questionAnswerList: QuestionAnswer[];
+    questionNo: number;
+}> = ({ questionAnswerList, questionNo }) => {
     const router = useRouter(); // next router
     const { data: user } = useUserQuery();
 
+    const [currentQuestionNo, setCurrentQuestionNo] = useState(questionNo || 0); //  0부터 시작
+
     // 이전 파트로
     const handleClickPrev = useCallback(() => {
-        partId > PART_ID_START && setPartId(partId => partId - 1);
-        typeof window !== 'undefined' && window.scrollTo(0, 0);
-    }, [partId]);
+        if (currentQuestionNo > 0) {
+            setCurrentQuestionNo(prev => prev - 1);
+        }
+        typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
+    }, [currentQuestionNo]);
 
     // 다음 파트로
     const handleClickNext = useCallback(() => {
-        partId < partIndexList[partIndexList.length - 1].partId && setPartId(partId => partId + 1);
+        // TODO: 정답 업로드 (액세스 토큰 없이 가능)
+        // sessionId, questionId, answer로 업로드
+
+        if (currentQuestionNo < questionAnswerList.length - 1) {
+            setCurrentQuestionNo(prev => prev + 1);
+        } else {
+            // TODO: 녹음 페이지 URl로 보내기
+            router.push('url');
+        }
         typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
-    }, [partId]);
+    }, [currentQuestionNo, questionAnswerList, router]);
 
-    // 폼 제출
-    // 폼 데이터 제출
-    const handleSubmitData = useCallback(
-        async ({ sessionId, data }: { sessionId: number; data: any }) => {
-            try {
-                const formData = new FormData();
-                formData.append('testTime', `${testTime}`);
-                formData.append('currentPartId', `${partId}`);
-                formData.append('answers', JSON.stringify(data.answers));
+    const ageGroup = router.query.ageGroup;
 
-                // 세션 갱신
-                const accessToken = getCookie('jwt') as string;
-                await updateSessionAPI({ sessionId, formData, jwt: accessToken });
-            } catch (err) {
-                if (isAxiosError(err)) {
-                    if (err.response?.status === 401) {
-                        deleteCookie('jwt');
-                        alert('로그인이 필요합니다.\n토키토키 로그인 페이지로 이동합니다.');
-                        window.location.href = `${TALKYTALKY_URL}/login`;
-                        return;
-                    }
-                }
-                console.error(err);
-            }
-        },
-        [partId, testTime],
-    );
+    const ageGroupTitle = useMemo(() => ageGroupList.find(v => v.status === String(router.query.ageGroup))?.desc, [router]);
 
-    // 폼 제출
-    const handleOnSubmit = useCallback(
-        async (data: any) => {
-            try {
-                const sessionId = Number(router.query.sessionId);
-                await handleSubmitData({ sessionId, data });
+    const [answer, setAnswer] = useState<string | null>(questionAnswerList[currentQuestionNo]?.answer || null);
 
-                const subtests = subtestsData?.subtests;
-                if (!subtests) {
-                    throw new Error('수행할 소검사가 없습니다');
-                }
-                const currentSubtestIndex = subtests.findIndex(v => v.subtestId === CURRENT_SUBTEST_ID);
-                const nextSubtestItem = subtests?.[currentSubtestIndex + 1];
-                if (nextSubtestItem) {
-                    if (nextSubtestItem.subtestId === 5) {
-                        router.push(`/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}/questions`);
-                    } else {
-                        router.push(`/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}`);
-                    }
-                } else {
-                    router.push(`/sessions/${sessionId}/unassessable`);
-                }
-            } catch (err) {
-                console.error(err);
-            }
-        },
-        [handleSubmitData, router, subtestsData],
-    );
+    const handleOnChange = useCallback<ChangeEventHandler<HTMLInputElement>>(e => {
+        setAnswer(e.target.value);
+        console.log(e.target.checked);
+    }, []);
 
     return (
         <Container>
-            <h1 className='font-jalnan text-head-1'>기본정보 입력</h1>
+            <h1 className='font-jalnan text-head-1'>초기질문</h1>
+            <div className='my-20 w-full overflow-hidden rounded-[15px] shadow-base'>
+                <div className='bg-accent1 py-3'>
+                    <h2 className='text-center font-bold text-white text-body-2'>{ageGroupTitle}</h2>
+                </div>
+                <div className='bg-white px-[180px] py-[50px] text-center'>
+                    <p className='mb-[10px] font-noto font-[900] text-head-2'>{`Q${questionNo + 1}. ${questionAnswerList[currentQuestionNo]?.questionText}`}</p>
+                    <p className='mb-[50px] break-keep font-noto text-head-3'>{questionAnswerList[currentQuestionNo]?.questionDesc}</p>
+                    <AnswerButton name='answer' value='Y' label='예' onChange={handleOnChange} checked={answer === 'Y'} />
+                    <AnswerButton name='answer' value='N' label='아니오' onChange={handleOnChange} checked={answer === 'N'} />
+                </div>
+            </div>
+            <div>
+                <button
+                    type='button'
+                    className='disabled:btn-outlined-disabled btn btn-large btn-outlined'
+                    onClick={handleClickPrev}
+                    disabled={currentQuestionNo === 0}
+                >
+                    이전
+                </button>
+                <button
+                    key='noSubmit'
+                    type='button'
+                    className='disabled:btn-contained-disabled ml-5 btn btn-large btn-contained'
+                    onClick={handleClickNext}
+                    disabled={!answer}
+                >
+                    다음
+                </button>
+            </div>
         </Container>
     );
 };
@@ -123,18 +167,44 @@ export default ScreeningInitialQuestionPage;
 
 export const getServerSideProps: GetServerSideProps = async context => {
     try {
-        const accessToken = getCookie('jwt', context);
-        if (!accessToken || accessToken === 'undefined') {
+        const sessionId = Number(context.query.sessionId);
+        const ageGroup = String(context.query.ageGroup);
+        const questionNo = Number(context.query.questionNo);
+
+        // TODO: ageGroup으로 questionAnswerList 받아오기
+
+        const questionAnswerList = [
+            {
+                questionId: 1,
+                questionText: '다른 사람의 표정을 구별하여 반응한다',
+                questionDesc: '(예: 아빠가 화난 표정을 하면 유아도 심각한 표정을, 엄마가 놀라는 표정을 하면 유아도 놀란 표정을 짓는다)',
+                answer: 'Y',
+            },
+            {
+                questionId: 2,
+                questionText: '지속적인 반복음에 반응을 보인다',
+                questionDesc: '(예: 청소기, 세탁기 등의 소리)',
+            },
+            {
+                questionId: 3,
+                questionText: '금지를 의미하는 단어 "안돼" 라는 어조에 반응한다',
+            },
+        ];
+
+        // 잘못된 질문 번호면 0으로 리셋
+        if (!questionAnswerList[questionNo]) {
             return {
                 props: {
-                    isLoggedIn: false,
+                    questionAnswerList,
+                    questionNo: 0,
                 },
             };
         }
 
         return {
             props: {
-                isLoggedIn: true,
+                questionAnswerList,
+                questionNo,
             },
         };
     } catch (err) {

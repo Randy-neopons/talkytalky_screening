@@ -110,7 +110,7 @@ export default function SelectTestPage() {
             </div>
             <button
                 type='button'
-                className='mt-20 btn btn-large btn-contained disabled:btn-disabled'
+                className='disabled:btn-contained-disabled mt-20 btn btn-large btn-contained'
                 onClick={handleClickNext}
                 disabled={subtestIds.length === 0}
             >

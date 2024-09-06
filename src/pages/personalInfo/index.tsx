@@ -218,7 +218,7 @@ export const PersonalInfoForm = ({
                 />
             </form>
             <button
-                className='btn btn-large btn-contained disabled:btn-disabled'
+                className='disabled:btn-contained-disabled btn btn-large btn-contained'
                 type='button'
                 onClick={handleSubmit(onSubmit)}
                 disabled={!isValid}
