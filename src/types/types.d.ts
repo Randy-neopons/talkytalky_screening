@@ -5,6 +5,7 @@ export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
     getLayout?: (page: ReactElement) => ReactNode;
 };
 
+// 말운동평가 기본정보입력
 export interface TestInfoFormValues {
     testDate: string;
     patientName: string;
@@ -15,7 +16,20 @@ export interface TestInfoFormValues {
     patientMemo?: string;
 }
 
-// 질문 + 정답
+// 말운동평가 테스트 세션
+export type TestSession = {
+    testSessionId: number;
+    testDate: string;
+    patientName: string;
+    patientBirthdate: string;
+    patientGender: string;
+    currentPartId: number;
+    progress: number;
+    status: string;
+    regDate: string;
+};
+
+// 말운동평가 질문 + 정답
 export type QuestionAnswer = {
     questionId: number;
     questionText: string;
@@ -27,23 +41,11 @@ export type QuestionAnswer = {
     comment: string | null;
 };
 
-// 정답
+// 말운동평가 정답
 export type Answer = Pick<QuestionAnswer, 'questionId' | 'questionText' | 'answer' | 'comment'>;
 
-// 녹음
+// 말운동평가 녹음
 export type Recording = {
     filePath: string | null;
     repeatCount: number | null;
-};
-
-export type TestSession = {
-    testSessionId: number;
-    testDate: string;
-    patientName: string;
-    patientBirthdate: string;
-    patientGender: string;
-    currentPartId: number;
-    progress: number;
-    status: string;
-    regDate: string;
 };

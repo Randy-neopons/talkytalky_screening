@@ -148,3 +148,31 @@ export const ClockIcon = ({ color = 'white', width = 24, height = 24 }: IconProp
         </svg>
     );
 };
+
+export const VolumeIcon = ({ color = 'white', width = 24, height = 24 }: IconProps) => {
+    return (
+        <svg xmlns='http://www.w3.org/2000/svg' width={width} height={height} viewBox='0 0 64 64' fill='none'>
+            <g filter='url(#filter0_d_13539_7621)'>
+                <circle cx='30' cy='30' r='30' fill='#6979F8' />
+                <path
+                    d='M15 25.9044V34.0668C15 34.7442 15.5952 35.2911 16.3326 35.2911H20.8279C21.0855 35.2911 21.3254 35.3564 21.5475 35.4788L28.9478 39.8049C29.8362 40.3273 31 39.7396 31 38.7683V21.2274C31 20.2888 29.8984 19.7011 29.01 20.1582L20.6413 24.5169C20.437 24.623 20.2149 24.6801 19.9839 24.6801H16.3415C15.6041 24.6801 15.0089 25.227 15.0089 25.9044H15Z'
+                    fill='white'
+                />
+                <path
+                    d='M35 24C35 24 39 25.2 39 29.6C39 34 35 35 35 35'
+                    stroke='white'
+                    strokeWidth='3'
+                    strokeMiterlimit='10'
+                    strokeLinecap='round'
+                />
+                <path
+                    d='M38 19C38 19 45 21.3946 45 30.1946C45 38.9946 38 41 38 41'
+                    stroke='white'
+                    strokeWidth='3'
+                    strokeMiterlimit='10'
+                    strokeLinecap='round'
+                />
+            </g>
+        </svg>
+    );
+};
