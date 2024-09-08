@@ -12,3 +12,15 @@ export interface Word {
     wortText: string;
     imgSrc: string;
 }
+
+// 간이언어평가 테스트 세션
+export type ScreeningTestSession = {
+    testSessionId: number;
+    testeeName: string;
+    testeeBirthdate: string;
+    testeeGender: string;
+    currentPathname: string;
+    progress: number;
+    status: string;
+    regDate: string;
+};
