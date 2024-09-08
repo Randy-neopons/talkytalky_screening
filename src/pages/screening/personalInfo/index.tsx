@@ -11,6 +11,7 @@ import Container from '@/components/common/Container';
 import Select from '@/components/common/Select';
 import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
 import { useUserQuery } from '@/hooks/user';
+import { createScreeningSessionAPI } from '@/api/screening';
 
 import styles from './PersonalInfo.module.css';
 
@@ -135,7 +136,7 @@ export const ScreeningPersonalInfoForm = ({
                 <input {...register('testeePhoneNumber')} className={`${styles.input}`} placeholder='전화번호를 입력해주세요.' />
             </form>
             <button
-                className='disabled:btn-contained-disabled btn btn-large btn-contained'
+                className='btn btn-large btn-contained disabled:btn-contained-disabled'
                 type='button'
                 onClick={handleSubmit(onSubmit)}
                 disabled={!isValid}
@@ -152,22 +153,47 @@ const ScreeningPersonalInfoPage: NextPageWithLayout = () => {
 
     // 폼 제출
     const handleOnSubmit = useCallback(
-        (data: FormValues) => {
-            console.log(data);
-            const { birthYear, birthMonth, birthDay, ...rest } = data;
+        async (data: FormValues) => {
+            try {
+                const { birthYear, birthMonth, birthDay, ...rest } = data;
 
-            const testeeBirthdate = dayjs(new Date(Number(birthYear), Number(birthMonth) - 1, Number(birthDay))).format('YYYY-MM-DD');
+                const testeeBirthdate = dayjs(new Date(Number(birthYear), Number(birthMonth) - 1, Number(birthDay))).format('YYYY-MM-DD');
 
-            const formValues = {
-                ...rest,
-                therapistUserId: user?.data.therapistUserId,
-                testeeBirthdate,
-            };
+                const formValues = {
+                    ...rest,
+                    therapistUserId: user?.data.therapistUserId,
+                    testeeBirthdate,
+                };
 
-            // TODO: createScreeningSession
-            // TODO: sessionId 받아오기
-            const sessionId = 1;
-            router.push(`/screening/sessions/${sessionId}/initialQuestion`); // 검사 선택 화면으로
+                const currentPathname = router.asPath;
+
+                const age = dayjs().diff(testeeBirthdate, 'year');
+                let ageGroup = '1';
+                if (age < 3) {
+                    ageGroup = '1';
+                } else if (age < 4) {
+                    ageGroup = '2';
+                } else if (age < 5) {
+                    ageGroup = '3';
+                } else if (age < 6) {
+                    ageGroup = '4';
+                } else if (age < 7) {
+                    ageGroup = '5';
+                } else if (age < 8) {
+                    ageGroup = '6';
+                } else {
+                    ageGroup = '7';
+                }
+
+                // TODO: createScreeningSession
+                // TODO: sessionId 받아오기
+                const responseData = await createScreeningSessionAPI({ testInfo: formValues, currentPathname, ageGroup });
+
+                const sessionId = responseData.sessionId;
+                router.push(`/screening/sessions/${sessionId}/initialQuestion`); // 검사 선택 화면으로
+            } catch (err) {
+                console.error(err);
+            }
         },
         [router, user],
     );

@@ -6,6 +6,7 @@ import { RadioButton } from '@/components/common/Buttons';
 import Container from '@/components/common/Container';
 import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
 import { useUserQuery } from '@/hooks/user';
+import { getScreeningQuestionAndAnswerListAPI, getScreeningSessionListAPI, uploadAnswerAPI } from '@/api/screening';
 
 import type { NextPageWithLayout } from '@/types/types';
 
@@ -36,6 +37,12 @@ const ScreeningInitialQuestionPage: NextPageWithLayout<{
 
     const [currentQuestionNo, setCurrentQuestionNo] = useState(questionNo || 0); //  0부터 시작
 
+    const [answer, setAnswer] = useState<string | null>(questionAnswerList[currentQuestionNo]?.answer || null);
+
+    const handleOnChange = useCallback<ChangeEventHandler<HTMLInputElement>>(e => {
+        setAnswer(e.target.value);
+    }, []);
+
     // 이전 파트로
     const handleClickPrev = useCallback(() => {
         if (currentQuestionNo > 0) {
@@ -45,29 +52,36 @@ const ScreeningInitialQuestionPage: NextPageWithLayout<{
     }, [currentQuestionNo]);
 
     // 다음 파트로
-    const handleClickNext = useCallback(() => {
-        // TODO: 정답 업로드 (액세스 토큰 없이 가능)
-        // sessionId, questionId, answer로 업로드
-        const sessionId = Number(router.query.sessionId);
-        const ageGroup = String(router.query.ageGroup);
+    const handleClickNext = useCallback(async () => {
+        try {
+            // TODO: 정답 업로드 (액세스 토큰 없이 가능)
+            // sessionId, questionId, answer로 업로드
+            const sessionId = Number(router.query.sessionId);
+            const ageGroup = String(router.query.ageGroup);
 
-        if (currentQuestionNo < questionAnswerList.length - 1) {
-            setCurrentQuestionNo(prev => prev + 1);
-        } else {
-            // 녹음 페이지로 이동
-            router.push(`/screening/sessions/${sessionId}/recording?ageGroup=${ageGroup}`);
+            if (!answer) {
+                throw new Error('정답이 없습니다.');
+            }
+
+            await uploadAnswerAPI({
+                sessionId,
+                questionId: questionAnswerList[currentQuestionNo].questionId,
+                answer,
+            });
+
+            if (currentQuestionNo < questionAnswerList.length - 1) {
+                setCurrentQuestionNo(prev => prev + 1);
+            } else {
+                // 녹음 페이지로 이동
+                router.push(`/screening/sessions/${sessionId}/recording?ageGroup=${ageGroup}`);
+            }
+            typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
+        } catch (err) {
+            console.error(err);
         }
-        typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
-    }, [currentQuestionNo, questionAnswerList, router]);
+    }, [answer, currentQuestionNo, questionAnswerList, router]);
 
     const ageGroupTitle = useMemo(() => ageGroupList.find(v => v.status === ageGroup)?.desc, [ageGroup]);
-
-    const [answer, setAnswer] = useState<string | null>(questionAnswerList[currentQuestionNo]?.answer || null);
-
-    const handleOnChange = useCallback<ChangeEventHandler<HTMLInputElement>>(e => {
-        setAnswer(e.target.value);
-        console.log(e.target.checked);
-    }, []);
 
     return (
         <Container>
@@ -119,25 +133,9 @@ export const getServerSideProps: GetServerSideProps = async context => {
         const ageGroup = typeof context.query.ageGroup === 'string' ? context.query.ageGroup : '1';
         const questionNo = Number(context.query.questionNo);
 
-        // TODO: ageGroup으로 questionAnswerList 받아오기
-
-        const questionAnswerList = [
-            {
-                questionId: 1,
-                questionText: '다른 사람의 표정을 구별하여 반응한다',
-                questionDesc: '(예: 아빠가 화난 표정을 하면 유아도 심각한 표정을, 엄마가 놀라는 표정을 하면 유아도 놀란 표정을 짓는다)',
-                answer: 'Y',
-            },
-            {
-                questionId: 2,
-                questionText: '지속적인 반복음에 반응을 보인다',
-                questionDesc: '(예: 청소기, 세탁기 등의 소리)',
-            },
-            {
-                questionId: 3,
-                questionText: '금지를 의미하는 단어 "안돼" 라는 어조에 반응한다',
-            },
-        ];
+        // questionAnswerList 받아오기
+        const responseData = await getScreeningQuestionAndAnswerListAPI({ sessionId, ageGroup });
+        const questionAnswerList = responseData.questions;
 
         // 잘못된 질문 번호면 0으로 리셋
         if (!questionAnswerList[questionNo]) {
@@ -158,9 +156,10 @@ export const getServerSideProps: GetServerSideProps = async context => {
             },
         };
     } catch (err) {
+        console.error(err);
         return {
             redirect: {
-                destination: '/',
+                destination: '/screening',
                 permanent: true,
             },
         };
