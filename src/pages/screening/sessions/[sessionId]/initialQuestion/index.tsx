@@ -71,16 +71,18 @@ const ScreeningInitialQuestionPage: NextPageWithLayout<{
 
     return (
         <Container>
-            <h1 className='mb-20 font-jalnan text-head-1'>초기질문</h1>
+            <h1 className='mb-[60px] font-jalnan text-head-1 xl:mb-20'>초기질문</h1>
             <div className='mb-20 w-full overflow-hidden rounded-[15px] shadow-base'>
                 <div className='bg-accent1 py-3'>
                     <h2 className='text-center font-bold text-white text-body-2'>{ageGroupTitle}</h2>
                 </div>
-                <div className='bg-white px-[180px] py-[50px] text-center'>
+                <div className='bg-white px-[77px] py-[50px] text-center xl:px-[180px]'>
                     <p className='mb-[10px] font-noto font-[900] text-head-2'>{`Q${currentQuestionNo + 1}. ${questionAnswerList[currentQuestionNo]?.questionText}`}</p>
                     <p className='mb-[50px] break-keep font-noto text-head-3'>{questionAnswerList[currentQuestionNo]?.questionDesc}</p>
-                    <RadioButton name='answer' value='Y' label='예' onChange={handleOnChange} checked={answer === 'Y'} />
-                    <RadioButton name='answer' value='N' label='아니오' onChange={handleOnChange} checked={answer === 'N'} />
+                    <div className='flex flex-col gap-5'>
+                        <RadioButton name='answer' value='Y' label='예' onChange={handleOnChange} checked={answer === 'Y'} />
+                        <RadioButton name='answer' value='N' label='아니오' onChange={handleOnChange} checked={answer === 'N'} />
+                    </div>
                 </div>
             </div>
             <div>

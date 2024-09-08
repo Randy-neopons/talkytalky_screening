@@ -54,14 +54,14 @@ const ScreeningRecordingPage: NextPageWithLayout<{
 
     return (
         <Container>
-            <h1 className='mb-20 font-jalnan text-head-1'>이름맞히기</h1>
-            <div className='relative mb-[50px] flex w-full justify-center overflow-hidden rounded-[15px] bg-white py-[22px] shadow-base'>
+            <h1 className='mb-[60px] font-jalnan text-head-1 xl:mb-20'>이름맞히기</h1>
+            <div className='relative mb-[50px] flex w-full justify-center overflow-hidden rounded-[15px] bg-white py-2 shadow-base xl:py-[22px]'>
                 <Image src={wordList[wordNo].imgSrc} alt={wordList[wordNo].wortText} width={400} height={400} />
                 <button className='absolute bottom-5 right-5 flex h-fit drop-shadow-[2px_2px_2px_rgba(0,0,0,0.25)]' onClick={() => {}}>
                     <VolumeIcon width={60} height={60} />
                 </button>
             </div>
-            <div className='mx-auto mb-20'>
+            <div className='mx-auto mb-[60px] xl:mb-20'>
                 <RoundedBox>
                     <AudioButton
                         audioUrl={audioUrl}

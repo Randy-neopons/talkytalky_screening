@@ -3,8 +3,7 @@
 }
 
 label.radio-label {
-    @apply mx-auto flex justify-between rounded-[6px] border-2 border-neutral6 bg-white px-5 py-[18px] font-bold text-neutral4 text-body-2;
-    @apply xl:w-[550px];
+    @apply mx-auto flex w-full max-w-[550px] justify-between rounded-[6px] border-2 border-neutral6 bg-white px-5 py-[18px] font-bold text-neutral4 text-body-2;
 }
 
 label.radio-label:hover,

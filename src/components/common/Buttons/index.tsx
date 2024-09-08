@@ -90,7 +90,7 @@ export const RadioButton = ({
     checked?: boolean;
 }) => {
     return (
-        <div>
+        <div className='flex'>
             <input type='radio' className='appearance-none' name={name} id={value} value={value} onChange={onChange} checked={checked} />
             <label htmlFor={value} className={styles['radio-label']}>
                 {label}
