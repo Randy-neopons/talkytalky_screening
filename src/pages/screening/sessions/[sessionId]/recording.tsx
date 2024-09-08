@@ -1,13 +1,16 @@
-import { useCallback, useState, type ReactElement } from 'react';
+import { useCallback, useEffect, useState, type ReactElement } from 'react';
 import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
+
+import dayjs from 'dayjs';
 
 import { AudioButton, RoundedBox } from '@/components/common/Buttons';
 import Container from '@/components/common/Container';
 import { VolumeIcon } from '@/components/icons';
 import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
+import { getScreeningTestInfoAPI, getWordAndRecordingListAPI, uploadRecordingAPI } from '@/api/screening';
 
 import appleImg from 'public/static/images/words/사과.png';
 
@@ -16,9 +19,10 @@ import type { NextPageWithLayout } from '@/types/types';
 
 // 간이언어평가 녹음 페이지
 const ScreeningRecordingPage: NextPageWithLayout<{
+    age: number;
     wordList: Word[];
     wordNo: number;
-}> = ({ wordList, wordNo }) => {
+}> = ({ age, wordList, wordNo }) => {
     const router = useRouter(); // next router
 
     const { audioBlob, audioUrl, isPlaying, isRecording, handlePause, handlePlay, handleStartRecording, handleStopRecording } =
@@ -34,29 +38,45 @@ const ScreeningRecordingPage: NextPageWithLayout<{
         typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
     }, [currentWordNo]);
 
+    useEffect(() => {
+        console.log(wordList[currentWordNo].wordText);
+    }, [currentWordNo, wordList]);
+
     // 다음 파트로
     const handleClickNext = useCallback(async () => {
         try {
             const sessionId = Number(router.query.sessionId);
             const ageGroup = String(router.query.ageGroup);
+            const wordId = wordList[wordNo].wordId;
+            const wordText = wordList[wordNo].wordText;
+
+            if (audioBlob) {
+                const formData = new FormData();
+                formData.append('wordId', wordId.toString());
+                formData.append('wordText', wordText);
+                formData.append('age', age.toString());
+                formData.append('audio', audioBlob);
+
+                await uploadRecordingAPI({ sessionId, formData });
+            }
 
             if (currentWordNo < wordList.length - 1) {
-                // TODO: recording 업로드
                 setCurrentWordNo(prev => prev + 1);
             } else {
-                // 결과 페이지로 이동
+                // 검사완료 페이지로 이동
+                router.push(`/screening/sessions/${sessionId}/complete`);
             }
             typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
         } catch (err) {
             console.error(err);
         }
-    }, [currentWordNo, wordList, router]);
+    }, [router, wordList, wordNo, audioBlob, currentWordNo, age]);
 
     return (
         <Container>
             <h1 className='mb-[60px] font-jalnan text-head-1 xl:mb-20'>이름맞히기</h1>
             <div className='relative mb-[50px] flex w-full justify-center overflow-hidden rounded-[15px] bg-white py-2 shadow-base xl:py-[22px]'>
-                <Image src={wordList[wordNo].imgSrc} alt={wordList[wordNo].wortText} width={400} height={400} />
+                <Image src={wordList[wordNo].imgSrc} alt={wordList[wordNo].wordText} width={400} height={400} />
                 <button className='absolute bottom-5 right-5 flex h-fit drop-shadow-[2px_2px_2px_rgba(0,0,0,0.25)]' onClick={() => {}}>
                     <VolumeIcon width={60} height={60} />
                 </button>
@@ -105,33 +125,29 @@ export default ScreeningRecordingPage;
 export const getServerSideProps: GetServerSideProps = async context => {
     try {
         const sessionId = Number(context.query.sessionId);
-        const ageGroup = String(context.query.ageGroup);
         const wordNo = Number(context.query.wordNo);
+
+        const testInfoResponse = await getScreeningTestInfoAPI({ sessionId });
+        const testInfo = testInfoResponse.testInfo;
+        const ageGroup = testInfo.ageGroup;
+        // 만 나이 계산
+        const age = dayjs().diff(testInfo.testeeBirthdate, 'year');
 
         // TODO: ageGroup으로 questionAnswerList 받아오기
 
-        const wordList = [
-            {
-                wordId: 1,
-                wordText: '피아노',
-                imgSrc: appleImg.src,
-            },
-            {
-                wordId: 2,
-                wordText: '피망',
-                imgSrc: appleImg.src,
-            },
-            {
-                wordId: 3,
-                wordText: '모자',
-                imgSrc: appleImg.src,
-            },
-        ];
+        const wordsResponse = await getWordAndRecordingListAPI({ sessionId, ageGroup });
+        const words = await wordsResponse.words;
+
+        const wordList = words.map((v: any) => ({
+            ...v,
+            imgSrc: appleImg.src,
+        }));
 
         // 잘못된 질문 번호면 0으로 리셋
         if (!wordList[wordNo]) {
             return {
                 props: {
+                    age,
                     wordList,
                     wordNo: 0,
                 },
@@ -140,6 +156,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
 
         return {
             props: {
+                age,
                 wordList,
                 wordNo,
             },

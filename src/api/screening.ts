@@ -20,13 +20,16 @@ export async function getScreeningSessionListAPI({ jwt }: { jwt: string }) {
 }
 
 // 검사 정보 조회
-export async function getScreeningTestInfoAPI({ sessionId }: { sessionId: number; jwt: string }) {
+export async function getScreeningTestInfoAPI({ sessionId }: { sessionId: number }) {
     const response = await axios.get<{
         result: string;
         testInfo: {
+            talkyUserId: string | null;
+            therapistUserId: string | null;
             testeeName: string;
             testeeGender: string;
             testeeBirthdate: string;
+            ageGroup: string;
         };
     }>(`/assessment/screening/session/${sessionId}`);
     return response.data;
@@ -42,6 +45,14 @@ export async function updateScreeningTestInfoAPI({ sessionId, testInfo }: { sess
 // 문항 목록 조회
 export async function getScreeningQuestionAndAnswerListAPI({ sessionId, ageGroup }: { sessionId: number; ageGroup: string }) {
     const response = await axios.get(`/assessment/screening/session/${sessionId}/questions`, {
+        params: { ageGroup },
+    });
+    return response.data;
+}
+
+// 단어 목록 조회
+export async function getWordAndRecordingListAPI({ sessionId, ageGroup }: { sessionId: number; ageGroup: string }) {
+    const response = await axios.get(`/assessment/screening/session/${sessionId}/words`, {
         params: { ageGroup },
     });
     return response.data;

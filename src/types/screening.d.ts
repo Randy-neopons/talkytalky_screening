@@ -9,7 +9,7 @@ export interface ScreeningTestInfo {
 // 간이언어평가 단어
 export interface Word {
     wordId: number;
-    wortText: string;
+    wordText: string;
     imgSrc: string;
 }
 

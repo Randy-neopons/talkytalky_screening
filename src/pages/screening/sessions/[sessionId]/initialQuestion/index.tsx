@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type ChangeEventHandler, type ReactElement } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ChangeEventHandler, type ReactElement } from 'react';
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
@@ -6,7 +6,7 @@ import { RadioButton } from '@/components/common/Buttons';
 import Container from '@/components/common/Container';
 import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
 import { useUserQuery } from '@/hooks/user';
-import { getScreeningQuestionAndAnswerListAPI, getScreeningSessionListAPI, uploadAnswerAPI } from '@/api/screening';
+import { getScreeningQuestionAndAnswerListAPI, getScreeningTestInfoAPI, uploadAnswerAPI } from '@/api/screening';
 
 import type { NextPageWithLayout } from '@/types/types';
 
@@ -38,6 +38,10 @@ const ScreeningInitialQuestionPage: NextPageWithLayout<{
     const [currentQuestionNo, setCurrentQuestionNo] = useState(questionNo || 0); //  0부터 시작
 
     const [answer, setAnswer] = useState<string | null>(questionAnswerList[currentQuestionNo]?.answer || null);
+
+    useEffect(() => {
+        setAnswer(questionAnswerList[currentQuestionNo]?.answer || null);
+    }, [currentQuestionNo, questionAnswerList]);
 
     const handleOnChange = useCallback<ChangeEventHandler<HTMLInputElement>>(e => {
         setAnswer(e.target.value);
@@ -130,8 +134,11 @@ export default ScreeningInitialQuestionPage;
 export const getServerSideProps: GetServerSideProps = async context => {
     try {
         const sessionId = Number(context.query.sessionId);
-        const ageGroup = typeof context.query.ageGroup === 'string' ? context.query.ageGroup : '1';
         const questionNo = Number(context.query.questionNo);
+
+        const testInfoResponse = await getScreeningTestInfoAPI({ sessionId });
+        const testInfo = testInfoResponse.testInfo;
+        const ageGroup = testInfo.ageGroup;
 
         // questionAnswerList 받아오기
         const responseData = await getScreeningQuestionAndAnswerListAPI({ sessionId, ageGroup });
