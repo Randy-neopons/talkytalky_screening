@@ -1,5 +1,6 @@
-import { useEffect, type ReactNode } from 'react';
+import { useCallback, useEffect, type ReactNode } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 
 import { useTestStart } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
@@ -8,8 +9,17 @@ import { useUserQuery } from '@/hooks/user';
 import Timer from './common/Timer';
 
 export default function AppLayout({ isLoggedIn, progress, children }: { isLoggedIn?: boolean; progress?: number; children: ReactNode }) {
+    const router = useRouter();
+
     const { data: user, error } = useUserQuery();
     const testStart = useTestStart();
+
+    // 홈으로 버튼
+    const onClickHome = useCallback(() => {
+        if (window.confirm('평가를 종료하고 홈 화면으로 이동하시겠습니까?')) {
+            router.push('/screening');
+        }
+    }, [router]);
 
     useEffect(() => {
         if (error || !isLoggedIn) {
@@ -29,7 +39,9 @@ export default function AppLayout({ isLoggedIn, progress, children }: { isLogged
                 </Head>
                 <header className='fixed left-0 top-0 z-10 flex h-20 w-full items-center justify-center bg-accent1'>
                     <div className='flex w-full max-w-screen-md justify-between px-5 xl:max-w-screen-xl xl:px-[140px]'>
-                        <span className='mr-auto font-bold text-neutral11 text-head-2'>말운동 평가</span>
+                        <button className='mr-auto font-bold text-neutral11 text-head-2' onClick={onClickHome}>
+                            말운동 평가
+                        </button>
                         {testStart && (
                             <div className='flex items-center gap-5 xl:gap-[30px]'>
                                 {progress !== undefined && progress !== null && (

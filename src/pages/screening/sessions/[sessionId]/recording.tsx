@@ -25,10 +25,10 @@ const ScreeningRecordingPage: NextPageWithLayout<{
 }> = ({ age, wordList, wordNo }) => {
     const router = useRouter(); // next router
 
-    const { audioBlob, audioUrl, isPlaying, isRecording, handlePause, handlePlay, handleStartRecording, handleStopRecording } =
-        useAudioRecorder();
-
     const [currentWordNo, setCurrentWordNo] = useState(wordNo || 0); //  0부터 시작
+
+    const { audioBlob, audioUrl, isPlaying, isRecording, setAudioUrl, handlePause, handlePlay, handleStartRecording, handleStopRecording } =
+        useAudioRecorder(wordList[currentWordNo].filePath);
 
     // 이전 파트로
     const handleClickPrev = useCallback(() => {
@@ -40,15 +40,16 @@ const ScreeningRecordingPage: NextPageWithLayout<{
 
     useEffect(() => {
         console.log(wordList[currentWordNo].wordText);
-    }, [currentWordNo, wordList]);
+        setAudioUrl(wordList[currentWordNo].filePath);
+    }, [currentWordNo, setAudioUrl, wordList]);
 
     // 다음 파트로
     const handleClickNext = useCallback(async () => {
         try {
             const sessionId = Number(router.query.sessionId);
             const ageGroup = String(router.query.ageGroup);
-            const wordId = wordList[wordNo].wordId;
-            const wordText = wordList[wordNo].wordText;
+            const wordId = wordList[currentWordNo].wordId;
+            const wordText = wordList[currentWordNo].wordText;
 
             if (audioBlob) {
                 const formData = new FormData();
@@ -70,13 +71,13 @@ const ScreeningRecordingPage: NextPageWithLayout<{
         } catch (err) {
             console.error(err);
         }
-    }, [router, wordList, wordNo, audioBlob, currentWordNo, age]);
+    }, [router, wordList, currentWordNo, audioBlob, age]);
 
     return (
         <Container>
             <h1 className='mb-[60px] font-jalnan text-head-1 xl:mb-20'>이름맞히기</h1>
             <div className='relative mb-[50px] flex w-full justify-center overflow-hidden rounded-[15px] bg-white py-2 shadow-base xl:py-[22px]'>
-                <Image src={wordList[wordNo].imgSrc} alt={wordList[wordNo].wordText} width={400} height={400} />
+                <Image src={wordList[currentWordNo].imgSrc} alt={wordList[currentWordNo].wordText} width={400} height={400} />
                 <button className='absolute bottom-5 right-5 flex h-fit drop-shadow-[2px_2px_2px_rgba(0,0,0,0.25)]' onClick={() => {}}>
                     <VolumeIcon width={60} height={60} />
                 </button>
@@ -142,6 +143,8 @@ export const getServerSideProps: GetServerSideProps = async context => {
             ...v,
             imgSrc: appleImg.src,
         }));
+
+        console.log(wordList);
 
         // 잘못된 질문 번호면 0으로 리셋
         if (!wordList[wordNo]) {

@@ -112,16 +112,13 @@ export async function completeSessionAPI({ sessionId }: { sessionId: number; jwt
 }
 
 // 세션 결과 보기
-export async function getTestResultAPI({ sessionId }: { sessionId: number; jwt: string }) {
+export async function getScreeningTestResultAPI({ sessionId }: { sessionId: number }) {
     const response = await axios.get<{
-        testScore: {
-            score: number;
-            maxScore: number;
-            partId: number;
-            partTitle: string;
-            subtestId: number;
-            subtestTitle: string;
-        }[];
+        result: boolean;
+        level: number;
+        abstract: { content: string };
+        errorExplain: { Error_consonant: string; Error_pattern: string };
+        summary: { content: string };
     }>(`/assessment/screening/session/${sessionId}/result`);
 
     return response.data;

@@ -1,10 +1,11 @@
-import { useCallback, type ReactElement } from 'react';
+import { useCallback, useEffect, type ReactElement } from 'react';
 import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
 import Container from '@/components/common/Container';
 import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
+import { getScreeningTestResultAPI } from '@/api/screening';
 
 import levelIndicatorImg from 'public/static/images/level-indicator-img.png';
 
@@ -16,7 +17,7 @@ const LevelGraph = ({ level }: { level: number }) => {
 
     return (
         <>
-            <div className='relative'>
+            <div className='relative w-full'>
                 {/* 그래프 배경 */}
                 <svg
                     xmlns='http://www.w3.org/2000/svg'
@@ -86,9 +87,13 @@ const LevelGraph = ({ level }: { level: number }) => {
             </div>
 
             {/* 단계 */}
-            <div className='mt-[10px] flex gap-14 xl:mt-[14px]'>
+            <div className='relative mt-[10px] w-full xl:mt-[14px]'>
                 {[1, 2, 3, 4, 5].map(level => (
-                    <span key={level} className='font-bold text-body-2'>
+                    <span
+                        key={level}
+                        className='absolute -translate-x-1/2 font-bold text-body-2'
+                        style={{ left: `${3.5 + level * 15.4}%` }}
+                    >
                         {level}단계
                     </span>
                 ))}
@@ -104,7 +109,7 @@ const ResultSection = ({ title, description }: { title: string; description: str
             <div className='bg-accent3 py-[15px]'>
                 <p className='text-center font-bold text-body-2'>{title}</p>
             </div>
-            <div className='whitespace-pre-wrap bg-white py-[42px] text-center'>
+            <div className='whitespace-pre-wrap break-keep bg-white px-[40px] py-[42px] text-center xl:px-[94px]'>
                 <p className='text-body-1'>{description}</p>
             </div>
         </div>
@@ -123,9 +128,9 @@ const ScreeningResultPage: NextPageWithLayout<{
 
     return (
         <Container>
-            <h1 className='mb-[60px] font-jalnan text-head-1 xl:mb-20'>간이언어평가 검사 결과</h1>
-            <div className='mb-[60px] flex w-full flex-col items-center overflow-hidden rounded-base bg-white px-[74px] py-10 drop-shadow-[0px_4px_8px_rgba(0,0,0,0.08)] xl:px-[82px]'>
-                <h2 className='text-noto mb-[30px] font-bold text-head-3'>
+            <h1 className='mb-[60px] break-keep text-center font-jalnan text-head-1 xl:mb-20'>간이언어평가 검사 결과</h1>
+            <div className='mb-[60px] flex w-full flex-col items-center overflow-hidden rounded-base bg-white px-[40px] py-10 drop-shadow-[0px_4px_8px_rgba(0,0,0,0.08)] xl:px-[82px]'>
+                <h2 className='text-noto mb-[30px] break-keep text-center font-bold text-head-3'>
                     우리 아이의 유창성(명료도)레벨은 <span className='text-accent1'>{level}단계</span>입니다.
                 </h2>
 
@@ -166,36 +171,36 @@ export const getServerSideProps: GetServerSideProps = async context => {
         }
 
         // TODO: result API에서 받아오기
-        const level = 1;
+        const testResultData = await getScreeningTestResultAPI({ sessionId });
         const sectionList = [
             {
                 title: '개요',
-                description: `농담이나 비유를 들었을 때 그 의미를 이해할 수 있다.\n(예: '시간은 금이다'라는 문장을 듣고, 시간이 소중하다는 뜻을 이해할 수 있나요?)`,
+                description: testResultData.abstract.content,
             },
             {
                 title: '오류자음',
-                description: `농담이나 비유를 들었을 때 그 의미를 이해할 수 있다.\n(예: '시간은 금이다'라는 문장을 듣고, 시간이 소중하다는 뜻을 이해할 수 있나요?)`,
+                description: testResultData.errorExplain.Error_consonant,
             },
             {
                 title: '오류패턴',
-                description: `농담이나 비유를 들었을 때 그 의미를 이해할 수 있다.\n(예: '시간은 금이다'라는 문장을 듣고, 시간이 소중하다는 뜻을 이해할 수 있나요?)`,
+                description: testResultData.errorExplain.Error_pattern,
             },
             {
                 title: '종합의견',
-                description: `또래 연령에 비해서 어떤부분이 부족하기 때문에 무엇무엇을 추천드립니다.`,
+                description: testResultData.summary.content,
             },
         ];
 
         return {
             props: {
-                level,
+                level: testResultData.level,
                 sectionList,
             },
         };
     } catch (err) {
         return {
             redirect: {
-                destination: '/',
+                destination: '/screening',
                 permanent: true,
             },
         };

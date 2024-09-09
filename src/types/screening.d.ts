@@ -11,6 +11,7 @@ export interface Word {
     wordId: number;
     wordText: string;
     imgSrc: string;
+    filePath?: string | null;
 }
 
 // 간이언어평가 테스트 세션
