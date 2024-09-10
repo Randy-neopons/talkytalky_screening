@@ -25,7 +25,7 @@ export default function Home() {
     return (
         <Container>
             <h1 className='font-jalnan text-head-1'>말운동 평가</h1>
-            <span className='mt-[10px] text-center font-noto text-body-1'>
+            <span className='mt-[10px] text-center font-noto text-body-2'>
                 말운동장애(motor speech disorder)란 운동계의 기능 이상에 의해 초래되는 <br className='xl:hidden' />
                 말산출장애(마비말장애, 말실행증 등)를 말합니다.
                 <br />
@@ -34,7 +34,7 @@ export default function Home() {
                 <br />
                 말실행증보다는 마비말장애 여부를 판단하는 데에 초점을 두고 있습니다.
             </span>
-            <ul className='mt-[60px]'>
+            <ul className='mt-15'>
                 <li className='float-left mr-[30px] flex h-[467px] w-[300px] flex-col flex-nowrap items-center rounded-[20px] bg-white px-[58px] py-[30px] shadow-base xl:h-[440px] xl:w-[477px] xl:items-start'>
                     <Image src={testStartIcon} alt='test-start' width={120} height={100} />
                     <span className='mt-5 font-bold leading-normal text-accent1 text-head-2 xl:leading-tight'>테스트 시작하기</span>
@@ -81,7 +81,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         if (!accessToken || accessToken === 'undefined') {
             return {
                 props: {
-                    isLoggedIn: true,
+                    isLoggedIn: false,
                 },
             };
         }

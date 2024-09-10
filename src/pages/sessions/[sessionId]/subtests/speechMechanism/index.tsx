@@ -58,7 +58,7 @@ export default function SpeechMechanismMainPage() {
                     </div>
                 </span>
             </h1>
-            <ul className='mt-[60px] flex flex-row flex-wrap items-center justify-center gap-10 xl:gap-5'>
+            <ul className='mt-15 flex flex-row flex-wrap items-center justify-center gap-10 xl:gap-5'>
                 {partList.map((v, i) => (
                     <PartListItem key={i} partName={v.partName} questionCount={v.questionCount} />
                 ))}

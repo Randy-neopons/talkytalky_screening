@@ -1,23 +1,24 @@
-import { useCallback } from 'react';
+import { useCallback, type ReactElement } from 'react';
 import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
-import { getCookie } from 'cookies-next';
-
 import Container from '@/components/common/Container';
+import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
 
 import completeImg from 'public/static/images/complete-img.png';
 
-// Stress Testing 문항 페이지
-export default function CompletePage() {
+import type { NextPageWithLayout } from '@/types/types';
+
+// 간이언어평가 완료 페이지
+const ScreeningCompletePage: NextPageWithLayout = () => {
     const router = useRouter();
 
     // 결과 확인 페이지로 이동
     const handleClickResult = useCallback(() => {
         try {
             const sessionId = Number(router.query.sessionId);
-            router.push(`/sessions/${sessionId}/result`);
+            router.push(`/screening/sessions/${sessionId}/result`);
         } catch (err) {
             console.error(err);
         }
@@ -25,17 +26,20 @@ export default function CompletePage() {
 
     return (
         <Container>
-            <Image src={completeImg} alt='complete' className='mt-[200px] xl:mt-[180px]' width={86} height={116} />
-            <h1 className='mt-10 font-jalnan text-head-1'>검사가 완료되었습니다.</h1>
-            <span className='mt-[10px] text-body-2'>검사결과는 언제든지 다시확인하실 수 있습니다.</span>
-            <div>
-                <button type='button' className='mt-20 btn btn-large btn-contained' onClick={handleClickResult}>
-                    결과 확인하기
-                </button>
-            </div>
+            <Image src={completeImg} alt='complete' className='mt-[140px] xl:mt-[180px]' width={86} height={116} />
+            <h1 className='mt-10 font-jalnan text-head-1'>평가가 완료되었습니다.</h1>
+            <button type='button' className='mt-15 btn btn-large btn-contained xl:mt-20' onClick={handleClickResult}>
+                결과 확인
+            </button>
         </Container>
     );
-}
+};
+
+ScreeningCompletePage.getLayout = function getLayout(page: ReactElement) {
+    return <ScreeningAppLayout>{page}</ScreeningAppLayout>;
+};
+
+export default ScreeningCompletePage;
 
 export const getServerSideProps: GetServerSideProps = async context => {
     try {
@@ -49,17 +53,8 @@ export const getServerSideProps: GetServerSideProps = async context => {
             };
         }
 
-        const accessToken = getCookie('jwt', context);
-        if (!accessToken || accessToken === 'undefined') {
-            return {
-                props: {
-                    isLoggedIn: false,
-                },
-            };
-        }
-
         return {
-            props: { isLoggedIn: true },
+            props: {},
         };
     } catch (err) {
         return {

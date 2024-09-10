@@ -68,6 +68,7 @@ const useAudioRecorder = (defaultUrl?: string | null) => {
         isPlaying,
         audioBlob,
         audioUrl,
+        setAudioUrl,
         handleStartRecording,
         handleStopRecording,
         handlePlay,

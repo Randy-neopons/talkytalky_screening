@@ -8,6 +8,7 @@ import { deleteCookie, getCookie } from 'cookies-next';
 
 import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
+import { AudioButton, RoundedBox } from '@/components/common/Buttons';
 import Container from '@/components/common/Container';
 import { MikeIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/icons';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
@@ -18,77 +19,6 @@ import styles from '../SubTests.module.css';
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 3;
 const PART_ID_START = 8;
-
-// 주위에 테두리 효과 주기
-// TODO: 테두리 반짝이게 하는 법
-export const RoundedBox = ({ isShining, children }: { isShining?: boolean; children: ReactNode }) => {
-    return (
-        <div className='overflow-hidden rounded-full border-[9px] border-accent1/10'>
-            <div className='flex items-center justify-center bg-accent1'>{children}</div>
-        </div>
-    );
-};
-
-// 녹음, 재생, 정지, 일시정지 버튼 렌더링
-export const AudioButton = ({
-    audioUrl,
-    isRecording,
-    isPlaying,
-    handleStartRecording,
-    handleStopRecording,
-    handlePause,
-    handlePlay,
-}: {
-    audioUrl?: string | null;
-    isRecording: boolean;
-    isPlaying: boolean;
-    handleStartRecording: () => Promise<void>;
-    handleStopRecording: () => void;
-    handlePause: () => void;
-    handlePlay: () => void;
-}) => {
-    if (isRecording) {
-        return (
-            <button type='button' className={styles['rounded-button']} onClick={handleStopRecording}>
-                <StopIcon width={50} height={50} />
-            </button>
-        );
-    }
-
-    if (audioUrl) {
-        if (isPlaying) {
-            return (
-                <>
-                    <button type='button' className={styles['rounded-button']} onClick={handlePause}>
-                        <PauseIcon width={50} height={50} />
-                    </button>
-                    <div className='h-9 w-[2px] bg-white'></div>
-                    <button type='button' className={styles['rounded-button']} onClick={handleStartRecording}>
-                        <MikeIcon width={50} height={50} />
-                    </button>
-                </>
-            );
-        }
-
-        return (
-            <>
-                <button type='button' className={styles['rounded-button']} onClick={handlePlay}>
-                    <PlayIcon width={50} height={50} />
-                </button>
-                <div className='h-9 w-[2px] bg-white'></div>
-                <button type='button' className={styles['rounded-button']} onClick={handleStartRecording}>
-                    <MikeIcon width={50} height={50} />
-                </button>
-            </>
-        );
-    }
-
-    return (
-        <button type='button' className={styles['rounded-button']} onClick={handleStartRecording}>
-            <MikeIcon width={50} height={50} />
-        </button>
-    );
-};
 
 // 문단읽기 페이지
 export default function ParagraphReadingPage() {
