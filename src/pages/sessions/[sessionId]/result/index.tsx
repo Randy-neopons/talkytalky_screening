@@ -132,7 +132,7 @@ const SubtestScore = ({
     return (
         <div className='mt-20 w-full'>
             <h2 className='font-bold text-black text-head-2'>{subtestTitle}</h2>
-            <div className='mt-[30px] flex w-full gap-[60px] rounded-base bg-white px-[50px] pb-[50px] pt-10 shadow-base'>
+            <div className='gap-15 mt-[30px] flex w-full rounded-base bg-white px-[50px] pb-[50px] pt-10 shadow-base'>
                 <div className='w-40 flex-none text-center xl:w-[200px]'>
                     <SubtestScoreGraph
                         data={[

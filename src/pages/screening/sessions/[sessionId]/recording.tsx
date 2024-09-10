@@ -82,7 +82,7 @@ const ScreeningRecordingPage: NextPageWithLayout<{
 
     return (
         <Container>
-            <h1 className='mb-[60px] font-jalnan text-head-1 xl:mb-20'>이름맞히기</h1>
+            <h1 className='mb-15 font-jalnan text-head-1 xl:mb-20'>이름맞히기</h1>
             <div className='relative mb-[50px] flex w-full justify-center overflow-hidden rounded-[15px] bg-white py-2 shadow-base xl:py-[22px]'>
                 <div className='relative h-[400px] w-full'>
                     {wordList[currentWordNo].imgSrc && (
@@ -103,7 +103,7 @@ const ScreeningRecordingPage: NextPageWithLayout<{
                     </button>
                 )}
             </div>
-            <div className='mx-auto mb-[60px] xl:mb-20'>
+            <div className='mb-15 mx-auto xl:mb-20'>
                 <RoundedBox>
                     <AudioButton
                         audioUrl={audioUrl}

@@ -60,7 +60,7 @@ export default function SpeechMainPage() {
     return (
         <Container>
             <h1 className='flex items-center font-jalnan text-head-1'>SPEECH : 말평가</h1>
-            <ul className='mt-[60px] flex flex-row flex-wrap items-center justify-center gap-10 xl:gap-5'>
+            <ul className='mt-15 flex flex-row flex-wrap items-center justify-center gap-10 xl:gap-5'>
                 {partList.map((v, i) => (
                     <PartListItem key={i} subtestName={v.subtestName} partName={v.partName} questionCount={v.questionCount} />
                 ))}

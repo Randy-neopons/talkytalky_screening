@@ -56,7 +56,7 @@ const ScreeningSessionListPage: NextPageWithLayout<{ sessionList: ScreeningTestS
             </div>
 
             <ul className='mt-20 flex w-full flex-col gap-[30px]'>
-                {sessionList.map(v => (
+                {sessionList?.map(v => (
                     <li key={v.testSessionId} className='flex items-center justify-between rounded-base bg-white p-[30px] shadow-base'>
                         <div className='flex gap-[10px]'>
                             <div className='flex items-center gap-[10px]'>

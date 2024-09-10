@@ -2,16 +2,28 @@ import { useCallback, type ReactNode } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
+import { useModal } from '../common/Modal/context';
+
 // 간이언어평가 공통 레이아웃
 export default function ScreeningAppLayout({ children }: { children: ReactNode }) {
     const router = useRouter();
 
+    const { handleOpenModal } = useModal();
+
     // 홈으로 버튼
     const onClickHome = useCallback(() => {
-        if (window.confirm('평가를 종료하고 홈 화면으로 이동하시겠습니까?')) {
-            router.push('/screening');
+        if (router.pathname === '/screening') {
+            return;
         }
-    }, [router]);
+
+        // 홈 화면 이동 모달
+        handleOpenModal({
+            content: '평가를 종료하고 홈 화면으로 이동하시겠습니까?',
+            onOk: () => {
+                router.push('/screening');
+            },
+        });
+    }, [handleOpenModal, router]);
 
     return (
         <>

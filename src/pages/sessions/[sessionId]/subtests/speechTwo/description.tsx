@@ -133,7 +133,7 @@ export default function PictureDescriptionPage() {
             <div className='mt-20 flex w-full flex-nowrap items-center'>
                 <div className='mx-auto flex gap-[45px]'>
                     {/* <button type='button'>
-                        <Image src={memoIcon} alt='memo-icon' className='h-auto w-[60px]' />
+                        <Image src={memoIcon} alt='memo-icon' className='h-auto w-15' />
                     </button> */}
                     <RoundedBox>
                         <AudioButton
@@ -147,7 +147,7 @@ export default function PictureDescriptionPage() {
                         />
                     </RoundedBox>
                     {/* <button type='button' className='invisible'>
-                        <Image src={fontSizeIcon} alt='memo-icon' className='h-auto w-[60px]' />
+                        <Image src={fontSizeIcon} alt='memo-icon' className='h-auto w-15' />
                     </button> */}
                 </div>
             </div>

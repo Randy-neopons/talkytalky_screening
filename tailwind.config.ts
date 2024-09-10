@@ -54,6 +54,12 @@ const config: Config = {
                 jalnan: ['Jalnan'],
                 noto: ['Noto Sans KR'],
             },
+            screens: {
+                sm: '576px',
+            },
+            spacing: {
+                '15': '3.75rem',
+            },
         },
     },
     plugins: [

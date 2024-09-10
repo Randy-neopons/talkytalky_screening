@@ -9,6 +9,7 @@ import { getCookie, setCookie } from 'cookies-next';
 import { useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import Container from '@/components/common/Container';
+import { useModal } from '@/components/common/Modal/context';
 import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
 import { useUserQuery } from '@/hooks/user';
 
@@ -23,19 +24,34 @@ const ScreeningHome: NextPageWithLayout = () => {
 
     const { data: user } = useUserQuery(); // 세션 유지되는지 조회
 
+    const { handleOpenModal } = useModal();
+
     // 시작하기 클릭
     const handleClickStart = useCallback(() => {
         if (user) {
             router.push(`/screening/personalInfo`);
             return;
-        } else if (window.confirm('비회원으로 이용하실 경우\n추후에 결과를 재확인 하실 수 없습니다.')) {
-            // 로그인 버튼 누르면 로그인
-            window.location.href = `${TALKYTALKY_URL}/login`;
-        } else {
-            // 비회원검사하기 버튼 누르면 바로 이동
-            router.push(`/screening/personalInfo`);
         }
-    }, [router, user]);
+
+        // 비회원검사하기 버튼 누르면 바로 이동
+        const onCancel = () => {
+            router.push('/screening/personalInfo');
+        };
+
+        // 로그인 버튼 누르면 로그인 페이지로 이동
+        const onOk = () => {
+            window.location.href = `${TALKYTALKY_URL}/login`;
+        };
+
+        // 모달 열기
+        handleOpenModal({
+            content: '비회원으로 이용하실 경우\n추후에 결과를 재확인 하실 수 없습니다.',
+            onCancel,
+            onOk,
+            cancelText: '비회원검사하기',
+            okText: '로그인',
+        });
+    }, [handleOpenModal, router, user]);
 
     // 결과 보기 클릭
     const handleClickResult = useCallback(() => {
@@ -59,7 +75,7 @@ const ScreeningHome: NextPageWithLayout = () => {
                 <span className='font-bold text-accent1'>언어 발달 지연이나 인지능력의 이상 여부를 신속히 식별</span>하고 추가적인 정밀
                 평가나 치료 개입의 필요성을 판단하는 데 중점을 둔 검사입니다.
             </span>
-            <ul className='mt-[60px]'>
+            <ul className='mt-15'>
                 <li className='float-left mr-[30px] flex h-[467px] w-[300px] flex-col flex-nowrap items-center rounded-[20px] bg-white px-[58px] py-[30px] shadow-base xl:h-[440px] xl:w-[477px] xl:items-start'>
                     <Image src={testStartIcon} alt='test-start' width={120} height={100} />
                     <span className='mt-5 font-bold leading-normal text-accent1 text-head-2 xl:leading-tight'>테스트 시작하기</span>

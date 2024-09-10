@@ -8,6 +8,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import nProgress from 'nprogress';
 
 import AppLayout from '@/components/AppLayout';
+import { ModalProvider } from '@/components/common/Modal/context';
 
 import type { NextPageWithLayout } from '@/types/types';
 
@@ -55,7 +56,9 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
 
     return (
         <QueryClientProvider client={queryClient}>
-            <HydrationBoundary state={pageProps.dehydratedState}>{getLayout(<Component {...pageProps} />)}</HydrationBoundary>
+            <HydrationBoundary state={pageProps.dehydratedState}>
+                <ModalProvider>{getLayout(<Component {...pageProps} />)}</ModalProvider>
+            </HydrationBoundary>
             <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
     );

@@ -28,7 +28,7 @@ const ScreeningCompletePage: NextPageWithLayout = () => {
         <Container>
             <Image src={completeImg} alt='complete' className='mt-[140px] xl:mt-[180px]' width={86} height={116} />
             <h1 className='mt-10 font-jalnan text-head-1'>평가가 완료되었습니다.</h1>
-            <button type='button' className='mt-[60px] btn btn-large btn-contained xl:mt-20' onClick={handleClickResult}>
+            <button type='button' className='mt-15 btn btn-large btn-contained xl:mt-20' onClick={handleClickResult}>
                 결과 확인
             </button>
         </Container>

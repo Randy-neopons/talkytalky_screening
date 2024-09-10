@@ -1,4 +1,4 @@
-import { useCallback, type ReactElement, type ReactNode } from 'react';
+import { useCallback, useEffect, type ReactElement, type ReactNode } from 'react';
 import { Controller, useForm, useWatch, type Control } from 'react-hook-form';
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
@@ -109,10 +109,11 @@ export const ScreeningPersonalInfoForm = ({
 
     return (
         <>
-            <form className='mb-20 mt-[60px] w-[550px] rounded-[20px] bg-white px-[50px] pb-[50px] pt-[10px] shadow-base xl:mt-20'>
+            <form className='mt-15 mb-20 w-[550px] rounded-[20px] bg-white px-[50px] pb-[50px] pt-[10px] shadow-base xl:mt-20'>
                 <Label htmlFor='testeeName' required>
                     이름
                 </Label>
+
                 <input
                     {...register('testeeName', { required: '환자명을 입력해주세요.' })}
                     className={`${styles.input}`}
@@ -174,8 +175,6 @@ const ScreeningPersonalInfoPage: NextPageWithLayout = () => {
     const router = useRouter(); // next router
     const { data: user } = useUserQuery();
 
-    console.log(user);
-
     // 폼 제출
     const handleOnSubmit = useCallback(
         async (data: FormValues) => {
@@ -189,8 +188,6 @@ const ScreeningPersonalInfoPage: NextPageWithLayout = () => {
                     testeeBirthdate,
                 };
 
-                const currentPathname = router.asPath;
-
                 const age = dayjs().diff(testeeBirthdate, 'year');
                 const ageGroup = makeAgeGroup(age);
 
@@ -198,7 +195,6 @@ const ScreeningPersonalInfoPage: NextPageWithLayout = () => {
                     testInfo: formValues,
                     talkyUserId: user?.data.talkyUserId,
                     therapistUserId: user?.data.therapistUserId,
-                    currentPathname,
                     age,
                     ageGroup,
                 });

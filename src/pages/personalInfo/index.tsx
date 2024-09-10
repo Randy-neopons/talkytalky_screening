@@ -121,7 +121,7 @@ export const PersonalInfoForm = ({
 
     return (
         <>
-            <form className='mb-20 mt-[60px] w-[550px] rounded-[20px] bg-white px-[50px] pb-[50px] pt-[10px] shadow-base xl:mt-20'>
+            <form className='mt-15 mb-20 w-[550px] rounded-[20px] bg-white px-[50px] pb-[50px] pt-[10px] shadow-base xl:mt-20'>
                 <Label htmlFor='testerName' required>
                     검사자명
                 </Label>
@@ -218,7 +218,7 @@ export const PersonalInfoForm = ({
                 />
             </form>
             <button
-                className='disabled:btn-contained-disabled btn btn-large btn-contained'
+                className='btn btn-large btn-contained disabled:btn-contained-disabled'
                 type='button'
                 onClick={handleSubmit(onSubmit)}
                 disabled={!isValid}

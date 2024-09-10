@@ -91,7 +91,7 @@ const ScreeningInitialQuestionPage: NextPageWithLayout<{
 
     return (
         <Container>
-            <h1 className='mb-[60px] font-jalnan text-head-1 xl:mb-20'>초기질문</h1>
+            <h1 className='mb-15 font-jalnan text-head-1 xl:mb-20'>초기질문</h1>
             <div className='mb-20 w-full overflow-hidden rounded-[15px] shadow-base'>
                 <div className='bg-accent1 py-3'>
                     <h2 className='text-center font-bold text-white text-body-2'>{ageGroupTitle}</h2>

@@ -105,7 +105,7 @@ const LevelGraph = ({ level }: { level: number }) => {
 // 결과 설명
 const ResultSection = ({ title, description }: { title: string; description: string }) => {
     return (
-        <div className='mb-[60px] w-full overflow-hidden rounded-base drop-shadow-[0px_4px_8px_rgba(0,0,0,0.08)]'>
+        <div className='mb-15 w-full overflow-hidden rounded-base drop-shadow-[0px_4px_8px_rgba(0,0,0,0.08)]'>
             <div className='bg-accent3 py-[15px]'>
                 <p className='text-center font-bold text-body-2'>{title}</p>
             </div>
@@ -129,8 +129,8 @@ const ScreeningResultPage: NextPageWithLayout<{
 
     return (
         <Container>
-            <h1 className='mb-[60px] break-keep text-center font-jalnan text-head-1 xl:mb-20'>간이언어평가 검사 결과</h1>
-            <div className='mb-[60px] flex w-full flex-col items-center overflow-hidden rounded-base bg-white px-[40px] py-10 drop-shadow-[0px_4px_8px_rgba(0,0,0,0.08)] xl:px-[82px]'>
+            <h1 className='mb-15 break-keep text-center font-jalnan text-head-1 xl:mb-20'>간이언어평가 검사 결과</h1>
+            <div className='mb-15 flex w-full flex-col items-center overflow-hidden rounded-base bg-white px-[40px] py-10 drop-shadow-[0px_4px_8px_rgba(0,0,0,0.08)] xl:px-[82px]'>
                 <h2 className='text-noto mb-[30px] break-keep text-center font-bold text-head-3'>
                     {age < 7 ? '우리 아이' : '사용자'}의 유창성(명료도)레벨은 <span className='text-accent1'>{level}단계</span>입니다.
                 </h2>
