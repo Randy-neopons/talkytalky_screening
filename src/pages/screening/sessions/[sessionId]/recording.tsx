@@ -10,7 +10,7 @@ import Container from '@/components/common/Container';
 import { VolumeIcon } from '@/components/icons';
 import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
-import { getScreeningTestInfoAPI, getWordAndRecordingListAPI, uploadRecordingAPI } from '@/api/screening';
+import { completeScreeningSessionAPI, getScreeningTestInfoAPI, getWordAndRecordingListAPI, uploadRecordingAPI } from '@/api/screening';
 
 import appleImg from 'public/static/images/words/사과.png';
 
@@ -53,6 +53,7 @@ const ScreeningRecordingPage: NextPageWithLayout<{
             const ageGroup = String(router.query.ageGroup);
             const wordId = wordList[currentWordNo].wordId;
             const wordText = wordList[currentWordNo].wordText;
+            const currentPathname = `/screening/sessions/${sessionId}/recording?wordNo=${currentWordNo}`;
 
             if (audioBlob) {
                 const formData = new FormData();
@@ -60,6 +61,7 @@ const ScreeningRecordingPage: NextPageWithLayout<{
                 formData.append('wordText', wordText);
                 formData.append('age', age.toString());
                 formData.append('audio', audioBlob);
+                formData.append('currentPathname', currentPathname);
 
                 await uploadRecordingAPI({ sessionId, formData });
             }
@@ -67,6 +69,8 @@ const ScreeningRecordingPage: NextPageWithLayout<{
             if (currentWordNo < wordList.length - 1) {
                 setCurrentWordNo(prev => prev + 1);
             } else {
+                // 세션 완료
+                await completeScreeningSessionAPI({ sessionId });
                 // 검사완료 페이지로 이동
                 router.push(`/screening/sessions/${sessionId}/complete`);
             }
@@ -82,7 +86,12 @@ const ScreeningRecordingPage: NextPageWithLayout<{
             <div className='relative mb-[50px] flex w-full justify-center overflow-hidden rounded-[15px] bg-white py-2 shadow-base xl:py-[22px]'>
                 <div className='relative h-[400px] w-full'>
                     {wordList[currentWordNo].imgSrc && (
-                        <Image src={wordList[currentWordNo].imgSrc} alt={wordList[currentWordNo].wordText} fill objectFit='contain' />
+                        <Image
+                            src={wordList[currentWordNo].imgSrc}
+                            alt={wordList[currentWordNo].wordText}
+                            fill
+                            style={{ objectFit: 'contain' }}
+                        />
                     )}
                 </div>
                 {ageGroup < '6' && (

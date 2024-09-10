@@ -62,6 +62,7 @@ const ScreeningInitialQuestionPage: NextPageWithLayout<{
             // sessionId, questionId, answer로 업로드
             const sessionId = Number(router.query.sessionId);
             const ageGroup = String(router.query.ageGroup);
+            const currentPathname = `/screening/sessions/${sessionId}/initialQuestion?questionNo=${currentQuestionNo}`;
 
             if (!answer) {
                 throw new Error('정답이 없습니다.');
@@ -71,6 +72,7 @@ const ScreeningInitialQuestionPage: NextPageWithLayout<{
                 sessionId,
                 questionId: questionAnswerList[currentQuestionNo].questionId,
                 answer,
+                currentPathname,
             });
 
             if (currentQuestionNo < questionAnswerList.length - 1) {
@@ -139,6 +141,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         const testInfoResponse = await getScreeningTestInfoAPI({ sessionId });
         const testInfo = testInfoResponse.testInfo;
         const ageGroup = testInfo.ageGroup;
+        const progress = testInfo.progress;
 
         // questionAnswerList 받아오기
         const responseData = await getScreeningQuestionAndAnswerListAPI({ sessionId, ageGroup });
@@ -151,6 +154,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
                     ageGroup,
                     questionAnswerList,
                     questionNo: 0,
+                    progress,
                 },
             };
         }

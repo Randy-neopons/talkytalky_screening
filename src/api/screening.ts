@@ -30,6 +30,7 @@ export async function getScreeningTestInfoAPI({ sessionId }: { sessionId: number
             testeeGender: string;
             testeeBirthdate: string;
             ageGroup: string;
+            progress: number;
         };
     }>(`/assessment/screening/session/${sessionId}`);
     return response.data;
@@ -63,14 +64,12 @@ export async function createScreeningSessionAPI({
     testInfo,
     talkyUserId,
     therapistUserId,
-    currentPathname,
     age,
     ageGroup,
 }: {
     testInfo: ScreeningTestInfo;
     talkyUserId?: number;
     therapistUserId?: number;
-    currentPathname: string;
     age: number;
     ageGroup: string;
 }) {
@@ -78,7 +77,6 @@ export async function createScreeningSessionAPI({
         testInfo,
         talkyUserId,
         therapistUserId,
-        currentPathname,
         age,
         ageGroup,
     });
@@ -87,8 +85,22 @@ export async function createScreeningSessionAPI({
 }
 
 // 정답 업로드
-export async function uploadAnswerAPI({ sessionId, questionId, answer }: { sessionId: number; questionId: number; answer: string }) {
-    const response = await axios.post(`/assessment/screening/session/${sessionId}/answer`, { questionId, answer });
+export async function uploadAnswerAPI({
+    sessionId,
+    questionId,
+    answer,
+    currentPathname,
+}: {
+    sessionId: number;
+    questionId: number;
+    answer: string;
+    currentPathname: string;
+}) {
+    const response = await axios.post(`/assessment/screening/session/${sessionId}/answer`, {
+        questionId,
+        answer,
+        currentPathname,
+    });
 
     return response.data;
 }
@@ -108,7 +120,7 @@ export async function updateSessionAPI({ sessionId, formData }: { sessionId: num
 }
 
 // 세션 완료
-export async function completeSessionAPI({ sessionId }: { sessionId: number; jwt: string }) {
+export async function completeScreeningSessionAPI({ sessionId }: { sessionId: number }) {
     const response = await axios.patch(`/assessment/screening/session/${sessionId}/complete`);
 
     return response.data;
@@ -118,6 +130,7 @@ export async function completeSessionAPI({ sessionId }: { sessionId: number; jwt
 export async function getScreeningTestResultAPI({ sessionId }: { sessionId: number }) {
     const response = await axios.get<{
         result: boolean;
+        age: number;
         level: number;
         abstract: { content: string };
         errorExplain: { Error_consonant: string; Error_pattern: string };

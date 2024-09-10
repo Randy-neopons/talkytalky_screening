@@ -118,12 +118,13 @@ const ResultSection = ({ title, description }: { title: string; description: str
 
 // 간이언어평가 완료 페이지
 const ScreeningResultPage: NextPageWithLayout<{
+    age: number;
     level: number;
     sectionList: {
         title: string;
         description: string;
     }[];
-}> = ({ level, sectionList }) => {
+}> = ({ age, level, sectionList }) => {
     const router = useRouter();
 
     return (
@@ -131,7 +132,7 @@ const ScreeningResultPage: NextPageWithLayout<{
             <h1 className='mb-[60px] break-keep text-center font-jalnan text-head-1 xl:mb-20'>간이언어평가 검사 결과</h1>
             <div className='mb-[60px] flex w-full flex-col items-center overflow-hidden rounded-base bg-white px-[40px] py-10 drop-shadow-[0px_4px_8px_rgba(0,0,0,0.08)] xl:px-[82px]'>
                 <h2 className='text-noto mb-[30px] break-keep text-center font-bold text-head-3'>
-                    우리 아이의 유창성(명료도)레벨은 <span className='text-accent1'>{level}단계</span>입니다.
+                    {age < 7 ? '우리 아이' : '사용자'}의 유창성(명료도)레벨은 <span className='text-accent1'>{level}단계</span>입니다.
                 </h2>
 
                 {/* 유창성 레벨 그래프 */}
@@ -193,6 +194,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
 
         return {
             props: {
+                age: testResultData.age,
                 level: testResultData.level,
                 sectionList,
             },

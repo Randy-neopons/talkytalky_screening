@@ -23,6 +23,29 @@ const genderOptions = [
     { value: 'male', label: '남' },
 ];
 
+// 연령대 계산
+const makeAgeGroup = (age: number) => {
+    if (age < 3) {
+        return '1';
+    }
+    if (age < 4) {
+        return '2';
+    }
+    if (age < 5) {
+        return '3';
+    }
+    if (age < 6) {
+        return '4';
+    }
+    if (age < 7) {
+        return '5';
+    }
+    if (age < 12) {
+        return '6';
+    }
+    return '7';
+};
+
 const Label = ({ children, htmlFor, required }: { children: ReactNode; htmlFor: string; required?: boolean }) => {
     return (
         <label htmlFor={htmlFor} className='mb-4 mt-10 block font-noto font-bold text-black text-head-2'>
@@ -151,6 +174,8 @@ const ScreeningPersonalInfoPage: NextPageWithLayout = () => {
     const router = useRouter(); // next router
     const { data: user } = useUserQuery();
 
+    console.log(user);
+
     // 폼 제출
     const handleOnSubmit = useCallback(
         async (data: FormValues) => {
@@ -161,33 +186,22 @@ const ScreeningPersonalInfoPage: NextPageWithLayout = () => {
 
                 const formValues = {
                     ...rest,
-                    therapistUserId: user?.data.therapistUserId,
                     testeeBirthdate,
                 };
 
                 const currentPathname = router.asPath;
 
                 const age = dayjs().diff(testeeBirthdate, 'year');
-                let ageGroup = '1';
-                if (age < 3) {
-                    ageGroup = '1';
-                } else if (age < 4) {
-                    ageGroup = '2';
-                } else if (age < 5) {
-                    ageGroup = '3';
-                } else if (age < 6) {
-                    ageGroup = '4';
-                } else if (age < 7) {
-                    ageGroup = '5';
-                } else if (age < 8) {
-                    ageGroup = '6';
-                } else {
-                    ageGroup = '7';
-                }
+                const ageGroup = makeAgeGroup(age);
 
-                // TODO: createScreeningSession
-                // TODO: sessionId 받아오기
-                const responseData = await createScreeningSessionAPI({ testInfo: formValues, currentPathname, age, ageGroup });
+                const responseData = await createScreeningSessionAPI({
+                    testInfo: formValues,
+                    talkyUserId: user?.data.talkyUserId,
+                    therapistUserId: user?.data.therapistUserId,
+                    currentPathname,
+                    age,
+                    ageGroup,
+                });
 
                 const sessionId = responseData.sessionId;
                 router.push(`/screening/sessions/${sessionId}/initialQuestion`); // 검사 선택 화면으로

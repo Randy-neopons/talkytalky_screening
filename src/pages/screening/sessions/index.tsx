@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 
 import Container from '@/components/common/Container';
 import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
-import { getSessionListAPI } from '@/api/questions';
+import { getScreeningSessionListAPI } from '@/api/screening';
 
 import searchIcon from 'public/static/images/search-icon.png';
 
@@ -27,9 +27,11 @@ const ScreeningSessionListPage: NextPageWithLayout<{ sessionList: ScreeningTestS
 
     // 이어하기
     const handleClickContinue = useCallback(
-        (sessionId: number, currentPathname: string) => () => {
+        (currentPathname: string, testSessionId: number) => () => {
             if (currentPathname) {
-                router.push(`/screening/sessions/${sessionId}/${currentPathname}`);
+                router.push(currentPathname);
+            } else {
+                router.push(`/screening/sessions/${testSessionId}/initialQuestion`);
             }
         },
         [router],
@@ -84,7 +86,7 @@ const ScreeningSessionListPage: NextPageWithLayout<{ sessionList: ScreeningTestS
                             ) : (
                                 <button
                                     className='btn btn-small btn-outlined'
-                                    onClick={handleClickContinue(v.testSessionId, v.currentPathname)}
+                                    onClick={handleClickContinue(v.currentPathname, v.testSessionId)}
                                 >
                                     이어하기
                                 </button>
@@ -105,37 +107,18 @@ export default ScreeningSessionListPage;
 
 export const getServerSideProps: GetServerSideProps = async context => {
     try {
-        // const accessToken = getCookie('jwt', context);
-        // if (!accessToken || accessToken === 'undefined') {
-        //     return {
-        //         props: {
-        //             isLoggedIn: false,
-        //         },
-        //     };
-        // }
+        const accessToken = getCookie('jwt', context);
+        if (!accessToken || accessToken === 'undefined') {
+            return {
+                props: {
+                    isLoggedIn: false,
+                },
+            };
+        }
 
         // 세션 목록 fetch
-        // const responseData = await getSessionListAPI({ jwt: accessToken });
-        // const sessionList = responseData.sessions;
-
-        const sessionList = [
-            {
-                testSessionId: 1,
-                testeeName: '조대형',
-                testeeBirthdate: '1992-07-24',
-                regDate: '2024-05-18',
-                status: '3',
-                progress: 90,
-            },
-            {
-                testSessionId: 2,
-                testeeName: '조대형',
-                testeeBirthdate: '1992-07-24',
-                regDate: '2024-05-18',
-                status: '3',
-                progress: 100,
-            },
-        ];
+        const responseData = await getScreeningSessionListAPI({ jwt: accessToken });
+        const sessionList = responseData.sessions;
 
         return {
             props: {

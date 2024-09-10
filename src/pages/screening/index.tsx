@@ -26,7 +26,7 @@ const ScreeningHome: NextPageWithLayout = () => {
     // 시작하기 클릭
     const handleClickStart = useCallback(() => {
         if (user) {
-            router.push(`/screening/sessions`);
+            router.push(`/screening/personalInfo`);
             return;
         } else if (window.confirm('비회원으로 이용하실 경우\n추후에 결과를 재확인 하실 수 없습니다.')) {
             // 로그인 버튼 누르면 로그인
