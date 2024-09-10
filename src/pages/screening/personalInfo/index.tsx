@@ -187,7 +187,7 @@ const ScreeningPersonalInfoPage: NextPageWithLayout = () => {
 
                 // TODO: createScreeningSession
                 // TODO: sessionId 받아오기
-                const responseData = await createScreeningSessionAPI({ testInfo: formValues, currentPathname, ageGroup });
+                const responseData = await createScreeningSessionAPI({ testInfo: formValues, currentPathname, age, ageGroup });
 
                 const sessionId = responseData.sessionId;
                 router.push(`/screening/sessions/${sessionId}/initialQuestion`); // 검사 선택 화면으로

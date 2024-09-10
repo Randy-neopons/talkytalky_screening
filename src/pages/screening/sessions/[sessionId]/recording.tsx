@@ -20,9 +20,10 @@ import type { NextPageWithLayout } from '@/types/types';
 // 간이언어평가 녹음 페이지
 const ScreeningRecordingPage: NextPageWithLayout<{
     age: number;
+    ageGroup: string;
     wordList: Word[];
     wordNo: number;
-}> = ({ age, wordList, wordNo }) => {
+}> = ({ age, ageGroup, wordList, wordNo }) => {
     const router = useRouter(); // next router
 
     const [currentWordNo, setCurrentWordNo] = useState(wordNo || 0); //  0부터 시작
@@ -79,14 +80,19 @@ const ScreeningRecordingPage: NextPageWithLayout<{
         <Container>
             <h1 className='mb-[60px] font-jalnan text-head-1 xl:mb-20'>이름맞히기</h1>
             <div className='relative mb-[50px] flex w-full justify-center overflow-hidden rounded-[15px] bg-white py-2 shadow-base xl:py-[22px]'>
-                <div className='h-[400px] w-[400px]'>
+                <div className='relative h-[400px] w-full'>
                     {wordList[currentWordNo].imgSrc && (
-                        <Image src={wordList[currentWordNo].imgSrc} alt={wordList[currentWordNo].wordText} width={400} height={400} />
+                        <Image src={wordList[currentWordNo].imgSrc} alt={wordList[currentWordNo].wordText} fill objectFit='contain' />
                     )}
                 </div>
-                <button className='absolute bottom-5 right-5 flex h-fit drop-shadow-[2px_2px_2px_rgba(0,0,0,0.25)]' onClick={handlePlayTts}>
-                    <VolumeIcon width={60} height={60} />
-                </button>
+                {ageGroup < '6' && (
+                    <button
+                        className='absolute bottom-5 right-5 flex h-fit drop-shadow-[2px_2px_2px_rgba(0,0,0,0.25)]'
+                        onClick={handlePlayTts}
+                    >
+                        <VolumeIcon width={60} height={60} />
+                    </button>
+                )}
             </div>
             <div className='mx-auto mb-[60px] xl:mb-20'>
                 <RoundedBox>
@@ -150,6 +156,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
             return {
                 props: {
                     age,
+                    ageGroup,
                     wordList,
                     wordNo: 0,
                 },
@@ -159,6 +166,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         return {
             props: {
                 age,
+                ageGroup,
                 wordList,
                 wordNo,
             },

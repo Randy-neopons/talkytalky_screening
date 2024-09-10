@@ -64,12 +64,14 @@ export async function createScreeningSessionAPI({
     talkyUserId,
     therapistUserId,
     currentPathname,
+    age,
     ageGroup,
 }: {
     testInfo: ScreeningTestInfo;
     talkyUserId?: number;
     therapistUserId?: number;
     currentPathname: string;
+    age: number;
     ageGroup: string;
 }) {
     const response = await axios.post('/assessment/screening/session', {
@@ -77,6 +79,7 @@ export async function createScreeningSessionAPI({
         talkyUserId,
         therapistUserId,
         currentPathname,
+        age,
         ageGroup,
     });
 
