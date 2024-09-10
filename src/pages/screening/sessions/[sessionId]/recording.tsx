@@ -30,6 +30,8 @@ const ScreeningRecordingPage: NextPageWithLayout<{
     const { audioBlob, audioUrl, isPlaying, isRecording, setAudioUrl, handlePause, handlePlay, handleStartRecording, handleStopRecording } =
         useAudioRecorder(wordList[currentWordNo].filePath);
 
+    const { setAudioUrl: setTtsUrl, handlePlay: handlePlayTts } = useAudioRecorder(wordList[currentWordNo].audioSrc);
+
     // 이전 파트로
     const handleClickPrev = useCallback(() => {
         if (currentWordNo > 0) {
@@ -39,9 +41,9 @@ const ScreeningRecordingPage: NextPageWithLayout<{
     }, [currentWordNo]);
 
     useEffect(() => {
-        console.log(wordList[currentWordNo].wordText);
+        setTtsUrl(wordList[currentWordNo].audioSrc);
         setAudioUrl(wordList[currentWordNo].filePath);
-    }, [currentWordNo, setAudioUrl, wordList]);
+    }, [currentWordNo, setAudioUrl, setTtsUrl, wordList]);
 
     // 다음 파트로
     const handleClickNext = useCallback(async () => {
@@ -77,8 +79,12 @@ const ScreeningRecordingPage: NextPageWithLayout<{
         <Container>
             <h1 className='mb-[60px] font-jalnan text-head-1 xl:mb-20'>이름맞히기</h1>
             <div className='relative mb-[50px] flex w-full justify-center overflow-hidden rounded-[15px] bg-white py-2 shadow-base xl:py-[22px]'>
-                <Image src={wordList[currentWordNo].imgSrc} alt={wordList[currentWordNo].wordText} width={400} height={400} />
-                <button className='absolute bottom-5 right-5 flex h-fit drop-shadow-[2px_2px_2px_rgba(0,0,0,0.25)]' onClick={() => {}}>
+                <div className='h-[400px] w-[400px]'>
+                    {wordList[currentWordNo].imgSrc && (
+                        <Image src={wordList[currentWordNo].imgSrc} alt={wordList[currentWordNo].wordText} width={400} height={400} />
+                    )}
+                </div>
+                <button className='absolute bottom-5 right-5 flex h-fit drop-shadow-[2px_2px_2px_rgba(0,0,0,0.25)]' onClick={handlePlayTts}>
                     <VolumeIcon width={60} height={60} />
                 </button>
             </div>
@@ -137,14 +143,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         // TODO: ageGroup으로 questionAnswerList 받아오기
 
         const wordsResponse = await getWordAndRecordingListAPI({ sessionId, ageGroup });
-        const words = await wordsResponse.words;
-
-        const wordList = words.map((v: any) => ({
-            ...v,
-            imgSrc: appleImg.src,
-        }));
-
-        console.log(wordList);
+        const wordList = await wordsResponse.words;
 
         // 잘못된 질문 번호면 0으로 리셋
         if (!wordList[wordNo]) {

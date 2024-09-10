@@ -11,6 +11,8 @@ export interface Word {
     wordId: number;
     wordText: string;
     imgSrc: string;
+    imgSrc?: string | null;
+    audioSrc?: string | null;
     filePath?: string | null;
 }
 
