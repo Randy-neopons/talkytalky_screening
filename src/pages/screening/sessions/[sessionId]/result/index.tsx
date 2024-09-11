@@ -131,7 +131,7 @@ const ScreeningResultPage: NextPageWithLayout<{
         <Container>
             <h1 className='mb-15 break-keep text-center font-jalnan text-head-1 xl:mb-20'>간이언어평가 검사 결과</h1>
             <div className='mb-15 flex w-full flex-col items-center overflow-hidden rounded-base bg-white px-[40px] py-10 drop-shadow-[0px_4px_8px_rgba(0,0,0,0.08)] xl:px-[82px]'>
-                <h2 className='text-noto mb-[30px] break-keep text-center font-bold text-head-3'>
+                <h2 className='text-noto mb-7.5 break-keep text-center font-bold text-head-3'>
                     {age < 7 ? '우리 아이' : '사용자'}의 유창성(명료도)레벨은 <span className='text-accent1'>{level}단계</span>입니다.
                 </h2>
 
@@ -145,7 +145,7 @@ const ScreeningResultPage: NextPageWithLayout<{
             ))}
 
             {/* 무료 상담 버튼 */}
-            <button className='mt-5 w-[450px] py-[18px] btn btn-contained'>
+            <button className='mt-5 w-full max-w-[450px] py-[18px] btn btn-contained'>
                 <p className='font-noto text-[14px]'>우리아이의 언어발달이 고민이라면?</p>
                 <p className='font-jalnan text-[14px] text-head-2'>무료상담 신청하기</p>
             </button>

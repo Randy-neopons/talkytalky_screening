@@ -57,9 +57,9 @@ export default function SessionListPage({ sessionList }: { sessionList: TestSess
                 </div>
             </div>
 
-            <ul className='mt-20 flex w-full flex-col gap-[30px]'>
+            <ul className='gap-7.5 mt-20 flex w-full flex-col'>
                 {sessionList.map(v => (
-                    <li key={v.testSessionId} className='flex items-center justify-between rounded-base bg-white p-[30px] shadow-base'>
+                    <li key={v.testSessionId} className='p-7.5 flex items-center justify-between rounded-base bg-white shadow-base'>
                         <div className='flex gap-[10px]'>
                             <div className='flex items-center gap-[10px]'>
                                 <span className='font-jalnan text-black text-head-2'>{v.patientName}</span>

@@ -109,7 +109,7 @@ export const ScreeningPersonalInfoForm = ({
 
     return (
         <>
-            <form className='mb-20 mt-15 w-[550px] rounded-[20px] bg-white px-[50px] pb-[50px] pt-[10px] shadow-base xl:mt-20'>
+            <form className='mb-20 mt-15 w-full max-w-[550px] rounded-[20px] bg-white px-[50px] pb-[50px] pt-[10px] shadow-base xl:mt-20'>
                 <Label htmlFor='testeeName' required>
                     이름
                 </Label>

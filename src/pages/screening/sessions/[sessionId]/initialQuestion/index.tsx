@@ -96,8 +96,8 @@ const ScreeningInitialQuestionPage: NextPageWithLayout<{
                 <div className='bg-accent1 py-3'>
                     <h2 className='text-center font-bold text-white text-body-2'>{ageGroupTitle}</h2>
                 </div>
-                <div className='bg-white px-[77px] py-[50px] text-center xl:px-[180px]'>
-                    <p className='mb-[10px] font-noto font-[900] text-head-2'>{`Q${currentQuestionNo + 1}. ${questionAnswerList[currentQuestionNo]?.questionText}`}</p>
+                <div className='px-7.5 bg-white py-[50px] text-center sm:px-[77px] xl:px-[180px]'>
+                    <p className='mb-[10px] break-keep font-noto font-[900] text-head-2'>{`Q${currentQuestionNo + 1}. ${questionAnswerList[currentQuestionNo]?.questionText}`}</p>
                     <p className='mb-[50px] break-keep font-noto text-head-3'>{questionAnswerList[currentQuestionNo]?.questionDesc}</p>
                     <div className='flex flex-col gap-5'>
                         <RadioButton name='answer' value='Y' label='예' onChange={handleOnChange} checked={answer === 'Y'} />
@@ -105,7 +105,7 @@ const ScreeningInitialQuestionPage: NextPageWithLayout<{
                     </div>
                 </div>
             </div>
-            <div>
+            <div className='flex flex-wrap justify-center gap-5'>
                 <button
                     type='button'
                     className='btn btn-large btn-outlined disabled:btn-outlined-disabled'
@@ -116,7 +116,7 @@ const ScreeningInitialQuestionPage: NextPageWithLayout<{
                 </button>
                 <button
                     type='button'
-                    className='ml-5 btn btn-large btn-contained disabled:btn-contained-disabled'
+                    className='btn btn-large btn-contained disabled:btn-contained-disabled'
                     onClick={handleClickNext}
                     disabled={!answer}
                 >

@@ -12,8 +12,6 @@ import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { completeScreeningSessionAPI, getScreeningTestInfoAPI, getWordAndRecordingListAPI, uploadRecordingAPI } from '@/api/screening';
 
-import appleImg from 'public/static/images/words/사과.png';
-
 import type { Word } from '@/types/screening';
 import type { NextPageWithLayout } from '@/types/types';
 
@@ -28,8 +26,18 @@ const ScreeningRecordingPage: NextPageWithLayout<{
 
     const [currentWordNo, setCurrentWordNo] = useState(wordNo || 0); //  0부터 시작
 
-    const { audioBlob, audioUrl, isPlaying, isRecording, setAudioUrl, handlePause, handlePlay, handleStartRecording, handleStopRecording } =
-        useAudioRecorder(wordList[currentWordNo].filePath);
+    const {
+        audioBlob,
+        audioUrl,
+        volume,
+        isPlaying,
+        isRecording,
+        setAudioUrl,
+        handlePause,
+        handlePlay,
+        handleStartRecording,
+        handleStopRecording,
+    } = useAudioRecorder(wordList[currentWordNo].filePath);
 
     const { setAudioUrl: setTtsUrl, handlePlay: handlePlayTts } = useAudioRecorder(wordList[currentWordNo].audioSrc);
 
@@ -84,7 +92,7 @@ const ScreeningRecordingPage: NextPageWithLayout<{
         <Container>
             <h1 className='mb-15 font-jalnan text-head-1 xl:mb-20'>이름맞히기</h1>
             <div className='relative mb-[50px] flex w-full justify-center overflow-hidden rounded-[15px] bg-white py-2 shadow-base xl:py-[22px]'>
-                <div className='relative h-[400px] w-full'>
+                <div className='relative h-[200px] w-full sm:h-[400px]'>
                     {wordList[currentWordNo].imgSrc && (
                         <Image
                             src={wordList[currentWordNo].imgSrc}
@@ -103,7 +111,7 @@ const ScreeningRecordingPage: NextPageWithLayout<{
                     </button>
                 )}
             </div>
-            <div className='mb-15 mx-auto xl:mb-20'>
+            <div className='mx-auto mb-15 xl:mb-20'>
                 <RoundedBox>
                     <AudioButton
                         audioUrl={audioUrl}
@@ -116,7 +124,7 @@ const ScreeningRecordingPage: NextPageWithLayout<{
                     />
                 </RoundedBox>
             </div>
-            <div>
+            <div className='flex flex-wrap justify-center gap-5'>
                 <button
                     type='button'
                     className='btn btn-large btn-outlined disabled:btn-outlined-disabled'
@@ -127,7 +135,7 @@ const ScreeningRecordingPage: NextPageWithLayout<{
                 </button>
                 <button
                     type='button'
-                    className='ml-5 btn btn-large btn-contained disabled:btn-contained-disabled'
+                    className='btn btn-large btn-contained disabled:btn-contained-disabled'
                     onClick={handleClickNext}
                     disabled={!audioUrl}
                 >

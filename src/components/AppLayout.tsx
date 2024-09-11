@@ -19,7 +19,7 @@ export default function AppLayout({ isLoggedIn, progress, children }: { isLogged
         if (router.pathname === '/') {
             return;
         }
-        
+
         if (window.confirm('평가를 종료하고 홈 화면으로 이동하시겠습니까?')) {
             router.push('/');
         }
@@ -47,7 +47,7 @@ export default function AppLayout({ isLoggedIn, progress, children }: { isLogged
                             말운동 평가
                         </button>
                         {testStart && (
-                            <div className='flex items-center gap-5 xl:gap-[30px]'>
+                            <div className='xl:gap-7.5 flex items-center gap-5'>
                                 {progress !== undefined && progress !== null && (
                                     <>
                                         <span className='text-neutral11 text-head-2'>진행률 {progress}%</span>
