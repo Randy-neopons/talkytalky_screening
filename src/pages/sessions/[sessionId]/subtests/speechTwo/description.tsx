@@ -14,7 +14,6 @@ import { InfoIcon } from '@/components/icons';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getAnswersCountAPI, updateSessionAPI } from '@/api/questions';
 
-import { AudioButton, RoundedBox } from '.';
 import styles from '../SubTests.module.css';
 
 import fontSizeIcon from 'public/static/images/font-size-icon.png';

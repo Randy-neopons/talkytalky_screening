@@ -62,21 +62,21 @@ export async function getWordAndRecordingListAPI({ sessionId, ageGroup }: { sess
 // 세션 생성
 export async function createScreeningSessionAPI({
     testInfo,
-    talkyUserId,
-    therapistUserId,
+    userType,
+    userId,
     age,
     ageGroup,
 }: {
     testInfo: ScreeningTestInfo;
-    talkyUserId?: number;
-    therapistUserId?: number;
+    userType?: 'talky' | 'therapist';
+    userId?: number;
     age: number;
     ageGroup: string;
 }) {
     const response = await axios.post('/assessment/screening/session', {
         testInfo,
-        talkyUserId,
-        therapistUserId,
+        userType,
+        userId,
         age,
         ageGroup,
     });
