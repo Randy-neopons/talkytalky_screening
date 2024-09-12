@@ -122,7 +122,7 @@ const ScreeningResultPage: NextPageWithLayout<{
     level: number;
     sectionList: {
         title: string;
-        description: string;
+        description?: string;
     }[];
 }> = ({ age, level, sectionList }) => {
     const router = useRouter();
@@ -130,18 +130,20 @@ const ScreeningResultPage: NextPageWithLayout<{
     return (
         <Container>
             <h1 className='mb-15 break-keep text-center font-jalnan text-head-1 xl:mb-20'>간이언어평가 검사 결과</h1>
-            <div className='mb-15 flex w-full flex-col items-center overflow-hidden rounded-base bg-white px-[40px] py-10 drop-shadow-[0px_4px_8px_rgba(0,0,0,0.08)] xl:px-[82px]'>
-                <h2 className='text-noto mb-7.5 break-keep text-center font-bold text-head-3'>
-                    {age < 7 ? '우리 아이' : '사용자'}의 유창성(명료도)레벨은 <span className='text-accent1'>{level}단계</span>입니다.
-                </h2>
+            {age < 7 && (
+                <div className='mb-15 flex w-full flex-col items-center overflow-hidden rounded-base bg-white px-[40px] py-10 drop-shadow-[0px_4px_8px_rgba(0,0,0,0.08)] xl:px-[82px]'>
+                    <h2 className='text-noto mb-7.5 break-keep text-center font-bold text-head-3'>
+                        우리 아이의 유창성(명료도)레벨은 <span className='text-accent1'>{level}단계</span>입니다.
+                    </h2>
 
-                {/* 유창성 레벨 그래프 */}
-                <LevelGraph level={level} />
-            </div>
+                    {/* 유창성 레벨 그래프 */}
+                    <LevelGraph level={level} />
+                </div>
+            )}
 
             {/* 검사 결과 */}
             {sectionList.map((v, i) => (
-                <ResultSection key={i} title={v.title} description={v.description} />
+                <ResultSection key={i} title={v.title} description={v.description || '없음'} />
             ))}
 
             {/* 무료 상담 버튼 */}
@@ -173,29 +175,26 @@ export const getServerSideProps: GetServerSideProps = async context => {
 
         // TODO: result API에서 받아오기
         const testResultData = await getScreeningTestResultAPI({ sessionId });
-        const sectionList = [
-            {
-                title: '개요',
-                description: testResultData.abstract.content,
-            },
-            {
-                title: '오류자음',
-                description: testResultData.errorExplain.Error_consonant,
-            },
-            {
-                title: '오류패턴',
-                description: testResultData.errorExplain.Error_pattern,
-            },
-            {
-                title: '종합의견',
-                description: testResultData.summary.content,
-            },
-        ];
+        const { age, level, abstract, errorConsonant, errorPattern, errors, responseTime, summary } = testResultData;
+        const sectionList =
+            age < 7
+                ? [
+                      { title: '개요', description: abstract },
+                      { title: '오류자음', description: errorConsonant },
+                      { title: '오류패턴', description: errorPattern },
+                      { title: '종합의견', description: summary },
+                  ]
+                : [
+                      { title: '개요', description: abstract },
+                      { title: '말산출오류', description: errors },
+                      { title: '첫반응시간', description: responseTime },
+                      { title: '종합의견', description: summary },
+                  ];
 
         return {
             props: {
-                age: testResultData.age,
-                level: testResultData.level,
+                age,
+                level,
                 sectionList,
             },
         };

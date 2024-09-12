@@ -19,7 +19,8 @@ export default function ScreeningAppLayout({ children }: { children: ReactNode }
 
     // 홈으로 버튼
     const onClickHome = useCallback(() => {
-        if (router.pathname === '/screening') {
+        if (['/screening', '/screening/sessions', '/screening/sessions/[sessionId]/result'].includes(router.pathname)) {
+            router.push('/screening');
             return;
         }
 

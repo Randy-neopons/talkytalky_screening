@@ -16,7 +16,8 @@ export default function AppLayout({ isLoggedIn, progress, children }: { isLogged
 
     // 홈으로 버튼
     const onClickHome = useCallback(() => {
-        if (router.pathname === '/') {
+        if (['/', '/sessions', '/sessions/[sessionId]/result'].includes(router.pathname)) {
+            router.push('/');
             return;
         }
 
@@ -47,7 +48,7 @@ export default function AppLayout({ isLoggedIn, progress, children }: { isLogged
                             말운동 평가
                         </button>
                         {testStart && (
-                            <div className='xl:gap-7.5 flex items-center gap-5'>
+                            <div className='flex items-center gap-5 xl:gap-7.5'>
                                 {progress !== undefined && progress !== null && (
                                     <>
                                         <span className='text-neutral11 text-head-2'>진행률 {progress}%</span>

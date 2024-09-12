@@ -159,9 +159,12 @@ export async function getScreeningTestResultAPI({ sessionId }: { sessionId: numb
         result: boolean;
         age: number;
         level: number;
-        abstract: { content: string };
-        errorExplain: { Error_consonant: string; Error_pattern: string };
-        summary: { content: string };
+        abstract: string;
+        errorConsonant?: string;
+        errorPattern?: string;
+        errors?: string;
+        responseTime?: number;
+        summary: string;
     }>(`/assessment/screening/session/${sessionId}/result`);
 
     return response.data;
