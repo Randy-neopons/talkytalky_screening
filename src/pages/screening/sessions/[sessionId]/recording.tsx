@@ -3,14 +3,17 @@ import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
+import { useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 
+import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { AudioButton, RoundedBox } from '@/components/common/Buttons';
 import Container from '@/components/common/Container';
 import { VolumeIcon } from '@/components/icons';
 import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
+import { screeningTestSessionQueryKey, useScreeningRecordingQuery } from '@/hooks/screening';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
-import { completeScreeningSessionAPI, getScreeningTestInfoAPI, getWordAndRecordingListAPI, uploadRecordingAPI } from '@/api/screening';
+import { completeScreeningSessionAPI, getScreeningTestSessionAPI, getWordAndRecordingListAPI, uploadRecordingAPI } from '@/api/screening';
 
 import type { Word } from '@/types/screening';
 import type { NextPageWithLayout } from '@/types/types';
@@ -23,6 +26,9 @@ const ScreeningRecordingPage: NextPageWithLayout<{
     wordNo: number;
 }> = ({ age, ageGroup, wordList, wordNo }) => {
     const router = useRouter(); // next router
+    const queryClient = useQueryClient();
+
+    const testTime = useTestTime();
 
     const [currentWordNo, setCurrentWordNo] = useState(wordNo || 0); //  0부터 시작
 
@@ -33,6 +39,7 @@ const ScreeningRecordingPage: NextPageWithLayout<{
         isPlaying,
         isRecording,
         setAudioUrl,
+        setAudioBlob,
         handlePause,
         handlePlay,
         handleStartRecording,
@@ -41,18 +48,29 @@ const ScreeningRecordingPage: NextPageWithLayout<{
 
     const { setAudioUrl: setTtsUrl, handlePlay: handlePlayTts } = useAudioRecorder(wordList[currentWordNo].audioSrc);
 
+    const { data: recordingData } = useScreeningRecordingQuery({
+        sessionId: Number(router.query.sessionId),
+        wordId: wordList[currentWordNo].wordId,
+    });
+
+    const { setTestStart } = useTimerActions();
+
     // 이전 파트로
     const handleClickPrev = useCallback(() => {
         if (currentWordNo > 0) {
             setCurrentWordNo(prev => prev - 1);
+            setAudioBlob(null);
         }
         typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
-    }, [currentWordNo]);
+    }, [currentWordNo, setAudioBlob]);
 
     useEffect(() => {
         setTtsUrl(wordList[currentWordNo].audioSrc);
-        setAudioUrl(wordList[currentWordNo].filePath);
-    }, [currentWordNo, setAudioUrl, setTtsUrl, wordList]);
+    }, [currentWordNo, setTtsUrl, wordList]);
+
+    useEffect(() => {
+        setAudioUrl(recordingData?.filePath);
+    }, [recordingData?.filePath, setAudioUrl]);
 
     // 다음 파트로
     const handleClickNext = useCallback(async () => {
@@ -70,12 +88,16 @@ const ScreeningRecordingPage: NextPageWithLayout<{
                 formData.append('age', age.toString());
                 formData.append('audio', audioBlob);
                 formData.append('currentPathname', currentPathname);
+                formData.append('currentTime', testTime.toString());
 
                 await uploadRecordingAPI({ sessionId, formData });
+
+                queryClient.refetchQueries({ queryKey: [screeningTestSessionQueryKey, sessionId] });
             }
 
             if (currentWordNo < wordList.length - 1) {
                 setCurrentWordNo(prev => prev + 1);
+                setAudioBlob(null);
             } else {
                 // 세션 완료
                 await completeScreeningSessionAPI({ sessionId });
@@ -86,7 +108,11 @@ const ScreeningRecordingPage: NextPageWithLayout<{
         } catch (err) {
             console.error(err);
         }
-    }, [router, wordList, currentWordNo, audioBlob, age]);
+    }, [age, audioBlob, currentWordNo, queryClient, router, setAudioBlob, testTime, wordList]);
+
+    useEffect(() => {
+        setTestStart && setTestStart(true);
+    }, [setTestStart]);
 
     return (
         <Container>
@@ -157,7 +183,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         const sessionId = Number(context.query.sessionId);
         const wordNo = Number(context.query.wordNo);
 
-        const testInfoResponse = await getScreeningTestInfoAPI({ sessionId });
+        const testInfoResponse = await getScreeningTestSessionAPI({ sessionId });
         const testInfo = testInfoResponse.testInfo;
         const ageGroup = testInfo.ageGroup;
         // 만 나이 계산

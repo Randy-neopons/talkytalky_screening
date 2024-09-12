@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 const useAudioRecorder = (defaultUrl?: string | null) => {
     const [isRecording, setIsRecording] = useState(false);
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
-    const [audioBlob, setAudioBlob] = useState<Blob>();
+    const [audioBlob, setAudioBlob] = useState<Blob | null>();
     const [audioUrl, setAudioUrl] = useState<string | null>();
     const [volume, setVolume] = useState<number>(0); // 볼륨 상태 추가
 
@@ -108,6 +108,7 @@ const useAudioRecorder = (defaultUrl?: string | null) => {
         audioUrl,
         volume,
         setAudioUrl,
+        setAudioBlob,
         handleStartRecording,
         handleStopRecording,
         handlePlay,

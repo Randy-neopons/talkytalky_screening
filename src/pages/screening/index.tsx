@@ -24,6 +24,8 @@ const ScreeningHome: NextPageWithLayout = () => {
 
     const { data: user } = useUserQuery(); // 세션 유지되는지 조회
 
+    const { setTestStart } = useTimerActions();
+
     const { handleOpenModal } = useModal();
 
     // 시작하기 클릭
@@ -92,6 +94,10 @@ const ScreeningHome: NextPageWithLayout = () => {
         [handleClickResult, handleClickStart],
     );
 
+    useEffect(() => {
+        setTestStart && setTestStart(false);
+    }, [setTestStart]);
+
     return (
         <Container>
             <h1 className='font-jalnan text-head-1'>간이언어평가</h1>
@@ -103,11 +109,11 @@ const ScreeningHome: NextPageWithLayout = () => {
                 <span className='font-bold text-accent1'>언어 발달 지연이나 인지능력의 이상 여부를 신속히 식별</span>하고 추가적인 정밀
                 평가나 치료 개입의 필요성을 판단하는 데 중점을 둔 검사입니다.
             </p>
-            <ul className='gap-7.5 mt-15 flex flex-wrap justify-center'>
+            <ul className='mt-15 flex flex-wrap justify-center gap-7.5'>
                 {screeningHomeMenuList.map(v => (
                     <li
                         key={v.key}
-                        className='py-7.5 float-left flex h-[467px] w-[300px] flex-col flex-nowrap items-center rounded-[20px] bg-white px-6 shadow-base xl:h-[440px] xl:w-[477px] xl:items-start xl:px-[58px]'
+                        className='float-left flex h-[467px] w-[300px] flex-col flex-nowrap items-center rounded-[20px] bg-white px-6 py-7.5 shadow-base xl:h-[440px] xl:w-[477px] xl:items-start xl:px-[58px]'
                     >
                         <Image src={v.imgSrc} alt='test-start' width={120} height={100} />
                         <span className='mt-5 font-bold leading-normal text-accent1 text-head-2 xl:leading-tight'>{v.title}</span>

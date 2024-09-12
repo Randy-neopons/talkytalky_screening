@@ -101,7 +101,7 @@ export const ScreeningPersonalInfoForm = ({
             birthYear: testInfo?.testeeBirthdate ? `${dayjs(testInfo.testeeBirthdate).year()}` : '',
             birthMonth: testInfo?.testeeBirthdate ? `${dayjs(testInfo.testeeBirthdate).month() + 1}` : '',
             birthDay: testInfo?.testeeBirthdate ? `${dayjs(testInfo.testeeBirthdate).date()}` : '',
-            testeePhoneNumber: testInfo?.testeePhoneNumber,
+            testeeContact: testInfo?.testeeContact,
         },
         mode: 'onChange',
     });
@@ -157,7 +157,7 @@ export const ScreeningPersonalInfoForm = ({
                 <ErrorMessage errors={errors} name='birthYear' render={({ message }) => <ErrorText>{message}</ErrorText>} />
 
                 <Label htmlFor='testeeContact'>전화번호</Label>
-                <input {...register('testeePhoneNumber')} className={`${styles.input}`} placeholder='전화번호를 입력해주세요.' />
+                <input {...register('testeeContact')} className={`${styles.input}`} placeholder='전화번호를 입력해주세요.' />
             </form>
             <button
                 className='btn btn-large btn-contained disabled:btn-contained-disabled'

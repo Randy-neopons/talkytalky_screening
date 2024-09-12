@@ -1,13 +1,20 @@
-import { useCallback, type ReactNode } from 'react';
+import { useCallback, useEffect, type ReactNode } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
+import { useTestStart, useTimerActions } from '@/stores/timerStore';
+import { useScreeningTestSessionQuery } from '@/hooks/screening';
+
 import { useModal } from '../common/Modal/context';
+import Timer from '../common/Timer';
 
 // 간이언어평가 공통 레이아웃
 export default function ScreeningAppLayout({ children }: { children: ReactNode }) {
     const router = useRouter();
 
+    const { data } = useScreeningTestSessionQuery({ sessionId: Number(router.query.sessionId) });
+    const testStart = useTestStart();
+    const { reset } = useTimerActions();
     const { handleOpenModal } = useModal();
 
     // 홈으로 버튼
@@ -25,6 +32,13 @@ export default function ScreeningAppLayout({ children }: { children: ReactNode }
         });
     }, [handleOpenModal, router]);
 
+    // 타이머 리셋
+    useEffect(() => {
+        if (data) {
+            reset(data.testInfo.currentTime);
+        }
+    }, [data, reset]);
+
     return (
         <>
             <Head>
@@ -37,6 +51,20 @@ export default function ScreeningAppLayout({ children }: { children: ReactNode }
                     <button className='mr-auto font-bold text-neutral11 text-head-2' onClick={onClickHome}>
                         간이언어평가
                     </button>
+                    {testStart && (
+                        <div className='flex items-center gap-5 xl:gap-7.5'>
+                            {data?.testInfo.progress !== undefined && data?.testInfo.progress !== null && (
+                                <>
+                                    <span className='text-neutral11 text-head-2'>진행률 {data?.testInfo.progress}%</span>
+                                    <svg xmlns='http://www.w3.org/2000/svg' width='2' height='24' viewBox='0 0 2 24' fill='none'>
+                                        <path d='M1 1V23' stroke='white' strokeWidth='2' strokeLinecap='round' />
+                                    </svg>
+                                </>
+                            )}
+
+                            <Timer />
+                        </div>
+                    )}
                 </div>
             </header>
             <main className='pt-20'>{children}</main>

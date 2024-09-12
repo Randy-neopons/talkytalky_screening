@@ -3,7 +3,7 @@ export interface ScreeningTestInfo {
     testeeName: string;
     testeeGender?: string;
     testeeBirthdate: string;
-    testeePhoneNumber?: string;
+    testeeContact?: string;
 }
 
 // 간이언어평가 단어

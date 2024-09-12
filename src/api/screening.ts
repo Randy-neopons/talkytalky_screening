@@ -20,7 +20,7 @@ export async function getScreeningSessionListAPI({ jwt }: { jwt: string }) {
 }
 
 // 검사 정보 조회
-export async function getScreeningTestInfoAPI({ sessionId }: { sessionId: number }) {
+export async function getScreeningTestSessionAPI({ sessionId }: { sessionId: number }) {
     const response = await axios.get<{
         result: string;
         testInfo: {
@@ -29,7 +29,9 @@ export async function getScreeningTestInfoAPI({ sessionId }: { sessionId: number
             testeeName: string;
             testeeGender: string;
             testeeBirthdate: string;
+            testeeContact: string;
             ageGroup: string;
+            currentTime: number;
             progress: number;
         };
     }>(`/assessment/screening/session/${sessionId}`);
@@ -51,10 +53,32 @@ export async function getScreeningQuestionAndAnswerListAPI({ sessionId, ageGroup
     return response.data;
 }
 
+export async function getScreeningAnswerAPI({ sessionId, questionId }: { sessionId: number; questionId: number }) {
+    const response = await axios.get<{
+        result: true;
+        questionId: number;
+        answer: string | null;
+    }>(`/assessment/screening/session/${sessionId}/answer`, {
+        params: { questionId },
+    });
+    return response.data;
+}
+
 // 단어 목록 조회
 export async function getWordAndRecordingListAPI({ sessionId, ageGroup }: { sessionId: number; ageGroup: string }) {
     const response = await axios.get(`/assessment/screening/session/${sessionId}/words`, {
         params: { ageGroup },
+    });
+    return response.data;
+}
+
+export async function getScreeningRecordingAPI({ sessionId, wordId }: { sessionId: number; wordId: number }) {
+    const response = await axios.get<{
+        result: true;
+        wordId: number;
+        filePath: string | null;
+    }>(`/assessment/screening/session/${sessionId}/recording`, {
+        params: { wordId },
     });
     return response.data;
 }
@@ -89,16 +113,19 @@ export async function uploadAnswerAPI({
     sessionId,
     questionId,
     answer,
+    currentTime,
     currentPathname,
 }: {
     sessionId: number;
     questionId: number;
     answer: string;
+    currentTime: number;
     currentPathname: string;
 }) {
     const response = await axios.post(`/assessment/screening/session/${sessionId}/answer`, {
         questionId,
         answer,
+        currentTime,
         currentPathname,
     });
 
