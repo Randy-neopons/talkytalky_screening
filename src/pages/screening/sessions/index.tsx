@@ -55,46 +55,52 @@ const ScreeningSessionListPage: NextPageWithLayout<{ sessionList: ScreeningTestS
                 </div>
             </div>
 
-            <ul className='gap-7.5 mt-20 flex w-full flex-col'>
-                {sessionList?.map(v => (
-                    <li key={v.testSessionId} className='p-7.5 flex items-center justify-between rounded-base bg-white shadow-base'>
-                        <div className='flex gap-[10px]'>
-                            <div className='flex items-center gap-[10px]'>
-                                <span className='font-jalnan text-black text-head-2'>{v.testeeName}님</span>
-                                <span className='text-black text-body-2'>
-                                    {dayjs(v.testeeBirthdate).format('YYYY.MM.DD')} (만 {dayjs().diff(dayjs(v.testeeBirthdate), 'year')}
-                                    세)
-                                </span>
-                            </div>
-                        </div>
-                        <div className='flex items-center gap-5'>
-                            <span className='text-neutral4 text-body-2'>{dayjs(v.regDate).format('YYYY.MM.DD')}</span>
-                            <div className='flex items-center gap-[6px]'>
-                                <div className='relative h-[14px] w-[94px] rounded-full bg-[#D9D9D9]'>
-                                    <div
-                                        className={`absolute h-[14px] rounded-full bg-accent1`}
-                                        style={{ width: `${(v.progress * 94) / 100}px` }}
-                                    ></div>
+            {sessionList?.length > 0 ? (
+                <ul className='mt-20 flex w-full flex-col gap-7.5'>
+                    {sessionList?.map(v => (
+                        <li key={v.testSessionId} className='flex items-center justify-between rounded-base bg-white p-7.5 shadow-base'>
+                            <div className='flex gap-[10px]'>
+                                <div className='flex items-center gap-[10px]'>
+                                    <span className='font-jalnan text-black text-head-2'>{v.testeeName}님</span>
+                                    <span className='text-black text-body-2'>
+                                        {dayjs(v.testeeBirthdate).format('YYYY.MM.DD')} (만 {dayjs().diff(dayjs(v.testeeBirthdate), 'year')}
+                                        세)
+                                    </span>
                                 </div>
-
-                                <span className='text-neutral4 text-body-2'>{v.progress}%</span>
                             </div>
-                            {v.status === '3' ? (
-                                <button className='btn btn-small btn-contained' onClick={handleClickResult(v.testSessionId)}>
-                                    결과보기
-                                </button>
-                            ) : (
-                                <button
-                                    className='btn btn-small btn-outlined'
-                                    onClick={handleClickContinue(v.currentPathname, v.testSessionId)}
-                                >
-                                    이어하기
-                                </button>
-                            )}
-                        </div>
-                    </li>
-                ))}
-            </ul>
+                            <div className='flex items-center gap-5'>
+                                <span className='text-neutral4 text-body-2'>{dayjs(v.regDate).format('YYYY.MM.DD')}</span>
+                                <div className='flex items-center gap-[6px]'>
+                                    <div className='relative h-[14px] w-[94px] rounded-full bg-[#D9D9D9]'>
+                                        <div
+                                            className={`absolute h-[14px] rounded-full bg-accent1`}
+                                            style={{ width: `${(v.progress * 94) / 100}px` }}
+                                        ></div>
+                                    </div>
+
+                                    <span className='text-neutral4 text-body-2'>{v.progress}%</span>
+                                </div>
+                                {v.status === '3' ? (
+                                    <button className='btn btn-small btn-contained' onClick={handleClickResult(v.testSessionId)}>
+                                        결과보기
+                                    </button>
+                                ) : (
+                                    <button
+                                        className='btn btn-small btn-outlined'
+                                        onClick={handleClickContinue(v.currentPathname, v.testSessionId)}
+                                    >
+                                        이어하기
+                                    </button>
+                                )}
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <div className='mt-15 flex h-[115px] w-full items-center justify-center rounded-base bg-white shadow-base xl:mt-20 xl:h-[230px]'>
+                    <p className='text-neutral4 text-body-1'>평가내역이 없습니다.</p>
+                </div>
+            )}
         </Container>
     );
 };

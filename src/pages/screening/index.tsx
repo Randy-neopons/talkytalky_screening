@@ -61,10 +61,18 @@ const ScreeningHome: NextPageWithLayout = () => {
             // 로그인 되어있으면 세션으로 이동
             router.push(`/screening/sessions`);
         } else {
-            // 아니면 로그인 페이지로 이동
-            window.location.href = `${TALKYTALKY_URL}/login`;
+            const onOk = () => {
+                // 로그인 페이지로 이동
+                window.location.href = `${TALKYTALKY_URL}/login`;
+            };
+
+            // 모달 열기
+            handleOpenModal({
+                content: '로그인이 필요한 서비스입니다.\n로그인하시겠습니까?',
+                onOk,
+            });
         }
-    }, [router, user]);
+    }, [handleOpenModal, router, user]);
 
     const screeningHomeMenuList = useMemo(
         () => [

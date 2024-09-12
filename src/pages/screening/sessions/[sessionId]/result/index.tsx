@@ -3,6 +3,7 @@ import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
+import { useTimerActions } from '@/stores/timerStore';
 import Container from '@/components/common/Container';
 import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
 import { getScreeningTestResultAPI } from '@/api/screening';
@@ -127,6 +128,12 @@ const ScreeningResultPage: NextPageWithLayout<{
 }> = ({ age, level, sectionList }) => {
     const router = useRouter();
 
+    const { setTestStart } = useTimerActions();
+
+    useEffect(() => {
+        setTestStart && setTestStart(false);
+    }, [setTestStart]);
+
     return (
         <Container>
             <h1 className='mb-15 break-keep text-center font-jalnan text-head-1 xl:mb-20'>간이언어평가 검사 결과</h1>
@@ -165,6 +172,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
     try {
         const sessionId = Number(context.query.sessionId);
         if (!sessionId) {
+            console.log('sessionId', sessionId);
             return {
                 redirect: {
                     destination: '/screening',
@@ -199,6 +207,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
             },
         };
     } catch (err) {
+        console.error(err);
         return {
             redirect: {
                 destination: '/screening',

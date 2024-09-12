@@ -1,8 +1,9 @@
-import { useCallback, type ReactElement } from 'react';
+import { useCallback, useEffect, type ReactElement } from 'react';
 import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
+import { useTimerActions } from '@/stores/timerStore';
 import Container from '@/components/common/Container';
 import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
 
@@ -13,6 +14,12 @@ import type { NextPageWithLayout } from '@/types/types';
 // 간이언어평가 완료 페이지
 const ScreeningCompletePage: NextPageWithLayout = () => {
     const router = useRouter();
+
+    const { setTestStart } = useTimerActions();
+
+    useEffect(() => {
+        setTestStart && setTestStart(false);
+    }, [setTestStart]);
 
     // 결과 확인 페이지로 이동
     const handleClickResult = useCallback(() => {
