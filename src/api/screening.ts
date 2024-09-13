@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import { API_URL } from '@/utils/const';
 
-import type { ScreeningTestInfo } from '@/types/screening';
+import type { ScreeningTestInfo, ScreeningTestSession } from '@/types/screening';
 
 axios.defaults.baseURL = API_URL;
 
@@ -12,9 +12,27 @@ const makeHeaders = (accessToken: string) => {
 };
 
 // 세션 목록
-export async function getScreeningSessionListAPI({ jwt }: { jwt: string }) {
-    const response = await axios.get('/assessment/screening/sessions', {
+export async function getScreeningSessionListAPI({
+    keyword,
+    page,
+    pageSize,
+    jwt,
+}: {
+    keyword?: string;
+    page?: number;
+    pageSize?: number;
+    jwt: string;
+}) {
+    const response = await axios.get<{
+        result: boolean;
+        sessions: ScreeningTestSession[];
+    }>('/assessment/screening/sessions', {
         headers: makeHeaders(jwt),
+        params: {
+            keyword,
+            page,
+            pageSize,
+        },
     });
     return response.data;
 }

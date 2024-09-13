@@ -1,7 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
+import { getCookie } from 'cookies-next';
 
-import { getConductedSubtestsAPI, getQuestionAndAnswerListAPI } from '@/api/questions';
+import { getConductedSubtestsAPI, getQuestionAndAnswerListAPI, getSessionListAPI } from '@/api/questions';
 
+// 질문 목록
 export const questionsQueryKey = 'questions';
 export const useQuestionsQuery = ({ sessionId, subtestId, jwt }: { sessionId: number; subtestId: number; jwt: string }) => {
     return useQuery<{
@@ -13,6 +15,7 @@ export const useQuestionsQuery = ({ sessionId, subtestId, jwt }: { sessionId: nu
     });
 };
 
+// 수행한 소검사
 export const conductedSubtestsQueryKey = 'subtests';
 export const useConductedSubtestsQuery = ({ sessionId, jwt }: { sessionId: number; jwt: string }) => {
     return useQuery<{
@@ -22,5 +25,17 @@ export const useConductedSubtestsQuery = ({ sessionId, jwt }: { sessionId: numbe
         queryKey: [conductedSubtestsQueryKey, sessionId, jwt],
         queryFn: () => getConductedSubtestsAPI({ sessionId, jwt }),
         enabled: !!sessionId && !!jwt,
+    });
+};
+
+// 세션 목록
+export const sessionsQueryKey = 'sessions';
+export const useSessionsQuery = ({ keyword, page, pageSize }: { keyword?: string; page: number; pageSize: number }) => {
+    const jwt = getCookie('jwt') || '';
+
+    return useQuery({
+        queryKey: [sessionsQueryKey, keyword, page, pageSize, jwt],
+        queryFn: () => getSessionListAPI({ keyword, page, pageSize, jwt }),
+        enabled: !!jwt,
     });
 };

@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import { API_URL } from '@/utils/const';
 
-import type { Answer, TestInfoFormValues } from '@/types/types';
+import type { Answer, TestInfoFormValues, TestSession } from '@/types/types';
 
 axios.defaults.baseURL = API_URL;
 
@@ -36,9 +36,27 @@ export async function updateTestInfoAPI({ sessionId, testInfo, jwt }: { sessionI
 }
 
 // 세션 목록
-export async function getSessionListAPI({ jwt }: { jwt: string }) {
-    const response = await axios.get('/assessment/sessions', {
+export async function getSessionListAPI({
+    keyword,
+    page,
+    pageSize,
+    jwt,
+}: {
+    keyword?: string;
+    page?: number;
+    pageSize?: number;
+    jwt: string;
+}) {
+    const response = await axios.get<{
+        result: boolean;
+        sessions: TestSession[];
+    }>('/assessment/sessions', {
         headers: makeHeaders(jwt),
+        params: {
+            keyword,
+            page,
+            pageSize,
+        },
     });
     return response.data;
 }

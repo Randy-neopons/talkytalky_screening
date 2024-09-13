@@ -1,14 +1,16 @@
-import { useCallback, useState, type ChangeEventHandler, type ReactElement } from 'react';
+import { useCallback, useState, type ChangeEventHandler, type KeyboardEventHandler, type ReactElement } from 'react';
 import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
+import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import { getCookie } from 'cookies-next';
 import dayjs from 'dayjs';
 
 import Container from '@/components/common/Container';
 import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
+import { screeningSessionsQueryKey, useScreeningSessionsQuery } from '@/hooks/screening';
 import { getScreeningSessionListAPI } from '@/api/screening';
 
 import searchIcon from 'public/static/images/search-icon.png';
@@ -17,13 +19,32 @@ import type { ScreeningTestSession } from '@/types/screening';
 import type { NextPageWithLayout } from '@/types/types';
 
 // 간이언어평가 내역
-const ScreeningSessionListPage: NextPageWithLayout<{ sessionList: ScreeningTestSession[] }> = ({ sessionList }) => {
+const ScreeningSessionListPage: NextPageWithLayout = () => {
     const router = useRouter(); // next router
+
+    // filter
+    const [keyword, setKeyword] = useState('');
+    const [page, setPage] = useState(0);
+    const [pageSize, setPageSize] = useState(10);
+
+    const { data } = useScreeningSessionsQuery({ keyword, page, pageSize });
 
     const [searchInput, setSearchInput] = useState('');
     const handleChangeSearchInput = useCallback<ChangeEventHandler<HTMLInputElement>>(e => {
         setSearchInput(e.target.value);
     }, []);
+
+    const handleSearchKeyDown = useCallback<KeyboardEventHandler<HTMLInputElement>>(
+        e => {
+            if (e.key === 'Enter') {
+                setKeyword(searchInput);
+            }
+        },
+        [searchInput],
+    );
+    const handleClickSearch = useCallback(() => {
+        setKeyword(searchInput);
+    }, [searchInput]);
 
     // 이어하기
     const handleClickContinue = useCallback(
@@ -50,14 +71,22 @@ const ScreeningSessionListPage: NextPageWithLayout<{ sessionList: ScreeningTestS
             <div className='relative w-full'>
                 <h1 className='text-center font-jalnan text-head-1'>검사 내역</h1>
                 <div className='absolute right-0 top-0 border-b border-neutral2 py-2'>
-                    <input className='bg-transparent' placeholder='이름 검색하기' value={searchInput} onChange={handleChangeSearchInput} />
-                    <Image src={searchIcon} alt='search' className='absolute right-0 top-1/2 -translate-y-1/2' width={24} height={24} />
+                    <input
+                        className='bg-transparent'
+                        placeholder='이름 검색하기'
+                        value={searchInput}
+                        onChange={handleChangeSearchInput}
+                        onKeyDown={handleSearchKeyDown}
+                    />
+                    <button onClick={handleClickSearch}>
+                        <Image src={searchIcon} alt='search' className='absolute right-0 top-1/2 -translate-y-1/2' width={24} height={24} />
+                    </button>
                 </div>
             </div>
 
-            {sessionList?.length > 0 ? (
+            {data?.sessions?.length ? (
                 <ul className='mt-20 flex w-full flex-col gap-7.5'>
-                    {sessionList?.map(v => (
+                    {data?.sessions?.map(v => (
                         <li key={v.testSessionId} className='flex items-center justify-between rounded-base bg-white p-7.5 shadow-base'>
                             <div className='flex gap-[10px]'>
                                 <div className='flex items-center gap-[10px]'>
@@ -122,14 +151,16 @@ export const getServerSideProps: GetServerSideProps = async context => {
             };
         }
 
-        // 세션 목록 fetch
-        const responseData = await getScreeningSessionListAPI({ jwt: accessToken });
-        const sessionList = responseData.sessions;
+        const queryClient = new QueryClient();
+        await queryClient.prefetchQuery({
+            queryKey: [screeningSessionsQueryKey],
+            queryFn: () => getScreeningSessionListAPI({ jwt: accessToken }),
+        });
 
         return {
             props: {
                 isLoggedIn: true,
-                sessionList,
+                dehydratedState: dehydrate(queryClient),
             },
         };
     } catch (err) {

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
+import { getCookie } from 'cookies-next';
 
-import { getScreeningAnswerAPI, getScreeningRecordingAPI, getScreeningTestSessionAPI } from '@/api/screening';
+import { getScreeningAnswerAPI, getScreeningRecordingAPI, getScreeningSessionListAPI, getScreeningTestSessionAPI } from '@/api/screening';
 
 // 테스트 세션 정보 조회 쿼리
 export const screeningTestSessionQueryKey = 'screeningTestSession';
@@ -42,5 +43,17 @@ export const useScreeningRecordingQuery = ({ sessionId, wordId }: { sessionId: n
         queryKey: [screeningRecordingQueryKey, sessionId, wordId],
         queryFn: () => getScreeningRecordingAPI({ sessionId, wordId }),
         enabled: !!sessionId && !!wordId,
+    });
+};
+
+// 세션 목록 쿼리
+export const screeningSessionsQueryKey = 'screeningSessions';
+export const useScreeningSessionsQuery = ({ keyword, page, pageSize }: { keyword?: string; page: number; pageSize: number }) => {
+    const jwt = getCookie('jwt') || '';
+
+    return useQuery({
+        queryKey: [screeningSessionsQueryKey, keyword, page, pageSize, jwt],
+        queryFn: () => getScreeningSessionListAPI({ keyword, page, pageSize, jwt }),
+        enabled: !!jwt,
     });
 };
