@@ -10,38 +10,41 @@ import dayjs from 'dayjs';
 
 import { partList, subtestList } from '@/stores/testStore';
 import Container from '@/components/common/Container';
+import Pagination from '@/components/common/Pagination';
 import { sessionsQueryKey, useSessionsQuery } from '@/hooks/questions';
 import { getSessionListAPI } from '@/api/questions';
 
 import searchIcon from 'public/static/images/search-icon.png';
-
-import type { TestSession } from '@/types/types';
 
 export default function SessionListPage() {
     const router = useRouter(); // next router
 
     // filter
     const [keyword, setKeyword] = useState('');
-    const [page, setPage] = useState(0);
+    const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
 
     const { data } = useSessionsQuery({ keyword, page, pageSize });
 
+    // 검색어 input
     const [searchInput, setSearchInput] = useState('');
     const handleChangeSearchInput = useCallback<ChangeEventHandler<HTMLInputElement>>(e => {
         setSearchInput(e.target.value);
     }, []);
 
+    // 엔터 입력 시 실제 검색
     const handleSearchKeyDown = useCallback<KeyboardEventHandler<HTMLInputElement>>(
         e => {
             if (e.key === 'Enter') {
                 setKeyword(searchInput);
+                setPage(1); // 검색 시 페이지 초기화
             }
         },
         [searchInput],
     );
     const handleClickSearch = useCallback(() => {
         setKeyword(searchInput);
+        setPage(1); // 검색 시 페이지 초기화
     }, [searchInput]);
 
     // 이어하기
@@ -87,47 +90,52 @@ export default function SessionListPage() {
             </div>
 
             {data?.sessions?.length ? (
-                <ul className='mt-20 flex w-full flex-col gap-7.5'>
-                    {data?.sessions?.map(v => (
-                        <li key={v.testSessionId} className='flex items-center justify-between rounded-base bg-white p-7.5 shadow-base'>
-                            <div className='flex gap-[10px]'>
-                                <div className='flex items-center gap-[10px]'>
-                                    <span className='font-jalnan text-black text-head-2'>{v.patientName}</span>
-                                    <span className='text-black text-body-2'>
-                                        {dayjs(v.patientBirthdate).format('YYYY.MM.DD')} (만{' '}
-                                        {dayjs().diff(dayjs(v.patientBirthdate), 'year')}
-                                        세)
-                                    </span>
-                                </div>
-                            </div>
-                            <div className='flex items-center gap-5'>
-                                <span className='text-neutral4 text-body-2'>{dayjs(v.regDate).format('YYYY.MM.DD')}</span>
-                                <div className='flex items-center gap-[6px]'>
-                                    <div className='relative h-[14px] w-[94px] rounded-full bg-[#D9D9D9]'>
-                                        <div
-                                            className={`absolute h-[14px] rounded-full bg-accent1`}
-                                            style={{ width: `${(v.progress * 94) / 100}px` }}
-                                        ></div>
+                <>
+                    <ul className='mt-20 flex w-full flex-col gap-7.5'>
+                        {data?.sessions?.map(v => (
+                            <li key={v.testSessionId} className='flex items-center justify-between rounded-base bg-white p-7.5 shadow-base'>
+                                <div className='flex gap-[10px]'>
+                                    <div className='flex items-center gap-[10px]'>
+                                        <span className='font-jalnan text-black text-head-2'>{v.patientName}</span>
+                                        <span className='text-black text-body-2'>
+                                            {dayjs(v.patientBirthdate).format('YYYY.MM.DD')} (만{' '}
+                                            {dayjs().diff(dayjs(v.patientBirthdate), 'year')}
+                                            세)
+                                        </span>
                                     </div>
-
-                                    <span className='text-neutral4 text-body-2'>{v.progress}%</span>
                                 </div>
-                                {v.status === '3' ? (
-                                    <button className='btn btn-small btn-contained' onClick={handleClickResult(v.testSessionId)}>
-                                        결과보기
-                                    </button>
-                                ) : (
-                                    <button
-                                        className='btn btn-small btn-outlined'
-                                        onClick={handleClickContinue(v.testSessionId, v.currentPartId)}
-                                    >
-                                        이어하기
-                                    </button>
-                                )}
-                            </div>
-                        </li>
-                    ))}
-                </ul>
+                                <div className='flex items-center gap-5'>
+                                    <span className='text-neutral4 text-body-2'>{dayjs(v.regDate).format('YYYY.MM.DD')}</span>
+                                    <div className='flex items-center gap-[6px]'>
+                                        <div className='relative h-[14px] w-[94px] rounded-full bg-[#D9D9D9]'>
+                                            <div
+                                                className={`absolute h-[14px] rounded-full bg-accent1`}
+                                                style={{ width: `${(v.progress * 94) / 100}px` }}
+                                            ></div>
+                                        </div>
+
+                                        <span className='text-neutral4 text-body-2'>{v.progress}%</span>
+                                    </div>
+                                    {v.status === '3' ? (
+                                        <button className='btn btn-small btn-contained' onClick={handleClickResult(v.testSessionId)}>
+                                            결과보기
+                                        </button>
+                                    ) : (
+                                        <button
+                                            className='btn btn-small btn-outlined'
+                                            onClick={handleClickContinue(v.testSessionId, v.currentPartId)}
+                                        >
+                                            이어하기
+                                        </button>
+                                    )}
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                    <div className='mt-20 flex w-full justify-center'>
+                        <Pagination currentPage={page} setCurrentPage={setPage} lastPage={Math.ceil(data.count / pageSize)} />
+                    </div>
+                </>
             ) : (
                 <div className='mt-15 flex h-[115px] w-full items-center justify-center rounded-base bg-white shadow-base xl:mt-20 xl:h-[230px]'>
                     <p className='text-neutral4 text-body-1'>평가내역이 없습니다.</p>

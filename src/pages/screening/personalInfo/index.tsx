@@ -81,31 +81,37 @@ const ErrorText = ({ children }: { children: ReactNode }) => {
     return <p className='mt-1 text-red1 text-body-2'>{children}</p>;
 };
 
-export const ScreeningPersonalInfoForm = ({
-    testInfo,
-    onSubmit,
-}: {
-    testInfo?: ScreeningTestInfo;
-    onSubmit: (data: FormValues) => void;
-}) => {
+export const ScreeningPersonalInfoForm = ({ userInfo, onSubmit }: { userInfo?: any; onSubmit: (data: FormValues) => void }) => {
     // 검사 정보 입력 form
     const {
         control,
         register,
         formState: { errors, isDirty, isValid },
         handleSubmit,
+        setValue,
     } = useForm<FormValues>({
         defaultValues: {
-            testeeName: testInfo?.testeeName,
-            testeeGender: testInfo?.testeeGender,
-            birthYear: testInfo?.testeeBirthdate ? `${dayjs(testInfo.testeeBirthdate).year()}` : '',
-            birthMonth: testInfo?.testeeBirthdate ? `${dayjs(testInfo.testeeBirthdate).month() + 1}` : '',
-            birthDay: testInfo?.testeeBirthdate ? `${dayjs(testInfo.testeeBirthdate).date()}` : '',
-            testeeContact: testInfo?.testeeContact,
+            testeeName: userInfo?.fullName,
+            testeeGender: userInfo?.testeeGender,
+            birthYear: userInfo?.testeeBirthdate ? `${dayjs(userInfo.testeeBirthdate).year()}` : '',
+            birthMonth: userInfo?.testeeBirthdate ? `${dayjs(userInfo.testeeBirthdate).month() + 1}` : '',
+            birthDay: userInfo?.testeeBirthdate ? `${dayjs(userInfo.testeeBirthdate).date()}` : '',
+            testeeContact: userInfo?.testeeContact,
         },
         mode: 'onChange',
     });
     const age = useAge({ control }); // 만 나이 계산
+
+    useEffect(() => {
+        if (userInfo?.userType === 'talky') {
+            setValue('testeeName', userInfo?.fullName);
+            setValue('testeeGender', userInfo?.gender === 1 ? 'male' : 'female');
+            setValue('testeeContact', userInfo?.delegateContactInfo);
+            setValue('birthYear', userInfo?.birthdate ? `${dayjs(userInfo.birthdate).year()}` : '');
+            setValue('birthMonth', userInfo?.birthdate ? `${dayjs(userInfo.birthdate).month() + 1}` : '');
+            setValue('birthDay', userInfo?.birthdate ? `${dayjs(userInfo.birthdate).date()}` : '');
+        }
+    }, [setValue, userInfo]);
 
     return (
         <>
@@ -153,8 +159,7 @@ export const ScreeningPersonalInfoForm = ({
                         max={31}
                     />
                 </div>
-                <ErrorMessage errors={errors} name='birthYear' render={({ message }) => <ErrorText>{message}</ErrorText>} />
-                <ErrorMessage errors={errors} name='birthYear' render={({ message }) => <ErrorText>{message}</ErrorText>} />
+                {(errors.birthYear || errors.birthMonth || errors.birthDay) && <ErrorText>올바른 생년월일을 입력해주세요.</ErrorText>}
 
                 <Label htmlFor='testeeContact'>전화번호</Label>
                 <input {...register('testeeContact')} className={`${styles.input}`} placeholder='전화번호를 입력해주세요.' />
@@ -174,6 +179,10 @@ export const ScreeningPersonalInfoForm = ({
 const ScreeningPersonalInfoPage: NextPageWithLayout = () => {
     const router = useRouter(); // next router
     const { data: user } = useUserQuery();
+
+    useEffect(() => {
+        console.log(user?.data);
+    }, [user]);
 
     // 폼 제출
     const handleOnSubmit = useCallback(
@@ -211,7 +220,7 @@ const ScreeningPersonalInfoPage: NextPageWithLayout = () => {
     return (
         <Container>
             <h1 className='font-jalnan text-head-1'>기본정보 입력</h1>
-            <ScreeningPersonalInfoForm onSubmit={handleOnSubmit} />
+            <ScreeningPersonalInfoForm userInfo={user?.data} onSubmit={handleOnSubmit} />
         </Container>
     );
 };

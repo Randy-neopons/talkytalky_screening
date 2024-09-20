@@ -50,6 +50,7 @@ export async function getSessionListAPI({
     const response = await axios.get<{
         result: boolean;
         sessions: TestSession[];
+        count: number;
     }>('/assessment/sessions', {
         headers: makeHeaders(jwt),
         params: {

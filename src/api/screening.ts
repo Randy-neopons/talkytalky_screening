@@ -26,6 +26,7 @@ export async function getScreeningSessionListAPI({
     const response = await axios.get<{
         result: boolean;
         sessions: ScreeningTestSession[];
+        count: number;
     }>('/assessment/screening/sessions', {
         headers: makeHeaders(jwt),
         params: {
