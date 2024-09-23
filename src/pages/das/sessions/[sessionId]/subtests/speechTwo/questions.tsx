@@ -13,7 +13,7 @@ import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import { MemoIcon, MikeIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/icons';
-import { useConductedSubtestsQuery } from '@/hooks/questions';
+import { useConductedSubtestsQuery } from '@/hooks/das';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
 

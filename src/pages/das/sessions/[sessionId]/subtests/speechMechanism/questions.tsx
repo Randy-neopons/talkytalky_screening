@@ -12,7 +12,7 @@ import { useTestTime } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
-import { useConductedSubtestsQuery } from '@/hooks/questions';
+import { useConductedSubtestsQuery } from '@/hooks/das';
 import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
 
 import subtestStyles from '../SubTests.module.css';

@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 import { partList, subtestList } from '@/stores/testStore';
 import Container from '@/components/common/Container';
 import Pagination from '@/components/common/Pagination';
-import { sessionsQueryKey, useSessionsQuery } from '@/hooks/questions';
+import { sessionsQueryKey, useSessionsQuery } from '@/hooks/das';
 import { getSessionListAPI } from '@/api/das';
 
 import searchIcon from 'public/static/images/search-icon.png';
