@@ -7,7 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 
 import { useTestTime, useTimerActions } from '@/stores/timerStore';
-import { AudioButton, RoundedBox } from '@/components/common/Buttons';
+import { AudioButton } from '@/components/common/Buttons';
 import Container from '@/components/common/Container';
 import { VolumeIcon } from '@/components/icons';
 import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
@@ -138,17 +138,16 @@ const ScreeningRecordingPage: NextPageWithLayout<{
                 )}
             </div>
             <div className='mx-auto mb-15 xl:mb-20'>
-                <RoundedBox>
-                    <AudioButton
-                        audioUrl={audioUrl}
-                        isRecording={isRecording}
-                        isPlaying={isPlaying}
-                        handleStartRecording={handleStartRecording}
-                        handleStopRecording={handleStopRecording}
-                        handlePause={handlePause}
-                        handlePlay={handlePlay}
-                    />
-                </RoundedBox>
+                <AudioButton
+                    audioUrl={audioUrl}
+                    isRecording={isRecording}
+                    isPlaying={isPlaying}
+                    handleStartRecording={handleStartRecording}
+                    handleStopRecording={handleStopRecording}
+                    handlePause={handlePause}
+                    handlePlay={handlePlay}
+                    volume={volume}
+                />
             </div>
             <div className='flex flex-wrap justify-center gap-5'>
                 <button

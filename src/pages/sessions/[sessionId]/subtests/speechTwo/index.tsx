@@ -8,7 +8,7 @@ import { deleteCookie, getCookie } from 'cookies-next';
 
 import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
-import { AudioButton, RoundedBox } from '@/components/common/Buttons';
+import { AudioButton } from '@/components/common/Buttons';
 import Container from '@/components/common/Container';
 import { MikeIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/icons';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
@@ -108,17 +108,15 @@ export default function ParagraphReadingPage() {
 
             <div className='mt-20 flex w-full flex-nowrap items-center'>
                 <div className='mx-auto flex gap-[45px]'>
-                    <RoundedBox>
-                        <AudioButton
-                            audioUrl={audioUrl}
-                            isRecording={isRecording}
-                            isPlaying={isPlaying}
-                            handleStartRecording={handleStartRecording}
-                            handleStopRecording={handleStopRecording}
-                            handlePause={handlePause}
-                            handlePlay={handlePlay}
-                        />
-                    </RoundedBox>
+                    <AudioButton
+                        audioUrl={audioUrl}
+                        isRecording={isRecording}
+                        isPlaying={isPlaying}
+                        handleStartRecording={handleStartRecording}
+                        handleStopRecording={handleStopRecording}
+                        handlePause={handlePause}
+                        handlePlay={handlePlay}
+                    />
                 </div>
             </div>
             <div className='mt-20 flex gap-5'>

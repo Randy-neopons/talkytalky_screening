@@ -8,7 +8,7 @@ import { deleteCookie, getCookie } from 'cookies-next';
 
 import { useTestTime } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
-import { AudioButton, RoundedBox } from '@/components/common/Buttons';
+import { AudioButton } from '@/components/common/Buttons';
 import Container from '@/components/common/Container';
 import { InfoIcon } from '@/components/icons';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
@@ -128,17 +128,17 @@ export default function ConversationPage() {
                     {/* <button type='button'>
                         <Image src={memoIcon} alt='memo-icon' className='h-auto w-15' />
                     </button> */}
-                    <RoundedBox>
-                        <AudioButton
-                            audioUrl={audioUrl}
-                            isRecording={isRecording}
-                            isPlaying={isPlaying}
-                            handleStartRecording={handleStartRecording}
-                            handleStopRecording={handleStopRecording}
-                            handlePause={handlePause}
-                            handlePlay={handlePlay}
-                        />
-                    </RoundedBox>
+
+                    <AudioButton
+                        audioUrl={audioUrl}
+                        isRecording={isRecording}
+                        isPlaying={isPlaying}
+                        handleStartRecording={handleStartRecording}
+                        handleStopRecording={handleStopRecording}
+                        handlePause={handlePause}
+                        handlePlay={handlePlay}
+                    />
+
                     {/* <button type='button' className='invisible'>
                         <Image src={fontSizeIcon} alt='font-icon' className='h-auto w-15' />
                     </button> */}
