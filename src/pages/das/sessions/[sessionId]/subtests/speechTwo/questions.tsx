@@ -19,7 +19,7 @@ import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } fro
 
 import subtestStyles from '../SubTests.module.css';
 
-import type { Answer, QuestionAnswer, Recording } from '@/types/types';
+import type { Answer, QuestionAnswer, Recording } from '@/types/das';
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 3;

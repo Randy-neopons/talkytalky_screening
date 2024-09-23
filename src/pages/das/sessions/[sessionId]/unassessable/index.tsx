@@ -11,7 +11,7 @@ import { TALKYTALKY_URL } from '@/utils/const';
 import Container from '@/components/common/Container';
 import { completeSessionAPI, getUnassessableQuestionListAPI } from '@/api/das';
 
-import type { QuestionAnswer } from '@/types/types';
+import type { QuestionAnswer } from '@/types/das';
 
 // Stress Testing 문항 페이지
 export default function UnassessableQuestionsPage({ questionList }: { questionList: QuestionAnswer[] }) {

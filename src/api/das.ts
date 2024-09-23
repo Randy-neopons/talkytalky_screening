@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import { API_URL } from '@/utils/const';
 
-import type { Answer, TestInfoFormValues, TestSession } from '@/types/types';
+import type { Answer, TestInfoFormValues, TestSession } from '@/types/das';
 
 axios.defaults.baseURL = API_URL;
 

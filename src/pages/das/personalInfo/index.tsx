@@ -16,7 +16,7 @@ import { useUserQuery } from '@/hooks/user';
 
 import styles from './PersonalInfo.module.css';
 
-import type { TestInfoFormValues } from '@/types/types';
+import type { TestInfoFormValues } from '@/types/das';
 
 const makeRangeOptions = (min: number, max: number) => {
     return Array.from({ length: max - min + 1 }, (v, i) => ({ label: `${i + min}`, value: `${i + min}` }));
@@ -121,7 +121,7 @@ export const PersonalInfoForm = ({
 
     return (
         <>
-            <form className='mt-15 mb-20 w-[550px] rounded-[20px] bg-white px-[50px] pb-[50px] pt-[10px] shadow-base xl:mt-20'>
+            <form className='mb-20 mt-15 w-[550px] rounded-[20px] bg-white px-[50px] pb-[50px] pt-[10px] shadow-base xl:mt-20'>
                 <Label htmlFor='testerName' required>
                     검사자명
                 </Label>

@@ -5,12 +5,12 @@ import { useRouter } from 'next/router';
 import { getCookie } from 'cookies-next';
 import dayjs from 'dayjs';
 
-import { PersonalInfoForm } from '@/pages/personalInfo';
+import { PersonalInfoForm } from '@/pages/das/personalInfo';
 import Container from '@/components/common/Container';
 import { useUserQuery } from '@/hooks/user';
 import { getTestInfoAPI, updateTestInfoAPI } from '@/api/das';
 
-import type { TestInfoFormValues } from '@/types/types';
+import type { TestInfoFormValues } from '@/types/das';
 
 type FormValues = Omit<TestInfoFormValues, 'testDate' | 'patientBirthdate'> & {
     testYear: string;
