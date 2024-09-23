@@ -55,7 +55,7 @@ export default function SessionListPage() {
                 const subtestItem = subtestList.find(v => v.subtestId === subtestId);
 
                 if (subtestItem) {
-                    router.push(`/sessions/${sessionId}/subtests/${subtestItem.pathname}/questions?currentPartId=${currentPartId}`);
+                    router.push(`/das/sessions/${sessionId}/subtests/${subtestItem.pathname}/questions?currentPartId=${currentPartId}`);
                 }
             } else {
             }
@@ -66,7 +66,7 @@ export default function SessionListPage() {
     // 결과보기
     const handleClickResult = useCallback(
         (sessionId: number) => () => {
-            router.push(`/sessions/${sessionId}/result`);
+            router.push(`/das/sessions/${sessionId}/result`);
         },
         [router],
     );
@@ -181,7 +181,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
 
         return {
             redirect: {
-                destination: '/',
+                destination: '/das',
                 permanent: true,
             },
         };

@@ -123,7 +123,7 @@ export default function StressTestingQuestionsPage({ questionList }: { questionL
                 const sessionId = Number(router.query.sessionId);
                 await handleSubmitData({ sessionId, data });
 
-                router.push(`/sessions/${sessionId}/unassessable`);
+                router.push(`/das/sessions/${sessionId}/unassessable`);
             } catch (err) {
                 console.error(err);
             }
@@ -208,7 +208,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         if (!sessionId) {
             return {
                 redirect: {
-                    destination: '/',
+                    destination: '/das',
                     permanent: true,
                 },
             };
@@ -236,7 +236,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
     } catch (err) {
         return {
             redirect: {
-                destination: '/',
+                destination: '/das',
                 permanent: true,
             },
         };

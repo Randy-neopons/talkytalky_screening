@@ -42,7 +42,7 @@ export default function PictureDescriptionPage() {
                 // TODO: 중간 저장 API
 
                 const sessionId = Number(router.query.sessionId);
-                router.push(`/sessions/${sessionId}/subtests/speechTwo`);
+                router.push(`/das/sessions/${sessionId}/subtests/speechTwo`);
             } catch (err) {
                 console.error(err);
             }
@@ -86,7 +86,7 @@ export default function PictureDescriptionPage() {
                 const sessionId = Number(router.query.sessionId);
                 await handleSubmitData({ sessionId });
 
-                router.push(`/sessions/${sessionId}/subtests/speechTwo/conversation`);
+                router.push(`/das/sessions/${sessionId}/subtests/speechTwo/conversation`);
             } catch (err) {
                 console.error(err);
             }
@@ -169,7 +169,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         if (!sessionId) {
             return {
                 redirect: {
-                    destination: '/',
+                    destination: '/das',
                     permanent: true,
                 },
             };
@@ -197,7 +197,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
     } catch (err) {
         return {
             redirect: {
-                destination: '/',
+                destination: '/das',
                 permanent: true,
             },
         };

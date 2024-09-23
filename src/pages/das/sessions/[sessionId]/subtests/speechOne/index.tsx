@@ -28,7 +28,7 @@ const partList = [
 const PartListItem = ({ subtestName, partName, questionCount }: { subtestName: string; partName: string; questionCount: number }) => {
     return (
         <li className='flex w-[236px] flex-col overflow-hidden rounded-base shadow-base xl:w-[490px]'>
-            <div className='gap-7.5 flex flex-col items-center whitespace-pre bg-accent3 px-10 py-10'>
+            <div className='flex flex-col items-center gap-7.5 whitespace-pre bg-accent3 px-10 py-10'>
                 <span className='font-bold text-head-2'>{subtestName}</span>
                 <div className='flex flex-col gap-[10px]'>
                     {partName.split('\n').map((part, i) => (
@@ -78,7 +78,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         if (!sessionId) {
             return {
                 redirect: {
-                    destination: '/',
+                    destination: '/das',
                     permanent: true,
                 },
             };
@@ -101,7 +101,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
     } catch (err) {
         return {
             redirect: {
-                destination: '/',
+                destination: '/das',
                 permanent: true,
             },
         };

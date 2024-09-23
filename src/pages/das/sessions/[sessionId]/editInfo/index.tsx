@@ -55,7 +55,7 @@ export default function PersonalInfoEditPage({
             const sessionId = Number(router.query.sessionId);
             const accessToken = getCookie('jwt') as string;
             await updateTestInfoAPI({ sessionId, testInfo: formValues, jwt: accessToken });
-            router.push(`/sessions/${router.query.sessionId}/result`); // 검사 선택 화면으로
+            router.push(`/das/sessions/${router.query.sessionId}/result`); // 검사 선택 화면으로
         },
         [router, user?.data.therapistUserId],
     );
@@ -91,7 +91,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
     } catch (err) {
         return {
             redirect: {
-                destination: '/',
+                destination: '/das',
                 permanent: true,
             },
         };

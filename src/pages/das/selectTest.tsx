@@ -60,7 +60,7 @@ export default function SelectTestPage() {
                 const pathname = subtests[0].pathname;
 
                 setTestStart(true);
-                pathname && router.push(`/sessions/${sessionId}/subtests/${pathname}`);
+                pathname && router.push(`/das/sessions/${sessionId}/subtests/${pathname}`);
             }
         } catch (err) {
             if (isAxiosError(err)) {
@@ -73,8 +73,6 @@ export default function SelectTestPage() {
             }
             console.error(err);
         }
-
-        // router.push('/'); // 검사 ID로 이동
     }, [router, setSubtests, setTestStart, subtestIds, testInfo]);
 
     return (
@@ -139,7 +137,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
     } catch (err) {
         return {
             redirect: {
-                destination: '/',
+                destination: '/das',
                 permanent: true,
             },
         };

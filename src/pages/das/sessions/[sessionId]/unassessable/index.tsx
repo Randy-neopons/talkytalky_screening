@@ -28,7 +28,7 @@ export default function UnassessableQuestionsPage({ questionList }: { questionLi
                 const sessionId = Number(router.query.sessionId);
                 await completeSessionAPI({ sessionId, jwt: accessToken });
 
-                router.push(`/sessions/${sessionId}/result`);
+                router.push(`/das/sessions/${sessionId}/result`);
             }
         } catch (err) {
             if (isAxiosError(err)) {
@@ -53,7 +53,7 @@ export default function UnassessableQuestionsPage({ questionList }: { questionLi
                 const subtestItem = subtestList.find(v => v.subtestId === subtestId);
 
                 if (subtestItem) {
-                    router.push(`/sessions/${sessionId}/subtests/${subtestItem.pathname}/questions?currentPartId=${partId}`);
+                    router.push(`/das/sessions/${sessionId}/subtests/${subtestItem.pathname}/questions?currentPartId=${partId}`);
                 }
             } catch (err) {
                 console.error(err);
@@ -113,7 +113,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         if (!sessionId) {
             return {
                 redirect: {
-                    destination: '/',
+                    destination: '/das',
                     permanent: true,
                 },
             };
@@ -143,7 +143,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
             if (err.response?.status === 401) {
                 return {
                     redirect: {
-                        destination: '/',
+                        destination: '/das',
                         permanent: true,
                     },
                 };
@@ -151,7 +151,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         }
         return {
             redirect: {
-                destination: '/',
+                destination: '/das',
                 permanent: true,
             },
         };

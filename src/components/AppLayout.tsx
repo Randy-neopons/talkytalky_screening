@@ -16,13 +16,13 @@ export default function AppLayout({ isLoggedIn, progress, children }: { isLogged
 
     // 홈으로 버튼
     const onClickHome = useCallback(() => {
-        if (['/', '/sessions', '/sessions/[sessionId]/result'].includes(router.pathname)) {
-            router.push('/');
+        if (['/das', '/das/sessions', '/das/sessions/[sessionId]/result'].includes(router.pathname)) {
+            router.push('/das');
             return;
         }
 
         if (window.confirm('평가를 종료하고 홈 화면으로 이동하시겠습니까?')) {
-            router.push('/');
+            router.push('/das');
         }
     }, [router]);
 

@@ -363,12 +363,12 @@ export default function SpeechOneQuestionsPage({
                 const nextSubtestItem = subtests[currentSubtestIndex + 1];
                 if (nextSubtestItem) {
                     if (nextSubtestItem.subtestId === 5) {
-                        router.push(`/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}/questions`);
+                        router.push(`/das/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}/questions`);
                     } else {
-                        router.push(`/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}`);
+                        router.push(`/das/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}`);
                     }
                 } else {
-                    router.push(`/sessions/${sessionId}/unassessable`);
+                    router.push(`/das/sessions/${sessionId}/unassessable`);
                 }
             } catch (err) {
                 console.error(err);
@@ -621,7 +621,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         if (!sessionId) {
             return {
                 redirect: {
-                    destination: '/',
+                    destination: '/das',
                     permanent: true,
                 },
             };
@@ -659,7 +659,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
 
         return {
             redirect: {
-                destination: '/',
+                destination: '/das',
                 permanent: true,
             },
         };

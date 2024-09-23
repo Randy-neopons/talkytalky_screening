@@ -35,7 +35,7 @@ export default function Home() {
                 말실행증보다는 마비말장애 여부를 판단하는 데에 초점을 두고 있습니다.
             </span>
             <ul className='mt-15'>
-                <li className='mr-7.5 py-7.5 float-left flex h-[467px] w-[300px] flex-col flex-nowrap items-center rounded-[20px] bg-white px-[58px] shadow-base xl:h-[440px] xl:w-[477px] xl:items-start'>
+                <li className='float-left mr-7.5 flex h-[467px] w-[300px] flex-col flex-nowrap items-center rounded-[20px] bg-white px-[58px] py-7.5 shadow-base xl:h-[440px] xl:w-[477px] xl:items-start'>
                     <Image src={testStartIcon} alt='test-start' width={120} height={100} />
                     <span className='mt-5 font-bold leading-normal text-accent1 text-head-2 xl:leading-tight'>테스트 시작하기</span>
                     <span className='mt-[10px] text-center text-neutral4 text-body-2 xl:mt-2 xl:text-left'>
@@ -43,13 +43,13 @@ export default function Home() {
                     </span>
                     <Link
                         className='px-auto mt-auto flex items-center justify-center btn btn-small btn-contained xl:mr-auto'
-                        href='/personalInfo'
+                        href='/das/personalInfo'
                     >
                         시작하기
                     </Link>
                 </li>
 
-                <li className='py-7.5 float-left flex h-[467px] w-[300px] flex-col flex-nowrap items-center rounded-[20px] bg-white px-[58px] text-center shadow-base xl:h-[440px] xl:w-[477px] xl:items-start xl:text-left'>
+                <li className='float-left flex h-[467px] w-[300px] flex-col flex-nowrap items-center rounded-[20px] bg-white px-[58px] py-7.5 text-center shadow-base xl:h-[440px] xl:w-[477px] xl:items-start xl:text-left'>
                     <Image src={testResultIcon} alt='test-result' width={120} height={100} />
                     <span className='mt-5 font-bold leading-normal text-accent1 text-head-2 xl:leading-tight'>테스트 결과보기</span>
                     <span className='mt-[10px] text-neutral4 text-body-2 xl:mt-2'>
@@ -59,7 +59,7 @@ export default function Home() {
                         또한 문제를 보인 항목들에 대한 초기점검이 가능합니다.
                     </span>
                     <Link
-                        href={`/sessions`}
+                        href={`/das/sessions`}
                         className='mt-auto flex items-center justify-center text-head-1 btn btn-small btn-contained xl:mr-auto'
                     >
                         결과보기
@@ -94,7 +94,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
     } catch (err) {
         return {
             redirect: {
-                destination: '/',
+                destination: '/das',
                 permanent: true,
             },
         };

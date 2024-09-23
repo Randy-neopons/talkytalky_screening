@@ -187,7 +187,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
 
         return {
             redirect: {
-                destination: '/',
+                destination: '/das',
                 permanent: true,
             },
         };

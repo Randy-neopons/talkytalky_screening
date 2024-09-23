@@ -208,7 +208,7 @@ export default function TestResultPage({
     return (
         <Container>
             <div className='relative w-full'>
-                <Link href={`/sessions/${router.query.sessionId}/editInfo`} className='absolute bottom-0 left-2 underline'>
+                <Link href={`/das/sessions/${router.query.sessionId}/editInfo`} className='absolute bottom-0 left-2 underline'>
                     개인정보 수정
                 </Link>
                 <h1 className='text-center font-jalnan text-head-1'>말운동평가 검사 결과</h1>
@@ -310,7 +310,7 @@ export default function TestResultPage({
             })}
 
             <div className='mt-20'>
-                <Link href='/' className='inline-flex items-center justify-center btn btn-large btn-outlined'>
+                <Link href='/das' className='inline-flex items-center justify-center btn btn-large btn-outlined'>
                     홈
                 </Link>
                 {/* <button type='button' className='ml-5 btn btn-large btn-contained' onClick={() => {}}>
@@ -327,7 +327,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         if (!sessionId) {
             return {
                 redirect: {
-                    destination: '/',
+                    destination: '/das',
                     permanent: true,
                 },
             };
@@ -379,7 +379,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
     } catch (err) {
         return {
             redirect: {
-                destination: '/',
+                destination: '/das',
                 permanent: true,
             },
         };

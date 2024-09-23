@@ -67,7 +67,7 @@ export default function ParagraphReadingPage() {
             const sessionId = Number(router.query.sessionId);
             await handleSubmitData({ sessionId });
 
-            router.push(`/sessions/${sessionId}/subtests/speechTwo/description`);
+            router.push(`/das/sessions/${sessionId}/subtests/speechTwo/description`);
         } catch (err) {
             console.error(err);
         }
@@ -137,7 +137,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         if (!sessionId) {
             return {
                 redirect: {
-                    destination: '/',
+                    destination: '/das',
                     permanent: true,
                 },
             };
@@ -165,7 +165,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
     } catch (err) {
         return {
             redirect: {
-                destination: '/',
+                destination: '/das',
                 permanent: true,
             },
         };

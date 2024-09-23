@@ -17,7 +17,7 @@ export default function CompletePage() {
     const handleClickResult = useCallback(() => {
         try {
             const sessionId = Number(router.query.sessionId);
-            router.push(`/sessions/${sessionId}/result`);
+            router.push(`/das/sessions/${sessionId}/result`);
         } catch (err) {
             console.error(err);
         }
@@ -43,7 +43,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         if (!sessionId) {
             return {
                 redirect: {
-                    destination: '/',
+                    destination: '/das',
                     permanent: true,
                 },
             };
@@ -64,7 +64,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
     } catch (err) {
         return {
             redirect: {
-                destination: '/',
+                destination: '/das',
                 permanent: true,
             },
         };

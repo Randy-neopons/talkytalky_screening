@@ -250,7 +250,7 @@ export default function PersonalInfoPage() {
                 patientBirthdate,
             };
             setTestInfo(formValues); // set global state
-            router.push('/selectTest'); // 검사 선택 화면으로
+            router.push('/das/selectTest'); // 검사 선택 화면으로
         },
         [router, setTestInfo, user?.data.therapistUserId],
     );
@@ -282,7 +282,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
     } catch (err) {
         return {
             redirect: {
-                destination: '/',
+                destination: '/das',
                 permanent: true,
             },
         };
