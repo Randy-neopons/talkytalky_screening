@@ -10,7 +10,7 @@ import { useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import { CheckBoxGroupItem } from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
-import { createSessionAPI } from '@/api/questions';
+import { createSessionAPI } from '@/api/das';
 
 const ErrorText = ({ children }: { children: ReactNode }) => {
     return <p className='mt-1 text-red1 text-body-2'>{children}</p>;
@@ -84,7 +84,7 @@ export default function SelectTestPage() {
                 평가를 원하는 소검사 항목에 <span className='font-bold text-accent1 text-body-2'>모두 체크 후 평가시작 버튼</span>을
                 누르세요.
             </span>
-            <div className='gap-7.5 mt-7 flex w-full max-w-[1000px] flex-col xl:mt-20'>
+            <div className='mt-7 flex w-full max-w-[1000px] flex-col gap-7.5 xl:mt-20'>
                 <SubtestBox>
                     <CheckBoxGroupItem name='tests' value={subtestList[0].subtestId} values={subtestIds} setValues={setSubtestIds}>
                         <span className='ml-3 font-bold text-head-2'>{subtestList[0].subtestTitle}</span>

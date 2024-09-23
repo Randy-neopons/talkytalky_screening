@@ -9,7 +9,7 @@ import { partList, subtestList } from '@/stores/testStore';
 import { useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import Container from '@/components/common/Container';
-import { completeSessionAPI, getUnassessableQuestionListAPI } from '@/api/questions';
+import { completeSessionAPI, getUnassessableQuestionListAPI } from '@/api/das';
 
 import type { QuestionAnswer } from '@/types/types';
 

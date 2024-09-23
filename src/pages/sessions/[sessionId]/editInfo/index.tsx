@@ -8,7 +8,7 @@ import dayjs from 'dayjs';
 import { PersonalInfoForm } from '@/pages/personalInfo';
 import Container from '@/components/common/Container';
 import { useUserQuery } from '@/hooks/user';
-import { getTestInfoAPI, updateTestInfoAPI } from '@/api/questions';
+import { getTestInfoAPI, updateTestInfoAPI } from '@/api/das';
 
 import type { TestInfoFormValues } from '@/types/types';
 

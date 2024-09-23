@@ -10,7 +10,7 @@ import { deleteCookie, getCookie } from 'cookies-next';
 import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import Container from '@/components/common/Container';
-import { getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/questions';
+import { getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
 
 import subtestStyles from '../SubTests.module.css';
 

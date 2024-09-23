@@ -15,7 +15,7 @@ import Container from '@/components/common/Container';
 import { MemoIcon, MikeIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/icons';
 import { useConductedSubtestsQuery } from '@/hooks/questions';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
-import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/questions';
+import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
 
 import subtestStyles from '../SubTests.module.css';
 

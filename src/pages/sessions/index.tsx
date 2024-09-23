@@ -12,7 +12,7 @@ import { partList, subtestList } from '@/stores/testStore';
 import Container from '@/components/common/Container';
 import Pagination from '@/components/common/Pagination';
 import { sessionsQueryKey, useSessionsQuery } from '@/hooks/questions';
-import { getSessionListAPI } from '@/api/questions';
+import { getSessionListAPI } from '@/api/das';
 
 import searchIcon from 'public/static/images/search-icon.png';
 

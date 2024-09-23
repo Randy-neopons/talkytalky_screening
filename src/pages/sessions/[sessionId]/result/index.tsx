@@ -10,7 +10,7 @@ import dayjs from 'dayjs';
 import Container from '@/components/common/Container';
 import { PrintIcon } from '@/components/icons';
 import { useUserQuery } from '@/hooks/user';
-import { getTestInfoAPI, getTestResultAPI } from '@/api/questions';
+import { getTestInfoAPI, getTestResultAPI } from '@/api/das';
 
 import styles from './TestResultPage.module.css';
 
@@ -282,7 +282,7 @@ export default function TestResultPage({
 
             <div className='mt-20 w-full'>
                 <h2 className='font-bold text-black text-head-2'>TOTAL SCORE</h2>
-                <div className='mt-7.5 gap-7.5 flex'>
+                <div className='mt-7.5 flex gap-7.5'>
                     <div className='flex h-[295px] min-w-[280px] items-center justify-center rounded-base bg-white shadow-base xl:h-[346px] xl:w-[390px]'>
                         <TestTotalScoreGraph data={makeTotalScoreGraphData(testResultList)} />
                     </div>

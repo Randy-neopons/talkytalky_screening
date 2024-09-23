@@ -12,7 +12,7 @@ import { AudioButton } from '@/components/common/Buttons';
 import Container from '@/components/common/Container';
 import { MikeIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/icons';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
-import { getAnswersCountAPI, updateSessionAPI } from '@/api/questions';
+import { getAnswersCountAPI, updateSessionAPI } from '@/api/das';
 
 import styles from '../SubTests.module.css';
 

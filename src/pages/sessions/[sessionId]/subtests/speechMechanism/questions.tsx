@@ -13,7 +13,7 @@ import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import { useConductedSubtestsQuery } from '@/hooks/questions';
-import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/questions';
+import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
 
 import subtestStyles from '../SubTests.module.css';
 
@@ -345,7 +345,7 @@ export default function SpeechMechanismQuestionsPage({
                         <button
                             key='noSubmit'
                             type='button'
-                            className='disabled:btn-contained-disabled ml-5 mt-20 btn btn-large btn-contained'
+                            className='ml-5 mt-20 btn btn-large btn-contained disabled:btn-contained-disabled'
                             onClick={handleClickNext}
                         >
                             다음
