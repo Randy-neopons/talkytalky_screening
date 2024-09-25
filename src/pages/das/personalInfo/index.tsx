@@ -9,6 +9,7 @@ import { getCookie } from 'cookies-next';
 import dayjs from 'dayjs';
 
 import { useTestInfo, useTestActions } from '@/stores/testStore';
+import { RadioButton } from '@/components/common/Buttons';
 import { CheckBoxGroupItem } from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import Select from '@/components/common/Select';
@@ -37,7 +38,13 @@ const brainLesionOptions = [
     { value: 'lowerMotorNeuron', label: '하부운동신경손상' },
     { value: 'cerebellarControlCircuit', label: '소뇌조절회로' },
     { value: 'basalGangliaControlCircuit', label: '기저핵조절회로' },
-    { value: 'unknown', label: '알 수 없음' },
+    { value: 'unknown', label: '특정할 수 없음' },
+    { value: 'normal', label: '정상 소견' },
+];
+
+const comorbidityOptions = [
+    { value: 'N', label: '비동반' },
+    { value: 'Y', label: '동반' },
 ];
 
 const Label = ({ children, htmlFor, required }: { children: ReactNode; htmlFor: string; required?: boolean }) => {
@@ -216,6 +223,43 @@ export const PersonalInfoForm = ({
                         />
                     )}
                 />
+
+                <Label htmlFor='neurologicalLesion'>신경학적 병변 위치 또는 질환명</Label>
+                <Controller
+                    control={control}
+                    name='neurologicalLesion'
+                    render={({ field: { onChange, onBlur, value, ref } }) => (
+                        <TextareaAutosize
+                            className={styles.textarea}
+                            minRows={3}
+                            placeholder='신경학적 병변 위치 또는 질환명을 입력해주세요.'
+                            onChange={onChange}
+                            onBlur={onBlur}
+                            value={value}
+                            ref={ref}
+                        />
+                    )}
+                />
+
+                <Label htmlFor='comorbidity'>동반장애 유무</Label>
+                <div className='mt-7.5 flex flex-row gap-5'>
+                    <span className='font-bold text-body-1'>언어장애</span>
+                    {comorbidityOptions.map((option, i) => (
+                        <label key={option.value} className='flex items-center gap-[10px] text-body-1'>
+                            <input type='radio' {...register('languageDisorder')} value={option.value} className='h-6 w-6' />
+                            {option.label}
+                        </label>
+                    ))}
+                </div>
+                <div className='mt-7.5 flex flex-row gap-5'>
+                    <span className='font-bold text-body-1'>인지장애</span>
+                    {comorbidityOptions.map((option, i) => (
+                        <label key={option.value} className='flex items-center gap-[10px] text-body-1'>
+                            <input type='radio' {...register('cognitiveDisorder')} value={option.value} className='h-6 w-6' />
+                            {option.label}
+                        </label>
+                    ))}
+                </div>
             </form>
             <button
                 className='btn btn-large btn-contained disabled:btn-contained-disabled'

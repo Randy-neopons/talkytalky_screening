@@ -42,7 +42,14 @@ export default function SelectTestPage() {
             } else {
                 setError(false);
 
-                const sortedSubtestIds = subtestIds.toSorted();
+                const sortedSubtestIds = [...subtestIds];
+
+                // SPEECh I 체크하면 II도 포함
+                if (sortedSubtestIds.includes(subtestList[1].subtestId)) {
+                    sortedSubtestIds.push(subtestList[2].subtestId);
+                }
+                sortedSubtestIds.sort(); // 정렬
+
                 const subtests = subtestList.filter(v => sortedSubtestIds.includes(v.subtestId));
                 const currentPartId = partList.find(v => v.subtestId === subtestIds[0])?.partId;
                 if (!currentPartId) {
@@ -50,8 +57,6 @@ export default function SelectTestPage() {
                 }
 
                 setSubtests(subtests);
-
-                console.log(testInfo);
 
                 // 세션 추가
                 const accessToken = getCookie('jwt') as string;
@@ -77,7 +82,7 @@ export default function SelectTestPage() {
 
     return (
         <Container>
-            <h1 className='font-jalnan text-head-1'>말운동평가</h1>
+            <h1 className='font-jalnan text-head-1'>Dysarthria Assessment System (DAS)</h1>
             <span className='text-neutral3 text-body-2'>
                 평가를 원하는 소검사 항목에 <span className='font-bold text-accent1 text-body-2'>모두 체크 후 평가시작 버튼</span>을
                 누르세요.
@@ -90,11 +95,9 @@ export default function SelectTestPage() {
                 </SubtestBox>
                 <SubtestBox>
                     <CheckBoxGroupItem name='tests' value={subtestList[1].subtestId} values={subtestIds} setValues={setSubtestIds}>
-                        <span className='ml-3 font-bold text-head-2'>{subtestList[1].subtestTitle}</span>
-                    </CheckBoxGroupItem>
-
-                    <CheckBoxGroupItem name='tests' value={subtestList[2].subtestId} values={subtestIds} setValues={setSubtestIds}>
-                        <span className='ml-3 font-bold text-head-2'>{subtestList[2].subtestTitle}</span>
+                        <span className='ml-3 font-bold text-head-2'>
+                            {subtestList[1].subtestTitle} & {subtestList[2].subtestTitle}
+                        </span>
                     </CheckBoxGroupItem>
                 </SubtestBox>
                 <SubtestBox>
