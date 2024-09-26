@@ -5,13 +5,25 @@ import { getConductedSubtestsAPI, getQuestionAndAnswerListAPI, getSessionListAPI
 
 // 질문 목록
 export const questionsQueryKey = 'questions';
-export const useQuestionsQuery = ({ sessionId, subtestId, jwt }: { sessionId: number; subtestId: number; jwt: string }) => {
+export const useQuestionsAndAnswersQuery = ({
+    sessionId,
+    subtestId,
+    start,
+    end,
+    jwt,
+}: {
+    sessionId: number;
+    subtestId: number;
+    start?: number;
+    end?: number;
+    jwt: string;
+}) => {
     return useQuery<{
         result: boolean;
         questions: { questionId: number; questionText: string; answerType: string; partId: number; subtestId: number }[];
     }>({
-        queryKey: [questionsQueryKey, sessionId, subtestId, jwt],
-        queryFn: () => getQuestionAndAnswerListAPI({ sessionId, subtestId, jwt }),
+        queryKey: [questionsQueryKey, sessionId, subtestId, start, end, jwt],
+        queryFn: () => getQuestionAndAnswerListAPI({ sessionId, subtestId, start, end, jwt }),
     });
 };
 

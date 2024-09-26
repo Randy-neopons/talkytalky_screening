@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type ChangeEventHandler } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ChangeEventHandler } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import ReactTextareaAutosize from 'react-textarea-autosize';
 import type { GetServerSideProps } from 'next';
@@ -12,7 +12,7 @@ import { useTestTime } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
-import { useConductedSubtestsQuery } from '@/hooks/das';
+import { useConductedSubtestsQuery, useQuestionsAndAnswersQuery } from '@/hooks/das';
 import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
 
 import subtestStyles from '../SubTests.module.css';
@@ -92,6 +92,13 @@ export default function SpeechMechanismQuestionsPage({
         [partId],
     );
 
+    const { data: qnaData } = useQuestionsAndAnswersQuery({
+        sessionId: Number(router.query.sessionId),
+        subtestId: CURRENT_SUBTEST_ID,
+        start,
+        end,
+        jwt: getCookie('jwt') || '',
+    });
     // react-hook-form
     const {
         control,
@@ -214,6 +221,20 @@ export default function SpeechMechanismQuestionsPage({
         },
         [handleSubmitData, router, subtestsData],
     );
+
+    useEffect(() => {
+        setValue(
+            'answers',
+            questionList?.map(({ questionId, questionText, partId, subtestId, answer, comment }) => ({
+                questionId,
+                questionText,
+                partId,
+                subtestId,
+                answer,
+                comment,
+            })),
+        );
+    }, [questionList, setValue]);
 
     return (
         <Container>

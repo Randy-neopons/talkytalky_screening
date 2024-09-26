@@ -63,10 +63,22 @@ export async function getSessionListAPI({
 }
 
 // 문항 목록 조회
-export async function getQuestionAndAnswerListAPI({ sessionId, subtestId, jwt }: { sessionId: number; subtestId: number; jwt: string }) {
+export async function getQuestionAndAnswerListAPI({
+    sessionId,
+    subtestId,
+    start,
+    end,
+    jwt,
+}: {
+    sessionId: number;
+    subtestId: number;
+    start?: number;
+    end?: number;
+    jwt: string;
+}) {
     const response = await axios.get(`/assessment/session/${sessionId}/questions`, {
         headers: makeHeaders(jwt),
-        params: { subtestId },
+        params: { subtestId, start, end },
     });
     return response.data;
 }
