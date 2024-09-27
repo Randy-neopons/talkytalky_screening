@@ -10,6 +10,7 @@ import { deleteCookie, getCookie } from 'cookies-next';
 import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import Container from '@/components/common/Container';
+import { useQuestionsAndAnswersQuery } from '@/hooks/das';
 import { getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
 
 import subtestStyles from '../SubTests.module.css';
@@ -67,6 +68,30 @@ export default function StressTestingQuestionsPage({ questionList }: { questionL
         },
     });
     const { fields } = useFieldArray({ name: 'answers', control });
+
+    const { data: qnaData } = useQuestionsAndAnswersQuery({
+        sessionId: Number(router.query.sessionId),
+        subtestId: CURRENT_SUBTEST_ID,
+        start,
+        end,
+        jwt: getCookie('jwt') || '',
+    });
+
+    useEffect(() => {
+        if (qnaData?.questions) {
+            setValue(
+                'answers',
+                qnaData.questions.map(({ questionId, questionText, partId, subtestId, answer, comment }) => ({
+                    questionId,
+                    questionText,
+                    partId,
+                    subtestId,
+                    answer,
+                    comment,
+                })),
+            );
+        }
+    }, [qnaData, setValue]);
 
     // 모두 정상 체크
     const handleChangeCheckAll1 = useCallback<ChangeEventHandler<HTMLInputElement>>(

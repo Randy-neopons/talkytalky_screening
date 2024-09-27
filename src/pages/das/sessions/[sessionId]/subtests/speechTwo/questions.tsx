@@ -13,7 +13,7 @@ import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import { MemoIcon, MikeIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/icons';
-import { useConductedSubtestsQuery } from '@/hooks/das';
+import { useConductedSubtestsQuery, useQuestionsAndAnswersQuery } from '@/hooks/das';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
 
@@ -60,9 +60,35 @@ export default function SpeechTwoQuestionsPage({
         [partId],
     );
 
+    // react-hook-form
+    const { control, register, setValue, handleSubmit } = useForm<{
+        answers: Answer[];
+    }>();
+    const { fields } = useFieldArray({ name: 'answers', control });
+
+    const { data: qnaData } = useQuestionsAndAnswersQuery({
+        sessionId: Number(router.query.sessionId),
+        subtestId: CURRENT_SUBTEST_ID,
+        start,
+        end,
+        jwt: getCookie('jwt') || '',
+    });
+
     useEffect(() => {
-        console.log('recordingList', recordingList);
-    }, [recordingList]);
+        if (qnaData?.questions) {
+            setValue(
+                'answers',
+                qnaData.questions.map(({ questionId, questionText, partId, subtestId, answer, comment }) => ({
+                    questionId,
+                    questionText,
+                    partId,
+                    subtestId,
+                    answer,
+                    comment,
+                })),
+            );
+        }
+    }, [qnaData, setValue]);
 
     // 문단,그림,대화 녹음
     const {
@@ -95,23 +121,6 @@ export default function SpeechTwoQuestionsPage({
         handlePlay: handlePlay3,
         handlePause: handlePause3,
     } = useAudioRecorder(recordingList[2]?.filePath);
-
-    // react-hook-form
-    const { control, register, setValue, handleSubmit } = useForm<{
-        answers: Answer[];
-    }>({
-        defaultValues: {
-            answers: questionList?.map(({ questionId, questionText, partId, subtestId, answer, comment }) => ({
-                questionId,
-                questionText,
-                partId,
-                subtestId,
-                answer,
-                comment,
-            })),
-        },
-    });
-    const { fields } = useFieldArray({ name: 'answers', control });
 
     // 모두 정상 체크
     const handleChangeCheckAll = useCallback<ChangeEventHandler<HTMLInputElement>>(

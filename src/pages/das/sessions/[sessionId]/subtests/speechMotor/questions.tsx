@@ -11,7 +11,7 @@ import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
-import { useConductedSubtestsQuery } from '@/hooks/das';
+import { useConductedSubtestsQuery, useQuestionsAndAnswersQuery } from '@/hooks/das';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
 
@@ -199,6 +199,30 @@ export default function SpeechMotorQuestionsPage({
         },
     });
     const { fields } = useFieldArray({ name: 'answers', control });
+
+    const { data: qnaData } = useQuestionsAndAnswersQuery({
+        sessionId: Number(router.query.sessionId),
+        subtestId: CURRENT_SUBTEST_ID,
+        start,
+        end,
+        jwt: getCookie('jwt') || '',
+    });
+
+    useEffect(() => {
+        if (qnaData?.questions) {
+            setValue(
+                'answers',
+                qnaData.questions.map(({ questionId, questionText, partId, subtestId, answer, comment }) => ({
+                    questionId,
+                    questionText,
+                    partId,
+                    subtestId,
+                    answer,
+                    comment,
+                })),
+            );
+        }
+    }, [qnaData, setValue]);
 
     // 모두 정상 체크
     const handleChangeCheckAll = useCallback<ChangeEventHandler<HTMLInputElement>>(

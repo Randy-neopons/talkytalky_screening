@@ -13,7 +13,7 @@ import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import { useConductedSubtestsQuery, useQuestionsAndAnswersQuery } from '@/hooks/das';
-import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
+import { updateSessionAPI } from '@/api/das';
 
 import subtestStyles from '../SubTests.module.css';
 
@@ -99,6 +99,7 @@ export default function SpeechMechanismQuestionsPage({
         end,
         jwt: getCookie('jwt') || '',
     });
+
     // react-hook-form
     const {
         control,
@@ -106,6 +107,7 @@ export default function SpeechMechanismQuestionsPage({
         setValue,
         handleSubmit,
         formState: { isDirty, isValid },
+        getValues,
     } = useForm<{
         answers: Answer[];
     }>();
@@ -139,21 +141,13 @@ export default function SpeechMechanismQuestionsPage({
         [end, setValue, split, start],
     );
 
-    // 이전 파트로
-    const handleClickPrev = useCallback(() => {
-        setCheckAll1(false);
-        setCheckAll2(false);
-        partId > PART_ID_START && setPartId(partId => partId - 1);
-        typeof window !== 'undefined' && window.scrollTo(0, 0);
-    }, [partId]);
-
     // 다음 파트로
-    const handleClickNext = useCallback(() => {
-        setCheckAll1(false);
-        setCheckAll2(false);
-        partId < partIndexList[partIndexList.length - 1].partId && setPartId(partId => partId + 1);
-        typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
-    }, [partId]);
+    // const handleClickNext = useCallback(() => {
+    //     setCheckAll1(false);
+    //     setCheckAll2(false);
+    //     partId < partIndexList[partIndexList.length - 1].partId && setPartId(partId => partId + 1);
+    //     typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
+    // }, [partId]);
 
     // 폼 데이터 제출
     const handleSubmitData = useCallback(
@@ -182,33 +176,65 @@ export default function SpeechMechanismQuestionsPage({
         [partId, testTime],
     );
 
+    // 이전 파트로
+    const handleClickPrev = useCallback(async () => {
+        try {
+            const data = getValues();
+            const sessionId = Number(router.query.sessionId);
+            await handleSubmitData({ sessionId, data });
+
+            setCheckAll1(false);
+            setCheckAll2(false);
+            partId > PART_ID_START && setPartId(partId => partId - 1);
+            typeof window !== 'undefined' && window.scrollTo(0, 0);
+        } catch (err) {
+            console.error(err);
+        }
+    }, [getValues, handleSubmitData, partId, router.query.sessionId]);
+
     // 폼 제출
-    const handleOnSubmit = useCallback(
+    const handleClickNext = useCallback(
         async (data: any) => {
             try {
                 const sessionId = Number(router.query.sessionId);
                 await handleSubmitData({ sessionId, data });
 
-                const subtests = subtestsData?.subtests;
-                if (!subtests) {
-                    throw new Error('수행할 소검사가 없습니다');
-                }
-                const currentSubtestIndex = subtests.findIndex(v => v.subtestId === CURRENT_SUBTEST_ID);
-                const nextSubtestItem = subtests?.[currentSubtestIndex + 1];
-                if (nextSubtestItem) {
-                    if (nextSubtestItem.subtestId === 5) {
-                        router.push(`/das/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}/questions`);
-                    } else {
-                        router.push(`/das/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}`);
-                    }
+                if (partId < partIndexList[partIndexList.length - 1].partId) {
+                    // 검사할 파트가 남았으면 계속 진행
+                    setCheckAll1(false);
+                    setCheckAll2(false);
+                    setPartId(partId => partId + 1);
+                    typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
                 } else {
-                    router.push(`/das/sessions/${sessionId}/unassessable`);
+                    // 검사할 파트가 없으면
+
+                    // 소검사 확인
+                    const subtests = subtestsData?.subtests;
+                    if (!subtests) {
+                        throw new Error('수행할 소검사가 없습니다');
+                    }
+
+                    // 다음 진행할 소검사
+                    const currentSubtestIndex = subtests.findIndex(v => v.subtestId === CURRENT_SUBTEST_ID);
+                    const nextSubtestItem = subtests?.[currentSubtestIndex + 1];
+
+                    if (nextSubtestItem) {
+                        // 다음 소검사가 있으면 이동
+                        if (nextSubtestItem.subtestId === 5) {
+                            router.push(`/das/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}/questions`);
+                        } else {
+                            router.push(`/das/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}`);
+                        }
+                    } else {
+                        // 다음 소검사가 없으면 평가불가 문항으로 이동
+                        router.push(`/das/sessions/${sessionId}/unassessable`);
+                    }
                 }
             } catch (err) {
                 console.error(err);
             }
         },
-        [handleSubmitData, router, subtestsData],
+        [handleSubmitData, partId, router, subtestsData?.subtests],
     );
 
     useEffect(() => {
@@ -230,7 +256,7 @@ export default function SpeechMechanismQuestionsPage({
     return (
         <Container>
             <h2 className='flex items-center font-noto font-bold text-accent1 text-head-3'>SPEECH MECHANISM : 말기제평가</h2>
-            <form onSubmit={handleSubmit(handleOnSubmit)} className={`${subtestStyles['subtest-form']}`}>
+            <form onSubmit={handleSubmit(handleClickNext)} className={`${subtestStyles['subtest-form']}`}>
                 <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitleEn}</h1>
                 <h2 className='whitespace-pre-line text-center font-jalnan text-head-2'>{partTitle}</h2>
 
@@ -352,21 +378,10 @@ export default function SpeechMechanismQuestionsPage({
                             이전
                         </button>
                     )}
-                    {/* key 설정을 해야 다른 컴포넌트로 인식하여 type이 명확히 구분됨 */}
-                    {partId < partIndexList[partIndexList.length - 1].partId ? (
-                        <button
-                            key='noSubmit'
-                            type='button'
-                            className='ml-5 mt-20 btn btn-large btn-contained disabled:btn-contained-disabled'
-                            onClick={handleClickNext}
-                        >
-                            다음
-                        </button>
-                    ) : (
-                        <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained'>
-                            다음 검사
-                        </button>
-                    )}
+
+                    <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained disabled:btn-contained-disabled'>
+                        다음
+                    </button>
                 </div>
             </form>
         </Container>
@@ -397,19 +412,9 @@ export const getServerSideProps: GetServerSideProps = async context => {
             };
         }
 
-        // 검사 시작할 때마다 진행률 불러오기
-        const { totalCount, notNullCount } = await getAnswersCountAPI({ sessionId, jwt: accessToken });
-        const progress = Math.ceil((notNullCount / totalCount) * 100);
-
-        // 소검사 문항 정보 fetch
-        const responseData = await getQuestionAndAnswerListAPI({ sessionId, subtestId: CURRENT_SUBTEST_ID, jwt: accessToken });
-        const questionList = responseData.questions;
-
         return {
             props: {
                 isLoggedIn: true,
-                questionList,
-                progress,
                 currentPartId,
             },
         };
