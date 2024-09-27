@@ -76,7 +76,24 @@ export async function getQuestionAndAnswerListAPI({
     end?: number;
     jwt: string;
 }) {
-    const response = await axios.get(`/assessment/session/${sessionId}/questions`, {
+    const response = await axios.get<{
+        result: boolean;
+        questions: {
+            questionId: number;
+            questionText: string;
+            answerType: string;
+            partId: number;
+            subtestId: number;
+            answer: string;
+            comment: string;
+        }[];
+        recordings: {
+            recordingId: number;
+            filePath: string;
+            partId: number;
+            repeatCount: number;
+        }[];
+    }>(`/assessment/session/${sessionId}/questions`, {
         headers: makeHeaders(jwt),
         params: { subtestId, start, end },
     });

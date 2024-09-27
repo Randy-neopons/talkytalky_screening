@@ -18,10 +18,7 @@ export const useQuestionsAndAnswersQuery = ({
     end?: number;
     jwt: string;
 }) => {
-    return useQuery<{
-        result: boolean;
-        questions: { questionId: number; questionText: string; answerType: string; partId: number; subtestId: number }[];
-    }>({
+    return useQuery({
         queryKey: [questionsQueryKey, sessionId, subtestId, start, end, jwt],
         queryFn: () => getQuestionAndAnswerListAPI({ sessionId, subtestId, start, end, jwt }),
     });
