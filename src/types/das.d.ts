@@ -4,9 +4,12 @@ export interface TestInfoFormValues {
     patientName: string;
     patientGender: string;
     patientBirthdate: string;
-    brainLesions: string[];
-    medicalHistory?: string;
-    patientMemo?: string;
+    brainLesions: string[]; // 뇌병변
+    medicalHistory?: string; // 병력
+    patientMemo?: string; // 개인정보
+    neurologicalLesion?: string; // 신경학적 병변
+    languageDisorder?: string; // 언어장애
+    cognitiveDisorder?: string; // 인지장애
 }
 
 // 말운동평가 테스트 세션

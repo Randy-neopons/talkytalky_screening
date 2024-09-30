@@ -3,6 +3,8 @@ import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
+import { isAxiosError } from 'axios';
+
 import { useTimerActions } from '@/stores/timerStore';
 import Container from '@/components/common/Container';
 import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
@@ -172,7 +174,6 @@ export const getServerSideProps: GetServerSideProps = async context => {
     try {
         const sessionId = Number(context.query.sessionId);
         if (!sessionId) {
-            console.log('sessionId', sessionId);
             return {
                 redirect: {
                     destination: '/screening',
@@ -181,22 +182,22 @@ export const getServerSideProps: GetServerSideProps = async context => {
             };
         }
 
-        // TODO: result API에서 받아오기
+        // 테스트 결과 불러오기
         const testResultData = await getScreeningTestResultAPI({ sessionId });
         const { age, level, abstract, errorConsonant, errorPattern, errors, responseTime, summary } = testResultData;
         const sectionList =
             age < 7
                 ? [
-                      { title: '개요', description: abstract },
-                      { title: '오류자음', description: errorConsonant },
-                      { title: '오류패턴', description: errorPattern },
-                      { title: '종합의견', description: summary },
+                      { title: '개요', description: abstract || null },
+                      { title: '오류자음', description: errorConsonant || null },
+                      { title: '오류패턴', description: errorPattern || null },
+                      { title: '종합의견', description: summary || null },
                   ]
                 : [
-                      { title: '개요', description: abstract },
-                      { title: '말산출오류', description: errors },
-                      { title: '첫반응시간', description: responseTime },
-                      { title: '종합의견', description: summary },
+                      { title: '개요', description: abstract || null },
+                      { title: '말산출오류', description: errors || null },
+                      { title: '첫반응시간', description: responseTime || 0 },
+                      { title: '종합의견', description: summary || null },
                   ];
 
         return {
@@ -207,7 +208,6 @@ export const getServerSideProps: GetServerSideProps = async context => {
             },
         };
     } catch (err) {
-        console.error(err);
         return {
             redirect: {
                 destination: '/screening',

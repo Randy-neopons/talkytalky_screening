@@ -172,6 +172,13 @@ export async function completeScreeningSessionAPI({ sessionId }: { sessionId: nu
     return response.data;
 }
 
+// 결과 생성
+export async function generateScreeningTestResultAPI({ sessionId, data }: { sessionId: number; data: any }) {
+    const response = await axios.post<any>(`/assessment/screening/session/${sessionId}/result`, data);
+
+    return response.data;
+}
+
 // 세션 결과 보기
 export async function getScreeningTestResultAPI({ sessionId }: { sessionId: number }) {
     const response = await axios.get<{
