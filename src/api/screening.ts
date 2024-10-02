@@ -173,8 +173,8 @@ export async function completeScreeningSessionAPI({ sessionId }: { sessionId: nu
 }
 
 // 결과 생성
-export async function generateScreeningTestResultAPI({ sessionId, data }: { sessionId: number; data: any }) {
-    const response = await axios.post<any>(`/assessment/screening/session/${sessionId}/result`, data);
+export async function generateScreeningTestResultAPI({ sessionId }: { sessionId: number }) {
+    const response = await axios.post<any>(`/assessment/screening/session/${sessionId}/result`);
 
     return response.data;
 }

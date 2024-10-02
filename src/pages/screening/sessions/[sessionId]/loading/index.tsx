@@ -8,7 +8,7 @@ import Container from '@/components/common/Container';
 import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
 import { generateScreeningTestResultAPI } from '@/api/screening';
 
-import completeImg from 'public/static/images/complete-img.png';
+import analyzingImg from 'public/static/images/analyzing.gif';
 
 import type { NextPageWithLayout } from '@/types/types';
 
@@ -25,7 +25,7 @@ const ScreeningResultLoadingPage: NextPageWithLayout = () => {
     useEffect(() => {
         const sessionId = Number(router.query.sessionId);
         const generateResult = async () => {
-            await generateScreeningTestResultAPI({ sessionId, data: {} });
+            await generateScreeningTestResultAPI({ sessionId });
             router.push(`/screening/sessions/${sessionId}/result`);
         };
 
@@ -36,8 +36,8 @@ const ScreeningResultLoadingPage: NextPageWithLayout = () => {
 
     return (
         <Container>
-            <Image src={completeImg} alt='complete' className='mt-[140px] xl:mt-[180px]' width={86} height={116} />
-            <h1 className='mt-10 font-jalnan text-head-1'>로딩중...</h1>
+            <Image src={analyzingImg} alt='analyze' className='mt-[140px] xl:mt-[180px]' width={260} height={260} />
+            <h1 className='mt-10 font-jalnan text-head-1'>검사결과 분석중...</h1>
         </Container>
     );
 };

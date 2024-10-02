@@ -101,8 +101,8 @@ const ScreeningRecordingPage: NextPageWithLayout<{
             } else {
                 // 세션 완료
                 await completeScreeningSessionAPI({ sessionId });
-                // 검사완료 페이지로 이동
-                router.push(`/screening/sessions/${sessionId}/complete`);
+                // 분석중 페이지로 이동
+                router.push(`/screening/sessions/${sessionId}/loading`);
             }
             typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
         } catch (err) {
