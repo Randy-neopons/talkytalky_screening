@@ -96,7 +96,7 @@ export default function SpeechMechanismQuestionsPage({
         sessionId: Number(router.query.sessionId),
         subtestId: CURRENT_SUBTEST_ID,
         start,
-        end,
+        end: end - 1,
         jwt: getCookie('jwt') || '',
     });
 

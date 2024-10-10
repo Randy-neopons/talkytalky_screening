@@ -47,13 +47,13 @@ const subtestResultList = [
         pathname: 'speech',
         color: '#FFA26B',
     },
-    {
-        subtestIds: [4],
-        subtestTitle: 'SPEECH MOTOR : 말운동 평가',
-        graphTitle: 'SPEECH\nMOTOR',
-        pathname: 'speechMotor',
-        color: '#0084F4',
-    },
+    // {
+    //     subtestIds: [4],
+    //     subtestTitle: 'SPEECH MOTOR : 말운동 평가',
+    //     graphTitle: 'SPEECH\nMOTOR',
+    //     pathname: 'speechMotor',
+    //     color: '#0084F4',
+    // },
 ];
 
 const makeTotalScoreGraphData = (
@@ -282,7 +282,7 @@ export default function TestResultPage({
 
             <div className='mt-20 w-full'>
                 <h2 className='font-bold text-black text-head-2'>TOTAL SCORE</h2>
-                <div className='mt-7.5 flex gap-7.5'>
+                <div className='mt-7.5 gap-7.5 flex'>
                     <div className='flex h-[295px] min-w-[280px] items-center justify-center rounded-base bg-white shadow-base xl:h-[346px] xl:w-[390px]'>
                         <TestTotalScoreGraph data={makeTotalScoreGraphData(testResultList)} />
                     </div>

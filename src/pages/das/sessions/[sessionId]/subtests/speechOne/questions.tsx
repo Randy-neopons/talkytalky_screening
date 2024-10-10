@@ -239,7 +239,7 @@ export default function SpeechOneQuestionsPage({
         sessionId: Number(router.query.sessionId),
         subtestId: CURRENT_SUBTEST_ID,
         start,
-        end,
+        end: end - 1,
         jwt: getCookie('jwt') || '',
     });
 
@@ -247,26 +247,7 @@ export default function SpeechOneQuestionsPage({
     const { control, register, setValue, handleSubmit } = useForm<{
         recordings: Recording[];
         answers: Answer[];
-    }>({
-        defaultValues: {
-            recordings:
-                recordingList.length > 0
-                    ? recordingList
-                    : [
-                          { filePath: null, repeatCount: null }, // 이름은 repeatCount지만 지속시간 기록함 (추후 property name 변경 필요)
-                          { filePath: null, repeatCount: null },
-                          { filePath: null, repeatCount: null },
-                      ],
-            answers: questionList?.map(({ questionId, questionText, partId, subtestId, answer, comment }) => ({
-                questionId,
-                questionText,
-                partId,
-                subtestId,
-                answer,
-                comment,
-            })),
-        },
-    });
+    }>();
     const { fields } = useFieldArray({ name: 'answers', control });
 
     // 모두 정상 체크
@@ -392,6 +373,25 @@ export default function SpeechOneQuestionsPage({
     useEffect(() => {
         console.log('page', page);
     }, [page]);
+
+    useEffect(() => {
+        if (qnaData?.recordings) {
+            setValue('recordings', qnaData.recordings);
+        }
+        if (qnaData?.questions) {
+            setValue(
+                'answers',
+                qnaData.questions.map(({ questionId, questionText, partId, subtestId, answer, comment }) => ({
+                    questionId,
+                    questionText,
+                    partId,
+                    subtestId,
+                    answer,
+                    comment,
+                })),
+            );
+        }
+    }, [qnaData, setValue]);
 
     return (
         <Container>

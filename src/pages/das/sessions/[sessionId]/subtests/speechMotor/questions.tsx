@@ -177,38 +177,22 @@ export default function SpeechMotorQuestionsPage({
     const { control, register, setValue, handleSubmit } = useForm<{
         recordings: Recording[];
         answers: Answer[];
-    }>({
-        defaultValues: {
-            recordings:
-                recordingList.length > 0
-                    ? recordingList
-                    : [
-                          { filePath: null, repeatCount: null },
-                          { filePath: null, repeatCount: null },
-                          { filePath: null, repeatCount: null },
-                          { filePath: null, repeatCount: null },
-                      ],
-            answers: questionList?.map(({ questionId, questionText, partId, subtestId, answer, comment }) => ({
-                questionId,
-                questionText,
-                partId,
-                subtestId,
-                answer,
-                comment,
-            })),
-        },
-    });
+    }>();
     const { fields } = useFieldArray({ name: 'answers', control });
 
     const { data: qnaData } = useQuestionsAndAnswersQuery({
         sessionId: Number(router.query.sessionId),
         subtestId: CURRENT_SUBTEST_ID,
         start,
-        end,
+        end: end - 1,
         jwt: getCookie('jwt') || '',
     });
 
     useEffect(() => {
+        if (qnaData?.recordings) {
+            setValue('recordings', qnaData.recordings);
+        }
+
         if (qnaData?.questions) {
             setValue(
                 'answers',
