@@ -143,13 +143,6 @@ export default function SpeechTwoQuestionsPage({
         typeof window !== 'undefined' && window.scrollTo(0, 0);
     }, [partId]);
 
-    // 다음 파트로
-    const handleClickNext = useCallback(() => {
-        setCheckAll(false);
-        partId < partIndexList[partIndexList.length - 1].partId && setPartId(partId => partId + 1);
-        typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
-    }, [partId]);
-
     // 폼 데이터 제출
     const handleSubmitData = useCallback(
         async ({ sessionId, data }: { sessionId: number; data: any }) => {
@@ -175,6 +168,50 @@ export default function SpeechTwoQuestionsPage({
             }
         },
         [partId, testTime],
+    );
+
+    // 폼 제출
+    const handleClickNext = useCallback(
+        async (data: any) => {
+            try {
+                const sessionId = Number(router.query.sessionId);
+                await handleSubmitData({ sessionId, data });
+
+                if (partId < partIndexList[partIndexList.length - 1].partId) {
+                    // 검사할 파트가 남았으면 계속 진행
+                    setCheckAll(false);
+                    setPartId(partId => partId + 1);
+                    typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
+                } else {
+                    // 검사할 파트가 없으면
+
+                    // 소검사 확인
+                    const subtests = subtestsData?.subtests;
+                    if (!subtests) {
+                        throw new Error('수행할 소검사가 없습니다');
+                    }
+
+                    // 다음 진행할 소검사
+                    const currentSubtestIndex = subtests.findIndex(v => v.subtestId === CURRENT_SUBTEST_ID);
+                    const nextSubtestItem = subtests[currentSubtestIndex + 1];
+
+                    if (nextSubtestItem) {
+                        // 다음 소검사가 있으면 이동
+                        if (nextSubtestItem.subtestId === 5) {
+                            router.push(`/das/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}/questions`);
+                        } else {
+                            router.push(`/das/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}`);
+                        }
+                    } else {
+                        // 다음 소검사가 없으면 평가불가 문항으로 이동
+                        router.push(`/das/sessions/${sessionId}/unassessable`);
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        },
+        [handleSubmitData, partId, router, subtestsData?.subtests],
     );
 
     // 폼 제출 후 redirect
@@ -209,7 +246,7 @@ export default function SpeechTwoQuestionsPage({
     return (
         <Container>
             <h2 className='flex items-center font-noto font-bold text-accent1 text-head-2'>SPEECH II : 종합적 말평가</h2>
-            <form onSubmit={handleSubmit(handleOnSubmit)} className={`${subtestStyles['subtest-form']}`}>
+            <form onSubmit={handleSubmit(handleClickNext)} className={`${subtestStyles['subtest-form']}`}>
                 <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitleEn}</h1>
                 <h2 className='whitespace-pre-line text-center font-jalnan text-head-2'>{partTitle}</h2>
 
@@ -339,16 +376,10 @@ export default function SpeechTwoQuestionsPage({
                             이전
                         </button>
                     )}
-                    {/* key 설정을 해야 다른 컴포넌트로 인식하여 type이 명확히 구분됨 */}
-                    {partId < partIndexList[partIndexList.length - 1].partId ? (
-                        <button key='noSubmit' type='button' className='ml-5 mt-20 btn btn-large btn-contained' onClick={handleClickNext}>
-                            다음
-                        </button>
-                    ) : (
-                        <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained'>
-                            다음 검사
-                        </button>
-                    )}
+
+                    <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained'>
+                        다음 검사
+                    </button>
                 </div>
             </form>
         </Container>

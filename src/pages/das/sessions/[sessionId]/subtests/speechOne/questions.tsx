@@ -288,21 +288,21 @@ export default function SpeechOneQuestionsPage({
     }, [partId]);
 
     // 다음 파트로
-    const handleClickNext = useCallback(() => {
-        setCheckAll1(false);
-        setCheckAll2(false);
+    // const handleClickNext = useCallback(() => {
+    //     setCheckAll1(false);
+    //     setCheckAll2(false);
 
-        if (partId === PART_ID_START && page < 3) {
-            setPage(page => page + 1);
-        } else {
-            if (partId < partIndexList[partIndexList.length - 1].partId) {
-                setPartId(partId => partId + 1);
-                setPage(0);
-            }
-        }
+    //     if (partId === PART_ID_START && page < 3) {
+    //         setPage(page => page + 1);
+    //     } else {
+    //         if (partId < partIndexList[partIndexList.length - 1].partId) {
+    //             setPartId(partId => partId + 1);
+    //             setPage(0);
+    //         }
+    //     }
 
-        typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
-    }, [page, partId]);
+    //     typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
+    // }, [page, partId]);
 
     // 폼 데이터 제출
     const handleSubmitData = useCallback(
@@ -313,6 +313,8 @@ export default function SpeechOneQuestionsPage({
                 formData.append('audio2', audioBlob2 || 'null');
                 formData.append('audio3', audioBlob3 || 'null');
                 formData.append('recordings', JSON.stringify(data.recordings));
+
+                // console.log(data.recordings);
 
                 formData.append('testTime', `${testTime}`);
                 formData.append('currentPartId', `${partId}`);
@@ -338,32 +340,50 @@ export default function SpeechOneQuestionsPage({
     );
 
     // 폼 제출 후 redirect
-    const handleOnSubmit = useCallback(
+    const handleClickNext = useCallback(
         async (data: any) => {
             try {
                 const sessionId = Number(router.query.sessionId);
                 await handleSubmitData({ sessionId, data });
 
-                const subtests = subtestsData?.subtests;
-                if (!subtests) {
-                    throw new Error('수행할 소검사가 없습니다');
-                }
-                const currentSubtestIndex = subtests.findIndex(v => v.subtestId === CURRENT_SUBTEST_ID);
-                const nextSubtestItem = subtests[currentSubtestIndex + 1];
-                if (nextSubtestItem) {
-                    if (nextSubtestItem.subtestId === 5) {
-                        router.push(`/das/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}/questions`);
-                    } else {
-                        router.push(`/das/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}`);
-                    }
+                console.log(data);
+
+                setCheckAll1(false);
+                setCheckAll2(false);
+
+                if (partId === PART_ID_START && page < 3) {
+                    setPage(page => page + 1);
                 } else {
-                    router.push(`/das/sessions/${sessionId}/unassessable`);
+                    if (partId < partIndexList[partIndexList.length - 1].partId) {
+                        setPartId(partId => partId + 1);
+                        setPage(0);
+                    } else {
+                        const subtests = subtestsData?.subtests;
+                        if (!subtests) {
+                            throw new Error('수행할 소검사가 없습니다');
+                        }
+                        // 다음 진행할 소검사
+                        const currentSubtestIndex = subtests.findIndex(v => v.subtestId === CURRENT_SUBTEST_ID);
+                        const nextSubtestItem = subtests[currentSubtestIndex + 1];
+
+                        if (nextSubtestItem) {
+                            // 다음 소검사가 있으면 이동
+                            if (nextSubtestItem.subtestId === 5) {
+                                router.push(`/das/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}/questions`);
+                            } else {
+                                router.push(`/das/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}`);
+                            }
+                        } else {
+                            // 다음 소검사가 없으면 평가불가 문항으로 이동
+                            router.push(`/das/sessions/${sessionId}/unassessable`);
+                        }
+                    }
                 }
             } catch (err) {
                 console.error(err);
             }
         },
-        [handleSubmitData, router, subtestsData],
+        [handleSubmitData, page, partId, router, subtestsData?.subtests],
     );
 
     useEffect(() => {
@@ -376,6 +396,7 @@ export default function SpeechOneQuestionsPage({
 
     useEffect(() => {
         if (qnaData?.recordings) {
+            // console.log(qnaData?.recordings);
             setValue('recordings', qnaData.recordings);
         }
         if (qnaData?.questions) {
@@ -396,7 +417,7 @@ export default function SpeechOneQuestionsPage({
     return (
         <Container>
             <h2 className='flex items-center font-noto font-bold text-accent1 text-head-2'>SPEECH I : 영역별 말평가</h2>
-            <form onSubmit={handleSubmit(handleOnSubmit)} className={`${subtestStyles['subtest-form']}`}>
+            <form onSubmit={handleSubmit(handleClickNext)} className={`${subtestStyles['subtest-form']}`}>
                 <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitleEn}</h1>
                 <h2 className='whitespace-pre-line text-center font-jalnan text-head-2'>{partTitle}</h2>
 
@@ -606,15 +627,9 @@ export default function SpeechOneQuestionsPage({
                         </button>
                     )}
                     {/* key 설정을 해야 다른 컴포넌트로 인식하여 type이 명확히 구분됨 */}
-                    {partId < partIndexList[partIndexList.length - 1].partId ? (
-                        <button key='noSubmit' type='button' className='ml-5 mt-20 btn btn-large btn-contained' onClick={handleClickNext}>
-                            다음
-                        </button>
-                    ) : (
-                        <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained'>
-                            다음 검사
-                        </button>
-                    )}
+                    <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained'>
+                        다음 검사
+                    </button>
                 </div>
             </form>
         </Container>
