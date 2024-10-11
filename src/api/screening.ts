@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import { API_URL } from '@/utils/const';
 
-import type { ScreeningTestInfo, ScreeningTestSession } from '@/types/screening';
+import type { ScreeningEvaluationResults, ScreeningTestInfo, ScreeningTestSession } from '@/types/screening';
 
 axios.defaults.baseURL = API_URL;
 
@@ -191,6 +191,7 @@ export async function getScreeningTestResultAPI({ sessionId }: { sessionId: numb
         errors?: string;
         responseTime?: number;
         summary: string;
+        evaluationResults?: ScreeningEvaluationResults;
     }>(`/assessment/screening/session/${sessionId}/result`);
 
     return response.data;
