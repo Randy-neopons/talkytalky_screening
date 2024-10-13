@@ -120,10 +120,31 @@ const ResultSection = ({ title, description }: { title: string; description: Rea
     );
 };
 
+type Description =
+    | ScreeningEvaluationResults['wordProductionAssessment']['errorAnalysis']['frequentErrorPatterns']
+    | ScreeningEvaluationResults['wordProductionAssessment']['errorAnalysis']['mainErrorTypes']
+    | ScreeningEvaluationResults['overallEvaluation']
+    | string;
+
+const isFrequentErrorPatterns = (
+    description: Description | null,
+): description is ScreeningEvaluationResults['wordProductionAssessment']['errorAnalysis']['frequentErrorPatterns'] => {
+    return (
+        (description as ScreeningEvaluationResults['wordProductionAssessment']['errorAnalysis']['frequentErrorPatterns'])?.[0]?.pattern !==
+        undefined
+    );
+};
+
+const isMainErrorTypes = (
+    description: Description | null,
+): description is ScreeningEvaluationResults['wordProductionAssessment']['errorAnalysis']['mainErrorTypes'] => {
+    return (
+        (description as ScreeningEvaluationResults['wordProductionAssessment']['errorAnalysis']['mainErrorTypes'])?.[0]?.type !== undefined
+    );
+};
+
 // 커스텀 타입 가드
-const isOverallEvaluation = (
-    description: ScreeningEvaluationResults['overallEvaluation'] | string | undefined,
-): description is ScreeningEvaluationResults['overallEvaluation'] => {
+const isOverallEvaluation = (description: Description | null): description is ScreeningEvaluationResults['overallEvaluation'] => {
     return (description as ScreeningEvaluationResults['overallEvaluation'])?.recommendations !== undefined;
 };
 
@@ -133,7 +154,7 @@ const ScreeningResultPage: NextPageWithLayout<{
     level: number;
     sectionList: {
         title: string;
-        description?: ScreeningEvaluationResults['overallEvaluation'] | string;
+        description: Description | null;
     }[];
 }> = ({ age, level, sectionList }) => {
     const router = useRouter();
@@ -160,7 +181,13 @@ const ScreeningResultPage: NextPageWithLayout<{
 
             {/* 검사 결과 */}
             {sectionList.map((v, i) => {
-                const description = isOverallEvaluation(v.description) ? makeSummary(v.description) : v.description || '없음';
+                const description = isFrequentErrorPatterns(v.description)
+                    ? makeErrorPatterns(v.description)
+                    : isMainErrorTypes(v.description)
+                      ? makeMainErrorTypes(v.description)
+                      : isOverallEvaluation(v.description)
+                        ? makeSummary(v.description)
+                        : v.description || '없음';
 
                 return <ResultSection key={i} title={v.title} description={description} />;
             })}
@@ -179,6 +206,43 @@ ScreeningResultPage.getLayout = function getLayout(page: ReactElement) {
 };
 
 export default ScreeningResultPage;
+
+const makeErrorPatterns = (
+    errorPatterns: ScreeningEvaluationResults['wordProductionAssessment']['errorAnalysis']['frequentErrorPatterns'],
+) => {
+    if (errorPatterns?.[0]?.pattern === '해당 없음') {
+        return errorPatterns?.[0]?.description;
+    }
+
+    return errorPatterns.map((errorPatternItem, i) => (
+        <div key={i} className='mb-3 text-left'>
+            <p>
+                <b>{errorPatternItem.pattern}</b>
+            </p>
+            <ul className='mt-2'>
+                <li className='list-inside list-disc'>{errorPatternItem.description}</li>
+                <li className='list-inside list-disc'>예시: {errorPatternItem.example}</li>
+            </ul>
+        </div>
+    ));
+};
+
+const makeMainErrorTypes = (mainErrorTypes: ScreeningEvaluationResults['wordProductionAssessment']['errorAnalysis']['mainErrorTypes']) => {
+    if (mainErrorTypes?.[0]?.type === '오류 없음') {
+        return mainErrorTypes?.[0]?.description;
+    }
+
+    return mainErrorTypes.map((errorTypeItem, i) => (
+        <div key={i} className='mb-3 text-left'>
+            <p>
+                <b>{errorTypeItem.type}</b>
+            </p>
+            <ul className='mt-2'>
+                <li className='list-inside list-disc'>{errorTypeItem.description}</li>
+            </ul>
+        </div>
+    ));
+};
 
 const keyList = [
     { key: 'languageDevelopmentStatus' as const, title: '언어발달상태' },
@@ -250,26 +314,20 @@ export const getServerSideProps: GetServerSideProps = async context => {
             };
         }
 
-        console.log(evaluationResults);
-
         const sectionList =
             age < 7
                 ? [
                       {
                           title: '개요',
-                          description: evaluationResults.expressiveReceptiveLanguageAssessment.analysis.join(' ') || null,
+                          description: evaluationResults.expressiveReceptiveLanguageAssessment?.analysis.join(' ') || null,
                       },
                       {
                           title: '오류자음',
-                          description:
-                              evaluationResults.wordProductionAssessment.errorAnalysis.frequentErrorPatterns
-                                  .map(v => v.pattern)
-                                  .join(', ') || null,
+                          description: evaluationResults.wordProductionAssessment?.errorAnalysis?.frequentErrorPatterns || null,
                       },
                       {
                           title: '오류패턴',
-                          description:
-                              evaluationResults.wordProductionAssessment.errorAnalysis.mainErrorTypes.map(v => v.type).join(', ') || null,
+                          description: evaluationResults.wordProductionAssessment?.errorAnalysis?.mainErrorTypes || null,
                       },
                       {
                           title: '종합의견',
@@ -279,16 +337,21 @@ export const getServerSideProps: GetServerSideProps = async context => {
                 : [
                       {
                           title: '개요',
-                          description: evaluationResults.expressiveReceptiveLanguageAssessment.analysis.join(' ') || null,
+                          description: evaluationResults.expressiveReceptiveLanguageAssessment?.analysis.join(' ') || null,
                       },
                       {
-                          title: '말산출오류',
-                          description:
-                              evaluationResults.wordProductionAssessment.errorAnalysis.mainErrorTypes.map(v => v.type).join(', ') || null,
+                          title: '오류자음',
+                          description: evaluationResults.wordProductionAssessment?.errorAnalysis?.frequentErrorPatterns || null,
+                      },
+                      {
+                          title: '오류패턴',
+                          description: evaluationResults.wordProductionAssessment?.errorAnalysis?.mainErrorTypes || null,
                       },
                       {
                           title: '첫반응시간',
-                          description: evaluationResults.wordProductionAssessment.summary.averageResponseTime || 0,
+                          description: evaluationResults.wordProductionAssessment?.summary
+                              ? `정확도: ${evaluationResults.wordProductionAssessment?.summary?.accuracy}%, 총 단어: ${evaluationResults.wordProductionAssessment?.summary?.totalWords}개, 평균응답시간: ${evaluationResults.wordProductionAssessment?.summary?.averageResponseTime}초`
+                              : '없음',
                       },
                       {
                           title: '종합의견',
