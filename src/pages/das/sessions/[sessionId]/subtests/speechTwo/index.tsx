@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useMemo, useState, type MouseEventHandler, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ChangeEventHandler, type MouseEventHandler, type ReactNode } from 'react';
 import type { GetServerSideProps } from 'next';
-import Image from 'next/image';
 import { useRouter } from 'next/router';
 
 import { isAxiosError } from 'axios';
@@ -10,11 +9,17 @@ import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import { AudioButton } from '@/components/common/Buttons';
 import Container from '@/components/common/Container';
-import { MikeIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/icons';
+import { FontSizeButton } from '@/components/das/FontSizeButton';
+import { MemoButton } from '@/components/das/MemoButton';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getAnswersCountAPI, updateSessionAPI } from '@/api/das';
 
 import styles from '../SubTests.module.css';
+
+// 본문 폰트 크기 조절 className 생성
+const makeFontSizeClassName = (fontSize: number) => {
+    return fontSize === 3 ? 'text-head-1' : fontSize === 2 ? 'text-head-2' : 'text-head-3';
+};
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 3;
@@ -77,6 +82,18 @@ export default function ParagraphReadingPage() {
         setTestStart(true);
     }, [setTestStart]);
 
+    // 폰트 크기 조절
+    const [fontSize, setFontSize] = useState(1);
+    const handleChangeFontSize = useCallback<ChangeEventHandler<HTMLInputElement>>(e => {
+        setFontSize(e.target.valueAsNumber);
+    }, []);
+
+    // 메모
+    const [memo, setMemo] = useState('');
+    const handleChangeMemo = useCallback<ChangeEventHandler<HTMLTextAreaElement>>(e => {
+        setMemo(e.target.value);
+    }, []);
+
     return (
         <Container>
             <h2 className='flex items-center font-noto font-bold text-accent1 text-head-2'>SPEECH II : 종합적 말평가</h2>
@@ -95,7 +112,7 @@ export default function ParagraphReadingPage() {
                 </svg>
                 인쇄하기
             </div>
-            <div className='mt-5 rounded-base bg-white p-[50px] text-head-2'>
+            <div className={`mt-5 rounded-base bg-white p-[50px] ${makeFontSizeClassName(fontSize)}`}>
                 (예시문단) 높은 산에 올라가 맑은 공기를 마시며 소리를 지르면 가슴이 활찍 열리는 듯하다. 바닷가에 나가 조개를 주으며 넓게
                 펼쳐 있는 바다를 바라보면 내 마음이 역시 넓어지는 것 같다. 가로수 길게 뻗어 있는 곧은 길을 따라 걸어가면서 마치 쭉쭉 뻗어
                 있는 나무들처럼, 그리고 반듯하게 놓여있는 길처럼 바른 마음으로 자연을 벗하며 살아야겠다는 생각을 한다. 아이들이 뛰어 노는
@@ -107,7 +124,9 @@ export default function ParagraphReadingPage() {
             </div>
 
             <div className='mt-20 flex w-full flex-nowrap items-center'>
-                <div className='mx-auto flex gap-[45px]'>
+                <div className='mx-auto flex items-center gap-[45px]'>
+                    <MemoButton memo={memo} handleChangeMemo={handleChangeMemo} />
+
                     <AudioButton
                         audioUrl={audioUrl}
                         isRecording={isRecording}
@@ -117,6 +136,8 @@ export default function ParagraphReadingPage() {
                         handlePause={handlePause}
                         handlePlay={handlePlay}
                     />
+
+                    <FontSizeButton fontSize={fontSize} handleChangeFontSize={handleChangeFontSize} />
                 </div>
             </div>
             <div className='mt-20 flex gap-5'>

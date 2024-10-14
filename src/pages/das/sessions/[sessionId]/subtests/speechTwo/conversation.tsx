@@ -17,8 +17,6 @@ import { getAnswersCountAPI, updateSessionAPI } from '@/api/das';
 import styles from '../SubTests.module.css';
 
 import conversationImg from 'public/static/images/conversation-img.png';
-import fontSizeIcon from 'public/static/images/font-size-icon.png';
-import memoIcon from 'public/static/images/memo-icon.png';
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 3;

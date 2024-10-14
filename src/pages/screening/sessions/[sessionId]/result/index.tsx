@@ -367,7 +367,6 @@ export const getServerSideProps: GetServerSideProps = async context => {
             },
         };
     } catch (err) {
-        console.error(err);
         return {
             redirect: {
                 destination: '/screening',

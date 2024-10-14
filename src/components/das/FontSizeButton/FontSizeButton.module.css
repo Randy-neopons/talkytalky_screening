@@ -1,0 +1,14 @@
+.slider {
+    @apply absolute h-[7px] w-full appearance-none bg-transparent transition-colors duration-500 ease-in;
+
+    -webkit-appearance: none;
+}
+
+.slider::-webkit-slider-thumb {
+    appearance: none;
+
+    width: 15px;
+    height: 15px;
+    border-radius: 999px;
+    background: #6979f8;
+}
