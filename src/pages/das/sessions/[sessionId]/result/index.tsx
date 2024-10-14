@@ -14,9 +14,9 @@ import { getTestInfoAPI, getTestResultAPI } from '@/api/das';
 
 import styles from './TestResultPage.module.css';
 
-const TestTotalScoreGraph = dynamic(() => import('@/components/TestTotalScoreGraph'), { ssr: false });
-const TestScoreBarGraph = dynamic(() => import('@/components/TestScoreBarGraph'), { ssr: false });
-const SubtestScoreGraph = dynamic(() => import('@/components/SubtestScoreGraph'), { ssr: false });
+const TestTotalScoreGraph = dynamic(() => import('@/components/das/TestTotalScoreGraph'), { ssr: false });
+const TestScoreBarGraph = dynamic(() => import('@/components/das/TestScoreBarGraph'), { ssr: false });
+const SubtestScoreGraph = dynamic(() => import('@/components/das/SubtestScoreGraph'), { ssr: false });
 
 const brainLesionOptions = [
     { value: 'bilateralUpperMotorNeuron', label: '양측상부운동신경손상' },
@@ -282,7 +282,7 @@ export default function TestResultPage({
 
             <div className='mt-20 w-full'>
                 <h2 className='font-bold text-black text-head-2'>TOTAL SCORE</h2>
-                <div className='mt-7.5 gap-7.5 flex'>
+                <div className='mt-7.5 flex gap-7.5'>
                     <div className='flex h-[295px] min-w-[280px] items-center justify-center rounded-base bg-white shadow-base xl:h-[346px] xl:w-[390px]'>
                         <TestTotalScoreGraph data={makeTotalScoreGraphData(testResultList)} />
                     </div>
