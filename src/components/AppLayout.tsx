@@ -16,12 +16,13 @@ export default function AppLayout({ isLoggedIn, progress, children }: { isLogged
 
     // 홈으로 버튼
     const onClickHome = useCallback(() => {
-        if (router.pathname === '/') {
+        if (['/das', '/das/sessions', '/das/sessions/[sessionId]/result'].includes(router.pathname)) {
+            router.push('/das');
             return;
         }
-        
+
         if (window.confirm('평가를 종료하고 홈 화면으로 이동하시겠습니까?')) {
-            router.push('/');
+            router.push('/das');
         }
     }, [router]);
 
@@ -44,10 +45,10 @@ export default function AppLayout({ isLoggedIn, progress, children }: { isLogged
                 <header className='fixed left-0 top-0 z-10 flex h-20 w-full items-center justify-center bg-accent1'>
                     <div className='flex w-full max-w-screen-md justify-between px-5 xl:max-w-screen-xl xl:px-[140px]'>
                         <button className='mr-auto font-bold text-neutral11 text-head-2' onClick={onClickHome}>
-                            말운동 평가
+                            Dysarthria Assessment System (DAS)
                         </button>
                         {testStart && (
-                            <div className='flex items-center gap-5 xl:gap-[30px]'>
+                            <div className='flex items-center gap-5 xl:gap-7.5'>
                                 {progress !== undefined && progress !== null && (
                                     <>
                                         <span className='text-neutral11 text-head-2'>진행률 {progress}%</span>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, type ReactElement } from 'react';
+import { useCallback, useEffect, useMemo, type ReactElement } from 'react';
 import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -23,6 +23,8 @@ const ScreeningHome: NextPageWithLayout = () => {
     const router = useRouter();
 
     const { data: user } = useUserQuery(); // 세션 유지되는지 조회
+
+    const { setTestStart } = useTimerActions();
 
     const { handleOpenModal } = useModal();
 
@@ -59,52 +61,81 @@ const ScreeningHome: NextPageWithLayout = () => {
             // 로그인 되어있으면 세션으로 이동
             router.push(`/screening/sessions`);
         } else {
-            // 아니면 로그인 페이지로 이동
-            window.location.href = `${TALKYTALKY_URL}/login`;
+            const onOk = () => {
+                // 로그인 페이지로 이동
+                window.location.href = `${TALKYTALKY_URL}/login`;
+            };
+
+            // 모달 열기
+            handleOpenModal({
+                content: '로그인이 필요한 서비스입니다.\n로그인하시겠습니까?',
+                onOk,
+            });
         }
-    }, [router, user]);
+    }, [handleOpenModal, router, user]);
+
+    const screeningHomeMenuList = useMemo(
+        () => [
+            {
+                key: 'test-start',
+                title: '테스트 시작하기',
+                imgSrc: testStartIcon,
+                description: '환자의 기본정보 입력 후 연령 구간에 맞는 간이언어평가를 진행할 수 있습니다.',
+                onClick: handleClickStart,
+                buttonText: '시작하기',
+            },
+            {
+                key: 'test-result',
+                title: '테스트 결과보기',
+                imgSrc: testResultIcon,
+                description: (
+                    <>
+                        평가 후, 결과보기를 통해 인지발달 평가와 발화능력평가에 대한 보고서가 제공됩니다.
+                        <br />
+                        또한 사용자 맞춤형 피드백이 제공되며 필요시 전문가 상담 및 정밀 평가를 진행할 수 있습니다.
+                    </>
+                ),
+                onClick: handleClickResult,
+                buttonText: '결과보기',
+            },
+        ],
+        [handleClickResult, handleClickStart],
+    );
+
+    useEffect(() => {
+        setTestStart && setTestStart(false);
+    }, [setTestStart]);
 
     return (
         <Container>
             <h1 className='font-jalnan text-head-1'>간이언어평가</h1>
-            <span className='mt-[10px] text-center font-noto text-body-2'>
-                의사소통장애(Communication disorder)는 발화, 인지의 문제로 인하여 의사소통에 어려움을 겪는 상태를 말합니다.
-                <br />
-                간이언어평가는 개인의 발화 능력과 언어적 이해 및 표현 능력의 발달 수준을 간략하게 평가하여
-                <br />
+            <p className='mt-[10px] break-keep text-center font-noto text-body-2'>
+                의사소통장애(Communication disorder)는 발화, 인지의 문제로 인하여 의사소통에 어려움을 겪는 상태를 말합니다.{' '}
+                <br className='hidden xl:inline' />
+                간이언어평가는 개인의 발화 능력과 언어적 이해 및 표현 능력의 발달 수준을 간략하게 평가하여{' '}
+                <br className='hidden xl:inline' />
                 <span className='font-bold text-accent1'>언어 발달 지연이나 인지능력의 이상 여부를 신속히 식별</span>하고 추가적인 정밀
                 평가나 치료 개입의 필요성을 판단하는 데 중점을 둔 검사입니다.
-            </span>
-            <ul className='mt-15'>
-                <li className='float-left mr-[30px] flex h-[467px] w-[300px] flex-col flex-nowrap items-center rounded-[20px] bg-white px-[58px] py-[30px] shadow-base xl:h-[440px] xl:w-[477px] xl:items-start'>
-                    <Image src={testStartIcon} alt='test-start' width={120} height={100} />
-                    <span className='mt-5 font-bold leading-normal text-accent1 text-head-2 xl:leading-tight'>테스트 시작하기</span>
-                    <span className='mt-[10px] text-center text-neutral4 text-body-2 xl:mt-2 xl:text-left'>
-                        환자의 기본정보 입력 후 연령 구간에 맞는 간이언어평가를 진행할 수 있습니다.
-                    </span>
-                    <button
-                        className='px-auto mt-auto flex items-center justify-center btn btn-small btn-contained xl:mr-auto'
-                        onClick={handleClickStart}
+            </p>
+            <ul className='mt-15 flex flex-wrap justify-center gap-7.5'>
+                {screeningHomeMenuList.map(v => (
+                    <li
+                        key={v.key}
+                        className='float-left flex h-[467px] w-[300px] flex-col flex-nowrap items-center rounded-[20px] bg-white px-6 py-7.5 shadow-base xl:h-[440px] xl:w-[477px] xl:items-start xl:px-[58px]'
                     >
-                        시작하기
-                    </button>
-                </li>
-
-                <li className='float-left flex h-[467px] w-[300px] flex-col flex-nowrap items-center rounded-[20px] bg-white px-[58px] py-[30px] text-center shadow-base xl:h-[440px] xl:w-[477px] xl:items-start xl:text-left'>
-                    <Image src={testResultIcon} alt='test-result' width={120} height={100} />
-                    <span className='mt-5 font-bold leading-normal text-accent1 text-head-2 xl:leading-tight'>테스트 결과보기</span>
-                    <span className='mt-[10px] text-neutral4 text-body-2 xl:mt-2'>
-                        평가 후, 결과보기를 통해 인지발달 평가와 발화능력평가에 대한 보고서가 제공됩니다.
-                        <br />
-                        또한 사용자 맞춤형 피드백이 제공되며 필요시 전문가 상담 및 정밀 평가를 진행할 수 있습니다.
-                    </span>
-                    <button
-                        className='mt-auto flex items-center justify-center text-head-1 btn btn-small btn-contained xl:mr-auto'
-                        onClick={handleClickResult}
-                    >
-                        결과보기
-                    </button>
-                </li>
+                        <Image src={v.imgSrc} alt='test-start' width={120} height={100} />
+                        <span className='mt-5 font-bold leading-normal text-accent1 text-head-2 xl:leading-tight'>{v.title}</span>
+                        <span className='mt-[10px] break-keep text-center text-neutral4 text-body-2 xl:mt-2 xl:text-left'>
+                            {v.description}
+                        </span>
+                        <button
+                            className='px-auto mt-auto flex items-center justify-center btn btn-small btn-contained xl:mr-auto'
+                            onClick={v.onClick}
+                        >
+                            {v.buttonText}
+                        </button>
+                    </li>
+                ))}
             </ul>
         </Container>
     );
@@ -140,7 +171,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
     } catch (err) {
         return {
             redirect: {
-                destination: '/',
+                destination: '/das',
                 permanent: true,
             },
         };

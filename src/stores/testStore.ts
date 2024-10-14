@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { create } from 'zustand';
 
-import type { TestInfoFormValues } from '@/types/types';
+import type { TestInfoFormValues } from '@/types/das';
 
 // 검사 파트 목록
 export const partList = [

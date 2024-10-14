@@ -3,7 +3,7 @@ export interface ScreeningTestInfo {
     testeeName: string;
     testeeGender?: string;
     testeeBirthdate: string;
-    testeePhoneNumber?: string;
+    testeeContact?: string;
 }
 
 // 간이언어평가 단어
@@ -26,4 +26,38 @@ export type ScreeningTestSession = {
     progress: number;
     status: string;
     regDate: string;
+};
+
+// 간이언어평가 결과
+export type ScreeningEvaluationResults = {
+    overview: {
+        subject: string;
+        assessmentItems: string[];
+        assessmentDate: string;
+    };
+    expressiveReceptiveLanguageAssessment: {
+        surveyResults: { question: string; response: string }[];
+
+        analysis: string[];
+    };
+    wordProductionAssessment: {
+        summary: {
+            totalWords: number;
+            accuracy: number;
+            averageResponseTime: number;
+        };
+        errorAnalysis: {
+            mainErrorTypes: { type: string; description: string }[];
+            frequentErrorPatterns: { pattern: string; description: string; example: string; interpretation: string }[];
+        };
+    };
+    overallEvaluation: {
+        languageDevelopmentStatus: string[];
+        wordProductionAnalysis: string[];
+        comprehensiveLanguageAssessment: string[];
+        strengths: string[];
+        areasForImprovement: string[];
+        recommendations: string[];
+    };
+    precautions: string;
 };

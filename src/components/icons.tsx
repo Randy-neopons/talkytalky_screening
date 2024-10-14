@@ -132,10 +132,18 @@ export const StopIcon = ({ color = 'white', width = 24, height = 24 }: IconProps
     );
 };
 
+export const ChevronLeftIcon = ({ color = 'white', width = 24, height = 24 }: IconProps) => {
+    return (
+        <svg xmlns='http://www.w3.org/2000/svg' width={width} height={height} viewBox='0 0 24 24' fill='none'>
+            <path d='M15 6L9 12L15 18' stroke={color} strokeWidth='2' />
+        </svg>
+    );
+};
+
 export const ChevronRightIcon = ({ color = 'white', width = 24, height = 24 }: IconProps) => {
     return (
         <svg xmlns='http://www.w3.org/2000/svg' width={width} height={height} viewBox='0 0 24 24' fill='none'>
-            <path d='M9 6L15 11.8182L9 18' stroke='white' strokeWidth='2' strokeLinecap='round' />
+            <path d='M9 6L15 11.8182L9 18' stroke={color} strokeWidth='2' strokeLinecap='round' />
         </svg>
     );
 };

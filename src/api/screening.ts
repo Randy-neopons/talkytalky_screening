@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import { API_URL } from '@/utils/const';
 
-import type { ScreeningTestInfo } from '@/types/screening';
+import type { ScreeningEvaluationResults, ScreeningTestInfo, ScreeningTestSession } from '@/types/screening';
 
 axios.defaults.baseURL = API_URL;
 
@@ -12,15 +12,34 @@ const makeHeaders = (accessToken: string) => {
 };
 
 // 세션 목록
-export async function getScreeningSessionListAPI({ jwt }: { jwt: string }) {
-    const response = await axios.get('/assessment/screening/sessions', {
+export async function getScreeningSessionListAPI({
+    keyword,
+    page,
+    pageSize,
+    jwt,
+}: {
+    keyword?: string;
+    page?: number;
+    pageSize?: number;
+    jwt: string;
+}) {
+    const response = await axios.get<{
+        result: boolean;
+        sessions: ScreeningTestSession[];
+        count: number;
+    }>('/assessment/screening/sessions', {
         headers: makeHeaders(jwt),
+        params: {
+            keyword,
+            page,
+            pageSize,
+        },
     });
     return response.data;
 }
 
 // 검사 정보 조회
-export async function getScreeningTestInfoAPI({ sessionId }: { sessionId: number }) {
+export async function getScreeningTestSessionAPI({ sessionId }: { sessionId: number }) {
     const response = await axios.get<{
         result: string;
         testInfo: {
@@ -29,7 +48,9 @@ export async function getScreeningTestInfoAPI({ sessionId }: { sessionId: number
             testeeName: string;
             testeeGender: string;
             testeeBirthdate: string;
+            testeeContact: string;
             ageGroup: string;
+            currentTime: number;
             progress: number;
         };
     }>(`/assessment/screening/session/${sessionId}`);
@@ -51,6 +72,17 @@ export async function getScreeningQuestionAndAnswerListAPI({ sessionId, ageGroup
     return response.data;
 }
 
+export async function getScreeningAnswerAPI({ sessionId, questionId }: { sessionId: number; questionId: number }) {
+    const response = await axios.get<{
+        result: true;
+        questionId: number;
+        answer: string | null;
+    }>(`/assessment/screening/session/${sessionId}/answer`, {
+        params: { questionId },
+    });
+    return response.data;
+}
+
 // 단어 목록 조회
 export async function getWordAndRecordingListAPI({ sessionId, ageGroup }: { sessionId: number; ageGroup: string }) {
     const response = await axios.get(`/assessment/screening/session/${sessionId}/words`, {
@@ -59,24 +91,35 @@ export async function getWordAndRecordingListAPI({ sessionId, ageGroup }: { sess
     return response.data;
 }
 
+export async function getScreeningRecordingAPI({ sessionId, wordId }: { sessionId: number; wordId: number }) {
+    const response = await axios.get<{
+        result: true;
+        wordId: number;
+        filePath: string | null;
+    }>(`/assessment/screening/session/${sessionId}/recording`, {
+        params: { wordId },
+    });
+    return response.data;
+}
+
 // 세션 생성
 export async function createScreeningSessionAPI({
     testInfo,
-    talkyUserId,
-    therapistUserId,
+    userType,
+    userId,
     age,
     ageGroup,
 }: {
     testInfo: ScreeningTestInfo;
-    talkyUserId?: number;
-    therapistUserId?: number;
+    userType?: 'talky' | 'therapist';
+    userId?: number;
     age: number;
     ageGroup: string;
 }) {
     const response = await axios.post('/assessment/screening/session', {
         testInfo,
-        talkyUserId,
-        therapistUserId,
+        userType,
+        userId,
         age,
         ageGroup,
     });
@@ -89,16 +132,19 @@ export async function uploadAnswerAPI({
     sessionId,
     questionId,
     answer,
+    currentTime,
     currentPathname,
 }: {
     sessionId: number;
     questionId: number;
     answer: string;
+    currentTime: number;
     currentPathname: string;
 }) {
     const response = await axios.post(`/assessment/screening/session/${sessionId}/answer`, {
         questionId,
         answer,
+        currentTime,
         currentPathname,
     });
 
@@ -126,15 +172,26 @@ export async function completeScreeningSessionAPI({ sessionId }: { sessionId: nu
     return response.data;
 }
 
+// 결과 생성
+export async function generateScreeningTestResultAPI({ sessionId }: { sessionId: number }) {
+    const response = await axios.post<any>(`/assessment/screening/session/${sessionId}/result`);
+
+    return response.data;
+}
+
 // 세션 결과 보기
 export async function getScreeningTestResultAPI({ sessionId }: { sessionId: number }) {
     const response = await axios.get<{
         result: boolean;
         age: number;
         level: number;
-        abstract: { content: string };
-        errorExplain: { Error_consonant: string; Error_pattern: string };
-        summary: { content: string };
+        abstract: string;
+        errorConsonant?: string;
+        errorPattern?: string;
+        errors?: string;
+        responseTime?: number;
+        summary: string;
+        evaluationResults?: ScreeningEvaluationResults;
     }>(`/assessment/screening/session/${sessionId}/result`);
 
     return response.data;

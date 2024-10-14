@@ -11,7 +11,7 @@ const makeHeaders = (accessToken: string) => {
 
 // 로그인 유저 조회
 export async function getLoggedInUser({ jwt }: { jwt: string }) {
-    const response = await axios.get('/info/therpuser', {
+    const response = await axios.get('/info/user', {
         headers: makeHeaders(jwt),
     });
     return response.data;

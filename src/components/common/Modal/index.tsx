@@ -88,7 +88,7 @@ export default function Modal({
                 style={modalStyle}
             />
             <div
-                className='py-15 fixed left-1/2 top-1/2 z-[99] hidden w-full max-w-[295px] -translate-x-1/2 -translate-y-1/2 overflow-y-hidden rounded-base bg-white px-10 sm:w-auto sm:min-w-[450px] sm:max-w-none xl:px-[45px] xl:py-20'
+                className='fixed left-1/2 top-1/2 z-[99] hidden w-full max-w-[calc(100%-40px)] -translate-x-1/2 -translate-y-1/2 overflow-y-hidden rounded-base bg-white px-10 py-15 sm:w-auto sm:min-w-[450px] sm:max-w-none xl:px-[45px] xl:py-20'
                 style={modalBoxStyle}
             >
                 <div className='whitespace-pre-wrap text-center font-noto font-bold text-black text-head-2'>{content}</div>

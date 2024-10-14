@@ -3,16 +3,17 @@ import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
+import { useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 
-import { AudioButton, RoundedBox } from '@/components/common/Buttons';
+import { useTestTime, useTimerActions } from '@/stores/timerStore';
+import { AudioButton } from '@/components/common/Buttons';
 import Container from '@/components/common/Container';
 import { VolumeIcon } from '@/components/icons';
 import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
+import { screeningTestSessionQueryKey, useScreeningRecordingQuery } from '@/hooks/screening';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
-import { completeScreeningSessionAPI, getScreeningTestInfoAPI, getWordAndRecordingListAPI, uploadRecordingAPI } from '@/api/screening';
-
-import appleImg from 'public/static/images/words/사과.png';
+import { completeScreeningSessionAPI, getScreeningTestSessionAPI, getWordAndRecordingListAPI, uploadRecordingAPI } from '@/api/screening';
 
 import type { Word } from '@/types/screening';
 import type { NextPageWithLayout } from '@/types/types';
@@ -25,26 +26,51 @@ const ScreeningRecordingPage: NextPageWithLayout<{
     wordNo: number;
 }> = ({ age, ageGroup, wordList, wordNo }) => {
     const router = useRouter(); // next router
+    const queryClient = useQueryClient();
+
+    const testTime = useTestTime();
 
     const [currentWordNo, setCurrentWordNo] = useState(wordNo || 0); //  0부터 시작
 
-    const { audioBlob, audioUrl, isPlaying, isRecording, setAudioUrl, handlePause, handlePlay, handleStartRecording, handleStopRecording } =
-        useAudioRecorder(wordList[currentWordNo].filePath);
+    const {
+        audioBlob,
+        audioUrl,
+        volume,
+        isPlaying,
+        isRecording,
+        setAudioUrl,
+        setAudioBlob,
+        handlePause,
+        handlePlay,
+        handleStartRecording,
+        handleStopRecording,
+    } = useAudioRecorder(wordList[currentWordNo].filePath);
 
     const { setAudioUrl: setTtsUrl, handlePlay: handlePlayTts } = useAudioRecorder(wordList[currentWordNo].audioSrc);
+
+    const { data: recordingData } = useScreeningRecordingQuery({
+        sessionId: Number(router.query.sessionId),
+        wordId: wordList[currentWordNo].wordId,
+    });
+
+    const { setTestStart } = useTimerActions();
 
     // 이전 파트로
     const handleClickPrev = useCallback(() => {
         if (currentWordNo > 0) {
             setCurrentWordNo(prev => prev - 1);
+            setAudioBlob(null);
         }
         typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
-    }, [currentWordNo]);
+    }, [currentWordNo, setAudioBlob]);
 
     useEffect(() => {
         setTtsUrl(wordList[currentWordNo].audioSrc);
-        setAudioUrl(wordList[currentWordNo].filePath);
-    }, [currentWordNo, setAudioUrl, setTtsUrl, wordList]);
+    }, [currentWordNo, setTtsUrl, wordList]);
+
+    useEffect(() => {
+        setAudioUrl(recordingData?.filePath);
+    }, [recordingData?.filePath, setAudioUrl]);
 
     // 다음 파트로
     const handleClickNext = useCallback(async () => {
@@ -62,29 +88,37 @@ const ScreeningRecordingPage: NextPageWithLayout<{
                 formData.append('age', age.toString());
                 formData.append('audio', audioBlob);
                 formData.append('currentPathname', currentPathname);
+                formData.append('currentTime', testTime.toString());
 
                 await uploadRecordingAPI({ sessionId, formData });
+
+                queryClient.refetchQueries({ queryKey: [screeningTestSessionQueryKey, sessionId] });
             }
 
             if (currentWordNo < wordList.length - 1) {
                 setCurrentWordNo(prev => prev + 1);
+                setAudioBlob(null);
             } else {
                 // 세션 완료
                 await completeScreeningSessionAPI({ sessionId });
-                // 검사완료 페이지로 이동
-                router.push(`/screening/sessions/${sessionId}/complete`);
+                // 분석중 페이지로 이동
+                router.push(`/screening/sessions/${sessionId}/loading`);
             }
             typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
         } catch (err) {
             console.error(err);
         }
-    }, [router, wordList, currentWordNo, audioBlob, age]);
+    }, [age, audioBlob, currentWordNo, queryClient, router, setAudioBlob, testTime, wordList]);
+
+    useEffect(() => {
+        setTestStart && setTestStart(true);
+    }, [setTestStart]);
 
     return (
         <Container>
             <h1 className='mb-15 font-jalnan text-head-1 xl:mb-20'>이름맞히기</h1>
             <div className='relative mb-[50px] flex w-full justify-center overflow-hidden rounded-[15px] bg-white py-2 shadow-base xl:py-[22px]'>
-                <div className='relative h-[400px] w-full'>
+                <div className='relative h-[200px] w-full sm:h-[400px]'>
                     {wordList[currentWordNo].imgSrc && (
                         <Image
                             src={wordList[currentWordNo].imgSrc}
@@ -103,20 +137,19 @@ const ScreeningRecordingPage: NextPageWithLayout<{
                     </button>
                 )}
             </div>
-            <div className='mb-15 mx-auto xl:mb-20'>
-                <RoundedBox>
-                    <AudioButton
-                        audioUrl={audioUrl}
-                        isRecording={isRecording}
-                        isPlaying={isPlaying}
-                        handleStartRecording={handleStartRecording}
-                        handleStopRecording={handleStopRecording}
-                        handlePause={handlePause}
-                        handlePlay={handlePlay}
-                    />
-                </RoundedBox>
+            <div className='mx-auto mb-15 xl:mb-20'>
+                <AudioButton
+                    audioUrl={audioUrl}
+                    isRecording={isRecording}
+                    isPlaying={isPlaying}
+                    handleStartRecording={handleStartRecording}
+                    handleStopRecording={handleStopRecording}
+                    handlePause={handlePause}
+                    handlePlay={handlePlay}
+                    volume={volume}
+                />
             </div>
-            <div>
+            <div className='flex flex-wrap justify-center gap-5'>
                 <button
                     type='button'
                     className='btn btn-large btn-outlined disabled:btn-outlined-disabled'
@@ -127,7 +160,7 @@ const ScreeningRecordingPage: NextPageWithLayout<{
                 </button>
                 <button
                     type='button'
-                    className='ml-5 btn btn-large btn-contained disabled:btn-contained-disabled'
+                    className='btn btn-large btn-contained disabled:btn-contained-disabled'
                     onClick={handleClickNext}
                     disabled={!audioUrl}
                 >
@@ -149,7 +182,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         const sessionId = Number(context.query.sessionId);
         const wordNo = Number(context.query.wordNo);
 
-        const testInfoResponse = await getScreeningTestInfoAPI({ sessionId });
+        const testInfoResponse = await getScreeningTestSessionAPI({ sessionId });
         const testInfo = testInfoResponse.testInfo;
         const ageGroup = testInfo.ageGroup;
         // 만 나이 계산
@@ -183,7 +216,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
     } catch (err) {
         return {
             redirect: {
-                destination: '/',
+                destination: '/das',
                 permanent: true,
             },
         };

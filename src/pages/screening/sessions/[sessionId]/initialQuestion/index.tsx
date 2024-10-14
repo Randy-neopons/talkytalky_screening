@@ -2,11 +2,15 @@ import { useCallback, useEffect, useMemo, useState, type ChangeEventHandler, typ
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
+import { useQueryClient } from '@tanstack/react-query';
+
+import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { RadioButton } from '@/components/common/Buttons';
 import Container from '@/components/common/Container';
 import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
+import { screeningTestSessionQueryKey, useScreeningAnswerQuery } from '@/hooks/screening';
 import { useUserQuery } from '@/hooks/user';
-import { getScreeningQuestionAndAnswerListAPI, getScreeningTestInfoAPI, uploadAnswerAPI } from '@/api/screening';
+import { getScreeningQuestionAndAnswerListAPI, getScreeningTestSessionAPI, uploadAnswerAPI } from '@/api/screening';
 
 import type { NextPageWithLayout } from '@/types/types';
 
@@ -33,18 +37,26 @@ const ScreeningInitialQuestionPage: NextPageWithLayout<{
     questionNo: number;
 }> = ({ ageGroup, questionAnswerList, questionNo }) => {
     const router = useRouter(); // next router
+    const queryClient = useQueryClient();
     const { data: user } = useUserQuery();
 
-    const [currentQuestionNo, setCurrentQuestionNo] = useState(questionNo || 0); //  0부터 시작
+    const testTime = useTestTime();
+    const { setTestStart } = useTimerActions();
 
-    const [answer, setAnswer] = useState<string | null>(questionAnswerList[currentQuestionNo]?.answer || null);
+    const [currentQuestionNo, setCurrentQuestionNo] = useState(questionNo || 0); //  0부터 시작
+    const [currentAnswer, setCurrentAnswer] = useState<string | null | undefined>(questionAnswerList[currentQuestionNo]?.answer || null);
+
+    const { data: answerData } = useScreeningAnswerQuery({
+        sessionId: Number(router.query.sessionId),
+        questionId: questionAnswerList[currentQuestionNo]?.questionId,
+    });
 
     useEffect(() => {
-        setAnswer(questionAnswerList[currentQuestionNo]?.answer || null);
-    }, [currentQuestionNo, questionAnswerList]);
+        setCurrentAnswer(answerData?.answer);
+    }, [answerData?.answer]);
 
     const handleOnChange = useCallback<ChangeEventHandler<HTMLInputElement>>(e => {
-        setAnswer(e.target.value);
+        setCurrentAnswer(e.target.value);
     }, []);
 
     // 이전 파트로
@@ -64,16 +76,19 @@ const ScreeningInitialQuestionPage: NextPageWithLayout<{
             const ageGroup = String(router.query.ageGroup);
             const currentPathname = `/screening/sessions/${sessionId}/initialQuestion?questionNo=${currentQuestionNo}`;
 
-            if (!answer) {
+            if (!currentAnswer) {
                 throw new Error('정답이 없습니다.');
             }
 
             await uploadAnswerAPI({
                 sessionId,
                 questionId: questionAnswerList[currentQuestionNo].questionId,
-                answer,
+                answer: currentAnswer,
+                currentTime: testTime,
                 currentPathname,
             });
+
+            queryClient.refetchQueries({ queryKey: [screeningTestSessionQueryKey, sessionId] });
 
             if (currentQuestionNo < questionAnswerList.length - 1) {
                 setCurrentQuestionNo(prev => prev + 1);
@@ -85,9 +100,13 @@ const ScreeningInitialQuestionPage: NextPageWithLayout<{
         } catch (err) {
             console.error(err);
         }
-    }, [answer, currentQuestionNo, questionAnswerList, router]);
+    }, [currentAnswer, currentQuestionNo, queryClient, questionAnswerList, router, testTime]);
 
     const ageGroupTitle = useMemo(() => ageGroupList.find(v => v.status === ageGroup)?.desc, [ageGroup]);
+
+    useEffect(() => {
+        setTestStart && setTestStart(true);
+    }, [setTestStart]);
 
     return (
         <Container>
@@ -96,16 +115,16 @@ const ScreeningInitialQuestionPage: NextPageWithLayout<{
                 <div className='bg-accent1 py-3'>
                     <h2 className='text-center font-bold text-white text-body-2'>{ageGroupTitle}</h2>
                 </div>
-                <div className='bg-white px-[77px] py-[50px] text-center xl:px-[180px]'>
-                    <p className='mb-[10px] font-noto font-[900] text-head-2'>{`Q${currentQuestionNo + 1}. ${questionAnswerList[currentQuestionNo]?.questionText}`}</p>
+                <div className='bg-white px-7.5 py-[50px] text-center sm:px-[77px] xl:px-[180px]'>
+                    <p className='mb-[10px] break-keep font-noto font-[900] text-head-2'>{`Q${currentQuestionNo + 1}. ${questionAnswerList[currentQuestionNo]?.questionText}`}</p>
                     <p className='mb-[50px] break-keep font-noto text-head-3'>{questionAnswerList[currentQuestionNo]?.questionDesc}</p>
                     <div className='flex flex-col gap-5'>
-                        <RadioButton name='answer' value='Y' label='예' onChange={handleOnChange} checked={answer === 'Y'} />
-                        <RadioButton name='answer' value='N' label='아니오' onChange={handleOnChange} checked={answer === 'N'} />
+                        <RadioButton name='answer' value='Y' label='예' onChange={handleOnChange} checked={currentAnswer === 'Y'} />
+                        <RadioButton name='answer' value='N' label='아니오' onChange={handleOnChange} checked={currentAnswer === 'N'} />
                     </div>
                 </div>
             </div>
-            <div>
+            <div className='flex flex-wrap justify-center gap-5'>
                 <button
                     type='button'
                     className='btn btn-large btn-outlined disabled:btn-outlined-disabled'
@@ -116,9 +135,9 @@ const ScreeningInitialQuestionPage: NextPageWithLayout<{
                 </button>
                 <button
                     type='button'
-                    className='ml-5 btn btn-large btn-contained disabled:btn-contained-disabled'
+                    className='btn btn-large btn-contained disabled:btn-contained-disabled'
                     onClick={handleClickNext}
-                    disabled={!answer}
+                    disabled={!currentAnswer}
                 >
                     다음
                 </button>
@@ -138,7 +157,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         const sessionId = Number(context.query.sessionId);
         const questionNo = Number(context.query.questionNo);
 
-        const testInfoResponse = await getScreeningTestInfoAPI({ sessionId });
+        const testInfoResponse = await getScreeningTestSessionAPI({ sessionId });
         const testInfo = testInfoResponse.testInfo;
         const ageGroup = testInfo.ageGroup;
         const progress = testInfo.progress;

@@ -1,8 +1,9 @@
-import { useCallback, type ReactElement } from 'react';
+import { useCallback, useEffect, type ReactElement } from 'react';
 import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
+import { useTimerActions } from '@/stores/timerStore';
 import Container from '@/components/common/Container';
 import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
 
@@ -14,11 +15,17 @@ import type { NextPageWithLayout } from '@/types/types';
 const ScreeningCompletePage: NextPageWithLayout = () => {
     const router = useRouter();
 
-    // 결과 확인 페이지로 이동
+    const { setTestStart } = useTimerActions();
+
+    useEffect(() => {
+        setTestStart && setTestStart(false);
+    }, [setTestStart]);
+
+    // 결과 로딩 페이지로 이동
     const handleClickResult = useCallback(() => {
         try {
             const sessionId = Number(router.query.sessionId);
-            router.push(`/screening/sessions/${sessionId}/result`);
+            router.push(`/screening/sessions/${sessionId}/loading`);
         } catch (err) {
             console.error(err);
         }
@@ -47,7 +54,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         if (!sessionId) {
             return {
                 redirect: {
-                    destination: '/',
+                    destination: '/das',
                     permanent: true,
                 },
             };
@@ -59,7 +66,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
     } catch (err) {
         return {
             redirect: {
-                destination: '/',
+                destination: '/das',
                 permanent: true,
             },
         };

@@ -58,6 +58,7 @@ const config: Config = {
                 sm: '576px',
             },
             spacing: {
+                '7.5': '1.875rem',
                 '15': '3.75rem',
             },
         },
