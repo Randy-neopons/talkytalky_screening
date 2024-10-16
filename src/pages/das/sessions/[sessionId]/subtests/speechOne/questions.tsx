@@ -12,6 +12,7 @@ import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
+import { WaveformButton } from '@/components/das/WaveformButton';
 import { useConductedSubtestsQuery, useQuestionsAndAnswersQuery } from '@/hooks/das';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
@@ -346,8 +347,6 @@ export default function SpeechOneQuestionsPage({
                 const sessionId = Number(router.query.sessionId);
                 await handleSubmitData({ sessionId, data });
 
-                console.log(data);
-
                 setCheckAll1(false);
                 setCheckAll2(false);
 
@@ -456,7 +455,7 @@ export default function SpeechOneQuestionsPage({
                                     />
                                 </td>
                                 <td className='text-center'>
-                                    <button className='underline'>보기</button>
+                                    <WaveformButton blob={audioBlob1} />
                                 </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.0.repeatCount`)} />
@@ -480,7 +479,7 @@ export default function SpeechOneQuestionsPage({
                                     />
                                 </td>
                                 <td className='text-center'>
-                                    <button className='underline'>보기</button>
+                                    <WaveformButton blob={audioBlob2} />
                                 </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.1.repeatCount`)} />
@@ -504,7 +503,7 @@ export default function SpeechOneQuestionsPage({
                                     />
                                 </td>
                                 <td className='text-center'>
-                                    <button className='underline'>보기</button>
+                                    <WaveformButton blob={audioBlob3} />
                                 </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.2.repeatCount`)} />

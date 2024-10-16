@@ -11,6 +11,7 @@ import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
+import { WaveformButton } from '@/components/das/WaveformButton';
 import { useConductedSubtestsQuery, useQuestionsAndAnswersQuery } from '@/hooks/das';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
@@ -26,8 +27,8 @@ const PART_ID_START = 15;
 // 소검사 내 파트별 문항 index 정보
 // TODO: part title도 DB에서 가져오기
 const partIndexList = [
-    { start: 0, end: 10, subtitle: '휴식 시', partTitle: 'AMR', partId: 15 },
-    { start: 10, end: 20, subtitle: '휴식 시', partTitle: 'SMR', partId: 16 },
+    { start: 0, end: 10, subtitle: '휴식 시', partTitle: 'AMR', partTitleKo: '교대운동속도', partId: 15 },
+    { start: 10, end: 20, subtitle: '휴식 시', partTitle: 'SMR', partTitleKo: '일련운동속도', partId: 16 },
 ];
 
 const RecordIcon = () => {
@@ -83,7 +84,7 @@ const RecordButton = ({
     handleStart: () => void;
 }) => {
     return (
-        <button type='button' onClick={isRecording ? handleStop : handleStart}>
+        <button type='button' className='m-auto flex' onClick={isRecording ? handleStop : handleStart}>
             {isRecording ? <StopRecordIcon /> : <RecordIcon />}
         </button>
     );
@@ -101,7 +102,7 @@ const PlayButton = ({
     disabled?: boolean;
 }) => {
     return (
-        <button type='button' onClick={isPlaying ? handlePause : handlePlay} disabled={disabled}>
+        <button type='button' className='m-auto flex' onClick={isPlaying ? handlePause : handlePlay} disabled={disabled}>
             {isPlaying ? <PauseIcon /> : <PlayIcon disabled={disabled} />}
         </button>
     );
@@ -171,14 +172,16 @@ export default function SpeechMotorQuestionsPage({
 
     // 소검사 내 현재 파트 정보
     const [partId, setPartId] = useState(currentPartId || PART_ID_START);
-    const { start, end, subtitle, partTitle } = useMemo(() => partIndexList.find(v => v.partId === partId) || partIndexList[0], [partId]);
+    const { start, end, subtitle, partTitle, partTitleKo } = useMemo(
+        () => partIndexList.find(v => v.partId === partId) || partIndexList[0],
+        [partId],
+    );
 
     // react-hook-form
     const { control, register, setValue, handleSubmit } = useForm<{
         recordings: Recording[];
         answers: Answer[];
     }>();
-    const { fields } = useFieldArray({ name: 'answers', control });
 
     const { data: qnaData } = useQuestionsAndAnswersQuery({
         sessionId: Number(router.query.sessionId),
@@ -208,32 +211,11 @@ export default function SpeechMotorQuestionsPage({
         }
     }, [qnaData, setValue]);
 
-    // 모두 정상 체크
-    const handleChangeCheckAll = useCallback<ChangeEventHandler<HTMLInputElement>>(
-        e => {
-            if (e.target.checked === true) {
-                Array.from({ length: end - start }, (v, i) => start + i).map(v => {
-                    setValue(`answers.${v}.answer`, 'normal');
-                });
-            }
-
-            setCheckAll(e.target.checked);
-        },
-        [setValue, end, start],
-    );
-
     // 이전 파트로
     const handleClickPrev = useCallback(() => {
         setCheckAll(false);
         partId > PART_ID_START && setPartId(partId => partId - 1);
         typeof window !== 'undefined' && window.scrollTo(0, 0);
-    }, [partId]);
-
-    // 다음 파트로
-    const handleClickNext = useCallback(() => {
-        setCheckAll(false);
-        partId < partIndexList[partIndexList.length - 1].partId && setPartId(partId => partId + 1);
-        typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
     }, [partId]);
 
     // 폼 데이터 제출
@@ -270,32 +252,37 @@ export default function SpeechMotorQuestionsPage({
     );
 
     // 폼 제출 후 redirect
-    const handleOnSubmit = useCallback(
+    const handleClickNext = useCallback(
         async (data: any) => {
             try {
                 const sessionId = Number(router.query.sessionId);
                 await handleSubmitData({ sessionId, data });
 
-                const subtests = subtestsData?.subtests;
-                if (!subtests) {
-                    throw new Error('수행할 소검사가 없습니다');
-                }
-                const currentSubtestIndex = subtests.findIndex(v => v.subtestId === CURRENT_SUBTEST_ID);
-                const nextSubtestItem = subtests[currentSubtestIndex + 1];
-                if (nextSubtestItem) {
-                    if (nextSubtestItem.subtestId === 5) {
-                        router.push(`/das/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}/questions`);
-                    } else {
-                        router.push(`/das/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}`);
-                    }
+                if (partId < partIndexList[partIndexList.length - 1].partId) {
+                    setPartId(partId => partId + 1);
+                    typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
                 } else {
-                    router.push(`/das/sessions/${sessionId}/unassessable`);
+                    const subtests = subtestsData?.subtests;
+                    if (!subtests) {
+                        throw new Error('수행할 소검사가 없습니다');
+                    }
+                    const currentSubtestIndex = subtests.findIndex(v => v.subtestId === CURRENT_SUBTEST_ID);
+                    const nextSubtestItem = subtests[currentSubtestIndex + 1];
+                    if (nextSubtestItem) {
+                        if (nextSubtestItem.subtestId === 5) {
+                            router.push(`/das/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}/questions`);
+                        } else {
+                            router.push(`/das/sessions/${sessionId}/subtests/${nextSubtestItem.pathname}`);
+                        }
+                    } else {
+                        router.push(`/das/sessions/${sessionId}/unassessable`);
+                    }
                 }
             } catch (err) {
                 console.error(err);
             }
         },
-        [handleSubmitData, router, subtestsData],
+        [handleSubmitData, partId, router, subtestsData?.subtests],
     );
 
     useEffect(() => {
@@ -325,14 +312,15 @@ export default function SpeechMotorQuestionsPage({
 
     return (
         <Container>
-            <form onSubmit={handleSubmit(handleOnSubmit)} className={`${subtestStyles['subtest-form']}`}>
+            <form onSubmit={handleSubmit(handleClickNext)} className={`${subtestStyles['subtest-form']}`}>
                 <h2 className='whitespace-pre-line text-center font-jalnan text-head-2'>{partTitle}</h2>
+                <h3 className='whitespace-pre-line text-center font-jalnan text-head-3'>{partTitleKo}</h3>
 
                 {partId === PART_ID_START ? (
                     <table className={`${subtestStyles['recording-table']}`}>
-                        <thead data-title='SMR측정'>
+                        <thead data-title='AMR 측정' data-caption='*반복횟수란 1초당 각 음절을 반복한 횟수를 의미함'>
                             <tr>
-                                <th className='rounded-tl-base'>SMR 측정 (5초)</th>
+                                <th>AMR 측정 (5초)</th>
                                 <th></th>
                                 <th>녹음</th>
                                 <th>재생</th>
@@ -342,7 +330,7 @@ export default function SpeechMotorQuestionsPage({
                         </thead>
                         <tbody>
                             <tr>
-                                <td rowSpan={3} align='center' className='rounded-bl-base'>
+                                <td rowSpan={3} className='rounded-bl-base text-center'>
                                     숨을 크게 들어 마신 뒤, &apos;파&apos; 를 가능한 빨리
                                     <br /> 규칙적으로 반복해서 말해보세요. <br />
                                     (&apos;타&apos; 와 &apos;카&apos; 도 동일하게 시행)
@@ -364,7 +352,7 @@ export default function SpeechMotorQuestionsPage({
                                     />
                                 </td>
                                 <td className='text-center'>
-                                    <button className='underline'>보기</button>
+                                    <WaveformButton audioBlob={audioBlob1} audioUrl={audioUrl1} />
                                 </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.0.repeatCount`)} />
@@ -388,7 +376,7 @@ export default function SpeechMotorQuestionsPage({
                                     />
                                 </td>
                                 <td className='text-center'>
-                                    <button className='underline'>보기</button>
+                                    <WaveformButton audioBlob={audioBlob2} audioUrl={audioUrl2} />
                                 </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.1.repeatCount`)} />
@@ -412,7 +400,7 @@ export default function SpeechMotorQuestionsPage({
                                     />
                                 </td>
                                 <td className='text-center'>
-                                    <button className='underline'>보기</button>
+                                    <WaveformButton audioBlob={audioBlob3} audioUrl={audioUrl3} />
                                 </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.2.repeatCount`)} />
@@ -422,9 +410,12 @@ export default function SpeechMotorQuestionsPage({
                     </table>
                 ) : (
                     <table className={`${subtestStyles['recording-table']}`}>
-                        <thead data-title='AMR 측정'>
+                        <thead
+                            data-title='SMR 측정'
+                            data-caption={`*반복횟수란 1초당 각 음절을 반복한 횟수를 의미함('파타카'모두를 반복한 횟수가 아님)`}
+                        >
                             <tr>
-                                <th className='rounded-tl-base'>AMR 측정 (5초)</th>
+                                <th>SMR 측정 (5초)</th>
                                 <th></th>
                                 <th>녹음</th>
                                 <th>재생</th>
@@ -435,10 +426,10 @@ export default function SpeechMotorQuestionsPage({
                         <tbody>
                             <tr>
                                 <td align='center' className='rounded-bl-base'>
-                                    &apos;퍼-터-커&apos;를 가능한 한 빨리, 규칙적으로 <br />
+                                    &apos;파-타-카&apos;를 가능한 한 빨리, 규칙적으로 <br />
                                     반복해서 말해보세요.
                                 </td>
-                                <td className={`${subtestStyles['button']}`}>퍼터커</td>
+                                <td className={`${subtestStyles['button']}`}>파타카</td>
                                 <td className={`${subtestStyles['button']}`}>
                                     <RecordButton
                                         isRecording={isRecording4}
@@ -455,7 +446,7 @@ export default function SpeechMotorQuestionsPage({
                                     />
                                 </td>
                                 <td className='text-center'>
-                                    <button className='underline'>보기</button>
+                                    <WaveformButton audioBlob={audioBlob4} audioUrl={audioUrl4} />
                                 </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='w-full outline-none' {...register(`recordings.3.repeatCount`)} />
@@ -465,76 +456,15 @@ export default function SpeechMotorQuestionsPage({
                     </table>
                 )}
 
-                <table className={`${subtestStyles['question-table']}`}>
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>{subtitle}</th>
-                            <th>정상</th>
-                            <th>경도</th>
-                            <th>심도</th>
-                            <th>평가불가</th>
-                            <th className='rounded-tr-base'>메모</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {fields.slice(start, end).map((item, i) => (
-                            <tr key={item.id}>
-                                <td className={`${subtestStyles['num']}`}>{i + 1}</td>
-                                <td className={`${subtestStyles['text']}`}>{item.questionText}</td>
-                                <td className={`${subtestStyles['option']}`}>
-                                    <input type='radio' {...register(`answers.${start + i}.answer`)} value='normal' />
-                                </td>
-                                <td className={`${subtestStyles['option']}`}>
-                                    <input type='radio' {...register(`answers.${start + i}.answer`)} value='mild' />
-                                </td>
-                                <td className={`${subtestStyles['option']}`}>
-                                    <input type='radio' {...register(`answers.${start + i}.answer`)} value='moderate' />
-                                </td>
-                                <td className={`${subtestStyles['option']}`}>
-                                    <input type='radio' {...register(`answers.${start + i}.answer`)} value='unknown' />
-                                </td>
-                                <td className={`${subtestStyles['comment']}`}>
-                                    <Controller
-                                        control={control}
-                                        name={`answers.${start + i}.comment`}
-                                        render={({ field }) => (
-                                            <ReactTextareaAutosize
-                                                className={`${subtestStyles['textarea-no-border']}`}
-                                                minRows={1}
-                                                onChange={field.onChange}
-                                                onBlur={field.onBlur}
-                                                value={field.value || ''}
-                                            />
-                                        )}
-                                    />
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-                <div className='flex w-full justify-end'>
-                    <CheckBox name='all' checked={checkAll} onChange={handleChangeCheckAll}>
-                        모두 정상
-                    </CheckBox>
-                </div>
-
                 <div>
                     {partId > PART_ID_START && (
                         <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
                             이전
                         </button>
                     )}
-                    {/* key 설정을 해야 다른 컴포넌트로 인식하여 type이 명확히 구분됨 */}
-                    {partId < partIndexList[partIndexList.length - 1].partId ? (
-                        <button key='noSubmit' type='button' className='ml-5 mt-20 btn btn-large btn-contained' onClick={handleClickNext}>
-                            다음
-                        </button>
-                    ) : (
-                        <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained'>
-                            다음 검사
-                        </button>
-                    )}
+                    <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained'>
+                        다음
+                    </button>
                 </div>
             </form>
         </Container>

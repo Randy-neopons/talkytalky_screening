@@ -29,7 +29,7 @@ export function MemoButton({ memo, handleChangeMemo }: MemoButtonProps) {
             >
                 <div className='relative w-full bg-accent1 p-2'>
                     <h6 className='text-center font-bold text-white text-body-2'>메모</h6>
-                    <button className='absolute right-2 top-1/2 -translate-y-1/2' onClick={handleCloseModal}>
+                    <button type='button' className='absolute right-2 top-1/2 -translate-y-1/2' onClick={handleCloseModal}>
                         <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
                             <path
                                 fillRule='evenodd'

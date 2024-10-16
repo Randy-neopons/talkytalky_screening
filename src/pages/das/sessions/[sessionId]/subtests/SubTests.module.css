@@ -47,6 +47,11 @@ button.tooltip-button:hover + .tooltip-content {
     content: attr(data-title);
 }
 
+.recording-table thead::after {
+    @apply absolute -top-5 right-2.5 -translate-y-full text-neutral4 text-body-2;
+    content: attr(data-caption);
+}
+
 .recording-table thead tr {
     @apply bg-accent3 text-neutral3 text-body-2;
 }

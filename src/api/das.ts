@@ -4,7 +4,7 @@ import { API_URL } from '@/utils/const';
 
 import type { Answer, TestInfoFormValues, TestSession } from '@/types/das';
 
-axios.defaults.baseURL = API_URL;
+const axiosInstance = axios.create({ baseURL: API_URL });
 
 const makeHeaders = (accessToken: string) => {
     const token = accessToken;
@@ -13,7 +13,7 @@ const makeHeaders = (accessToken: string) => {
 
 // 검사 정보 조회
 export async function getTestInfoAPI({ sessionId, jwt }: { sessionId: number; jwt: string }) {
-    const response = await axios.get<{
+    const response = await axiosInstance.get<{
         result: string;
         testInfo: {
             testDate: string;
@@ -30,7 +30,7 @@ export async function getTestInfoAPI({ sessionId, jwt }: { sessionId: number; jw
 
 // 검사 정보 업데이트
 export async function updateTestInfoAPI({ sessionId, testInfo, jwt }: { sessionId: number; testInfo: any; jwt: string }) {
-    const response = await axios.patch(`/assessment/session/${sessionId}/testInfo`, { testInfo }, { headers: makeHeaders(jwt) });
+    const response = await axiosInstance.patch(`/assessment/session/${sessionId}/testInfo`, { testInfo }, { headers: makeHeaders(jwt) });
 
     return response.data;
 }
@@ -47,7 +47,7 @@ export async function getSessionListAPI({
     pageSize?: number;
     jwt: string;
 }) {
-    const response = await axios.get<{
+    const response = await axiosInstance.get<{
         result: boolean;
         sessions: TestSession[];
         count: number;
@@ -76,7 +76,7 @@ export async function getQuestionAndAnswerListAPI({
     end?: number;
     jwt: string;
 }) {
-    const response = await axios.get<{
+    const response = await axiosInstance.get<{
         result: boolean;
         questions: {
             questionId: number;
@@ -102,7 +102,7 @@ export async function getQuestionAndAnswerListAPI({
 
 // 평가불가 문항 목록 조회
 export async function getUnassessableQuestionListAPI({ sessionId, jwt }: { sessionId: number; jwt: string }) {
-    const response = await axios.get<{
+    const response = await axiosInstance.get<{
         result: boolean;
         questions: Answer[];
     }>(`/assessment/session/${sessionId}/unassessable`, {
@@ -123,7 +123,7 @@ export async function createSessionAPI({
     subtestIds: string[];
     jwt: string;
 }) {
-    const response = await axios.post(
+    const response = await axiosInstance.post(
         '/assessment/session',
         {
             testInfo,
@@ -138,21 +138,21 @@ export async function createSessionAPI({
 
 // 세션 업데이트
 export async function updateSessionAPI({ sessionId, formData, jwt }: { sessionId: number; formData: FormData; jwt: string }) {
-    const response = await axios.patch(`/assessment/session/${sessionId}`, formData, { headers: makeHeaders(jwt) });
+    const response = await axiosInstance.patch(`/assessment/session/${sessionId}`, formData, { headers: makeHeaders(jwt) });
 
     return response.data;
 }
 
 // 세션 완료
 export async function completeSessionAPI({ sessionId, jwt }: { sessionId: number; jwt: string }) {
-    const response = await axios.patch(`/assessment/session/${sessionId}/complete`, {}, { headers: makeHeaders(jwt) });
+    const response = await axiosInstance.patch(`/assessment/session/${sessionId}/complete`, {}, { headers: makeHeaders(jwt) });
 
     return response.data;
 }
 
 // 세션 결과 보기
 export async function getTestResultAPI({ sessionId, jwt }: { sessionId: number; jwt: string }) {
-    const response = await axios.get<{
+    const response = await axiosInstance.get<{
         testScore: {
             score: number;
             maxScore: number;
@@ -169,20 +169,23 @@ export async function getTestResultAPI({ sessionId, jwt }: { sessionId: number; 
 }
 
 export async function getAnswersCountAPI({ sessionId, jwt }: { sessionId: number; jwt: string }) {
-    const response = await axios.get<{ totalCount: number; notNullCount: number }>(`/assessment/session/${sessionId}/answersCount`, {
-        headers: makeHeaders(jwt),
-    });
+    const response = await axiosInstance.get<{ totalCount: number; notNullCount: number }>(
+        `/assessment/session/${sessionId}/answersCount`,
+        {
+            headers: makeHeaders(jwt),
+        },
+    );
 
     return response.data;
 }
 
 export async function getConductedSubtestsAPI({ sessionId, jwt }: { sessionId: number; jwt: string }) {
-    const response = await axios.get<{ result: boolean; subtests: { subtestId: number; subtestTitle: string; pathname: string }[] }>(
-        `/assessment/session/${sessionId}/conductedSubtests`,
-        {
-            headers: makeHeaders(jwt),
-        },
-    );
+    const response = await axiosInstance.get<{
+        result: boolean;
+        subtests: { subtestId: number; subtestTitle: string; pathname: string }[];
+    }>(`/assessment/session/${sessionId}/conductedSubtests`, {
+        headers: makeHeaders(jwt),
+    });
 
     return response.data;
 }
