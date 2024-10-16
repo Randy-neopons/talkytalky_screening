@@ -18,6 +18,24 @@ import styles from '../SubTests.module.css';
 
 import conversationImg from 'public/static/images/conversation-img.png';
 
+const TooltipArrowIcon = () => {
+    return (
+        <svg
+            className={`${styles['tooltip-arrow']}`}
+            xmlns='http://www.w3.org/2000/svg'
+            width='54'
+            height='54'
+            viewBox='0 0 54 54'
+            fill='none'
+        >
+            <path
+                d='M24.4019 4.5C25.5566 2.5 28.4434 2.5 29.5981 4.5L47.7846 36C48.9393 38 47.4959 40.5 45.1865 40.5H8.81346C6.50406 40.5 5.06069 38 6.21539 36L24.4019 4.5Z'
+                fill='#495057'
+            />
+        </svg>
+    );
+};
+
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 3;
 const PART_ID_START = 10;
@@ -90,14 +108,20 @@ export default function ConversationPage() {
     return (
         <Container>
             <div className={`${styles['title']}`}>
-                <h1 className='flex items-center whitespace-pre-line text-center font-jalnan text-head-1'>{'대화하기'}</h1>
-                <button>
-                    <InfoIcon bgColor='#6979F8' color='#FFFFFF' width={44} height={44} />
-                </button>
-                <div className={`${styles['tooltip-content']} bg-accent3`}>
-                    <b>치료사 지시문</b>
-                    <br />
-                    “오늘(또는 요즘에) 무슨 일을 하셨는지 얘기해 주세요. 될 수 있는 대로 문장으로 설명해 주세요. 시간은 1분 드릴게요.”
+                <h1 className='flex items-center whitespace-pre-line text-center font-jalnan text-head-1'>대화하기</h1>
+                <div className={`${styles['button-container']}`}>
+                    <button>
+                        <InfoIcon bgColor='#6979F8' color='#FFFFFF' width={44} height={44} />
+                    </button>
+                    <TooltipArrowIcon />
+                </div>
+                <div className={`${styles['tooltip-content']}`}>
+                    <p>
+                        <b>치료사 지시문</b>
+                    </p>
+                    <p>
+                        “오늘(또는 요즘에) 무슨 일을 하셨는지 얘기해 주세요. 될 수 있는 대로 문장으로 설명해 주세요. 시간은 1분 드릴게요.”
+                    </p>
                 </div>
             </div>
             <button className='ml-auto mt-8 flex items-center gap-[6px] rounded-[10px] border border-neutral7 bg-white px-5 py-2.5'>

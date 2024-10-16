@@ -1,17 +1,29 @@
 .title {
-    @apply relative flex justify-center text-center;
+    @apply relative flex justify-center gap-1 text-center;
 }
 
-.tooltip {
-    @apply relative ml-2 flex items-center text-left;
+.button-container {
+    @apply relative flex items-center;
+}
+
+svg.tooltip-arrow {
+    @apply absolute left-1/2 top-full hidden -translate-x-1/2;
 }
 
 .tooltip-content {
-    @apply absolute left-1/2 hidden w-[610px] -translate-x-1/2 translate-y-5 rounded-[20px] px-[20px] py-[26px] font-noto shadow-base text-body-2 xl:w-[1000px];
+    @apply absolute top-full m-9 hidden w-[700px] flex-col gap-2 rounded-[20px] bg-neutral3 p-7.5 text-left text-white shadow-base text-body-2 xl:m-7.5 xl:w-[1000px];
 }
 
-.tooltip:hover .tooltip-content {
+.button-container:hover + .tooltip-content {
+    @apply flex;
+}
+
+.button-container:hover > svg.tooltip-arrow {
     @apply block;
+}
+
+button.tooltip-button:hover + .tooltip-content {
+    @apply flex;
 }
 
 .part {
