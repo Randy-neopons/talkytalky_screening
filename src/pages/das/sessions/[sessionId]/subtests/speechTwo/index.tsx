@@ -1,4 +1,13 @@
-import { useCallback, useEffect, useMemo, useState, type ChangeEventHandler, type MouseEventHandler, type ReactNode } from 'react';
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useState,
+    type ChangeEventHandler,
+    type HTMLAttributes,
+    type MouseEventHandler,
+    type ReactNode,
+} from 'react';
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
@@ -9,6 +18,7 @@ import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import { AudioButton } from '@/components/common/Buttons';
 import Container from '@/components/common/Container';
+import { InfoIcon, PrintIcon } from '@/components/common/icons';
 import { FontSizeButton } from '@/components/das/FontSizeButton';
 import { MemoButton } from '@/components/das/MemoButton';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
@@ -96,22 +106,16 @@ export default function ParagraphReadingPage() {
 
     return (
         <Container>
-            <h2 className='flex items-center font-noto font-bold text-accent1 text-head-2'>SPEECH II : 종합적 말평가</h2>
-            <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{'문단읽기'}</h1>
-            <div className='ml-auto mt-8 flex items-center gap-[6px]'>
-                <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'>
-                    <rect x='2.5' y='7.5' width='19' height='9' rx='0.5' stroke='#212529' />
-                    <path d='M6.5 3C6.5 2.72386 6.72386 2.5 7 2.5H17C17.2761 2.5 17.5 2.72386 17.5 3V7.5H6.5V3Z' stroke='#212529' />
-                    <path
-                        d='M6 13C6 12.4477 6.44772 12 7 12H17C17.5523 12 18 12.4477 18 13V19C18 19.5523 17.5523 20 17 20H7C6.44772 20 6 19.5523 6 19V13Z'
-                        fill='#212529'
-                    />
-                    <path d='M8 14H16' stroke='#F5F7FC' strokeLinecap='round' />
-                    <path d='M8 16H16' stroke='#F5F7FC' strokeLinecap='round' />
-                    <path d='M8 18H12' stroke='#F5F7FC' strokeLinecap='round' />
-                </svg>
-                인쇄하기
+            <div className={`${styles['title']}`}>
+                <h1 className='flex items-center whitespace-pre-line text-center font-jalnan text-head-1'>문단읽기</h1>
+                <button>
+                    <InfoIcon bgColor='#6979F8' color='#FFFFFF' width={44} height={44} />
+                </button>
             </div>
+            <button className='ml-auto mt-8 flex items-center gap-[6px] rounded-[10px] border border-neutral7 bg-white px-5 py-2.5'>
+                <PrintIcon color={'#212529'} />
+                인쇄하기
+            </button>
             <div className={`mt-5 rounded-base bg-white p-[50px] ${makeFontSizeClassName(fontSize)}`}>
                 (예시문단) 높은 산에 올라가 맑은 공기를 마시며 소리를 지르면 가슴이 활찍 열리는 듯하다. 바닷가에 나가 조개를 주으며 넓게
                 펼쳐 있는 바다를 바라보면 내 마음이 역시 넓어지는 것 같다. 가로수 길게 뻗어 있는 곧은 길을 따라 걸어가면서 마치 쭉쭉 뻗어

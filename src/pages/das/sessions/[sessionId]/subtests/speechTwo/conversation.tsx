@@ -10,7 +10,7 @@ import { useTestTime } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import { AudioButton } from '@/components/common/Buttons';
 import Container from '@/components/common/Container';
-import { InfoIcon } from '@/components/common/icons';
+import { InfoIcon, PrintIcon } from '@/components/common/icons';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getAnswersCountAPI, updateSessionAPI } from '@/api/das';
 
@@ -89,37 +89,23 @@ export default function ConversationPage() {
 
     return (
         <Container>
-            <h2 className='font-noto font-bold text-accent1 text-head-2'>SPEECH II : 종합적 말평가</h2>
-            <h1 className='flex items-center whitespace-pre-line text-center font-jalnan text-head-1'>
-                {'대화하기'}
-                <span className={`${styles['tooltip']}`}>
-                    <button>
-                        <InfoIcon color='#6979F8' width={40} height={40} />
-                    </button>
-                    <div className={`${styles['tooltip-content']} bg-accent3`}>
-                        <b>치료사 지시문</b>
-                        <br />
-                        “오늘(또는 요즘에) 무슨 일을 하셨는지 얘기해 주세요. 될 수 있는 대로 문장으로 설명해 주세요. 시간은 1분 드릴게요.”
-                    </div>
-                </span>
-            </h1>
-            <div className='ml-auto mt-8 flex items-center gap-[6px]'>
-                <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'>
-                    <rect x='2.5' y='7.5' width='19' height='9' rx='0.5' stroke='#212529' />
-                    <path d='M6.5 3C6.5 2.72386 6.72386 2.5 7 2.5H17C17.2761 2.5 17.5 2.72386 17.5 3V7.5H6.5V3Z' stroke='#212529' />
-                    <path
-                        d='M6 13C6 12.4477 6.44772 12 7 12H17C17.5523 12 18 12.4477 18 13V19C18 19.5523 17.5523 20 17 20H7C6.44772 20 6 19.5523 6 19V13Z'
-                        fill='#212529'
-                    />
-                    <path d='M8 14H16' stroke='#F5F7FC' strokeLinecap='round' />
-                    <path d='M8 16H16' stroke='#F5F7FC' strokeLinecap='round' />
-                    <path d='M8 18H12' stroke='#F5F7FC' strokeLinecap='round' />
-                </svg>
+            <div className={`${styles['title']}`}>
+                <h1 className='flex items-center whitespace-pre-line text-center font-jalnan text-head-1'>{'대화하기'}</h1>
+                <button>
+                    <InfoIcon bgColor='#6979F8' color='#FFFFFF' width={44} height={44} />
+                </button>
+                <div className={`${styles['tooltip-content']} bg-accent3`}>
+                    <b>치료사 지시문</b>
+                    <br />
+                    “오늘(또는 요즘에) 무슨 일을 하셨는지 얘기해 주세요. 될 수 있는 대로 문장으로 설명해 주세요. 시간은 1분 드릴게요.”
+                </div>
+            </div>
+            <button className='ml-auto mt-8 flex items-center gap-[6px] rounded-[10px] border border-neutral7 bg-white px-5 py-2.5'>
+                <PrintIcon color={'#212529'} />
                 인쇄하기
-            </div>
-            <div className='mt-5 rounded-[20px] bg-white px-[65px] py-5'>
-                <Image src={conversationImg} alt='conversation' />
-            </div>
+            </button>
+
+            <Image src={conversationImg} alt='conversation' className='mt-5 h-auto w-[1000px] rounded-base' />
 
             <div className='mt-20 flex w-full flex-nowrap items-center'>
                 <div className='mx-auto flex gap-[45px]'>

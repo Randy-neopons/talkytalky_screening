@@ -1,12 +1,15 @@
-import { useCallback, useEffect, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, type ReactNode } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
+import { subtestList } from '@/stores/testStore';
 import { useTestStart } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import { useModal } from '@/components/common/Modal/context';
 import Timer from '@/components/common/Timer';
 import { useUserQuery } from '@/hooks/user';
+
+import { ChevronRightIcon } from '../common/icons';
 
 export default function AppLayout({ isLoggedIn, progress, children }: { isLoggedIn?: boolean; progress?: number; children: ReactNode }) {
     const router = useRouter();
@@ -27,6 +30,20 @@ export default function AppLayout({ isLoggedIn, progress, children }: { isLogged
         }
     }, [router]);
 
+    const headerTitle = useMemo(() => {
+        const pathnames = router.pathname.split('/');
+        const pathnameIndex = pathnames.findIndex(v => v === 'subtests');
+
+        if (pathnameIndex === -1) {
+            return '';
+        }
+
+        const subtestPathname = pathnames[pathnameIndex + 1];
+        const headerTitle = subtestList.find(v => v.pathname === subtestPathname)?.headerTitle || '';
+
+        return headerTitle;
+    }, [router]);
+
     useEffect(() => {
         if (error || !isLoggedIn) {
             alert('로그인이 필요합니다.\n토키토키 로그인 페이지로 이동합니다.');
@@ -45,9 +62,17 @@ export default function AppLayout({ isLoggedIn, progress, children }: { isLogged
                 </Head>
                 <header className='fixed left-0 top-0 z-10 flex h-20 w-full items-center justify-center bg-accent1'>
                     <div className='flex w-full max-w-screen-md justify-between px-5 xl:max-w-screen-xl xl:px-[140px]'>
-                        <button className='mr-auto font-bold text-neutral11 text-head-2' onClick={onClickHome}>
-                            마비말장애 평가 시스템 (DAS)
-                        </button>
+                        <div className='flex items-center gap-2'>
+                            <button className='font-bold text-neutral11 text-head-2' onClick={onClickHome}>
+                                마비말장애 평가 시스템 (DAS)
+                            </button>
+                            {headerTitle !== '' && (
+                                <>
+                                    <ChevronRightIcon />
+                                    <h1 className='text-white text-head-2'>{headerTitle}</h1>
+                                </>
+                            )}
+                        </div>
                         {testStart && (
                             <div className='flex items-center gap-5 xl:gap-7.5'>
                                 {progress !== undefined && progress !== null && (

@@ -325,7 +325,6 @@ export default function SpeechMotorQuestionsPage({
 
     return (
         <Container>
-            <h2 className='flex items-center font-noto font-bold text-accent1 text-head-2'>SPEECH Motor : 말운동평가</h2>
             <form onSubmit={handleSubmit(handleOnSubmit)} className={`${subtestStyles['subtest-form']}`}>
                 <h2 className='whitespace-pre-line text-center font-jalnan text-head-2'>{partTitle}</h2>
 
@@ -337,6 +336,7 @@ export default function SpeechMotorQuestionsPage({
                                 <th></th>
                                 <th>녹음</th>
                                 <th>재생</th>
+                                <th>파형</th>
                                 <th className='rounded-tr-base'>반복횟수</th>
                             </tr>
                         </thead>
@@ -363,6 +363,9 @@ export default function SpeechMotorQuestionsPage({
                                         disabled={!audioUrl1}
                                     />
                                 </td>
+                                <td className='text-center'>
+                                    <button className='underline'>보기</button>
+                                </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.0.repeatCount`)} />
                                 </td>
@@ -383,6 +386,9 @@ export default function SpeechMotorQuestionsPage({
                                         handlePause={handlePause2}
                                         disabled={!audioUrl2}
                                     />
+                                </td>
+                                <td className='text-center'>
+                                    <button className='underline'>보기</button>
                                 </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.1.repeatCount`)} />
@@ -405,6 +411,9 @@ export default function SpeechMotorQuestionsPage({
                                         disabled={!audioUrl3}
                                     />
                                 </td>
+                                <td className='text-center'>
+                                    <button className='underline'>보기</button>
+                                </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.2.repeatCount`)} />
                                 </td>
@@ -419,6 +428,7 @@ export default function SpeechMotorQuestionsPage({
                                 <th></th>
                                 <th>녹음</th>
                                 <th>재생</th>
+                                <th>파형</th>
                                 <th className='rounded-tr-base'>반복횟수</th>
                             </tr>
                         </thead>
@@ -443,6 +453,9 @@ export default function SpeechMotorQuestionsPage({
                                         handlePause={handlePause4}
                                         disabled={!audioUrl4}
                                     />
+                                </td>
+                                <td className='text-center'>
+                                    <button className='underline'>보기</button>
                                 </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='w-full outline-none' {...register(`recordings.3.repeatCount`)} />

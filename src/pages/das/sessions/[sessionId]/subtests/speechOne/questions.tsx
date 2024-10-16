@@ -147,7 +147,7 @@ const RecordButton = ({
     handleStart: () => void;
 }) => {
     return (
-        <button type='button' onClick={isRecording ? handleStop : handleStart}>
+        <button type='button' className='m-auto flex' onClick={isRecording ? handleStop : handleStart}>
             {isRecording ? <StopRecordIcon /> : <RecordIcon />}
         </button>
     );
@@ -165,7 +165,7 @@ const PlayButton = ({
     disabled?: boolean;
 }) => {
     return (
-        <button type='button' onClick={isPlaying ? handlePause : handlePlay} disabled={disabled}>
+        <button type='button' className='m-auto flex' onClick={isPlaying ? handlePause : handlePlay} disabled={disabled}>
             {isPlaying ? <PauseIcon /> : <PlayIcon disabled={disabled} />}
         </button>
     );
@@ -416,7 +416,6 @@ export default function SpeechOneQuestionsPage({
 
     return (
         <Container>
-            <h2 className='flex items-center font-noto font-bold text-accent1 text-head-2'>SPEECH I : 영역별 말평가</h2>
             <form onSubmit={handleSubmit(handleClickNext)} className={`${subtestStyles['subtest-form']}`}>
                 <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitleEn}</h1>
                 <h2 className='whitespace-pre-line text-center font-jalnan text-head-2'>{partTitle}</h2>
@@ -429,6 +428,7 @@ export default function SpeechOneQuestionsPage({
                                 <th></th>
                                 <th>녹음</th>
                                 <th>재생</th>
+                                <th>파형</th>
                                 <th className='rounded-tr-base'>지속시간</th>
                             </tr>
                         </thead>
@@ -455,6 +455,9 @@ export default function SpeechOneQuestionsPage({
                                         disabled={!audioUrl1}
                                     />
                                 </td>
+                                <td className='text-center'>
+                                    <button className='underline'>보기</button>
+                                </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.0.repeatCount`)} />
                                 </td>
@@ -476,6 +479,9 @@ export default function SpeechOneQuestionsPage({
                                         disabled={!audioUrl2}
                                     />
                                 </td>
+                                <td className='text-center'>
+                                    <button className='underline'>보기</button>
+                                </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.1.repeatCount`)} />
                                 </td>
@@ -496,6 +502,9 @@ export default function SpeechOneQuestionsPage({
                                         handlePause={handlePause3}
                                         disabled={!audioUrl3}
                                     />
+                                </td>
+                                <td className='text-center'>
+                                    <button className='underline'>보기</button>
                                 </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.2.repeatCount`)} />
