@@ -423,9 +423,9 @@ export default function SpeechOneQuestionsPage({
 
                 {partId === PART_ID_START && (
                     <table className={`${subtestStyles['recording-table']}`}>
-                        <thead>
-                            <tr className='bg-accent1 text-white text-body-2'>
-                                <th className='rounded-tl-base'>MPT 측정</th>
+                        <thead data-title='MPT 측정'>
+                            <tr>
+                                <th>MPT 측정</th>
                                 <th></th>
                                 <th>녹음</th>
                                 <th>재생</th>
@@ -507,9 +507,9 @@ export default function SpeechOneQuestionsPage({
                 {split - start > 0 && (
                     <>
                         <table className={`${subtestStyles['question-table']}`}>
-                            <thead>
-                                <tr className='bg-accent1 text-white text-body-2'>
-                                    <th className='rounded-tl-base'></th>
+                            <thead data-title={subtitle1}>
+                                <tr>
+                                    <th></th>
                                     <th>{subtitle1}</th>
                                     <th>정상</th>
                                     <th>경도</th>
@@ -565,9 +565,9 @@ export default function SpeechOneQuestionsPage({
                 {end - split > 0 && (
                     <>
                         <table className={`${subtestStyles['question-table']}`}>
-                            <thead>
+                            <thead data-title={subtitle2}>
                                 <tr className='bg-accent2 text-white text-body-2'>
-                                    <th className='rounded-tl-base'></th>
+                                    <th></th>
                                     <th>{subtitle2}</th>
                                     <th>정상</th>
                                     <th>경도</th>

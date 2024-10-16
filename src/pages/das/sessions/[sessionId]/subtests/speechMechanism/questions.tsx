@@ -261,9 +261,9 @@ export default function SpeechMechanismQuestionsPage({
                 <h2 className='whitespace-pre-line text-center font-jalnan text-head-2'>{partTitle}</h2>
 
                 <table className={`${subtestStyles['question-table']}`}>
-                    <thead>
-                        <tr className='bg-accent1 text-white text-body-2'>
-                            <th className='rounded-tl-base'></th>
+                    <thead data-title={subtitle1}>
+                        <tr>
+                            <th></th>
                             <th>{subtitle1}</th>
                             <th>정상</th>
                             <th>경도</th>
@@ -317,9 +317,9 @@ export default function SpeechMechanismQuestionsPage({
                 {end - split > 0 && (
                     <>
                         <table className={`${subtestStyles['question-table']}`}>
-                            <thead>
+                            <thead data-title={subtitle2}>
                                 <tr className='bg-accent2 text-white text-body-2'>
-                                    <th className='rounded-tl-base'></th>
+                                    <th></th>
                                     <th>{subtitle2}</th>
                                     <th>정상</th>
                                     <th>경도</th>

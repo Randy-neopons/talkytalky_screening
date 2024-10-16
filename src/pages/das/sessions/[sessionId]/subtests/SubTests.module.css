@@ -1,13 +1,17 @@
+.title {
+    @apply relative flex justify-center text-center;
+}
+
 .tooltip {
-    @apply ml-2 text-left;
+    @apply relative ml-2 flex items-center text-left;
 }
 
 .tooltip-content {
-    @apply absolute left-1/2 hidden w-[610px] -translate-x-1/2 translate-y-5 rounded-[20px] px-[20px] py-[26px] font-noto shadow-base text-body-2 xl:w-full;
+    @apply absolute left-1/2 hidden w-[610px] -translate-x-1/2 translate-y-5 rounded-[20px] px-[20px] py-[26px] font-noto shadow-base text-body-2 xl:w-[1000px];
 }
 
 .tooltip:hover .tooltip-content {
-    display: block;
+    @apply block;
 }
 
 .part {
@@ -19,7 +23,20 @@
 }
 
 .recording-table {
-    @apply mt-15 mb-5 w-[728px] border-collapse rounded-base shadow-base xl:mt-[80px] xl:w-[1000px];
+    @apply mb-5 mt-[108px] w-[728px] border-collapse rounded-base xl:mt-[128px] xl:w-[1000px];
+}
+
+.recording-table thead {
+    @apply relative;
+}
+
+.recording-table thead::before {
+    @apply absolute -top-full inline-flex h-12 w-40 items-center justify-center rounded-t-2xl bg-accent1 font-bold text-white text-body-2;
+    content: attr(data-title);
+}
+
+.recording-table thead tr {
+    @apply bg-accent3 text-neutral3 text-body-2;
 }
 
 .recording-table thead tr th {
@@ -45,6 +62,9 @@
 .recording-table tbody tr:first-child td {
     @apply border-t-0;
 }
+.recording-table tbody tr:first-child td:first-child {
+    @apply border-b-0;
+}
 .recording-table tbody tr:last-child td {
     @apply border-b-0;
 }
@@ -68,7 +88,20 @@
 }
 
 .question-table {
-    @apply mt-15 mb-5 w-[728px] border-collapse rounded-base shadow-base xl:mt-[80px] xl:w-[1000px];
+    @apply mb-5 mt-[110px] w-[728px] border-collapse rounded-base xl:w-[1000px];
+}
+
+.question-table thead {
+    @apply relative;
+}
+
+.question-table thead::before {
+    @apply absolute -top-full inline-flex h-12 w-40 items-center justify-center rounded-t-2xl bg-accent1 font-bold text-white text-body-2;
+    content: attr(data-title);
+}
+
+.question-table thead tr {
+    @apply bg-accent3 text-neutral3 text-body-2;
 }
 
 .question-table thead tr th {

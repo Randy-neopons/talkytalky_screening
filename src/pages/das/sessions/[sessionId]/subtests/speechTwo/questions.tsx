@@ -252,8 +252,8 @@ export default function SpeechTwoQuestionsPage({
 
                 <ul className='mt-20 flex flex-row flex-nowrap gap-5'>
                     <li className='h-40 w-80 overflow-hidden rounded-base bg-white shadow-base'>
-                        <div className='flex h-12 w-full items-center justify-center bg-accent1'>
-                            <span className='font-bold text-white text-body-2'>문단읽기</span>
+                        <div className='flex h-12 w-full items-center justify-center bg-accent3'>
+                            <span className='font-bold text-neutral3 text-body-2'>문단읽기</span>
                         </div>
                         <div className='flex w-full justify-center gap-5 py-[35px]'>
                             {/* <button
@@ -273,8 +273,8 @@ export default function SpeechTwoQuestionsPage({
                         </div>
                     </li>
                     <li className='h-40 w-80 overflow-hidden rounded-base bg-white shadow-base'>
-                        <div className='flex h-12 w-full items-center justify-center bg-accent1'>
-                            <span className='font-bold text-white text-body-2'>그림 설명하기</span>
+                        <div className='flex h-12 w-full items-center justify-center bg-accent3'>
+                            <span className='font-bold text-neutral3 text-body-2'>그림 설명하기</span>
                         </div>
                         <div className='flex w-full justify-center gap-5 py-[35px]'>
                             {/* <button
@@ -294,8 +294,8 @@ export default function SpeechTwoQuestionsPage({
                         </div>
                     </li>
                     <li className='h-40 w-80 overflow-hidden rounded-base bg-white shadow-base'>
-                        <div className='flex h-12 w-full items-center justify-center bg-accent1'>
-                            <span className='font-bold text-white text-body-2'>대화하기</span>
+                        <div className='flex h-12 w-full items-center justify-center bg-accent3'>
+                            <span className='font-bold text-neutral3 text-body-2'>대화하기</span>
                         </div>
                         <div className='flex w-full justify-center gap-5 py-[35px]'>
                             {/* <button
@@ -317,9 +317,9 @@ export default function SpeechTwoQuestionsPage({
                 </ul>
 
                 <table className={`${subtestStyles['question-table']}`}>
-                    <thead>
-                        <tr className='bg-accent1 text-white text-body-2'>
-                            <th className='rounded-tl-base'></th>
+                    <thead data-title={subtitle}>
+                        <tr>
+                            <th></th>
                             <th>{subtitle}</th>
                             <th>정상</th>
                             <th>경도</th>

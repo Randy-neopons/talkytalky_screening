@@ -331,8 +331,8 @@ export default function SpeechMotorQuestionsPage({
 
                 {partId === PART_ID_START ? (
                     <table className={`${subtestStyles['recording-table']}`}>
-                        <thead>
-                            <tr className='bg-accent1 text-white text-body-2'>
+                        <thead data-title='SMR측정'>
+                            <tr>
                                 <th className='rounded-tl-base'>SMR 측정 (5초)</th>
                                 <th></th>
                                 <th>녹음</th>
@@ -413,8 +413,8 @@ export default function SpeechMotorQuestionsPage({
                     </table>
                 ) : (
                     <table className={`${subtestStyles['recording-table']}`}>
-                        <thead>
-                            <tr className='bg-accent1 text-white text-body-2'>
+                        <thead data-title='AMR 측정'>
+                            <tr>
                                 <th className='rounded-tl-base'>AMR 측정 (5초)</th>
                                 <th></th>
                                 <th>녹음</th>
@@ -454,8 +454,8 @@ export default function SpeechMotorQuestionsPage({
 
                 <table className={`${subtestStyles['question-table']}`}>
                     <thead>
-                        <tr className='bg-accent1 text-white text-body-2'>
-                            <th className='rounded-tl-base'></th>
+                        <tr>
+                            <th></th>
                             <th>{subtitle}</th>
                             <th>정상</th>
                             <th>경도</th>

@@ -167,8 +167,8 @@ export default function StressTestingQuestionsPage({ questionList }: { questionL
             <form onSubmit={handleSubmit(handleOnSubmit)} className={`${subtestStyles['subtest-form']}`}>
                 <table className={`${subtestStyles['question-table']}`}>
                     <thead>
-                        <tr className='bg-accent1 text-white text-body-2'>
-                            <th className='rounded-tl-base'></th>
+                        <tr>
+                            <th></th>
                             <th>{subtitle1}</th>
                             <th>정상</th>
                             <th>경도</th>

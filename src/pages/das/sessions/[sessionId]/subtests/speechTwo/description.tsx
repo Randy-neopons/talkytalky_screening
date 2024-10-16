@@ -16,8 +16,6 @@ import { getAnswersCountAPI, updateSessionAPI } from '@/api/das';
 
 import styles from '../SubTests.module.css';
 
-import fontSizeIcon from 'public/static/images/font-size-icon.png';
-import memoIcon from 'public/static/images/memo-icon.png';
 import pictureDescImg from 'public/static/images/picture-desc-img.png';
 
 // 소검사 ID
@@ -97,22 +95,19 @@ export default function PictureDescriptionPage() {
     return (
         <Container>
             <h2 className='font-noto font-bold text-accent1 text-head-2'>SPEECH II : 종합적 말평가</h2>
-            <h1 className='flex items-center whitespace-pre-line text-center font-jalnan text-head-1'>
-                그림설명하기
-                <span className={`${styles['tooltip']}`}>
-                    <button>
-                        <InfoIcon color='#6979F8' width={40} height={40} />
-                    </button>
-                    <div className={`${styles['tooltip-content']} bg-accent3`}>
-                        <b>치료사 지시문</b>
-                        <br />
-                        “지금부터 그림을 보여드릴거예요. 그림을 잘 보시고 1분동안 최대한 자세히 설명해주세요. 가능하면 문장으로
-                        설명해주세요.” (필요시 그림에서 설명하지 못한 부분을 가리키며) “여기는 어떤 일이 일어나고 있나요?” 라고 발화
-                        유도하기
-                    </div>
-                </span>
-            </h1>
-            <div className='ml-auto mt-8 flex items-center gap-[6px]'>
+            <div className={`${styles['title']}`}>
+                <h1 className='flex items-center whitespace-pre-line text-center font-jalnan text-head-1'>그림설명하기</h1>
+                <button>
+                    <InfoIcon bgColor='#6979F8' color='#FFFFFF' width={40} height={40} />
+                </button>
+                <div className={`${styles['tooltip-content']} bg-accent3`}>
+                    <b>치료사 지시문</b>
+                    <br />
+                    “지금부터 그림을 보여드릴거예요. 그림을 잘 보시고 1분동안 최대한 자세히 설명해주세요. 가능하면 문장으로 설명해주세요.”
+                    (필요시 그림에서 설명하지 못한 부분을 가리키며) “여기는 어떤 일이 일어나고 있나요?” 라고 발화 유도하기
+                </div>
+            </div>
+            <button className='ml-auto mt-8 flex items-center gap-[6px] rounded-[10px] border border-neutral7 bg-white px-5 py-2.5'>
                 <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'>
                     <rect x='2.5' y='7.5' width='19' height='9' rx='0.5' stroke='#212529' />
                     <path d='M6.5 3C6.5 2.72386 6.72386 2.5 7 2.5H17C17.2761 2.5 17.5 2.72386 17.5 3V7.5H6.5V3Z' stroke='#212529' />
@@ -125,10 +120,8 @@ export default function PictureDescriptionPage() {
                     <path d='M8 18H12' stroke='#F5F7FC' strokeLinecap='round' />
                 </svg>
                 인쇄하기
-            </div>
-            <div className='mt-5 rounded-[20px] bg-white px-[65px] py-5'>
-                <Image src={pictureDescImg} alt='picture-description' className='h-auto w-[871px]' />
-            </div>
+            </button>
+            <Image src={pictureDescImg} alt='picture-description' className='mt-5 h-auto w-[1000px] rounded-base' />
 
             <div className='mt-20 flex w-full flex-nowrap items-center'>
                 <div className='mx-auto flex gap-[45px]'>
