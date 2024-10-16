@@ -10,7 +10,7 @@ import { useTestTime } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import { AudioButton } from '@/components/common/Buttons';
 import Container from '@/components/common/Container';
-import { InfoIcon } from '@/components/icons';
+import { InfoIcon } from '@/components/common/icons';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getAnswersCountAPI, updateSessionAPI } from '@/api/das';
 

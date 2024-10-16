@@ -1,6 +1,6 @@
 import { useEffect, useState, type ChangeEventHandler, type ReactNode } from 'react';
 
-import { MikeIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/icons';
+import { MikeIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/common/icons';
 
 import styles from './Buttons.module.css';
 

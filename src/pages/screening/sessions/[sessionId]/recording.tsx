@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { AudioButton } from '@/components/common/Buttons';
 import Container from '@/components/common/Container';
-import { VolumeIcon } from '@/components/icons';
+import { VolumeIcon } from '@/components/common/icons';
 import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
 import { screeningTestSessionQueryKey, useScreeningRecordingQuery } from '@/hooks/screening';
 import useAudioRecorder from '@/hooks/useAudioRecorder';

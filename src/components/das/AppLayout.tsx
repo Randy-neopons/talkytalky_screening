@@ -4,10 +4,9 @@ import { useRouter } from 'next/router';
 
 import { useTestStart } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
+import { useModal } from '@/components/common/Modal/context';
+import Timer from '@/components/common/Timer';
 import { useUserQuery } from '@/hooks/user';
-
-import { useModal } from './common/Modal/context';
-import Timer from './common/Timer';
 
 export default function AppLayout({ isLoggedIn, progress, children }: { isLoggedIn?: boolean; progress?: number; children: ReactNode }) {
     const router = useRouter();

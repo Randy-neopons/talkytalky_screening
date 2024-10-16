@@ -7,8 +7,8 @@ import { HydrationBoundary, QueryClient, QueryClientProvider } from '@tanstack/r
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import nProgress from 'nprogress';
 
-import AppLayout from '@/components/AppLayout';
 import { ModalProvider } from '@/components/common/Modal/context';
+import AppLayout from '@/components/das/AppLayout';
 
 import type { NextPageWithLayout } from '@/types/types';
 

@@ -8,7 +8,7 @@ import { getCookie } from 'cookies-next';
 import dayjs from 'dayjs';
 
 import Container from '@/components/common/Container';
-import { PrintIcon } from '@/components/icons';
+import { PrintIcon } from '@/components/common/icons';
 import { useUserQuery } from '@/hooks/user';
 import { getTestInfoAPI, getTestResultAPI } from '@/api/das';
 

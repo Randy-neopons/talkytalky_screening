@@ -1,6 +1,6 @@
 import { useCallback, type Dispatch, type SetStateAction } from 'react';
 
-import { ChevronLeftIcon, ChevronRightIcon } from '@/components/icons';
+import { ChevronLeftIcon, ChevronRightIcon } from '@/components/common/icons';
 
 // 현재 페이지 좌우로 페이지 번호 생성
 const makePages = ({ currentPage, lastPage }: { currentPage: number; lastPage: number }) => {

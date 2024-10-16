@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { useTestStart, useTestTime, useTimerActions } from '@/stores/timerStore';
-import { ClockIcon } from '@/components/icons';
+import { ClockIcon } from '@/components/common/icons';
 
 // 타이머
 export default function Timer() {
