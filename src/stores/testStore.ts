@@ -1,55 +1,48 @@
 import dayjs from 'dayjs';
 import { create } from 'zustand';
 
-import type { TestInfoFormValues } from '@/types/das';
+import type { Subtest, TestInfoFormValues } from '@/types/das';
 
 // 검사 파트 목록
 export const partList = [
-    { partId: 1, subtestId: '1' },
-    { partId: 2, subtestId: '1' },
-    { partId: 3, subtestId: '1' },
-    { partId: 4, subtestId: '1' },
-    { partId: 5, subtestId: '2' },
-    { partId: 6, subtestId: '2' },
-    { partId: 7, subtestId: '2' },
-    { partId: 8, subtestId: '3' },
-    { partId: 9, subtestId: '3' },
-    { partId: 10, subtestId: '3' },
-    { partId: 11, subtestId: '3' },
-    { partId: 12, subtestId: '3' },
-    { partId: 13, subtestId: '3' },
-    { partId: 14, subtestId: '3' },
-    { partId: 15, subtestId: '4' },
-    { partId: 16, subtestId: '4' },
-    { partId: 17, subtestId: '5' },
+    { partId: 1, subtestId: 1 },
+    { partId: 2, subtestId: 1 },
+    { partId: 3, subtestId: 1 },
+    { partId: 4, subtestId: 1 },
+    { partId: 5, subtestId: 2 },
+    { partId: 6, subtestId: 2 },
+    { partId: 7, subtestId: 2 },
+    { partId: 8, subtestId: 3 },
+    { partId: 9, subtestId: 3 },
+    { partId: 10, subtestId: 3 },
+    { partId: 11, subtestId: 3 },
+    { partId: 12, subtestId: 3 },
+    { partId: 13, subtestId: 3 },
+    { partId: 14, subtestId: 3 },
+    { partId: 15, subtestId: 4 },
+    { partId: 16, subtestId: 4 },
+    { partId: 17, subtestId: 5 },
 ];
-
-type Subtest = {
-    subtestId: string;
-    subtestTitle: string;
-    headerTitle: string;
-    pathname: string;
-};
 
 // 소검사 목록
 export const subtestList: Subtest[] = [
-    { subtestId: '1', subtestTitle: 'SPEECH MECHANISM : 말기제평가', headerTitle: 'SPEECH MECHANISM', pathname: 'speechMechanism' },
-    { subtestId: '2', subtestTitle: 'SPEECH I : 영역별 말평가', headerTitle: 'SPEECH I', pathname: 'speechOne' },
-    { subtestId: '3', subtestTitle: 'SPEECH II : 종합적 말평가', headerTitle: 'SPEECH II', pathname: 'speechTwo' },
-    { subtestId: '4', subtestTitle: 'SPEECH MOTOR : 말운동 평가', headerTitle: 'SPEECH MOTOR', pathname: 'speechMotor' },
-    { subtestId: '5', subtestTitle: '피로도 검사 포함', headerTitle: 'SPEECH MOTOR', pathname: 'stressTesting' },
+    { subtestId: 1, subtestTitle: 'SPEECH MECHANISM : 말기제평가', subtestTitleEn: 'SPEECH MECHANISM', pathname: 'speechMechanism' },
+    { subtestId: 2, subtestTitle: 'SPEECH I : 영역별 말평가', subtestTitleEn: 'SPEECH I', pathname: 'speechOne' },
+    { subtestId: 3, subtestTitle: 'SPEECH II : 종합적 말평가', subtestTitleEn: 'SPEECH II', pathname: 'speechTwo' },
+    { subtestId: 4, subtestTitle: 'SPEECH MOTOR : 말운동 평가', subtestTitleEn: 'SPEECH MOTOR', pathname: 'speechMotor' },
+    { subtestId: 5, subtestTitle: '피로도 검사 포함', subtestTitleEn: 'SPEECH MOTOR', pathname: 'stressTesting' },
 ];
 
 // 검사 store
 const useTestStore = create<{
     testInfo: TestInfoFormValues;
     subtests: Subtest[];
-    currentSubtest: string;
+    currentSubtest: Subtest | null;
     progress: number;
     actions: {
         setTestInfo: (newInfo: TestInfoFormValues) => void;
-        setCurrentSubtest: (subtest: string) => void;
-        setSubtests: (newTests: typeof subtestList) => void;
+        setCurrentSubtest: (subtest: Subtest | null) => void;
+        setSubtests: (newTests: Subtest[]) => void;
         setProgress: (newProgress: number) => void;
     };
 }>(set => ({
@@ -62,7 +55,7 @@ const useTestStore = create<{
         medicalHistory: '',
         patientMemo: '',
     },
-    currentSubtest: '1',
+    currentSubtest: null,
     subtests: [],
     progress: 0,
     actions: {

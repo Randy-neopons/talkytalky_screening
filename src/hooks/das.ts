@@ -3,6 +3,8 @@ import { getCookie } from 'cookies-next';
 
 import { getConductedSubtestsAPI, getQuestionAndAnswerListAPI, getSessionListAPI } from '@/api/das';
 
+import type { Subtest } from '@/types/das';
+
 // 질문 목록
 export const questionsQueryKey = 'questions';
 export const useQuestionsAndAnswersQuery = ({
@@ -29,7 +31,7 @@ export const conductedSubtestsQueryKey = 'subtests';
 export const useConductedSubtestsQuery = ({ sessionId, jwt }: { sessionId: number; jwt: string }) => {
     return useQuery<{
         result: boolean;
-        subtests: { subtestId: number; subtestTitle: string; pathname: string }[];
+        subtests: Subtest[];
     }>({
         queryKey: [conductedSubtestsQueryKey, sessionId, jwt],
         queryFn: () => getConductedSubtestsAPI({ sessionId, jwt }),

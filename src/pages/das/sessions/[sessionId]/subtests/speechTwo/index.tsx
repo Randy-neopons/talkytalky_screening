@@ -1,19 +1,11 @@
-import {
-    useCallback,
-    useEffect,
-    useMemo,
-    useState,
-    type ChangeEventHandler,
-    type HTMLAttributes,
-    type MouseEventHandler,
-    type ReactNode,
-} from 'react';
+import { useCallback, useEffect, useState, type ChangeEventHandler } from 'react';
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
 import { isAxiosError } from 'axios';
 import { deleteCookie, getCookie } from 'cookies-next';
 
+import { useCurrentSubTest } from '@/stores/testStore';
 import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import { AudioButton } from '@/components/common/Buttons';
@@ -21,6 +13,7 @@ import Container from '@/components/common/Container';
 import { InfoIcon, PrintIcon } from '@/components/common/icons';
 import { FontSizeButton } from '@/components/das/FontSizeButton';
 import { MemoButton } from '@/components/das/MemoButton';
+import { useConductedSubtestsQuery } from '@/hooks/das';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getAnswersCountAPI, updateSessionAPI } from '@/api/das';
 
@@ -44,8 +37,11 @@ export default function ParagraphReadingPage() {
 
     const [partId, setPartId] = useState(PART_ID_START);
 
+    // 현재 소검사, 선택한 소검사 정보
+    const { data: subtestsData } = useConductedSubtestsQuery({ sessionId: Number(router.query.sessionId), jwt: getCookie('jwt') || '' });
     const testTime = useTestTime();
     const { setTestStart } = useTimerActions();
+    const currentSubtest = useCurrentSubTest();
 
     // 폼 데이터 제출
     const handleSubmitData = useCallback(
@@ -75,6 +71,35 @@ export default function ParagraphReadingPage() {
         },
         [audioBlob, partId, testTime],
     );
+
+    // 이전 버튼 클릭
+    const handleClickPrev = useCallback(async () => {
+        try {
+            const sessionId = Number(router.query.sessionId);
+            await handleSubmitData({ sessionId });
+
+            const subtests = subtestsData?.subtests;
+            if (!subtests) {
+                throw new Error('수행할 소검사가 없습니다');
+            }
+
+            // 이전 소검사
+            const currentSubtestIndex = subtests.findIndex(v => v.subtestId === currentSubtest?.subtestId);
+            const prevSubtestItem = subtests[currentSubtestIndex - 1];
+
+            if (prevSubtestItem) {
+                // 이전 소검사가 있으면 이동
+                router.push(`/das/sessions/${sessionId}/subtests/${prevSubtestItem.pathname}`);
+            } else {
+                // 없으면 홈으로 이동
+                if (window.confirm('홈으로 이동하시겠습니까?')) {
+                    router.push('/das');
+                }
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }, [currentSubtest?.subtestId, handleSubmitData, router, subtestsData?.subtests]);
 
     // 다음 클릭
     const handleClickNext = useCallback(async () => {
@@ -145,8 +170,8 @@ export default function ParagraphReadingPage() {
                 </div>
             </div>
             <div className='mt-20 flex gap-5'>
-                <button type='button' className='btn btn-large btn-outlined' onClick={() => {}}>
-                    이전
+                <button type='button' className='btn btn-large btn-outlined' onClick={handleClickPrev}>
+                    이전 검사로
                 </button>
                 <button key='noSubmit' type='button' className='btn btn-large btn-contained' onClick={handleClickNext}>
                     다음

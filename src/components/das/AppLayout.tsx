@@ -2,11 +2,14 @@ import { useCallback, useEffect, useMemo, type ReactNode } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
-import { subtestList } from '@/stores/testStore';
+import { getCookie } from 'cookies-next';
+
+import { useCurrentSubTest, useTestActions } from '@/stores/testStore';
 import { useTestStart } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import { useModal } from '@/components/common/Modal/context';
 import Timer from '@/components/common/Timer';
+import { useConductedSubtestsQuery } from '@/hooks/das';
 import { useUserQuery } from '@/hooks/user';
 
 import { ChevronRightIcon } from '../common/icons';
@@ -16,6 +19,8 @@ export default function AppLayout({ isLoggedIn, progress, children }: { isLogged
 
     const { data: user, error } = useUserQuery();
     const testStart = useTestStart();
+    const currentSubtest = useCurrentSubTest();
+    const { setCurrentSubtest } = useTestActions();
     const { modalOpen, handleOpenModal, handleCloseModal } = useModal();
 
     // 홈으로 버튼
@@ -30,19 +35,7 @@ export default function AppLayout({ isLoggedIn, progress, children }: { isLogged
         }
     }, [router]);
 
-    const headerTitle = useMemo(() => {
-        const pathnames = router.pathname.split('/');
-        const pathnameIndex = pathnames.findIndex(v => v === 'subtests');
-
-        if (pathnameIndex === -1) {
-            return '';
-        }
-
-        const subtestPathname = pathnames[pathnameIndex + 1];
-        const headerTitle = subtestList.find(v => v.pathname === subtestPathname)?.headerTitle || '';
-
-        return headerTitle;
-    }, [router]);
+    const { data: subtestsData } = useConductedSubtestsQuery({ sessionId: Number(router.query.sessionId), jwt: getCookie('jwt') || '' });
 
     useEffect(() => {
         if (error || !isLoggedIn) {
@@ -51,6 +44,23 @@ export default function AppLayout({ isLoggedIn, progress, children }: { isLogged
             return;
         }
     }, [error, isLoggedIn]);
+
+    // 현재 소검사 설정
+    useEffect(() => {
+        const pathnames = router.pathname.split('/');
+        const pathnameIndex = pathnames.findIndex(v => v === 'subtests');
+        console.log(pathnameIndex);
+        // 소검사 페이지가 아니면 초기화
+        if (pathnameIndex === -1) {
+            setCurrentSubtest(null);
+        }
+
+        const subtestPathname = pathnames[pathnameIndex + 1];
+        console.log(subtestPathname);
+        const subtest = subtestsData?.subtests?.find(v => v.pathname === subtestPathname) || null;
+        console.log(subtestsData);
+        setCurrentSubtest(subtest);
+    }, [router, setCurrentSubtest, subtestsData]);
 
     return (
         isLoggedIn && (
@@ -64,12 +74,16 @@ export default function AppLayout({ isLoggedIn, progress, children }: { isLogged
                     <div className='flex w-full max-w-screen-md justify-between px-5 xl:max-w-screen-xl xl:px-[140px]'>
                         <div className='flex items-center gap-2'>
                             <button className='font-bold text-neutral11 text-head-2' onClick={onClickHome}>
-                                마비말장애 평가 시스템 (DAS)
+                                <span className='hidden xl:inline'>마비말장애 평가 시스템 (DAS)</span>
+                                <span className='xl:hidden'>DAS</span>
                             </button>
-                            {headerTitle !== '' && (
+
+                            {currentSubtest && (
                                 <>
                                     <ChevronRightIcon />
-                                    <h1 className='text-white text-head-2'>{headerTitle}</h1>
+                                    <h1 className='text-white text-head-2'>
+                                        {currentSubtest.subtestTitleEn} : {currentSubtest.subtestTitle}
+                                    </h1>
                                 </>
                             )}
                         </div>

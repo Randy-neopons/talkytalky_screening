@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import { API_URL } from '@/utils/const';
 
-import type { Answer, TestInfoFormValues, TestSession } from '@/types/das';
+import type { Answer, Subtest, TestInfoFormValues, TestSession } from '@/types/das';
 
 const axiosInstance = axios.create({ baseURL: API_URL });
 
@@ -120,7 +120,7 @@ export async function createSessionAPI({
 }: {
     testInfo: TestInfoFormValues;
     currentPartId: number;
-    subtestIds: string[];
+    subtestIds: number[];
     jwt: string;
 }) {
     const response = await axiosInstance.post(
@@ -182,7 +182,7 @@ export async function getAnswersCountAPI({ sessionId, jwt }: { sessionId: number
 export async function getConductedSubtestsAPI({ sessionId, jwt }: { sessionId: number; jwt: string }) {
     const response = await axiosInstance.get<{
         result: boolean;
-        subtests: { subtestId: number; subtestTitle: string; pathname: string }[];
+        subtests: Subtest[];
     }>(`/assessment/session/${sessionId}/conductedSubtests`, {
         headers: makeHeaders(jwt),
     });

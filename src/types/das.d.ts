@@ -45,3 +45,11 @@ export type Recording = {
     filePath: string | null;
     repeatCount: number | null;
 };
+
+// 소검사
+export type Subtest = {
+    subtestId: number;
+    subtestTitle: string;
+    subtestTitleEn: string;
+    pathname: string;
+};

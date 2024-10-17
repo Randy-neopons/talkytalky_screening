@@ -7,6 +7,7 @@ import { useRouter } from 'next/router';
 import { isAxiosError } from 'axios';
 import { deleteCookie, getCookie } from 'cookies-next';
 
+import { useCurrentSubTest } from '@/stores/testStore';
 import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
@@ -166,6 +167,7 @@ export default function SpeechMotorQuestionsPage({
     const { data: subtestsData } = useConductedSubtestsQuery({ sessionId: Number(router.query.sessionId), jwt: getCookie('jwt') || '' });
     const testTime = useTestTime();
     const { setTestStart } = useTimerActions();
+    const currentSubtest = useCurrentSubTest();
 
     // 문항 전부 정상으로 체크
     const [checkAll, setCheckAll] = useState(false);
@@ -178,7 +180,7 @@ export default function SpeechMotorQuestionsPage({
     );
 
     // react-hook-form
-    const { control, register, setValue, handleSubmit } = useForm<{
+    const { control, register, setValue, handleSubmit, getValues } = useForm<{
         recordings: Recording[];
         answers: Answer[];
     }>();
@@ -210,13 +212,6 @@ export default function SpeechMotorQuestionsPage({
             );
         }
     }, [qnaData, setValue]);
-
-    // 이전 파트로
-    const handleClickPrev = useCallback(() => {
-        setCheckAll(false);
-        partId > PART_ID_START && setPartId(partId => partId - 1);
-        typeof window !== 'undefined' && window.scrollTo(0, 0);
-    }, [partId]);
 
     // 폼 데이터 제출
     const handleSubmitData = useCallback(
@@ -250,6 +245,26 @@ export default function SpeechMotorQuestionsPage({
         },
         [audioBlob1, audioBlob2, audioBlob3, audioBlob4, partId, testTime],
     );
+
+    // 이전 파트로
+    const handleClickPrev = useCallback(async () => {
+        try {
+            const data = getValues();
+            const sessionId = Number(router.query.sessionId);
+            await handleSubmitData({ sessionId, data });
+
+            setCheckAll(false);
+
+            if (partId > PART_ID_START) {
+                setPartId(partId => partId - 1);
+                typeof window !== 'undefined' && window.scrollTo(0, 0);
+            } else {
+                router.push(`/das/sessions/${sessionId}/subtests/speechMotor`);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }, [getValues, handleSubmitData, partId, router]);
 
     // 폼 제출 후 redirect
     const handleClickNext = useCallback(
@@ -457,11 +472,10 @@ export default function SpeechMotorQuestionsPage({
                 )}
 
                 <div>
-                    {partId > PART_ID_START && (
-                        <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
-                            이전
-                        </button>
-                    )}
+                    <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
+                        이전
+                    </button>
+
                     <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained'>
                         다음
                     </button>

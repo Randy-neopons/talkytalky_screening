@@ -54,7 +54,7 @@ export default function CheckBox<T extends FieldValues>({
     );
 }
 
-export function CheckBoxGroupItem<T extends FieldValues>({
+export function CheckBoxGroupItem<T extends FieldValues, V = string>({
     name,
     control,
     value,
@@ -65,29 +65,29 @@ export function CheckBoxGroupItem<T extends FieldValues>({
     name: Path<T>; // 폼 필드 이름
     control?: Control<T>; // 폼 control
 
-    value: string;
-    values?: string[];
-    setValues?: (newValues: string[]) => void;
+    value: V;
+    values?: V[];
+    setValues?: (newValues: V[]) => void;
     children: ReactNode;
 }) {
     const handleChange = useCallback(
-        (currentValues: string[], setValues: (newValues: string[]) => void) => () => {
-            let newValues: string[] = [];
+        (currentValues: V[], setValues: (newValues: V[]) => void) => () => {
+            let newValues: V[] = [];
 
-            if (value === 'unknown') {
+            if (typeof value === 'string' && ['unknown', 'normal'].includes(value)) {
                 // 알 수 없음 클릭 시 기존 checkbox 해제
                 // TODO: 'unknown'이라는 값을 변수로 받을지
                 if (currentValues?.includes(value)) {
-                    newValues = currentValues.filter((fieldValue: string) => fieldValue !== value);
+                    newValues = currentValues.filter(fieldValue => fieldValue !== value);
                 } else {
                     newValues = [value];
                 }
             } else {
                 // 알 수 없음 제외한 값 클릭 시
                 if (currentValues?.includes(value)) {
-                    newValues = currentValues.filter((fieldValue: string) => fieldValue !== value);
+                    newValues = currentValues.filter(fieldValue => fieldValue !== value);
                 } else {
-                    newValues = [...(currentValues.filter((fieldValue: string) => fieldValue !== 'unknown') || []), value];
+                    newValues = [...(currentValues.filter(fieldValue => fieldValue !== 'unknown') || []), value];
                 }
             }
             setValues(newValues);

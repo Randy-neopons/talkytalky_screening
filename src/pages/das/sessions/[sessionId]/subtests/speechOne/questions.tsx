@@ -220,6 +220,7 @@ export default function SpeechOneQuestionsPage({
     const { data: subtestsData } = useConductedSubtestsQuery({ sessionId: Number(router.query.sessionId), jwt: getCookie('jwt') || '' });
     const testTime = useTestTime();
     const { setTestStart } = useTimerActions();
+    const currentSubtest = useCurrentSubTest();
 
     // 문항 전부 정상으로 체크
     const [checkAll1, setCheckAll1] = useState(false);
@@ -245,7 +246,7 @@ export default function SpeechOneQuestionsPage({
     });
 
     // react-hook-form
-    const { control, register, setValue, handleSubmit } = useForm<{
+    const { control, register, setValue, handleSubmit, getValues } = useForm<{
         recordings: Recording[];
         answers: Answer[];
     }>();
@@ -280,13 +281,13 @@ export default function SpeechOneQuestionsPage({
         [end, setValue, split, start],
     );
 
-    // 이전 파트로
-    const handleClickPrev = useCallback(() => {
-        setCheckAll1(false);
-        setCheckAll2(false);
-        partId > PART_ID_START && setPartId(partId => partId - 1);
-        typeof window !== 'undefined' && window.scrollTo(0, 0);
-    }, [partId]);
+    // // 이전 파트로
+    // const handleClickPrev = useCallback(() => {
+    //     setCheckAll1(false);
+    //     setCheckAll2(false);
+    //     partId > PART_ID_START && setPartId(partId => partId - 1);
+    //     typeof window !== 'undefined' && window.scrollTo(0, 0);
+    // }, [partId]);
 
     // 다음 파트로
     // const handleClickNext = useCallback(() => {
@@ -339,6 +340,30 @@ export default function SpeechOneQuestionsPage({
         },
         [audioBlob1, audioBlob2, audioBlob3, partId, testTime],
     );
+
+    // 이전 파트로
+    const handleClickPrev = useCallback(async () => {
+        try {
+            const data = getValues();
+            const sessionId = Number(router.query.sessionId);
+            await handleSubmitData({ sessionId, data });
+
+            setCheckAll1(false);
+            setCheckAll2(false);
+
+            if (partId > PART_ID_START) {
+                setPartId(partId => partId - 1);
+                typeof window !== 'undefined' && window.scrollTo(0, 0);
+            } else if (partId === PART_ID_START && page > 0) {
+                setPage(page => page - 1);
+                typeof window !== 'undefined' && window.scrollTo(0, 0);
+            } else {
+                router.push(`/das/sessions/${sessionId}/subtests/speechOne`);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }, [getValues, handleSubmitData, page, partId, router]);
 
     // 폼 제출 후 redirect
     const handleClickNext = useCallback(
@@ -455,7 +480,7 @@ export default function SpeechOneQuestionsPage({
                                     />
                                 </td>
                                 <td className='text-center'>
-                                    <WaveformButton blob={audioBlob1} />
+                                    <WaveformButton audioBlob={audioBlob1} audioUrl={audioUrl1} />
                                 </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.0.repeatCount`)} />
@@ -479,7 +504,7 @@ export default function SpeechOneQuestionsPage({
                                     />
                                 </td>
                                 <td className='text-center'>
-                                    <WaveformButton blob={audioBlob2} />
+                                    <WaveformButton audioBlob={audioBlob2} audioUrl={audioUrl2} />
                                 </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.1.repeatCount`)} />
@@ -503,7 +528,7 @@ export default function SpeechOneQuestionsPage({
                                     />
                                 </td>
                                 <td className='text-center'>
-                                    <WaveformButton blob={audioBlob3} />
+                                    <WaveformButton audioBlob={audioBlob3} audioUrl={audioUrl3} />
                                 </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.2.repeatCount`)} />
@@ -629,14 +654,12 @@ export default function SpeechOneQuestionsPage({
                 )}
 
                 <div>
-                    {(partId > PART_ID_START || page > 0) && (
-                        <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
-                            이전
-                        </button>
-                    )}
-                    {/* key 설정을 해야 다른 컴포넌트로 인식하여 type이 명확히 구분됨 */}
+                    <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
+                        이전
+                    </button>
+
                     <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained'>
-                        다음 검사
+                        다음
                     </button>
                 </div>
             </form>

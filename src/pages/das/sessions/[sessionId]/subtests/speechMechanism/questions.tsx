@@ -185,12 +185,17 @@ export default function SpeechMechanismQuestionsPage({
 
             setCheckAll1(false);
             setCheckAll2(false);
-            partId > PART_ID_START && setPartId(partId => partId - 1);
-            typeof window !== 'undefined' && window.scrollTo(0, 0);
+
+            if (partId > PART_ID_START) {
+                setPartId(partId => partId - 1);
+                typeof window !== 'undefined' && window.scrollTo(0, 0);
+            } else {
+                router.push(`/das/sessions/${sessionId}/subtests/speechMechanism`);
+            }
         } catch (err) {
             console.error(err);
         }
-    }, [getValues, handleSubmitData, partId, router.query.sessionId]);
+    }, [getValues, handleSubmitData, partId, router]);
 
     // 폼 제출
     const handleClickNext = useCallback(
@@ -372,11 +377,9 @@ export default function SpeechMechanismQuestionsPage({
                 )}
 
                 <div>
-                    {partId > PART_ID_START && (
-                        <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
-                            이전
-                        </button>
-                    )}
+                    <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
+                        이전
+                    </button>
 
                     <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained disabled:btn-contained-disabled'>
                         다음
