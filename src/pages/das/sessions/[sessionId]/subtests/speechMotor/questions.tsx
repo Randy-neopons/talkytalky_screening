@@ -266,6 +266,13 @@ export default function SpeechMotorQuestionsPage({
         }
     }, [getValues, handleSubmitData, partId, router]);
 
+    const setRepeatCount = useCallback(
+        (index: number) => (value: number) => {
+            setValue(`recordings.${index}.repeatCount`, value);
+        },
+        [setValue],
+    );
+
     // 폼 제출 후 redirect
     const handleClickNext = useCallback(
         async (data: any) => {
@@ -281,6 +288,8 @@ export default function SpeechMotorQuestionsPage({
                     if (!subtests) {
                         throw new Error('수행할 소검사가 없습니다');
                     }
+
+                    console.log('subtests', subtests);
                     const currentSubtestIndex = subtests.findIndex(v => v.subtestId === CURRENT_SUBTEST_ID);
                     const nextSubtestItem = subtests[currentSubtestIndex + 1];
                     if (nextSubtestItem) {
@@ -367,10 +376,10 @@ export default function SpeechMotorQuestionsPage({
                                     />
                                 </td>
                                 <td className='text-center'>
-                                    <WaveformButton audioBlob={audioBlob1} audioUrl={audioUrl1} />
+                                    <WaveformButton audioBlob={audioBlob1} audioUrl={audioUrl1} setRepeatCount={setRepeatCount(0)} />
                                 </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
-                                    <input className='outline-none' {...register(`recordings.0.repeatCount`)} />
+                                    <input className='text-center outline-none' {...register(`recordings.0.repeatCount`)} />
                                 </td>
                             </tr>
                             <tr className={`${subtestStyles['repeat-count']}`}>
@@ -391,10 +400,10 @@ export default function SpeechMotorQuestionsPage({
                                     />
                                 </td>
                                 <td className='text-center'>
-                                    <WaveformButton audioBlob={audioBlob2} audioUrl={audioUrl2} />
+                                    <WaveformButton audioBlob={audioBlob2} audioUrl={audioUrl2} setRepeatCount={setRepeatCount(1)} />
                                 </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
-                                    <input className='outline-none' {...register(`recordings.1.repeatCount`)} />
+                                    <input className='text-center outline-none' {...register(`recordings.1.repeatCount`)} />
                                 </td>
                             </tr>
                             <tr>
@@ -415,10 +424,10 @@ export default function SpeechMotorQuestionsPage({
                                     />
                                 </td>
                                 <td className='text-center'>
-                                    <WaveformButton audioBlob={audioBlob3} audioUrl={audioUrl3} />
+                                    <WaveformButton audioBlob={audioBlob3} audioUrl={audioUrl3} setRepeatCount={setRepeatCount(2)} />
                                 </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
-                                    <input className='outline-none' {...register(`recordings.2.repeatCount`)} />
+                                    <input className='text-center outline-none' {...register(`recordings.2.repeatCount`)} />
                                 </td>
                             </tr>
                         </tbody>
@@ -461,10 +470,10 @@ export default function SpeechMotorQuestionsPage({
                                     />
                                 </td>
                                 <td className='text-center'>
-                                    <WaveformButton audioBlob={audioBlob4} audioUrl={audioUrl4} />
+                                    <WaveformButton audioBlob={audioBlob4} audioUrl={audioUrl4} setRepeatCount={setRepeatCount(3)} />
                                 </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
-                                    <input className='w-full outline-none' {...register(`recordings.3.repeatCount`)} />
+                                    <input className='w-full text-center outline-none' {...register(`recordings.3.repeatCount`)} />
                                 </td>
                             </tr>
                         </tbody>

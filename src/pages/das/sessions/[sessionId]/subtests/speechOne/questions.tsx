@@ -415,10 +415,6 @@ export default function SpeechOneQuestionsPage({
     }, [setTestStart]);
 
     useEffect(() => {
-        console.log('page', page);
-    }, [page]);
-
-    useEffect(() => {
         if (qnaData?.recordings) {
             // console.log(qnaData?.recordings);
             setValue('recordings', qnaData.recordings);
@@ -437,6 +433,13 @@ export default function SpeechOneQuestionsPage({
             );
         }
     }, [qnaData, setValue]);
+
+    const setRepeatCount = useCallback(
+        (index: number) => (value: number) => {
+            setValue(`recordings.${index}.repeatCount`, value);
+        },
+        [setValue],
+    );
 
     return (
         <Container>
@@ -480,7 +483,7 @@ export default function SpeechOneQuestionsPage({
                                     />
                                 </td>
                                 <td className='text-center'>
-                                    <WaveformButton audioBlob={audioBlob1} audioUrl={audioUrl1} />
+                                    <WaveformButton audioBlob={audioBlob1} audioUrl={audioUrl1} setRepeatCount={setRepeatCount(0)} />
                                 </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.0.repeatCount`)} />
@@ -504,7 +507,7 @@ export default function SpeechOneQuestionsPage({
                                     />
                                 </td>
                                 <td className='text-center'>
-                                    <WaveformButton audioBlob={audioBlob2} audioUrl={audioUrl2} />
+                                    <WaveformButton audioBlob={audioBlob2} audioUrl={audioUrl2} setRepeatCount={setRepeatCount(1)} />
                                 </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.1.repeatCount`)} />
@@ -528,7 +531,7 @@ export default function SpeechOneQuestionsPage({
                                     />
                                 </td>
                                 <td className='text-center'>
-                                    <WaveformButton audioBlob={audioBlob3} audioUrl={audioUrl3} />
+                                    <WaveformButton audioBlob={audioBlob3} audioUrl={audioUrl3} setRepeatCount={setRepeatCount(2)} />
                                 </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.2.repeatCount`)} />

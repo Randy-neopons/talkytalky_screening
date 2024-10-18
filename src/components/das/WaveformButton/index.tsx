@@ -2,15 +2,18 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { AudioVisualizer } from 'react-audio-visualize';
 
 import axios from 'axios';
+
+import WaveformModal from '../WaveformModal/indext';
 const axiosInstance = axios.create({ baseURL: '' });
 
 type WaveformButtonProps = {
     audioBlob?: Blob | null;
     audioUrl?: string | null;
+    setRepeatCount: (value: number) => void;
 };
 
 // 파형 보기 버튼 (모달 포함)
-export function WaveformButton({ audioBlob, audioUrl }: WaveformButtonProps) {
+export function WaveformButton({ audioBlob, audioUrl, setRepeatCount }: WaveformButtonProps) {
     const visualizerRef = useRef<HTMLCanvasElement>(null);
 
     // 모달 열기/닫기
@@ -41,7 +44,14 @@ export function WaveformButton({ audioBlob, audioUrl }: WaveformButtonProps) {
             <button type='button' className='underline' onClick={handleOpenModal}>
                 보기
             </button>
-            <div
+            <WaveformModal
+                audioBlob={audioBlob}
+                audioUrl={audioUrl}
+                modalOpen={modalOpen}
+                handleCloseModal={handleCloseModal}
+                setRepeatCount={setRepeatCount}
+            />
+            {/* <div
                 className='absolute -bottom-1/2 right-20 flex h-[400px] w-[400px] translate-y-1/2 flex-col items-center overflow-hidden rounded-[10px] bg-white'
                 style={{ display: modalOpen ? 'flex' : 'none' }}
             >
@@ -71,7 +81,7 @@ export function WaveformButton({ audioBlob, audioUrl }: WaveformButtonProps) {
                         />
                     )}
                 </div>
-            </div>
+            </div> */}
         </div>
     );
 }
