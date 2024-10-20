@@ -24,7 +24,8 @@ const brainLesionOptions = [
     { value: 'lowerMotorNeuron', label: '하부운동신경손상' },
     { value: 'cerebellarControlCircuit', label: '소뇌조절회로' },
     { value: 'basalGangliaControlCircuit', label: '기저핵조절회로' },
-    { value: 'unknown', label: '알 수 없음' },
+    { value: 'unknown', label: '특정할 수 없음' },
+    { value: 'normal', label: '정상 소견' },
 ];
 
 const genderOptionList = [
@@ -144,7 +145,7 @@ const SubtestScore = ({
                         maxScore={maxScore}
                     />
                     <button className='mt-5 underline text-body-2' onClick={() => {}}>
-                        평가항목 리스트
+                        경도/심도 항목
                     </button>
                 </div>
                 <div className='flex flex-1 flex-col gap-3.5'>
@@ -180,6 +181,7 @@ export default function TestResultPage({
         patientName: string;
         patientGender: string;
         patientBirthdate: string;
+        neurologicalLesion: string;
         brainLesions: string[];
         medicalHistory: string;
         patientMemo: string;
@@ -207,29 +209,40 @@ export default function TestResultPage({
 
     return (
         <Container>
-            <div className='relative w-full'>
-                <Link href={`/das/sessions/${router.query.sessionId}/editInfo`} className='absolute bottom-0 left-2 underline'>
+            <div className='relative flex w-full flex-col gap-1'>
+                <h1 className='text-center font-jalnan text-head-1'>마비말장애 평가시스템 결과 보고서</h1>
+                <h2 className='text-center font-jalnan text-head-2'>Dysarthria Assessment System (DAS)</h2>
+                <p className='text-center text-neutral4 text-body-2'>연구개발 : 하지완, 김지영, 박기수, 조대형, 네오폰스(주)</p>
+            </div>
+            <div className='mt-10 flex w-full justify-between'>
+                <Link
+                    href={`/das/sessions/${router.query.sessionId}/editInfo`}
+                    className='flex items-center gap-[6px] rounded-[10px] border border-neutral7 bg-white px-5 py-2.5'
+                >
                     개인정보 수정
                 </Link>
-                <h1 className='text-center font-jalnan text-head-1'>말운동평가 검사 결과</h1>
-                <button className='absolute bottom-0 right-2 flex items-center gap-1'>
+                <button className='flex items-center gap-[6px] rounded-[10px] border border-neutral7 bg-white px-5 py-2.5'>
                     <PrintIcon color={'#212529'} />
-                    <u>인쇄하기</u>
+                    인쇄하기
                 </button>
             </div>
-            <table className='mt-[50px] w-full overflow-hidden rounded-base'>
+
+            <table className='mt-5 w-full overflow-hidden rounded-base'>
                 <tbody>
                     <tr>
-                        <td className='bg-accent3 py-[18px] font-bold' align='center' width='25%'>
+                        <td className='bg-accent3 py-[18px] font-bold' align='center' width='20%'>
                             환자명
                         </td>
-                        <td className='border-l border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='25%'>
+                        <td className='border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='20%'>
                             성별
                         </td>
-                        <td className='border-l border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='25%'>
+                        <td className='border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='20%'>
                             생년월일
                         </td>
-                        <td className='border-l border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='25%'>
+                        <td className='border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='20%'>
+                            검사일
+                        </td>
+                        <td className='border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='20%'>
                             검사자
                         </td>
                     </tr>
@@ -246,35 +259,58 @@ export default function TestResultPage({
                         <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
                             {user?.data?.fullName}
                         </td>
+                        <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
+                            {dayjs(testInfo.testDate).format('YYYY.MM.DD')}
+                        </td>
                     </tr>
+                </tbody>
+            </table>
+            <table className='mt-5 w-full overflow-hidden rounded-base'>
+                <tbody>
                     <tr>
-                        <td className='bg-accent3 py-[18px] font-bold' align='center' width='25%'>
-                            신경학적 진단명
+                        <td className='bg-accent3 py-[18px] font-bold' align='center' width='50%'>
+                            마비말장애 관련 뇌병변
                         </td>
-                        <td className='border-l border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='25%'>
-                            병력
-                        </td>
-                        <td className='border-l border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='25%'>
-                            개인관련정보
-                        </td>
-                        <td className='border-l border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='25%'>
-                            검사일자
+                        <td className='border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='50%'>
+                            신경학적 병변 위치 또는 질환명
                         </td>
                     </tr>
                     <tr>
                         <td className='bg-white py-[18px]' align='center'>
+                            {testInfo.neurologicalLesion}
+                        </td>
+                        <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
                             {testInfo.brainLesions
                                 .map(brainLesion => brainLesionOptions.find(option => option.value === brainLesion)?.label || '')
                                 .join(',')}
                         </td>
-                        <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
-                            {testInfo.medicalHistory}
-                        </td>{' '}
-                        <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
-                            {testInfo.patientMemo}
+                    </tr>
+                </tbody>
+            </table>
+            <table className='mt-5 w-full overflow-hidden rounded-base'>
+                <tbody>
+                    <tr>
+                        <td className='border-neutral6 bg-accent3 py-[18px] font-bold' align='center'>
+                            병력
                         </td>
-                        <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
-                            {dayjs(testInfo.testDate).format('YYYY.MM.DD')}
+                    </tr>
+                    <tr>
+                        <td className='bg-white py-[18px]' align='center'>
+                            {testInfo.medicalHistory}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table className='mt-5 w-full overflow-hidden rounded-base'>
+                <tbody>
+                    <tr>
+                        <td className='border-neutral6 bg-accent3 py-[18px] font-bold' align='center'>
+                            개인관련정보
+                        </td>
+                    </tr>
+                    <tr>
+                        <td className='bg-white py-[18px]' align='center'>
+                            {testInfo.patientMemo}
                         </td>
                     </tr>
                 </tbody>

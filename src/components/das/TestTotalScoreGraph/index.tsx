@@ -15,7 +15,7 @@ export default function TestTotalScoreGraph({ data /* see data tab */ }: { data:
                 cornerRadius={20}
                 startAngle={270}
                 endAngle={450}
-                maxValue={200}
+                maxValue={100}
                 circularAxisOuter={null}
                 enableRadialGrid={false}
                 enableCircularGrid={false}
@@ -30,7 +30,7 @@ export default function TestTotalScoreGraph({ data /* see data tab */ }: { data:
                     <span className='text-[40px] font-bold leading-none text-black xl:text-[50px]'>{data[0]?.data[0]?.y}</span>
                     <span className='text-[26px] font-bold leading-tight text-black xl:text-[34px]'>점</span>
                 </div>
-                <span className='mt-2 text-center text-neutral4 text-body-2'>200점 만점기준</span>
+                <span className='mt-2 text-center text-neutral4 text-body-2'>100점 만점기준</span>
             </div>
         </div>
     );

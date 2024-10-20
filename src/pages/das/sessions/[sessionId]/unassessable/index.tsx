@@ -72,7 +72,7 @@ export default function UnassessableQuestionsPage({ questionList }: { questionLi
         <Container>
             <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>평가불가에 체크한 항목</h1>
             {subtestList.map(subtest => {
-                const filtered = questionList.filter(question => question.subtestId.toString() === subtest.subtestId);
+                const filtered = questionList.filter(question => question.subtestId === subtest.subtestId);
 
                 if (filtered.length > 0) {
                     return (
