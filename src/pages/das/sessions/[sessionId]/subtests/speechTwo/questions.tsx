@@ -28,7 +28,7 @@ const PART_ID_START = 11;
 // 소검사 내 파트별 문항 index 정보
 // TODO: part title도 DB에서 가져오기
 const partIndexList = [
-    { start: 0, end: 6, subtitle: '호흡 & 음성', partTitle: '호흡 / 음성', partTitleEn: 'Respiration / Phonation', partId: 11 },
+    { start: 0, end: 6, subtitle: '호흡 & 발성', partTitle: '호흡 / 발성', partTitleEn: 'Respiration / Phonation', partId: 11 },
     { start: 6, end: 8, subtitle: '공명', partTitle: '공명', partTitleEn: 'Resonance', partId: 12 },
     { start: 8, end: 11, subtitle: '조음', partTitle: '조음', partTitleEn: 'Articulation', partId: 13 },
     { start: 11, end: 18, subtitle: '운율', partTitle: '운율', partTitleEn: 'Prosody', partId: 14 },

@@ -155,15 +155,20 @@ export async function getTestResultAPI({ sessionId, jwt }: { sessionId: number; 
     const response = await axiosInstance.get<{
         testScore: {
             score: number;
+            minusScore: number;
             maxScore: number;
             partId: number;
             partTitle: string;
+            partTitleEn: string;
             subtestId: number;
             subtestTitle: string;
         }[];
+        mildAndModerateAnswers: any[];
     }>(`/assessment/session/${sessionId}/result`, {
         headers: makeHeaders(jwt),
     });
+
+    console.log(response.data);
 
     return response.data;
 }

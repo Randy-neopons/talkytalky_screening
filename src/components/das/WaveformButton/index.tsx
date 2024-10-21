@@ -28,22 +28,23 @@ export function WaveformButton({ audioBlob, audioUrl, setRepeatCount }: Waveform
     const [blob, setBlob] = useState<Blob | null>(null);
 
     // blob 세팅
-    useEffect(() => {
-        if (audioBlob) {
-            setBlob(audioBlob);
-        } else if (audioUrl) {
-            axiosInstance.get(`/api/proxy?audioUrl=${audioUrl}`, { responseType: 'arraybuffer' }).then(res => {
-                console.log(res);
-                setBlob(new Blob([res.data]));
-            });
-        }
-    }, [audioBlob, audioUrl]);
+    // useEffect(() => {
+    //     if (audioBlob) {
+    //         setBlob(audioBlob);
+    //     } else if (audioUrl) {
+    //         axiosInstance.get(`/api/proxy?audioUrl=${audioUrl}`, { responseType: 'arraybuffer' }).then(res => {
+    //             console.log(res);
+    //             setBlob(new Blob([res.data]));
+    //         });
+    //     }
+    // }, [audioBlob, audioUrl]);
 
     return (
         <div className='relative flex items-center justify-center'>
             <button type='button' className='underline' onClick={handleOpenModal}>
                 보기
             </button>
+
             <WaveformModal
                 audioBlob={audioBlob}
                 audioUrl={audioUrl}
@@ -51,6 +52,7 @@ export function WaveformButton({ audioBlob, audioUrl, setRepeatCount }: Waveform
                 handleCloseModal={handleCloseModal}
                 setRepeatCount={setRepeatCount}
             />
+
             {/* <div
                 className='absolute -bottom-1/2 right-20 flex h-[400px] w-[400px] translate-y-1/2 flex-col items-center overflow-hidden rounded-[10px] bg-white'
                 style={{ display: modalOpen ? 'flex' : 'none' }}

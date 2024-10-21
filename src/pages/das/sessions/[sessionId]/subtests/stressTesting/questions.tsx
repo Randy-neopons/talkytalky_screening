@@ -30,7 +30,7 @@ const partIndexList = [
         end: 6,
         subtitle1: '피로도검사',
         subtitle2: '음질',
-        partTitle: 'Respiration (호흡)\nPhonation (음성)',
+        partTitle: 'Respiration (호흡)\nPhonation (발성)',
         partId: 14,
     },
 ];

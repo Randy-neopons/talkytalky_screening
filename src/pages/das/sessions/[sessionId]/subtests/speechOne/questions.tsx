@@ -34,7 +34,7 @@ const partIndexList = [
         end: 1,
         subtitle1: '잠복시간',
         subtitle2: '잠복시간',
-        partTitle: '호흡 / 음성',
+        partTitle: '호흡 / 발성',
         partTitleEn: 'Respiration / Phonation',
         partId: 5,
         page: 0,
@@ -45,7 +45,7 @@ const partIndexList = [
         end: 6,
         subtitle1: '음질',
         subtitle2: '음질',
-        partTitle: '호흡 / 음성',
+        partTitle: '호흡 / 발성',
         partTitleEn: 'Respiration / Phonation',
         partId: 5,
         page: 1,
@@ -56,7 +56,7 @@ const partIndexList = [
         end: 11,
         subtitle1: '음도',
         subtitle2: '음도',
-        partTitle: '호흡 / 음성',
+        partTitle: '호흡 / 발성',
         partTitleEn: 'Respiration / Phonation',
         partId: 5,
         page: 2,
@@ -67,7 +67,7 @@ const partIndexList = [
         end: 14,
         subtitle1: '강도',
         subtitle2: '강도',
-        partTitle: '호흡 / 음성',
+        partTitle: '호흡 / 발성',
         partTitleEn: 'Respiration / Phonation',
         partId: 5,
         page: 3,
@@ -455,7 +455,7 @@ export default function SpeechOneQuestionsPage({
                                 <th></th>
                                 <th>녹음</th>
                                 <th>재생</th>
-                                <th>파형</th>
+                                {/* <th>파형</th> */}
                                 <th className='rounded-tr-base'>지속시간</th>
                             </tr>
                         </thead>
@@ -482,9 +482,9 @@ export default function SpeechOneQuestionsPage({
                                         disabled={!audioUrl1}
                                     />
                                 </td>
-                                <td className='text-center'>
+                                {/* <td className='text-center'>
                                     <WaveformButton audioBlob={audioBlob1} audioUrl={audioUrl1} setRepeatCount={setRepeatCount(0)} />
-                                </td>
+                                </td> */}
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.0.repeatCount`)} />
                                 </td>
@@ -506,9 +506,9 @@ export default function SpeechOneQuestionsPage({
                                         disabled={!audioUrl2}
                                     />
                                 </td>
-                                <td className='text-center'>
+                                {/* <td className='text-center'>
                                     <WaveformButton audioBlob={audioBlob2} audioUrl={audioUrl2} setRepeatCount={setRepeatCount(1)} />
-                                </td>
+                                </td> */}
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.1.repeatCount`)} />
                                 </td>
@@ -530,9 +530,9 @@ export default function SpeechOneQuestionsPage({
                                         disabled={!audioUrl3}
                                     />
                                 </td>
-                                <td className='text-center'>
+                                {/* <td className='text-center'>
                                     <WaveformButton audioBlob={audioBlob3} audioUrl={audioUrl3} setRepeatCount={setRepeatCount(2)} />
-                                </td>
+                                </td> */}
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input className='outline-none' {...register(`recordings.2.repeatCount`)} />
                                 </td>

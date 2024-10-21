@@ -9,10 +9,13 @@ import {
     useRef,
     type ChangeEventHandler,
 } from 'react';
-import { AudioVisualizer } from 'react-audio-visualize';
 import { createPortal } from 'react-dom';
 
+import WavesurferPlayer, { useWavesurfer } from '@wavesurfer/react';
 import axios from 'axios';
+import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.js';
+import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.js';
+
 const axiosInstance = axios.create({ baseURL: '' });
 
 export default function WaveformModal({
@@ -28,21 +31,73 @@ export default function WaveformModal({
     handleCloseModal: () => void;
     setRepeatCount: (value: number) => void;
 }) {
-    const visualizerRef = useRef<HTMLCanvasElement>(null);
+    const waveformRef = useRef(null);
 
-    const [blob, setBlob] = useState<Blob | null>(null);
+    const url = useMemo(
+        () => (audioBlob ? URL.createObjectURL(audioBlob) : audioUrl ? `/api/proxy?audioUrl=${audioUrl}` : ''),
+        [audioBlob, audioUrl],
+    );
 
-    // blob 세팅
+    const { wavesurfer, isPlaying, currentTime } = useWavesurfer({
+        container: waveformRef,
+        height: 250,
+        waveColor: '#6979F8',
+        barWidth: 2,
+        barGap: 1,
+        barRadius: 2,
+        progressColor: 'rgb(100, 0, 100)',
+        // url: '',
+        url,
+    });
+
     useEffect(() => {
-        if (audioBlob) {
-            setBlob(audioBlob);
-        } else if (audioUrl) {
-            axiosInstance.get(`/api/proxy?audioUrl=${audioUrl}`, { responseType: 'arraybuffer' }).then(res => {
-                console.log(res);
-                setBlob(new Blob([res.data]));
-            });
+        if (wavesurfer) {
+            // 타임라인 플러그인을 동적으로 로드
+            // import('wavesurfer.js/dist/plugins/timeline.js').then(module => {
+            //     const TimelinePlugin = module.default; // default export 사용
+            //     wavesurfer.registerPlugin(
+            //         TimelinePlugin.create({
+            //             height: 20,
+            //             timeInterval: 0.1,
+            //             primaryLabelInterval: 1,
+            //             style: {
+            //                 fontFamily: 'Noto Sans KR',
+            //                 fontSize: '15px',
+            //                 color: '#000000',
+            //             },
+            //         }),
+            //     );
+            // });
+            // import('wavesurfer.js/dist/plugins/regions.js').then(module => {
+            //     const RegionPlugin = module.default;
+            //     const regions = RegionPlugin.create();
+            //     wavesurfer.registerPlugin(regions);
+            //     regions.addRegion({
+            //         content: 'abcd',
+            //         start: 0,
+            //         end: 1,
+            //         resize: true,
+            //         drag: true,
+            //     });
+            //     regions.enableDragSelection({ color: 'rgba(255,0,0,0.1)' });
+            //     regions.on('region-created', region => {
+            //         console.log('created');
+            //         const regionList = regions.getRegions();
+            //         console.log(regionList);
+            //         if (regionList.length > 1) {
+            //             region.remove();
+            //         }
+            //     });
+            // });
         }
-    }, [audioBlob, audioUrl]);
+
+        // 컴포넌트 언마운트 시 WaveSurfer 인스턴스를 정리합니다.
+        return () => {
+            if (wavesurfer) {
+                wavesurfer.destroy();
+            }
+        };
+    }, [audioBlob, wavesurfer]);
 
     const handleClickOverlay = useCallback<MouseEventHandler<HTMLDivElement>>(
         e => {
@@ -140,17 +195,9 @@ export default function WaveformModal({
 
                 <div className='relative flex h-full w-full flex-col items-center px-5 py-7.5'>
                     <div className='h-[250px] w-[578px]' style={waveformBgStyle}>
-                        {blob && (
-                            <AudioVisualizer
-                                ref={visualizerRef}
-                                blob={blob}
-                                width={578}
-                                height={250}
-                                barWidth={1}
-                                gap={0}
-                                barColor={'#6979F8'}
-                            />
-                        )}
+                        <div ref={waveformRef} />
+
+                        {/* <WavesurferPlayer height={250} url={url} onReady={onReady} plugins={[() => TimelinePlugin.create()]} /> */}
                     </div>
                     <input
                         type='number'

@@ -1,4 +1,5 @@
 import { Fragment, useCallback, useState } from 'react';
+import ReactTextareaAutosize from 'react-textarea-autosize';
 import type { GetServerSideProps } from 'next';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -7,6 +8,7 @@ import { useRouter } from 'next/router';
 import { getCookie } from 'cookies-next';
 import dayjs from 'dayjs';
 
+import { CheckBoxGroupItem } from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import { PrintIcon } from '@/components/common/icons';
 import { useUserQuery } from '@/hooks/user';
@@ -26,6 +28,23 @@ const brainLesionOptions = [
     { value: 'basalGangliaControlCircuit', label: '기저핵조절회로' },
     { value: 'unknown', label: '특정할 수 없음' },
     { value: 'normal', label: '정상 소견' },
+];
+
+const answerOptions = [
+    { value: 'normal', label: '정상' },
+    { value: 'mild', label: '경도' },
+    { value: 'moderate', label: '심도' },
+    { value: 'unknown', label: '평가불가' },
+];
+
+const typeOptions = [
+    { value: 'spastic', label: '경직형(spastic)' },
+    { value: 'flaccid', label: '이완형(flaccid)' },
+    { value: 'ataxic', label: '실조형(ataxic)' },
+    { value: 'hypokinetic', label: '과소운동형(hypokinetic)' },
+    { value: 'hyperkinetic', label: '과다운동형(hyperkinetic)' },
+    { value: 'UUMN', label: '일측상부운동신경형(UUMN)' },
+    { value: 'mixed', label: '혼합형(mixed)' },
 ];
 
 const genderOptionList = [
@@ -75,14 +94,20 @@ const makeTotalScoreGraphData = (
         }[];
     }[],
 ) => {
-    const score = testResultList.reduce((accum, curr) => {
-        return accum + curr.totalScore;
-    }, 0);
+    const { score, maxScore } = testResultList.reduce(
+        (accum, curr) => {
+            return {
+                score: accum.score + curr.totalScore,
+                maxScore: accum.maxScore + curr.maxScore,
+            };
+        },
+        { score: 0, maxScore: 0 },
+    );
 
     return [
         {
             id: 'total',
-            data: [{ x: 'score', y: score, color: '#6979F8' }],
+            data: [{ x: 'score', y: score, maxValue: maxScore, color: '#6979F8' }],
         },
     ];
 };
@@ -154,7 +179,7 @@ const SubtestScore = ({
                             <div className='ml-1 mr-2 flex justify-between'>
                                 <span className='text-neutral3 text-body-2'>{part.partTitle}</span>
                                 <span className='text-neutral3 text-body-2'>
-                                    {part.score}/{part.maxScore}
+                                    {part.score}점 / 총 {part.maxScore}점
                                 </span>
                             </div>
                             <div className='relative mt-1.5 h-5 w-full rounded-full bg-[#D9D9D9] xl:mt-2'>
@@ -175,6 +200,7 @@ const SubtestScore = ({
 export default function TestResultPage({
     testInfo,
     testResultList,
+    mildAndModerateAnswers,
 }: {
     testInfo: {
         testDate: string;
@@ -202,10 +228,13 @@ export default function TestResultPage({
             subtestTitle: string;
         }[];
     }[];
+    mildAndModerateAnswers: any[];
 }) {
     const router = useRouter(); // next router
 
     const { data: user } = useUserQuery();
+
+    const [types, setTypes] = useState<string[]>([]);
 
     return (
         <Container>
@@ -320,7 +349,10 @@ export default function TestResultPage({
                 <h2 className='font-bold text-black text-head-2'>TOTAL SCORE</h2>
                 <div className='mt-7.5 flex gap-7.5'>
                     <div className='flex h-[295px] min-w-[280px] items-center justify-center rounded-base bg-white shadow-base xl:h-[346px] xl:w-[390px]'>
-                        <TestTotalScoreGraph data={makeTotalScoreGraphData(testResultList)} />
+                        <TestTotalScoreGraph
+                            data={makeTotalScoreGraphData(testResultList)}
+                            maxScore={testResultList.reduce((accum, curr) => accum + curr.maxScore, 0)}
+                        />
                     </div>
                     <div className='h-[295px] w-full rounded-base bg-white shadow-base xl:h-[346px] xl:w-[580px]'>
                         <TestScoreBarGraph data={makeScoreBarGraphData(testResultList)} />
@@ -345,13 +377,67 @@ export default function TestResultPage({
                 );
             })}
 
+            {mildAndModerateAnswers.length > 0 && (
+                <div className='mt-20 w-full'>
+                    <h2>경도 & 심도 체크항목</h2>
+                    <table className='mt-5 w-full overflow-hidden rounded-base'>
+                        <thead>
+                            <tr>
+                                <th className='bg-accent3 py-3 font-bold' align='center'>
+                                    영역
+                                </th>
+                                <th className='bg-accent3 py-3 font-bold' align='center'>
+                                    질문
+                                </th>
+                                <th className='bg-accent3 py-3 font-bold' align='center'>
+                                    답변
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {mildAndModerateAnswers.map((v, i) => (
+                                <tr key={i} className=''>
+                                    <td className='border-t border-neutral8 bg-white py-3' align='center' width='15%'>
+                                        {v.partTitle}
+                                    </td>
+                                    <td className='border-l border-t border-neutral8 bg-white py-3' align='center' width='70%'>
+                                        {v.questionText}
+                                    </td>
+                                    <td className='border-l border-t border-neutral8 bg-white py-3' align='center' width='15%'>
+                                        {answerOptions.find(answer => answer.value === v.answer)?.label}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            <div className='mt-20 w-full'>
+                <h2 className='font-bold text-head-2'>마비말장애 유형</h2>
+                <div className='mt-7.5 w-full rounded-base bg-white p-8'>
+                    {typeOptions.map(type => (
+                        <CheckBoxGroupItem key={type.value} name='types' value={type.value} values={types} setValues={setTypes}>
+                            {type.label}
+                        </CheckBoxGroupItem>
+                    ))}
+                </div>
+            </div>
+
+            <div className='mt-20 w-full'>
+                <h2 className='font-bold text-head-2'>종합소견</h2>
+                <div className='mt-7.5 w-full rounded-base bg-white p-8'>
+                    <ReactTextareaAutosize className='min-h-[200px] w-full' />
+                </div>
+            </div>
+
             <div className='mt-20'>
                 <Link href='/das' className='inline-flex items-center justify-center btn btn-large btn-outlined'>
                     홈
                 </Link>
-                {/* <button type='button' className='ml-5 btn btn-large btn-contained' onClick={() => {}}>
-                    다음
-                </button> */}
+                <button type='button' className='ml-5 btn btn-large btn-contained' onClick={() => {}}>
+                    저장
+                </button>
             </div>
         </Container>
     );
@@ -381,10 +467,18 @@ export const getServerSideProps: GetServerSideProps = async context => {
         const { testInfo } = await getTestInfoAPI({ sessionId, jwt: accessToken });
 
         // 소검사 문항 정보 fetch
-        const { testScore } = await getTestResultAPI({ sessionId, jwt: accessToken });
+        const { testScore, mildAndModerateAnswers } = await getTestResultAPI({ sessionId, jwt: accessToken });
 
         const testResultList = subtestResultList.map(v => {
-            const partList = testScore.filter(score => v.subtestIds.includes(score.subtestId));
+            const partList = testScore
+                .filter(score => v.subtestIds.includes(score.subtestId))
+                .map(score => {
+                    const partTitles = score.partTitle.split(',');
+                    const partTitleEns = score.partTitleEn.split(',');
+                    const partTitle = partTitles.map((title, i) => `${title}(${partTitleEns[i]})`).join('/');
+
+                    return { ...score, partTitle };
+                });
             const { totalScore, maxScore } = partList.reduce(
                 (accum, curr) => {
                     const totalScore = accum.totalScore + curr.score;
@@ -410,9 +504,11 @@ export const getServerSideProps: GetServerSideProps = async context => {
                 isLoggedIn: true,
                 testResultList,
                 testInfo,
+                mildAndModerateAnswers,
             },
         };
     } catch (err) {
+        console.error(err);
         return {
             redirect: {
                 destination: '/das',
