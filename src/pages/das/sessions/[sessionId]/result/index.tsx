@@ -1,6 +1,8 @@
-import { Fragment, useCallback, useState } from 'react';
+import { Fragment, useCallback, useRef, useState, type ChangeEventHandler } from 'react';
 import ReactTextareaAutosize from 'react-textarea-autosize';
+import { useReactToPrint } from 'react-to-print';
 import type { GetServerSideProps } from 'next';
+import { imageOptimizer } from 'next/dist/server/image-optimizer';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -11,6 +13,7 @@ import dayjs from 'dayjs';
 import { CheckBoxGroupItem } from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import { PrintIcon } from '@/components/common/icons';
+import PrintView from '@/components/das/PrintView';
 import { useUserQuery } from '@/hooks/user';
 import { getTestInfoAPI, getTestResultAPI } from '@/api/das';
 
@@ -136,7 +139,7 @@ const makeScoreBarGraphData = (
     }));
 };
 
-const SubtestScore = ({
+export const SubtestScore = ({
     id,
     subtestTitle,
     totalScore,
@@ -169,9 +172,9 @@ const SubtestScore = ({
                         ]}
                         maxScore={maxScore}
                     />
-                    <button className='mt-5 underline text-body-2' onClick={() => {}}>
+                    {/* <button className='mt-5 underline text-body-2' onClick={() => {}}>
                         경도/심도 항목
-                    </button>
+                    </button> */}
                 </div>
                 <div className='flex flex-1 flex-col gap-3.5'>
                     {partList.map((part, i) => (
@@ -201,6 +204,7 @@ export default function TestResultPage({
     testInfo,
     testResultList,
     mildAndModerateAnswers,
+    speechMotorResults,
 }: {
     testInfo: {
         testDate: string;
@@ -229,16 +233,34 @@ export default function TestResultPage({
         }[];
     }[];
     mildAndModerateAnswers: any[];
+    speechMotorResults: { questionText: string; value: string }[];
 }) {
     const router = useRouter(); // next router
 
     const { data: user } = useUserQuery();
 
     const [types, setTypes] = useState<string[]>([]);
+    const [opinion, setOpinion] = useState<string | null>(null);
+
+    const handleChangeOpinion = useCallback<ChangeEventHandler<HTMLTextAreaElement>>(e => {
+        setOpinion(e.target.value);
+    }, []);
+
+    const printViewRef = useRef<HTMLDivElement>(null);
+
+    const reactToPrintFn = useReactToPrint({
+        contentRef: printViewRef,
+        pageStyle: '@media print { body { zoom: 1.3; } }',
+    });
 
     return (
         <Container>
-            <div className='relative flex w-full flex-col gap-1'>
+            <div
+                className='relative flex w-full flex-col gap-1'
+                onClick={() => {
+                    reactToPrintFn();
+                }}
+            >
                 <h1 className='text-center font-jalnan text-head-1'>마비말장애 평가시스템 결과 보고서</h1>
                 <h2 className='text-center font-jalnan text-head-2'>Dysarthria Assessment System (DAS)</h2>
                 <p className='text-center text-neutral4 text-body-2'>연구개발 : 하지완, 김지영, 박기수, 조대형, 네오폰스(주)</p>
@@ -286,10 +308,10 @@ export default function TestResultPage({
                             {dayjs(testInfo.patientBirthdate).format('YYYY.MM.DD')}
                         </td>
                         <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
-                            {user?.data?.fullName}
+                            {dayjs(testInfo.testDate).format('YYYY.MM.DD')}
                         </td>
                         <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
-                            {dayjs(testInfo.testDate).format('YYYY.MM.DD')}
+                            {user?.data?.fullName}
                         </td>
                     </tr>
                 </tbody>
@@ -377,9 +399,36 @@ export default function TestResultPage({
                 );
             })}
 
+            {speechMotorResults.length > 0 && (
+                <div className='mt-20 w-full'>
+                    <h2 className='font-bold text-head-2'>SPEECH MOTOR : 말기제 평가</h2>
+                    <table className='mt-5 w-full overflow-hidden rounded-base'>
+                        <thead>
+                            <tr>
+                                <th className='bg-accent3 py-3 font-bold' align='center' colSpan={3}>
+                                    AMR & SMR
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {speechMotorResults.map((v, i) => (
+                                <tr key={i} className=''>
+                                    <td className='border-t border-neutral8 bg-white py-3 pl-10' width='87%'>
+                                        {v.questionText}
+                                    </td>
+                                    <td className='border-l border-t border-neutral8 bg-white py-3' align='center' width='13%'>
+                                        {v.value}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
             {mildAndModerateAnswers.length > 0 && (
                 <div className='mt-20 w-full'>
-                    <h2>경도 & 심도 체크항목</h2>
+                    <h2 className='font-bold text-head-2'>경도 & 심도 체크항목</h2>
                     <table className='mt-5 w-full overflow-hidden rounded-base'>
                         <thead>
                             <tr>
@@ -415,11 +464,13 @@ export default function TestResultPage({
 
             <div className='mt-20 w-full'>
                 <h2 className='font-bold text-head-2'>마비말장애 유형</h2>
-                <div className='mt-7.5 w-full rounded-base bg-white p-8'>
+                <div className='mt-7.5 flex w-full flex-row flex-wrap gap-y-[25px] rounded-base bg-white px-10 py-9'>
                     {typeOptions.map(type => (
-                        <CheckBoxGroupItem key={type.value} name='types' value={type.value} values={types} setValues={setTypes}>
-                            {type.label}
-                        </CheckBoxGroupItem>
+                        <div key={type.value} className='flex-shrink-0 flex-grow basis-1/2 xl:basis-4/12'>
+                            <CheckBoxGroupItem key={type.value} name='types' value={type.value} values={types} setValues={setTypes}>
+                                {type.label}
+                            </CheckBoxGroupItem>
+                        </div>
                     ))}
                 </div>
             </div>
@@ -427,7 +478,7 @@ export default function TestResultPage({
             <div className='mt-20 w-full'>
                 <h2 className='font-bold text-head-2'>종합소견</h2>
                 <div className='mt-7.5 w-full rounded-base bg-white p-8'>
-                    <ReactTextareaAutosize className='min-h-[200px] w-full' />
+                    <ReactTextareaAutosize className='min-h-[200px] w-full' value={opinion || ''} onChange={handleChangeOpinion} />
                 </div>
             </div>
 
@@ -439,6 +490,17 @@ export default function TestResultPage({
                     저장
                 </button>
             </div>
+
+            <PrintView
+                testerName={user?.data?.fullName}
+                testInfo={testInfo}
+                testResultList={testResultList}
+                mildAndModerateAnswers={[{ partTitle: '안면', questionText: 'abc', answer: 'mild' }]}
+                speechMotorResults={speechMotorResults}
+                types={types}
+                opinion={opinion || ''}
+                printViewRef={printViewRef}
+            />
         </Container>
     );
 }
@@ -467,7 +529,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         const { testInfo } = await getTestInfoAPI({ sessionId, jwt: accessToken });
 
         // 소검사 문항 정보 fetch
-        const { testScore, mildAndModerateAnswers } = await getTestResultAPI({ sessionId, jwt: accessToken });
+        const { testScore, mildAndModerateAnswers, speechMotorResults } = await getTestResultAPI({ sessionId, jwt: accessToken });
 
         const testResultList = subtestResultList.map(v => {
             const partList = testScore
@@ -505,6 +567,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
                 testResultList,
                 testInfo,
                 mildAndModerateAnswers,
+                speechMotorResults,
             },
         };
     } catch (err) {

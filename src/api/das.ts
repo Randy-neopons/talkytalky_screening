@@ -164,6 +164,7 @@ export async function getTestResultAPI({ sessionId, jwt }: { sessionId: number; 
             subtestTitle: string;
         }[];
         mildAndModerateAnswers: any[];
+        speechMotorResults: { questionText: string; value: string }[];
     }>(`/assessment/session/${sessionId}/result`, {
         headers: makeHeaders(jwt),
     });
