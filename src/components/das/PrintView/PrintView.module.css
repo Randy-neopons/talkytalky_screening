@@ -1,0 +1,32 @@
+.print-header {
+    @apply relative w-full border-t-4 border-neutral3 text-xs;
+}
+
+.cover-page {
+    @apply h-full w-full border-y-4 border-neutral3 px-[50px];
+}
+
+.content-page {
+    @apply flex w-[595px] flex-col bg-white px-7.5 text-black;
+    page-break-inside: avoid; /* 큰 섹션 안에서 페이지 넘김이 일어나지 않도록 */
+}
+
+@media print {
+    .print-header {
+        display: none;
+        position: fixed;
+        top: 0;
+        width: calc(100% - 60px);
+        z-index: 1000;
+    }
+
+    @page {
+        margin-top: 30px;
+        margin-bottom: 30px;
+    }
+
+    @page :first {
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+}

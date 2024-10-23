@@ -12,10 +12,11 @@ import dayjs from 'dayjs';
 
 import { CheckBoxGroupItem } from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
+import { useModal } from '@/components/common/Modal/context';
 import { PrintIcon } from '@/components/common/icons';
 import PrintView from '@/components/das/PrintView';
 import { useUserQuery } from '@/hooks/user';
-import { getTestInfoAPI, getTestResultAPI } from '@/api/das';
+import { getTestInfoAPI, getTestResultAPI, updateTestResultAPI } from '@/api/das';
 
 import styles from './TestResultPage.module.css';
 
@@ -205,6 +206,8 @@ export default function TestResultPage({
     testResultList,
     mildAndModerateAnswers,
     speechMotorResults,
+    dysarthriaTypes,
+    opinion: comprehensiveOpinion,
 }: {
     testInfo: {
         testDate: string;
@@ -234,13 +237,17 @@ export default function TestResultPage({
     }[];
     mildAndModerateAnswers: any[];
     speechMotorResults: { questionText: string; value: string }[];
+    dysarthriaTypes?: string[];
+    opinion?: string;
 }) {
     const router = useRouter(); // next router
 
     const { data: user } = useUserQuery();
 
-    const [types, setTypes] = useState<string[]>([]);
-    const [opinion, setOpinion] = useState<string | null>(null);
+    const { handleOpenModal } = useModal();
+
+    const [types, setTypes] = useState<string[]>(dysarthriaTypes || []);
+    const [opinion, setOpinion] = useState<string | undefined>(comprehensiveOpinion);
 
     const handleChangeOpinion = useCallback<ChangeEventHandler<HTMLTextAreaElement>>(e => {
         setOpinion(e.target.value);
@@ -250,17 +257,37 @@ export default function TestResultPage({
 
     const reactToPrintFn = useReactToPrint({
         contentRef: printViewRef,
-        pageStyle: '@media print { body { zoom: 1.3; } }',
+        pageStyle: '@media print { body { zoom: 1.33; } }',
     });
+
+    const handleSaveResult = useCallback(async () => {
+        try {
+            const sessionId = Number(router.query.sessionId);
+            const accessToken = getCookie('jwt') as string;
+
+            handleOpenModal({
+                content: '결과를 저장하시겠습니까?',
+                onOk: async () => {
+                    await updateTestResultAPI({
+                        sessionId,
+                        data: {
+                            dysarthriaTypes: types,
+                            opinion,
+                        },
+                        jwt: accessToken,
+                    });
+
+                    typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
+                },
+            });
+        } catch (err) {
+            console.error(err);
+        }
+    }, [handleOpenModal, opinion, router.query.sessionId, types]);
 
     return (
         <Container>
-            <div
-                className='relative flex w-full flex-col gap-1'
-                onClick={() => {
-                    reactToPrintFn();
-                }}
-            >
+            <div className='relative flex w-full flex-col gap-1'>
                 <h1 className='text-center font-jalnan text-head-1'>마비말장애 평가시스템 결과 보고서</h1>
                 <h2 className='text-center font-jalnan text-head-2'>Dysarthria Assessment System (DAS)</h2>
                 <p className='text-center text-neutral4 text-body-2'>연구개발 : 하지완, 김지영, 박기수, 조대형, 네오폰스(주)</p>
@@ -272,7 +299,12 @@ export default function TestResultPage({
                 >
                     개인정보 수정
                 </Link>
-                <button className='flex items-center gap-[6px] rounded-[10px] border border-neutral7 bg-white px-5 py-2.5'>
+                <button
+                    className='flex items-center gap-[6px] rounded-[10px] border border-neutral7 bg-white px-5 py-2.5'
+                    onClick={() => {
+                        reactToPrintFn();
+                    }}
+                >
                     <PrintIcon color={'#212529'} />
                     인쇄하기
                 </button>
@@ -486,21 +518,23 @@ export default function TestResultPage({
                 <Link href='/das' className='inline-flex items-center justify-center btn btn-large btn-outlined'>
                     홈
                 </Link>
-                <button type='button' className='ml-5 btn btn-large btn-contained' onClick={() => {}}>
+                <button type='button' className='ml-5 btn btn-large btn-contained' onClick={handleSaveResult}>
                     저장
                 </button>
             </div>
 
-            <PrintView
-                testerName={user?.data?.fullName}
-                testInfo={testInfo}
-                testResultList={testResultList}
-                mildAndModerateAnswers={[{ partTitle: '안면', questionText: 'abc', answer: 'mild' }]}
-                speechMotorResults={speechMotorResults}
-                types={types}
-                opinion={opinion || ''}
-                printViewRef={printViewRef}
-            />
+            <div className='hidden'>
+                <PrintView
+                    testerName={user?.data?.fullName}
+                    testInfo={testInfo}
+                    testResultList={testResultList}
+                    mildAndModerateAnswers={[{ partTitle: '안면', questionText: 'abc', answer: 'mild' }]}
+                    speechMotorResults={speechMotorResults}
+                    types={types}
+                    opinion={opinion || ''}
+                    printViewRef={printViewRef}
+                />
+            </div>
         </Container>
     );
 }
@@ -529,7 +563,10 @@ export const getServerSideProps: GetServerSideProps = async context => {
         const { testInfo } = await getTestInfoAPI({ sessionId, jwt: accessToken });
 
         // 소검사 문항 정보 fetch
-        const { testScore, mildAndModerateAnswers, speechMotorResults } = await getTestResultAPI({ sessionId, jwt: accessToken });
+        const { testScore, mildAndModerateAnswers, speechMotorResults, dysarthriaTypes, opinion } = await getTestResultAPI({
+            sessionId,
+            jwt: accessToken,
+        });
 
         const testResultList = subtestResultList.map(v => {
             const partList = testScore
@@ -568,6 +605,8 @@ export const getServerSideProps: GetServerSideProps = async context => {
                 testInfo,
                 mildAndModerateAnswers,
                 speechMotorResults,
+                dysarthriaTypes,
+                opinion,
             },
         };
     } catch (err) {

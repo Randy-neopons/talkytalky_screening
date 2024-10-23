@@ -21,6 +21,28 @@ body {
     background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
 }
 
+@media print {
+    @page {
+        size: 210mm 297mm; /*A4*/
+        margin: 0mm;
+    }
+
+    html,
+    body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        margin: 0;
+        padding: 0;
+        page-break-after: avoid;
+        page-break-before: avoid;
+        background: transparent;
+    }
+
+    .page-break {
+        display: none;
+    }
+}
+
 @layer base {
     @font-face {
         font-family: 'Jalnan';
