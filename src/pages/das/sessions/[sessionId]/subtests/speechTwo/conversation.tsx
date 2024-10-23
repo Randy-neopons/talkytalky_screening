@@ -124,10 +124,6 @@ export default function ConversationPage() {
                     </p>
                 </div>
             </div>
-            <button className='ml-auto mt-8 flex items-center gap-[6px] rounded-[10px] border border-neutral7 bg-white px-5 py-2.5'>
-                <PrintIcon color={'#212529'} />
-                인쇄하기
-            </button>
 
             <Image src={conversationImg} alt='conversation' className='mt-5 h-auto w-[1000px] rounded-base' />
 

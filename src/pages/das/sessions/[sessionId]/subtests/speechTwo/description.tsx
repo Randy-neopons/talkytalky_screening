@@ -1,4 +1,5 @@
-import { useCallback, useState, type ReactNode } from 'react';
+import { useCallback, useRef, useState, type ReactNode, type RefObject } from 'react';
+import { useReactToPrint } from 'react-to-print';
 import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
@@ -50,6 +51,12 @@ export default function PictureDescriptionPage() {
     const [partId, setPartId] = useState(PART_ID_START);
 
     const testTime = useTestTime();
+
+    const imageRef = useRef<HTMLImageElement>(null);
+
+    const reactToPrintFn = useReactToPrint({
+        contentRef: imageRef,
+    });
 
     // 다음 클릭
     const handleClickPrev = useCallback(
@@ -131,11 +138,16 @@ export default function PictureDescriptionPage() {
                     </p>
                 </div>
             </div>
-            <button className='ml-auto mt-8 flex items-center gap-[6px] rounded-[10px] border border-neutral7 bg-white px-5 py-2.5'>
+            <button
+                onClick={() => {
+                    reactToPrintFn();
+                }}
+                className='ml-auto mt-8 flex items-center gap-[6px] rounded-[10px] border border-neutral7 bg-white px-5 py-2.5'
+            >
                 <PrintIcon color={'#212529'} />
                 인쇄하기
             </button>
-            <Image src={pictureDescImg} alt='picture-description' className='mt-5 h-auto w-[1000px] rounded-base' />
+            <Image ref={imageRef} src={pictureDescImg} alt='picture-description' className='mt-5 h-auto w-[1000px] rounded-base' />
 
             <div className='mt-20 flex w-full flex-nowrap items-center'>
                 <div className='mx-auto flex gap-[45px]'>
