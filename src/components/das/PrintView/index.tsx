@@ -123,6 +123,7 @@ export default function PrintView({
     mildAndModerateAnswers,
     speechMotorResults,
     types,
+    mixedTypeDetail,
     opinion,
     printViewRef,
 }: {
@@ -156,6 +157,7 @@ export default function PrintView({
     mildAndModerateAnswers: any[];
     speechMotorResults: { questionText: string; value: string }[];
     types: string[];
+    mixedTypeDetail: string;
     opinion: string;
     printViewRef: any;
 }) {
@@ -351,12 +353,19 @@ export default function PrintView({
                             <h2 className='text-xs font-bold'>마비말장애 유형</h2>
                             <div className='mt-2.5 flex break-after-avoid flex-row flex-wrap gap-x-5 gap-y-3'>
                                 {typeOptions.map(type => (
-                                    <div key={type.value}>
+                                    <div key={type.value} className='flex'>
                                         <label className='flex cursor-pointer items-center text-[8px]'>
                                             <input type='checkbox' className='peer hidden' checked={types?.includes(type.value)} readOnly />
                                             <CheckBoxIcon />
                                             {type.label}
                                         </label>
+                                        {type.value === 'mixed' && types.includes('mixed') && (
+                                            <input
+                                                className='ml-2.5 w-40 border-b border-[#CED4DA] text-[8px]'
+                                                value={mixedTypeDetail || ''}
+                                                readOnly
+                                            />
+                                        )}
                                     </div>
                                 ))}
                             </div>

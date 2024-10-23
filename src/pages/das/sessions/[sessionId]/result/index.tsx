@@ -207,6 +207,7 @@ export default function TestResultPage({
     mildAndModerateAnswers,
     speechMotorResults,
     dysarthriaTypes,
+    mixedDysarthriaTypeDetail,
     opinion: comprehensiveOpinion,
 }: {
     testInfo: {
@@ -238,6 +239,7 @@ export default function TestResultPage({
     mildAndModerateAnswers: any[];
     speechMotorResults: { questionText: string; value: string }[];
     dysarthriaTypes?: string[];
+    mixedDysarthriaTypeDetail?: string;
     opinion?: string;
 }) {
     const router = useRouter(); // next router
@@ -247,6 +249,7 @@ export default function TestResultPage({
     const { handleOpenModal } = useModal();
 
     const [types, setTypes] = useState<string[]>(dysarthriaTypes || []);
+    const [mixedTypeDetail, setMixedTypeDetail] = useState<string>(mixedDysarthriaTypeDetail || '');
     const [opinion, setOpinion] = useState<string | undefined>(comprehensiveOpinion);
 
     const handleChangeOpinion = useCallback<ChangeEventHandler<HTMLTextAreaElement>>(e => {
@@ -272,6 +275,7 @@ export default function TestResultPage({
                         sessionId,
                         data: {
                             dysarthriaTypes: types,
+                            mixedDysarthriaTypeDetail: types.includes('mixed') ? mixedTypeDetail : '',
                             opinion,
                         },
                         jwt: accessToken,
@@ -283,7 +287,7 @@ export default function TestResultPage({
         } catch (err) {
             console.error(err);
         }
-    }, [handleOpenModal, opinion, router.query.sessionId, types]);
+    }, [handleOpenModal, mixedTypeDetail, opinion, router.query.sessionId, types]);
 
     return (
         <Container>
@@ -498,10 +502,22 @@ export default function TestResultPage({
                 <h2 className='font-bold text-head-2'>마비말장애 유형</h2>
                 <div className='mt-7.5 flex w-full flex-row flex-wrap gap-y-[25px] rounded-base bg-white px-10 py-9'>
                     {typeOptions.map(type => (
-                        <div key={type.value} className='flex-shrink-0 flex-grow basis-1/2 xl:basis-4/12'>
+                        <div
+                            key={type.value}
+                            className={type.value === 'mixed' ? 'flex' : 'flex-shrink-0 flex-grow basis-1/2 xl:basis-4/12'}
+                        >
                             <CheckBoxGroupItem key={type.value} name='types' value={type.value} values={types} setValues={setTypes}>
                                 {type.label}
                             </CheckBoxGroupItem>
+                            {type.value === 'mixed' && types.includes('mixed') && (
+                                <input
+                                    className='ml-2.5 w-40 border-b border-black'
+                                    value={mixedTypeDetail}
+                                    onChange={e => {
+                                        setMixedTypeDetail(e.target.value);
+                                    }}
+                                />
+                            )}
                         </div>
                     ))}
                 </div>
@@ -531,6 +547,7 @@ export default function TestResultPage({
                     mildAndModerateAnswers={[{ partTitle: '안면', questionText: 'abc', answer: 'mild' }]}
                     speechMotorResults={speechMotorResults}
                     types={types}
+                    mixedTypeDetail={mixedTypeDetail || ''}
                     opinion={opinion || ''}
                     printViewRef={printViewRef}
                 />
@@ -563,10 +580,11 @@ export const getServerSideProps: GetServerSideProps = async context => {
         const { testInfo } = await getTestInfoAPI({ sessionId, jwt: accessToken });
 
         // 소검사 문항 정보 fetch
-        const { testScore, mildAndModerateAnswers, speechMotorResults, dysarthriaTypes, opinion } = await getTestResultAPI({
-            sessionId,
-            jwt: accessToken,
-        });
+        const { testScore, mildAndModerateAnswers, speechMotorResults, dysarthriaTypes, mixedDysarthriaTypeDetail, opinion } =
+            await getTestResultAPI({
+                sessionId,
+                jwt: accessToken,
+            });
 
         const testResultList = subtestResultList.map(v => {
             const partList = testScore
@@ -606,6 +624,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
                 mildAndModerateAnswers,
                 speechMotorResults,
                 dysarthriaTypes,
+                mixedDysarthriaTypeDetail,
                 opinion,
             },
         };

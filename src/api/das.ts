@@ -166,6 +166,7 @@ export async function getTestResultAPI({ sessionId, jwt }: { sessionId: number; 
         mildAndModerateAnswers: any[];
         speechMotorResults: { questionText: string; value: string }[];
         dysarthriaTypes?: string[];
+        mixedDysarthriaTypeDetail?: string;
         opinion?: string;
     }>(`/assessment/session/${sessionId}/result`, {
         headers: makeHeaders(jwt),
@@ -182,6 +183,7 @@ export async function updateTestResultAPI({
     sessionId: number;
     data: {
         dysarthriaTypes?: string[];
+        mixedDysarthriaTypeDetail?: string;
         opinion?: string;
     };
     jwt: string;

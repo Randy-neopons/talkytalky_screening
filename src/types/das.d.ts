@@ -9,7 +9,14 @@ export interface TestInfoFormValues {
     patientMemo?: string; // 개인정보
     neurologicalLesion?: string; // 신경학적 병변
     languageDisorder?: string; // 언어장애
+    languageDisorderDetail?: {
+        kWabAq?: number;
+        aphasiaType?: string;
+    }; // 언어장애
     cognitiveDisorder?: string; // 인지장애
+    cognitiveDisorderDetail?: {
+        mmseScore?: number;
+    };
 }
 
 // 말운동평가 테스트 세션
