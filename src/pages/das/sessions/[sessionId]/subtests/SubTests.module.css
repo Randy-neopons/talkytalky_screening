@@ -73,7 +73,7 @@ button.tooltip-button:hover + .tooltip-content {
 }
 
 .recording-table tbody td.repeat-count input {
-    @apply w-full;
+    @apply w-[50px] text-center;
 }
 
 .recording-table tbody tr:first-child td {

@@ -28,7 +28,7 @@ const partIndexList = [
         start: 0,
         split: 1,
         end: 6,
-        subtitle1: '피로도검사',
+        subtitle1: '피로도 검사',
         subtitle2: '음질',
         partTitle: 'Respiration (호흡)\nPhonation (발성)',
         partId: 14,
@@ -166,7 +166,7 @@ export default function StressTestingQuestionsPage({ questionList }: { questionL
             <span className='text-center text-body-2'>본 검사는 중증 근무력증 선별검사로 필요시에만 실시합니다.</span>
             <form onSubmit={handleSubmit(handleOnSubmit)} className={`${subtestStyles['subtest-form']}`}>
                 <table className={`${subtestStyles['question-table']}`}>
-                    <thead>
+                    <thead data-title='피로도 검사'>
                         <tr>
                             <th></th>
                             <th>{subtitle1}</th>

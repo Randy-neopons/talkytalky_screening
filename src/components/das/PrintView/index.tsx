@@ -196,8 +196,11 @@ export default function PrintView({
                                 <div className='w-full text-center'>{testerName}</div>
                             </div>
                             <div className='flex w-[200px] border-b border-neutral7 py-[7px]'>
-                                <div className='w-[50px] font-bold text-neutral4'>환자명</div>
-                                <div className='w-full text-center'>{testInfo.patientName}</div>
+                                <div className='w-[50px] font-bold text-neutral4'>연령</div>
+                                <div className='w-full text-center'>
+                                    {dayjs(testInfo.patientBirthdate).format('YYYY.MM.DD')} (만
+                                    {dayjs().diff(testInfo.patientBirthdate, 'year')}세)
+                                </div>
                             </div>
                         </div>
                         <div className='mt-10 w-full text-xs'>
@@ -205,21 +208,21 @@ export default function PrintView({
                                 <div className='w-[160px] font-bold text-neutral4'>마비말장애관련 운동신경</div>
                                 <div className='flex-1'>
                                     {testInfo.brainLesions
-                                        .map(brainLesion => brainLesionOptions.find(option => option.value === brainLesion)?.label || '')
-                                        .join(',')}
+                                        ?.map(brainLesion => brainLesionOptions.find(option => option.value === brainLesion)?.label || '')
+                                        .join(',') || '없음'}
                                 </div>
                             </div>
                             <div className='flex w-full gap-5 border-b border-neutral7 py-[7px]'>
                                 <div className='w-[160px] font-bold text-neutral4'>신경학적 병변 위치 또는 질환명</div>
-                                <div className='flex-1'>{testInfo.neurologicalLesion}</div>
+                                <div className='flex-1'>{testInfo.neurologicalLesion || '없음'}</div>
                             </div>
                             <div className='flex w-full gap-5 border-b border-neutral7 py-[7px]'>
                                 <div className='w-[160px] font-bold text-neutral4'>병력</div>
-                                <div className='flex-1'>{testInfo.medicalHistory}</div>
+                                <div className='flex-1'>{testInfo.medicalHistory || '없음'}</div>
                             </div>
                             <div className='flex w-full gap-5 border-b border-neutral7 py-[7px]'>
                                 <div className='w-[160px] font-bold text-neutral4'>개인관련정보</div>
-                                <div className='flex-1'>{testInfo.patientMemo}</div>
+                                <div className='flex-1'>{testInfo.patientMemo || '없음'}</div>
                             </div>
                         </div>
                     </div>
@@ -362,7 +365,7 @@ export default function PrintView({
                         <div className='mt-7.5 w-full'>
                             <h2 className='text-xs font-bold'>종합소견</h2>
                             <div className='mt-2.5 flex min-h-[94px] flex-row flex-wrap gap-x-5 gap-y-3 border-b border-t border-b-neutral8 border-t-black px-[15px] py-2.5 text-[8px]'>
-                                {opinion}
+                                {opinion || '없음'}
                             </div>
                         </div>
                     </div>

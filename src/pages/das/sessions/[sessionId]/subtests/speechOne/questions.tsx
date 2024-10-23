@@ -486,7 +486,7 @@ export default function SpeechOneQuestionsPage({
                                     <WaveformButton audioBlob={audioBlob1} audioUrl={audioUrl1} setRepeatCount={setRepeatCount(0)} />
                                 </td> */}
                                 <td className={`${subtestStyles['repeat-count']}`}>
-                                    <input className='outline-none' {...register(`recordings.0.repeatCount`)} />
+                                    <input type='number' className='outline-none' {...register(`recordings.0.repeatCount`)} />초
                                 </td>
                             </tr>
                             <tr>
@@ -510,7 +510,7 @@ export default function SpeechOneQuestionsPage({
                                     <WaveformButton audioBlob={audioBlob2} audioUrl={audioUrl2} setRepeatCount={setRepeatCount(1)} />
                                 </td> */}
                                 <td className={`${subtestStyles['repeat-count']}`}>
-                                    <input className='outline-none' {...register(`recordings.1.repeatCount`)} />
+                                    <input type='number' className='outline-none' {...register(`recordings.1.repeatCount`)} />초
                                 </td>
                             </tr>
                             <tr>
@@ -534,7 +534,7 @@ export default function SpeechOneQuestionsPage({
                                     <WaveformButton audioBlob={audioBlob3} audioUrl={audioUrl3} setRepeatCount={setRepeatCount(2)} />
                                 </td> */}
                                 <td className={`${subtestStyles['repeat-count']}`}>
-                                    <input className='outline-none' {...register(`recordings.2.repeatCount`)} />
+                                    <input type='number' className='outline-none' {...register(`recordings.2.repeatCount`)} />초
                                 </td>
                             </tr>
                         </tbody>

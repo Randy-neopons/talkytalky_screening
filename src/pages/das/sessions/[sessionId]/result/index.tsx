@@ -320,7 +320,7 @@ export default function TestResultPage({
                             성별
                         </td>
                         <td className='border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='20%'>
-                            생년월일
+                            연령
                         </td>
                         <td className='border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='20%'>
                             검사일
@@ -337,7 +337,7 @@ export default function TestResultPage({
                             {genderOptionList.find(v => v.value === testInfo.patientGender)?.label}
                         </td>
                         <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
-                            {dayjs(testInfo.patientBirthdate).format('YYYY.MM.DD')}
+                            만 {dayjs().diff(testInfo.patientBirthdate, 'year')}세
                         </td>
                         <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
                             {dayjs(testInfo.testDate).format('YYYY.MM.DD')}
@@ -360,12 +360,12 @@ export default function TestResultPage({
                     </tr>
                     <tr>
                         <td className='bg-white py-[18px]' align='center'>
-                            {testInfo.neurologicalLesion}
+                            {testInfo.brainLesions
+                                ?.map(brainLesion => brainLesionOptions.find(option => option.value === brainLesion)?.label || '')
+                                .join(',') || '없음'}
                         </td>
                         <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
-                            {testInfo.brainLesions
-                                .map(brainLesion => brainLesionOptions.find(option => option.value === brainLesion)?.label || '')
-                                .join(',')}
+                            {testInfo.neurologicalLesion || '없음'}
                         </td>
                     </tr>
                 </tbody>
@@ -379,7 +379,7 @@ export default function TestResultPage({
                     </tr>
                     <tr>
                         <td className='bg-white py-[18px]' align='center'>
-                            {testInfo.medicalHistory}
+                            {testInfo.medicalHistory || '없음'}
                         </td>
                     </tr>
                 </tbody>
@@ -393,7 +393,7 @@ export default function TestResultPage({
                     </tr>
                     <tr>
                         <td className='bg-white py-[18px]' align='center'>
-                            {testInfo.patientMemo}
+                            {testInfo.patientMemo || '없음'}
                         </td>
                     </tr>
                 </tbody>
