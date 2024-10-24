@@ -379,7 +379,13 @@ export default function SpeechMotorQuestionsPage({
                                     <WaveformButton audioBlob={audioBlob1} audioUrl={audioUrl1} setRepeatCount={setRepeatCount(0)} />
                                 </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
-                                    <input type='number' className='text-center outline-none' {...register(`recordings.0.repeatCount`)} />회
+                                    <input
+                                        type='number'
+                                        className='text-center outline-none'
+                                        autoComplete='off'
+                                        {...register(`recordings.0.repeatCount`)}
+                                    />
+                                    회
                                 </td>
                             </tr>
                             <tr className={`${subtestStyles['repeat-count']}`}>
@@ -403,7 +409,13 @@ export default function SpeechMotorQuestionsPage({
                                     <WaveformButton audioBlob={audioBlob2} audioUrl={audioUrl2} setRepeatCount={setRepeatCount(1)} />
                                 </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
-                                    <input type='number' className='text-center outline-none' {...register(`recordings.1.repeatCount`)} />회
+                                    <input
+                                        type='number'
+                                        className='text-center outline-none'
+                                        autoComplete='off'
+                                        {...register(`recordings.1.repeatCount`)}
+                                    />
+                                    회
                                 </td>
                             </tr>
                             <tr>
@@ -427,7 +439,13 @@ export default function SpeechMotorQuestionsPage({
                                     <WaveformButton audioBlob={audioBlob3} audioUrl={audioUrl3} setRepeatCount={setRepeatCount(2)} />
                                 </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
-                                    <input type='number' className='text-center outline-none' {...register(`recordings.2.repeatCount`)} />회
+                                    <input
+                                        type='number'
+                                        className='text-center outline-none'
+                                        autoComplete='off'
+                                        {...register(`recordings.2.repeatCount`)}
+                                    />
+                                    회
                                 </td>
                             </tr>
                         </tbody>
@@ -476,6 +494,7 @@ export default function SpeechMotorQuestionsPage({
                                     <input
                                         type='number'
                                         className='w-full text-center outline-none'
+                                        autoComplete='off'
                                         {...register(`recordings.3.repeatCount`)}
                                     />
                                     회
