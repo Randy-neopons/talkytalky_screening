@@ -16,9 +16,11 @@ import { FontSizeButton } from '@/components/das/FontSizeButton';
 import { MemoButton } from '@/components/das/MemoButton';
 import { useConductedSubtestsQuery } from '@/hooks/das';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
-import { getAnswersCountAPI, updateSessionAPI } from '@/api/das';
+import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
 
 import styles from '../SubTests.module.css';
+
+import type { Recording } from '@/types/das';
 
 // 본문 폰트 크기 조절 className 생성
 const makeFontSizeClassName = (fontSize: number) => {
@@ -29,12 +31,16 @@ const makeFontSizeClassName = (fontSize: number) => {
 const CURRENT_SUBTEST_ID = 3;
 const PART_ID_START = 8;
 
+type Props = {
+    recording: Recording;
+};
+
 // 문단읽기 페이지
-export default function ParagraphReadingPage() {
+export default function ParagraphReadingPage({ recording }: Props) {
     const router = useRouter();
 
     const { audioBlob, audioUrl, isRecording, isPlaying, handlePlay, handlePause, handleStartRecording, handleStopRecording } =
-        useAudioRecorder();
+        useAudioRecorder(recording?.filePath);
 
     const [partId, setPartId] = useState(PART_ID_START);
 
@@ -55,8 +61,12 @@ export default function ParagraphReadingPage() {
         async ({ sessionId }: { sessionId: number }) => {
             try {
                 const formData = new FormData();
+
                 formData.append('audio1', audioBlob || 'null');
-                formData.append('recordings', JSON.stringify([{ filePath: null, repeatCount: null }]));
+                formData.append(
+                    'recordings',
+                    JSON.stringify([{ filePath: recording?.filePath || null, repeatCount: recording?.repeatCount || null }]),
+                );
 
                 formData.append('testTime', `${testTime}`);
                 formData.append('currentPartId', `${partId}`);
@@ -76,7 +86,7 @@ export default function ParagraphReadingPage() {
                 console.error(err);
             }
         },
-        [audioBlob, partId, testTime],
+        [audioBlob, partId, recording, testTime],
     );
 
     // 이전 버튼 클릭
@@ -214,6 +224,11 @@ export const getServerSideProps: GetServerSideProps = async context => {
             };
         }
 
+        const responseData = await getQuestionAndAnswerListAPI({ sessionId, subtestId: CURRENT_SUBTEST_ID, jwt: accessToken });
+        const recording = responseData.recordings?.[0] || null;
+
+        console.log(recording);
+
         // 검사 시작할 때마다 진행률 불러오기
         const { totalCount, notNullCount } = await getAnswersCountAPI({ sessionId, jwt: accessToken });
         const progress = Math.ceil((notNullCount / totalCount) * 100);
@@ -221,6 +236,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         return {
             props: {
                 isLoggedIn: true,
+                recording,
                 progress,
             },
         };

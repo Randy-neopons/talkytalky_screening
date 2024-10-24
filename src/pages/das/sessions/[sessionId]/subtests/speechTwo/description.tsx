@@ -13,11 +13,13 @@ import { AudioButton } from '@/components/common/Buttons';
 import Container from '@/components/common/Container';
 import { InfoIcon, PrintIcon } from '@/components/common/icons';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
-import { getAnswersCountAPI, updateSessionAPI } from '@/api/das';
+import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
 
 import styles from '../SubTests.module.css';
 
 import pictureDescImg from 'public/static/images/picture-desc-img.png';
+
+import type { Recording } from '@/types/das';
 
 const TooltipArrowIcon = () => {
     return (
@@ -41,12 +43,16 @@ const TooltipArrowIcon = () => {
 const CURRENT_SUBTEST_ID = 3;
 const PART_ID_START = 9;
 
+type Props = {
+    recording: Recording | null;
+};
+
 // 그림설명하기 페이지
-export default function PictureDescriptionPage() {
+export default function PictureDescriptionPage({ recording }: Props) {
     const router = useRouter();
 
     const { audioBlob, audioUrl, isPlaying, isRecording, handlePause, handlePlay, handleStartRecording, handleStopRecording } =
-        useAudioRecorder();
+        useAudioRecorder(recording?.filePath);
 
     const [partId, setPartId] = useState(PART_ID_START);
 
@@ -79,7 +85,10 @@ export default function PictureDescriptionPage() {
             try {
                 const formData = new FormData();
                 formData.append('audio1', audioBlob || 'null');
-                formData.append('recordings', JSON.stringify([{ filePath: null, repeatCount: null }]));
+                formData.append(
+                    'recordings',
+                    JSON.stringify([{ filePath: recording?.filePath || null, repeatCount: recording?.repeatCount || null }]),
+                );
 
                 formData.append('testTime', `${testTime}`);
                 formData.append('currentPartId', `${partId}`);
@@ -99,7 +108,7 @@ export default function PictureDescriptionPage() {
                 console.error(err);
             }
         },
-        [audioBlob, partId, testTime],
+        [audioBlob, partId, recording, testTime],
     );
 
     // 다음 클릭
@@ -203,6 +212,9 @@ export const getServerSideProps: GetServerSideProps = async context => {
             };
         }
 
+        const responseData = await getQuestionAndAnswerListAPI({ sessionId, subtestId: CURRENT_SUBTEST_ID, jwt: accessToken });
+        const recording = responseData.recordings?.[1] || null;
+
         // 검사 시작할 때마다 진행률 불러오기
         const { totalCount, notNullCount } = await getAnswersCountAPI({ sessionId, jwt: accessToken });
         const progress = Math.ceil((notNullCount / totalCount) * 100);
@@ -210,6 +222,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         return {
             props: {
                 isLoggedIn: true,
+                recording,
                 progress,
             },
         };

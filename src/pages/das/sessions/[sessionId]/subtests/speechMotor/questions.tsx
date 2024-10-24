@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useMemo, useState, type ChangeEventHandler, type MouseEventHandler } from 'react';
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useState,
+    type ChangeEventHandler,
+    type KeyboardEventHandler,
+    type MouseEventHandler,
+} from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import ReactTextareaAutosize from 'react-textarea-autosize';
 import type { GetServerSideProps } from 'next';
@@ -309,6 +317,12 @@ export default function SpeechMotorQuestionsPage({
         [handleSubmitData, partId, router, subtestsData?.subtests],
     );
 
+    const handleKeyDown = useCallback<KeyboardEventHandler<HTMLInputElement>>(e => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+        }
+    }, []);
+
     useEffect(() => {
         setTestStart(true);
     }, [setTestStart]);
@@ -337,6 +351,7 @@ export default function SpeechMotorQuestionsPage({
     return (
         <Container>
             <form onSubmit={handleSubmit(handleClickNext)} className={`${subtestStyles['subtest-form']}`}>
+                <input type='hidden' />
                 <h2 className='whitespace-pre-line text-center font-jalnan text-head-2'>{partTitle}</h2>
                 <h3 className='whitespace-pre-line text-center font-jalnan text-head-3'>{partTitleKo}</h3>
 
@@ -383,6 +398,7 @@ export default function SpeechMotorQuestionsPage({
                                         type='number'
                                         className='text-center outline-none'
                                         autoComplete='off'
+                                        onKeyDown={handleKeyDown}
                                         {...register(`recordings.0.repeatCount`)}
                                     />
                                     회
@@ -413,6 +429,7 @@ export default function SpeechMotorQuestionsPage({
                                         type='number'
                                         className='text-center outline-none'
                                         autoComplete='off'
+                                        onKeyDown={handleKeyDown}
                                         {...register(`recordings.1.repeatCount`)}
                                     />
                                     회
@@ -443,6 +460,7 @@ export default function SpeechMotorQuestionsPage({
                                         type='number'
                                         className='text-center outline-none'
                                         autoComplete='off'
+                                        onKeyDown={handleKeyDown}
                                         {...register(`recordings.2.repeatCount`)}
                                     />
                                     회
@@ -495,6 +513,7 @@ export default function SpeechMotorQuestionsPage({
                                         type='number'
                                         className='w-full text-center outline-none'
                                         autoComplete='off'
+                                        onKeyDown={handleKeyDown}
                                         {...register(`recordings.3.repeatCount`)}
                                     />
                                     회

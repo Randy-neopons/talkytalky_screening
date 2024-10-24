@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type ChangeEventHandler } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ChangeEventHandler, type KeyboardEventHandler } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import ReactTextareaAutosize from 'react-textarea-autosize';
 import type { GetServerSideProps } from 'next';
@@ -441,9 +441,17 @@ export default function SpeechOneQuestionsPage({
         [setValue],
     );
 
+    // 엔터키 submit
+    const handleKeyDown = useCallback<KeyboardEventHandler<HTMLInputElement>>(e => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+        }
+    }, []);
+
     return (
         <Container>
             <form onSubmit={handleSubmit(handleClickNext)} className={`${subtestStyles['subtest-form']}`}>
+                <input type='hidden' />
                 <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitleEn}</h1>
                 <h2 className='whitespace-pre-line text-center font-jalnan text-head-2'>{partTitle}</h2>
 
@@ -490,6 +498,7 @@ export default function SpeechOneQuestionsPage({
                                         type='number'
                                         className='outline-none'
                                         autoComplete='off'
+                                        onKeyDown={handleKeyDown}
                                         {...register(`recordings.0.repeatCount`)}
                                     />
                                     초
@@ -520,6 +529,7 @@ export default function SpeechOneQuestionsPage({
                                         type='number'
                                         className='outline-none'
                                         autoComplete='off'
+                                        onKeyDown={handleKeyDown}
                                         {...register(`recordings.1.repeatCount`)}
                                     />
                                     초
@@ -550,6 +560,7 @@ export default function SpeechOneQuestionsPage({
                                         type='number'
                                         className='outline-none'
                                         autoComplete='off'
+                                        onKeyDown={handleKeyDown}
                                         {...register(`recordings.2.repeatCount`)}
                                     />
                                     초
