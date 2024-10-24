@@ -544,7 +544,7 @@ export default function TestResultPage({
                     testerName={user?.data?.fullName}
                     testInfo={testInfo}
                     testResultList={testResultList}
-                    mildAndModerateAnswers={[{ partTitle: '안면', questionText: 'abc', answer: 'mild' }]}
+                    mildAndModerateAnswers={mildAndModerateAnswers}
                     speechMotorResults={speechMotorResults}
                     types={types}
                     mixedTypeDetail={mixedTypeDetail || ''}

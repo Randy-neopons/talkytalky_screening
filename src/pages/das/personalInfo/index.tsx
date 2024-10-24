@@ -1,4 +1,4 @@
-import { useCallback, useEffect, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, type ReactNode } from 'react';
 import { Controller, useForm, useWatch, type Control } from 'react-hook-form';
 import TextareaAutosize from 'react-textarea-autosize';
 import type { GetServerSideProps } from 'next';
@@ -142,6 +142,14 @@ export const PersonalInfoForm = ({
     const age = useAge({ control }); // 만 나이 계산
     const watchLanguageDisorder = useWatch({ control, name: 'languageDisorder' });
     const watchCognitiveDisorder = useWatch({ control, name: 'cognitiveDisorder' });
+
+    const router = useRouter();
+
+    // 제출 버튼 텍스트
+    const submitButtonText = useMemo(() => {
+        const pathname = router.asPath.split('/').slice(-1)[0];
+        return pathname === 'editInfo' ? '확인' : '다음';
+    }, [router]);
 
     return (
         <>
@@ -320,7 +328,7 @@ export const PersonalInfoForm = ({
                 onClick={handleSubmit(onSubmit)}
                 disabled={!isValid}
             >
-                다음
+                {submitButtonText}
             </button>
         </>
     );
