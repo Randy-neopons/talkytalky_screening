@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getCookie } from 'cookies-next';
 
-import { getTestInfoAPI } from '@/api/questions';
+import { getTestInfoAPI } from '@/api/das';
 import { getLoggedInUser } from '@/api/user';
 
 // 로그인 유저 조회 쿼리
@@ -15,6 +15,7 @@ export const useUserQuery = () => {
     }>({
         queryKey: [userQueryKey, accessToken],
         queryFn: () => getLoggedInUser({ jwt: accessToken }),
+        enabled: !!accessToken,
     });
 };
 

@@ -1,0 +1,19 @@
+.rounded-button {
+    @apply flex h-[82px] w-[82px] items-center justify-center rounded-full bg-accent1;
+}
+
+label.radio-label {
+    @apply mx-auto flex w-full max-w-[550px] justify-between rounded-[6px] border-2 border-neutral6 bg-white px-5 py-[18px] font-bold text-neutral4 text-body-2;
+}
+
+input[type='radio']:checked + label.radio-label {
+    @apply cursor-pointer border-accent1 bg-accent3 text-accent1;
+}
+
+input[type='radio']:checked + label.radio-label rect {
+    @apply stroke-accent1;
+}
+
+input[type='radio']:checked + label.radio-label circle {
+    @apply fill-accent1;
+}

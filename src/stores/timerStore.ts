@@ -8,7 +8,7 @@ const useTimerStore = create<{
     actions: {
         addSecond: () => void;
         setTestStart: (start: boolean) => void;
-        reset: () => void;
+        reset: (testTime?: number) => void;
     };
 }>()(
     persist(
@@ -18,7 +18,7 @@ const useTimerStore = create<{
             actions: {
                 addSecond: () => set({ testTime: get().testTime + 1 }), // 1초씩 증가
                 setTestStart: start => set({ testStart: start }), // 검사 시작/종료 제어
-                reset: () => set({ testTime: 0 }),
+                reset: (testTime = 0) => set({ testTime }),
             },
         }),
         {
