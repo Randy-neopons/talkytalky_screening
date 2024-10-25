@@ -5,8 +5,10 @@ import { useRouter } from 'next/router';
 
 import { getCookie } from 'cookies-next';
 
+import { useCurrentSubTest } from '@/stores/testStore';
 import { useTimerActions } from '@/stores/timerStore';
 import Container from '@/components/common/Container';
+import { useConductedSubtestsQuery } from '@/hooks/das';
 
 import styles from '../SubTests.module.css';
 
@@ -15,12 +17,12 @@ import infoIcon from 'public/static/images/info-icon.png';
 const partList = [
     {
         subtestName: '영역별 말평가',
-        partName: 'Respiration(호흡) / Phonation(음성)\nResonance(공명)\nArticulation(조음)\n ',
+        partName: 'Respiration(호흡) / Phonation(발성)\nResonance(공명)\nArticulation(조음)\n ',
         questionCount: 27,
     },
     {
         subtestName: '종합적 말평가',
-        partName: 'Respiration(호흡) / Phonation(음성)\nResonance(공명)\nArticulation(조음)\nProsody(운율)',
+        partName: 'Respiration(호흡) / Phonation(발성)\nResonance(공명)\nArticulation(조음)\nProsody(운율)',
         questionCount: 21,
     },
 ];
@@ -46,14 +48,45 @@ const PartListItem = ({ subtestName, partName, questionCount }: { subtestName: s
 export default function SpeechMainPage() {
     const router = useRouter();
 
+    // 현재 소검사, 선택한 소검사 정보
+    const { data: subtestsData } = useConductedSubtestsQuery({ sessionId: Number(router.query.sessionId), jwt: getCookie('jwt') || '' });
     const { setTestStart } = useTimerActions();
+    const currentSubtest = useCurrentSubTest();
 
     useEffect(() => {
         setTestStart(true);
     }, [setTestStart]);
 
+    // 이전 버튼 클릭
+    const handleClickPrev = useCallback(async () => {
+        try {
+            const sessionId = Number(router.query.sessionId);
+
+            const subtests = subtestsData?.subtests;
+            if (!subtests) {
+                throw new Error('수행할 소검사가 없습니다');
+            }
+
+            // 이전 소검사
+            const currentSubtestIndex = subtests.findIndex(v => v.subtestId === currentSubtest?.subtestId);
+            const prevSubtestItem = subtests[currentSubtestIndex - 1];
+
+            if (prevSubtestItem) {
+                // 이전 소검사가 있으면 이동
+                router.push(`/das/sessions/${sessionId}/subtests/${prevSubtestItem.pathname}`);
+            } else {
+                // 없으면 홈으로 이동
+                if (window.confirm('홈으로 이동하시겠습니까?')) {
+                    router.push('/das');
+                }
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }, [currentSubtest?.subtestId, router, subtestsData?.subtests]);
+
+    // 검사 시작
     const handleClickNext = useCallback(() => {
-        console.log(router.asPath);
         router.push(`${router.asPath}/questions`); // 검사 ID로 이동
     }, [router]);
 
@@ -65,9 +98,14 @@ export default function SpeechMainPage() {
                     <PartListItem key={i} subtestName={v.subtestName} partName={v.partName} questionCount={v.questionCount} />
                 ))}
             </ul>
-            <button type='button' className='mt-20 btn btn-large btn-contained' onClick={handleClickNext}>
-                시작하기
-            </button>
+            <div className='mt-20 flex gap-5'>
+                <button type='button' className='btn btn-large btn-outlined' onClick={handleClickPrev}>
+                    이전 검사로
+                </button>
+                <button type='button' className='btn btn-large btn-contained' onClick={handleClickNext}>
+                    시작하기
+                </button>
+            </div>
         </Container>
     );
 }

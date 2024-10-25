@@ -4,7 +4,13 @@ type Datum = RadialBarDatum & {
     color: string;
 };
 
-export default function SubtestScoreGraph({ data /* see data tab */, maxScore }: { data: RadialBarSerie<Datum>[]; maxScore?: number }) {
+export default function SubtestScoreGraph({
+    data /* see data tab */,
+    maxScore = 100,
+}: {
+    data: RadialBarSerie<Datum>[];
+    maxScore?: number;
+}) {
     return (
         <div className={`relative h-40 w-40 xl:h-[200px] xl:w-[200px]`}>
             <ResponsiveRadialBar<Datum>
@@ -15,7 +21,7 @@ export default function SubtestScoreGraph({ data /* see data tab */, maxScore }:
                 cornerRadius={20}
                 startAngle={90}
                 endAngle={450}
-                maxValue={maxScore || 100}
+                maxValue={maxScore}
                 circularAxisOuter={null}
                 enableRadialGrid={false}
                 enableCircularGrid={false}
@@ -27,10 +33,14 @@ export default function SubtestScoreGraph({ data /* see data tab */, maxScore }:
             />
             <div className='absolute left-1/2 top-1/2 w-full -translate-x-1/2 -translate-y-1/2 text-center'>
                 <div className='flex items-end justify-center gap-x-1'>
-                    <span className='text-[26px] font-bold leading-none text-black xl:text-[34px]'>{data[0]?.data[0]?.y}</span>
+                    <span className='text-[26px] font-bold leading-none text-black xl:text-[34px]'>
+                        {Math.ceil((data[0]?.data[0]?.y / maxScore) * 100)}
+                    </span>
                     <span className='font-bold text-black'>점</span>
                 </div>
-                <span className='text-[14px] text-neutral4'>{maxScore}점 만점기준</span>
+                <span className='text-[14px] text-neutral4'>
+                    {data[0]?.data[0]?.y}점 / {maxScore}점 만점기준
+                </span>
             </div>
         </div>
     );

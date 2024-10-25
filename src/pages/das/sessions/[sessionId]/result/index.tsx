@@ -1,5 +1,8 @@
-import { Fragment, useCallback, useState } from 'react';
+import { Fragment, useCallback, useRef, useState, type ChangeEventHandler } from 'react';
+import ReactTextareaAutosize from 'react-textarea-autosize';
+import { useReactToPrint } from 'react-to-print';
 import type { GetServerSideProps } from 'next';
+import { imageOptimizer } from 'next/dist/server/image-optimizer';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -7,16 +10,19 @@ import { useRouter } from 'next/router';
 import { getCookie } from 'cookies-next';
 import dayjs from 'dayjs';
 
+import { CheckBoxGroupItem } from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
-import { PrintIcon } from '@/components/icons';
+import { useModal } from '@/components/common/Modal/context';
+import { PrintIcon } from '@/components/common/icons';
+import PrintView from '@/components/das/PrintView';
 import { useUserQuery } from '@/hooks/user';
-import { getTestInfoAPI, getTestResultAPI } from '@/api/das';
+import { getTestInfoAPI, getTestResultAPI, updateTestResultAPI } from '@/api/das';
 
 import styles from './TestResultPage.module.css';
 
-const TestTotalScoreGraph = dynamic(() => import('@/components/TestTotalScoreGraph'), { ssr: false });
-const TestScoreBarGraph = dynamic(() => import('@/components/TestScoreBarGraph'), { ssr: false });
-const SubtestScoreGraph = dynamic(() => import('@/components/SubtestScoreGraph'), { ssr: false });
+const TestTotalScoreGraph = dynamic(() => import('@/components/das/TestTotalScoreGraph'), { ssr: false });
+const TestScoreBarGraph = dynamic(() => import('@/components/das/TestScoreBarGraph'), { ssr: false });
+const SubtestScoreGraph = dynamic(() => import('@/components/das/SubtestScoreGraph'), { ssr: false });
 
 const brainLesionOptions = [
     { value: 'bilateralUpperMotorNeuron', label: '양측상부운동신경손상' },
@@ -24,7 +30,25 @@ const brainLesionOptions = [
     { value: 'lowerMotorNeuron', label: '하부운동신경손상' },
     { value: 'cerebellarControlCircuit', label: '소뇌조절회로' },
     { value: 'basalGangliaControlCircuit', label: '기저핵조절회로' },
-    { value: 'unknown', label: '알 수 없음' },
+    { value: 'unknown', label: '특정할 수 없음' },
+    { value: 'normal', label: '정상 소견' },
+];
+
+const answerOptions = [
+    { value: 'normal', label: '정상' },
+    { value: 'mild', label: '경도' },
+    { value: 'moderate', label: '심도' },
+    { value: 'unknown', label: '평가불가' },
+];
+
+const typeOptions = [
+    { value: 'spastic', label: '경직형(spastic)' },
+    { value: 'flaccid', label: '이완형(flaccid)' },
+    { value: 'ataxic', label: '실조형(ataxic)' },
+    { value: 'hypokinetic', label: '과소운동형(hypokinetic)' },
+    { value: 'hyperkinetic', label: '과다운동형(hyperkinetic)' },
+    { value: 'UUMN', label: '일측상부운동신경형(UUMN)' },
+    { value: 'mixed', label: '혼합형(mixed)' },
 ];
 
 const genderOptionList = [
@@ -74,14 +98,20 @@ const makeTotalScoreGraphData = (
         }[];
     }[],
 ) => {
-    const score = testResultList.reduce((accum, curr) => {
-        return accum + curr.totalScore;
-    }, 0);
+    const { score, maxScore } = testResultList.reduce(
+        (accum, curr) => {
+            return {
+                score: accum.score + curr.totalScore,
+                maxScore: accum.maxScore + curr.maxScore,
+            };
+        },
+        { score: 0, maxScore: 0 },
+    );
 
     return [
         {
             id: 'total',
-            data: [{ x: 'score', y: score, color: '#6979F8' }],
+            data: [{ x: 'score', y: score, maxValue: maxScore, color: '#6979F8' }],
         },
     ];
 };
@@ -110,7 +140,7 @@ const makeScoreBarGraphData = (
     }));
 };
 
-const SubtestScore = ({
+export const SubtestScore = ({
     id,
     subtestTitle,
     totalScore,
@@ -143,9 +173,9 @@ const SubtestScore = ({
                         ]}
                         maxScore={maxScore}
                     />
-                    <button className='mt-5 underline text-body-2' onClick={() => {}}>
-                        평가항목 리스트
-                    </button>
+                    {/* <button className='mt-5 underline text-body-2' onClick={() => {}}>
+                        경도/심도 항목
+                    </button> */}
                 </div>
                 <div className='flex flex-1 flex-col gap-3.5'>
                     {partList.map((part, i) => (
@@ -153,7 +183,7 @@ const SubtestScore = ({
                             <div className='ml-1 mr-2 flex justify-between'>
                                 <span className='text-neutral3 text-body-2'>{part.partTitle}</span>
                                 <span className='text-neutral3 text-body-2'>
-                                    {part.score}/{part.maxScore}
+                                    {part.score}점 / 총 {part.maxScore}점
                                 </span>
                             </div>
                             <div className='relative mt-1.5 h-5 w-full rounded-full bg-[#D9D9D9] xl:mt-2'>
@@ -174,12 +204,18 @@ const SubtestScore = ({
 export default function TestResultPage({
     testInfo,
     testResultList,
+    mildAndModerateAnswers,
+    speechMotorResults,
+    dysarthriaTypes,
+    mixedDysarthriaTypeDetail,
+    opinion: comprehensiveOpinion,
 }: {
     testInfo: {
         testDate: string;
         patientName: string;
         patientGender: string;
         patientBirthdate: string;
+        neurologicalLesion: string;
         brainLesions: string[];
         medicalHistory: string;
         patientMemo: string;
@@ -200,36 +236,100 @@ export default function TestResultPage({
             subtestTitle: string;
         }[];
     }[];
+    mildAndModerateAnswers: any[];
+    speechMotorResults: { questionText: string; value: string }[];
+    dysarthriaTypes?: string[];
+    mixedDysarthriaTypeDetail?: string;
+    opinion?: string;
 }) {
     const router = useRouter(); // next router
 
     const { data: user } = useUserQuery();
 
+    const { handleOpenModal } = useModal();
+
+    const [types, setTypes] = useState<string[]>(dysarthriaTypes || []);
+    const [mixedTypeDetail, setMixedTypeDetail] = useState<string>(mixedDysarthriaTypeDetail || '');
+    const [opinion, setOpinion] = useState<string | undefined>(comprehensiveOpinion);
+
+    const handleChangeOpinion = useCallback<ChangeEventHandler<HTMLTextAreaElement>>(e => {
+        setOpinion(e.target.value);
+    }, []);
+
+    const printViewRef = useRef<HTMLDivElement>(null);
+
+    const reactToPrintFn = useReactToPrint({
+        contentRef: printViewRef,
+        pageStyle: '@media print { body { zoom: 1.33; } }',
+    });
+
+    const handleSaveResult = useCallback(async () => {
+        try {
+            const sessionId = Number(router.query.sessionId);
+            const accessToken = getCookie('jwt') as string;
+
+            handleOpenModal({
+                content: '결과를 저장하시겠습니까?',
+                onOk: async () => {
+                    await updateTestResultAPI({
+                        sessionId,
+                        data: {
+                            dysarthriaTypes: types,
+                            mixedDysarthriaTypeDetail: types.includes('mixed') ? mixedTypeDetail : '',
+                            opinion,
+                        },
+                        jwt: accessToken,
+                    });
+
+                    typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
+                },
+            });
+        } catch (err) {
+            console.error(err);
+        }
+    }, [handleOpenModal, mixedTypeDetail, opinion, router.query.sessionId, types]);
+
     return (
         <Container>
-            <div className='relative w-full'>
-                <Link href={`/das/sessions/${router.query.sessionId}/editInfo`} className='absolute bottom-0 left-2 underline'>
+            <div className='relative flex w-full flex-col gap-1'>
+                <h1 className='text-center font-jalnan text-head-1'>마비말장애 평가시스템 결과 보고서</h1>
+                <h2 className='text-center font-jalnan text-head-2'>Dysarthria Assessment System (DAS)</h2>
+                <p className='text-center text-neutral4 text-body-2'>연구개발 : 하지완, 김지영, 박기수, 조대형, 네오폰스(주)</p>
+            </div>
+            <div className='mt-10 flex w-full justify-between'>
+                <Link
+                    href={`/das/sessions/${router.query.sessionId}/editInfo`}
+                    className='flex items-center gap-[6px] rounded-[10px] border border-neutral7 bg-white px-5 py-2.5'
+                >
                     개인정보 수정
                 </Link>
-                <h1 className='text-center font-jalnan text-head-1'>말운동평가 검사 결과</h1>
-                <button className='absolute bottom-0 right-2 flex items-center gap-1'>
+                <button
+                    className='flex items-center gap-[6px] rounded-[10px] border border-neutral7 bg-white px-5 py-2.5'
+                    onClick={() => {
+                        reactToPrintFn();
+                    }}
+                >
                     <PrintIcon color={'#212529'} />
-                    <u>인쇄하기</u>
+                    인쇄하기
                 </button>
             </div>
-            <table className='mt-[50px] w-full overflow-hidden rounded-base'>
+
+            <table className='mt-5 w-full overflow-hidden rounded-base'>
                 <tbody>
                     <tr>
-                        <td className='bg-accent3 py-[18px] font-bold' align='center' width='25%'>
+                        <td className='bg-accent3 py-[18px] font-bold' align='center' width='20%'>
                             환자명
                         </td>
-                        <td className='border-l border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='25%'>
+                        <td className='border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='20%'>
                             성별
                         </td>
-                        <td className='border-l border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='25%'>
-                            생년월일
+                        <td className='border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='20%'>
+                            연령
                         </td>
-                        <td className='border-l border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='25%'>
+                        <td className='border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='20%'>
+                            검사일
+                        </td>
+                        <td className='border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='20%'>
                             검사자
                         </td>
                     </tr>
@@ -241,40 +341,63 @@ export default function TestResultPage({
                             {genderOptionList.find(v => v.value === testInfo.patientGender)?.label}
                         </td>
                         <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
-                            {dayjs(testInfo.patientBirthdate).format('YYYY.MM.DD')}
+                            만 {dayjs().diff(testInfo.patientBirthdate, 'year')}세
+                        </td>
+                        <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
+                            {dayjs(testInfo.testDate).format('YYYY.MM.DD')}
                         </td>
                         <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
                             {user?.data?.fullName}
                         </td>
                     </tr>
+                </tbody>
+            </table>
+            <table className='mt-5 w-full overflow-hidden rounded-base'>
+                <tbody>
                     <tr>
-                        <td className='bg-accent3 py-[18px] font-bold' align='center' width='25%'>
-                            신경학적 진단명
+                        <td className='bg-accent3 py-[18px] font-bold' align='center' width='50%'>
+                            마비말장애 관련 뇌병변
                         </td>
-                        <td className='border-l border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='25%'>
-                            병력
-                        </td>
-                        <td className='border-l border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='25%'>
-                            개인관련정보
-                        </td>
-                        <td className='border-l border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='25%'>
-                            검사일자
+                        <td className='border-neutral6 bg-accent3 py-[18px] font-bold' align='center' width='50%'>
+                            신경학적 병변 위치 또는 질환명
                         </td>
                     </tr>
                     <tr>
                         <td className='bg-white py-[18px]' align='center'>
                             {testInfo.brainLesions
-                                .map(brainLesion => brainLesionOptions.find(option => option.value === brainLesion)?.label || '')
-                                .join(',')}
+                                ?.map(brainLesion => brainLesionOptions.find(option => option.value === brainLesion)?.label || '')
+                                .join(',') || '없음'}
                         </td>
                         <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
-                            {testInfo.medicalHistory}
-                        </td>{' '}
-                        <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
-                            {testInfo.patientMemo}
+                            {testInfo.neurologicalLesion || '없음'}
                         </td>
-                        <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
-                            {dayjs(testInfo.testDate).format('YYYY.MM.DD')}
+                    </tr>
+                </tbody>
+            </table>
+            <table className='mt-5 w-full overflow-hidden rounded-base'>
+                <tbody>
+                    <tr>
+                        <td className='border-neutral6 bg-accent3 py-[18px] font-bold' align='center'>
+                            병력
+                        </td>
+                    </tr>
+                    <tr>
+                        <td className='bg-white py-[18px]' align='center'>
+                            {testInfo.medicalHistory || '없음'}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table className='mt-5 w-full overflow-hidden rounded-base'>
+                <tbody>
+                    <tr>
+                        <td className='border-neutral6 bg-accent3 py-[18px] font-bold' align='center'>
+                            개인관련정보
+                        </td>
+                    </tr>
+                    <tr>
+                        <td className='bg-white py-[18px]' align='center'>
+                            {testInfo.patientMemo || '없음'}
                         </td>
                     </tr>
                 </tbody>
@@ -282,9 +405,12 @@ export default function TestResultPage({
 
             <div className='mt-20 w-full'>
                 <h2 className='font-bold text-black text-head-2'>TOTAL SCORE</h2>
-                <div className='mt-7.5 gap-7.5 flex'>
+                <div className='mt-7.5 flex gap-7.5'>
                     <div className='flex h-[295px] min-w-[280px] items-center justify-center rounded-base bg-white shadow-base xl:h-[346px] xl:w-[390px]'>
-                        <TestTotalScoreGraph data={makeTotalScoreGraphData(testResultList)} />
+                        <TestTotalScoreGraph
+                            data={makeTotalScoreGraphData(testResultList)}
+                            maxScore={testResultList.reduce((accum, curr) => accum + curr.maxScore, 0)}
+                        />
                     </div>
                     <div className='h-[295px] w-full rounded-base bg-white shadow-base xl:h-[346px] xl:w-[580px]'>
                         <TestScoreBarGraph data={makeScoreBarGraphData(testResultList)} />
@@ -309,13 +435,122 @@ export default function TestResultPage({
                 );
             })}
 
+            {speechMotorResults.length > 0 && (
+                <div className='mt-20 w-full'>
+                    <h2 className='font-bold text-head-2'>SPEECH MOTOR : 말기제 평가</h2>
+                    <table className='mt-5 w-full overflow-hidden rounded-base'>
+                        <thead>
+                            <tr>
+                                <th className='bg-accent3 py-3 font-bold' align='center' colSpan={3}>
+                                    AMR & SMR
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {speechMotorResults.map((v, i) => (
+                                <tr key={i} className=''>
+                                    <td className='border-t border-neutral8 bg-white py-3 pl-10' width='87%'>
+                                        {v.questionText}
+                                    </td>
+                                    <td className='border-l border-t border-neutral8 bg-white py-3' align='center' width='13%'>
+                                        {v.value}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            {mildAndModerateAnswers.length > 0 && (
+                <div className='mt-20 w-full'>
+                    <h2 className='font-bold text-head-2'>경도 & 심도 체크항목</h2>
+                    <table className='mt-5 w-full overflow-hidden rounded-base'>
+                        <thead>
+                            <tr>
+                                <th className='bg-accent3 py-3 font-bold' align='center'>
+                                    영역
+                                </th>
+                                <th className='bg-accent3 py-3 font-bold' align='center'>
+                                    질문
+                                </th>
+                                <th className='bg-accent3 py-3 font-bold' align='center'>
+                                    답변
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {mildAndModerateAnswers.map((v, i) => (
+                                <tr key={i} className=''>
+                                    <td className='border-t border-neutral8 bg-white py-3' align='center' width='15%'>
+                                        {v.partTitle}
+                                    </td>
+                                    <td className='border-l border-t border-neutral8 bg-white py-3' align='center' width='70%'>
+                                        {v.questionText}
+                                    </td>
+                                    <td className='border-l border-t border-neutral8 bg-white py-3' align='center' width='15%'>
+                                        {answerOptions.find(answer => answer.value === v.answer)?.label}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            <div className='mt-20 w-full'>
+                <h2 className='font-bold text-head-2'>마비말장애 유형</h2>
+                <div className='mt-7.5 flex w-full flex-row flex-wrap gap-y-[25px] rounded-base bg-white px-10 py-9'>
+                    {typeOptions.map(type => (
+                        <div
+                            key={type.value}
+                            className={type.value === 'mixed' ? 'flex' : 'flex-shrink-0 flex-grow basis-1/2 xl:basis-4/12'}
+                        >
+                            <CheckBoxGroupItem key={type.value} name='types' value={type.value} values={types} setValues={setTypes}>
+                                {type.label}
+                            </CheckBoxGroupItem>
+                            {type.value === 'mixed' && types.includes('mixed') && (
+                                <input
+                                    className='ml-2.5 w-40 border-b border-black'
+                                    value={mixedTypeDetail}
+                                    onChange={e => {
+                                        setMixedTypeDetail(e.target.value);
+                                    }}
+                                />
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className='mt-20 w-full'>
+                <h2 className='font-bold text-head-2'>종합소견</h2>
+                <div className='mt-7.5 w-full rounded-base bg-white p-8'>
+                    <ReactTextareaAutosize className='min-h-[200px] w-full' value={opinion || ''} onChange={handleChangeOpinion} />
+                </div>
+            </div>
+
             <div className='mt-20'>
                 <Link href='/das' className='inline-flex items-center justify-center btn btn-large btn-outlined'>
                     홈
                 </Link>
-                {/* <button type='button' className='ml-5 btn btn-large btn-contained' onClick={() => {}}>
-                    다음
-                </button> */}
+                <button type='button' className='ml-5 btn btn-large btn-contained' onClick={handleSaveResult}>
+                    저장
+                </button>
+            </div>
+
+            <div className='hidden'>
+                <PrintView
+                    testerName={user?.data?.fullName}
+                    testInfo={testInfo}
+                    testResultList={testResultList}
+                    mildAndModerateAnswers={mildAndModerateAnswers}
+                    speechMotorResults={speechMotorResults}
+                    types={types}
+                    mixedTypeDetail={mixedTypeDetail || ''}
+                    opinion={opinion || ''}
+                    printViewRef={printViewRef}
+                />
             </div>
         </Container>
     );
@@ -345,10 +580,22 @@ export const getServerSideProps: GetServerSideProps = async context => {
         const { testInfo } = await getTestInfoAPI({ sessionId, jwt: accessToken });
 
         // 소검사 문항 정보 fetch
-        const { testScore } = await getTestResultAPI({ sessionId, jwt: accessToken });
+        const { testScore, mildAndModerateAnswers, speechMotorResults, dysarthriaTypes, mixedDysarthriaTypeDetail, opinion } =
+            await getTestResultAPI({
+                sessionId,
+                jwt: accessToken,
+            });
 
         const testResultList = subtestResultList.map(v => {
-            const partList = testScore.filter(score => v.subtestIds.includes(score.subtestId));
+            const partList = testScore
+                .filter(score => v.subtestIds.includes(score.subtestId))
+                .map(score => {
+                    const partTitles = score.partTitle.split(',');
+                    const partTitleEns = score.partTitleEn.split(',');
+                    const partTitle = partTitles.map((title, i) => `${title}(${partTitleEns[i]})`).join('/');
+
+                    return { ...score, partTitle };
+                });
             const { totalScore, maxScore } = partList.reduce(
                 (accum, curr) => {
                     const totalScore = accum.totalScore + curr.score;
@@ -374,9 +621,15 @@ export const getServerSideProps: GetServerSideProps = async context => {
                 isLoggedIn: true,
                 testResultList,
                 testInfo,
+                mildAndModerateAnswers,
+                speechMotorResults,
+                dysarthriaTypes,
+                mixedDysarthriaTypeDetail,
+                opinion,
             },
         };
     } catch (err) {
+        console.error(err);
         return {
             redirect: {
                 destination: '/das',

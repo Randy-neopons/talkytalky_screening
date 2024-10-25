@@ -1,6 +1,7 @@
 // 공통 svg 아이콘
 
 type IconProps = {
+    bgColor?: string;
     color?: string;
     width?: number;
     height?: number;
@@ -78,10 +79,10 @@ export const RecycleIcon = ({ color = 'white', width = 24, height = 24 }: IconPr
     );
 };
 
-export const InfoIcon = ({ color = 'white', width = 24, height = 24 }: IconProps) => {
+export const InfoIcon = ({ bgColor = 'transparent', color = 'white', width = 24, height = 24 }: IconProps) => {
     return (
-        <svg xmlns='http://www.w3.org/2000/svg' width={width} height={height} viewBox='0 0 24 24' fill='none'>
-            <circle cx='12' cy='12' r='8' stroke={color} strokeWidth='2' />
+        <svg xmlns='http://www.w3.org/2000/svg' width={width} height={height} viewBox='0 0 24 24' fill={bgColor}>
+            <circle cx='12' cy='12' r='8' stroke={bgColor} strokeWidth='2' />
             <circle cx='12' cy='8' r='1' fill={color} />
             <rect x='11' y='10' width='2' height='7' rx='1' fill={color} />
         </svg>

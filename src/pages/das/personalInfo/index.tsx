@@ -1,4 +1,4 @@
-import { useCallback, useEffect, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, type ReactNode } from 'react';
 import { Controller, useForm, useWatch, type Control } from 'react-hook-form';
 import TextareaAutosize from 'react-textarea-autosize';
 import type { GetServerSideProps } from 'next';
@@ -99,6 +99,16 @@ export const PersonalInfoForm = ({
         brainLesions: string[];
         medicalHistory: string;
         patientMemo: string;
+        neurologicalLesion?: string; // 신경학적 병변
+        languageDisorder?: string; // 언어장애
+        languageDisorderDetail?: {
+            kWabAq?: number;
+            aphasiaType?: string;
+        }; // 언어장애
+        cognitiveDisorder?: string; // 인지장애
+        cognitiveDisorderDetail?: {
+            mmseScore?: number;
+        };
     };
     onSubmit: (data: FormValues) => void;
 }) => {
@@ -121,10 +131,25 @@ export const PersonalInfoForm = ({
             brainLesions: testInfo?.brainLesions || [],
             medicalHistory: testInfo?.medicalHistory || '',
             patientMemo: testInfo?.patientMemo || '',
+            neurologicalLesion: testInfo?.neurologicalLesion || '',
+            languageDisorder: testInfo?.languageDisorder,
+            languageDisorderDetail: testInfo?.languageDisorderDetail,
+            cognitiveDisorder: testInfo?.cognitiveDisorder,
+            cognitiveDisorderDetail: testInfo?.cognitiveDisorderDetail,
         },
         mode: 'onChange',
     });
     const age = useAge({ control }); // 만 나이 계산
+    const watchLanguageDisorder = useWatch({ control, name: 'languageDisorder' });
+    const watchCognitiveDisorder = useWatch({ control, name: 'cognitiveDisorder' });
+
+    const router = useRouter();
+
+    // 제출 버튼 텍스트
+    const submitButtonText = useMemo(() => {
+        const pathname = router.asPath.split('/').slice(-1)[0];
+        return pathname === 'editInfo' ? '확인' : '다음';
+    }, [router]);
 
     return (
         <>
@@ -244,21 +269,57 @@ export const PersonalInfoForm = ({
                 <Label htmlFor='comorbidity'>동반장애 유무</Label>
                 <div className='mt-7.5 flex flex-row gap-5'>
                     <span className='font-bold text-body-1'>언어장애</span>
-                    {comorbidityOptions.map((option, i) => (
-                        <label key={option.value} className='flex items-center gap-[10px] text-body-1'>
-                            <input type='radio' {...register('languageDisorder')} value={option.value} className='h-6 w-6' />
-                            {option.label}
-                        </label>
-                    ))}
+                    <div>
+                        <div className='flex flex-row gap-7.5'>
+                            {comorbidityOptions.map((option, i) => (
+                                <label key={option.value} className='flex items-center gap-[10px] text-body-1'>
+                                    <input type='radio' {...register('languageDisorder')} value={option.value} className='h-6 w-6' />
+                                    {option.label}
+                                </label>
+                            ))}
+                        </div>
+                        {watchLanguageDisorder === 'Y' && (
+                            <div className='mt-3.5 flex flex-row gap-5'>
+                                <div className='flex items-center gap-2'>
+                                    <span>K-WAB AQ:</span>
+                                    <input
+                                        type='number'
+                                        className='w-20 border-b border-black'
+                                        {...register('languageDisorderDetail.kWabAq')}
+                                    />
+                                </div>
+                                <div className='flex items-center gap-2'>
+                                    <span>실어증 타입:</span>
+                                    <input className='w-20 border-b border-black' {...register('languageDisorderDetail.aphasiaType')} />
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
                 <div className='mt-7.5 flex flex-row gap-5'>
                     <span className='font-bold text-body-1'>인지장애</span>
-                    {comorbidityOptions.map((option, i) => (
-                        <label key={option.value} className='flex items-center gap-[10px] text-body-1'>
-                            <input type='radio' {...register('cognitiveDisorder')} value={option.value} className='h-6 w-6' />
-                            {option.label}
-                        </label>
-                    ))}
+                    <div>
+                        <div className='flex flex-row gap-7.5'>
+                            {comorbidityOptions.map((option, i) => (
+                                <label key={option.value} className='flex items-center gap-[10px] text-body-1'>
+                                    <input type='radio' {...register('cognitiveDisorder')} value={option.value} className='h-6 w-6' />
+                                    {option.label}
+                                </label>
+                            ))}
+                        </div>
+                        {watchCognitiveDisorder === 'Y' && (
+                            <div className='mt-3.5 flex flex-row gap-5'>
+                                <div className='flex items-center gap-2'>
+                                    <span>MMSE 총점:</span>
+                                    <input
+                                        type='number'
+                                        className='w-20 border-b border-black'
+                                        {...register('cognitiveDisorderDetail.mmseScore')}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </form>
             <button
@@ -267,7 +328,7 @@ export const PersonalInfoForm = ({
                 onClick={handleSubmit(onSubmit)}
                 disabled={!isValid}
             >
-                다음
+                {submitButtonText}
             </button>
         </>
     );

@@ -12,7 +12,7 @@ import { useTestTime } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
-import { MemoIcon, MikeIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/icons';
+import { MemoIcon, MikeIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/common/icons';
 import { useConductedSubtestsQuery, useQuestionsAndAnswersQuery } from '@/hooks/das';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
@@ -28,7 +28,7 @@ const PART_ID_START = 11;
 // 소검사 내 파트별 문항 index 정보
 // TODO: part title도 DB에서 가져오기
 const partIndexList = [
-    { start: 0, end: 6, subtitle: '호흡 & 음성', partTitle: '호흡 / 음성', partTitleEn: 'Respiration / Phonation', partId: 11 },
+    { start: 0, end: 6, subtitle: '호흡 & 발성', partTitle: '호흡 / 발성', partTitleEn: 'Respiration / Phonation', partId: 11 },
     { start: 6, end: 8, subtitle: '공명', partTitle: '공명', partTitleEn: 'Resonance', partId: 12 },
     { start: 8, end: 11, subtitle: '조음', partTitle: '조음', partTitleEn: 'Articulation', partId: 13 },
     { start: 11, end: 18, subtitle: '운율', partTitle: '운율', partTitleEn: 'Prosody', partId: 14 },
@@ -49,6 +49,7 @@ export default function SpeechTwoQuestionsPage({
     // 현재 소검사, 선택한 소검사 정보
     const { data: subtestsData } = useConductedSubtestsQuery({ sessionId: Number(router.query.sessionId), jwt: getCookie('jwt') || '' });
     const testTime = useTestTime();
+    const currentSubtest = useCurrentSubTest();
 
     // 문항 전부 정상으로 체크
     const [checkAll, setCheckAll] = useState(false);
@@ -61,7 +62,7 @@ export default function SpeechTwoQuestionsPage({
     );
 
     // react-hook-form
-    const { control, register, setValue, handleSubmit } = useForm<{
+    const { control, register, setValue, handleSubmit, getValues } = useForm<{
         answers: Answer[];
     }>();
     const { fields } = useFieldArray({ name: 'answers', control });
@@ -136,13 +137,6 @@ export default function SpeechTwoQuestionsPage({
         [setValue, end, start],
     );
 
-    // 이전 파트로
-    const handleClickPrev = useCallback(() => {
-        setCheckAll(false);
-        partId > PART_ID_START && setPartId(partId => partId - 1);
-        typeof window !== 'undefined' && window.scrollTo(0, 0);
-    }, [partId]);
-
     // 폼 데이터 제출
     const handleSubmitData = useCallback(
         async ({ sessionId, data }: { sessionId: number; data: any }) => {
@@ -169,6 +163,26 @@ export default function SpeechTwoQuestionsPage({
         },
         [partId, testTime],
     );
+
+    // 이전 파트로
+    const handleClickPrev = useCallback(async () => {
+        try {
+            const data = getValues();
+            const sessionId = Number(router.query.sessionId);
+            await handleSubmitData({ sessionId, data });
+
+            setCheckAll(false);
+
+            if (partId > PART_ID_START) {
+                setPartId(partId => partId - 1);
+                typeof window !== 'undefined' && window.scrollTo(0, 0);
+            } else {
+                router.push(`/das/sessions/${sessionId}/subtests/speechTwo/conversation`);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }, [getValues, handleSubmitData, partId, router]);
 
     // 폼 제출
     const handleClickNext = useCallback(
@@ -245,15 +259,14 @@ export default function SpeechTwoQuestionsPage({
 
     return (
         <Container>
-            <h2 className='flex items-center font-noto font-bold text-accent1 text-head-2'>SPEECH II : 종합적 말평가</h2>
             <form onSubmit={handleSubmit(handleClickNext)} className={`${subtestStyles['subtest-form']}`}>
                 <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitleEn}</h1>
                 <h2 className='whitespace-pre-line text-center font-jalnan text-head-2'>{partTitle}</h2>
 
                 <ul className='mt-20 flex flex-row flex-nowrap gap-5'>
                     <li className='h-40 w-80 overflow-hidden rounded-base bg-white shadow-base'>
-                        <div className='flex h-12 w-full items-center justify-center bg-accent1'>
-                            <span className='font-bold text-white text-body-2'>문단읽기</span>
+                        <div className='flex h-12 w-full items-center justify-center bg-accent3'>
+                            <span className='font-bold text-neutral3 text-body-2'>문단읽기</span>
                         </div>
                         <div className='flex w-full justify-center gap-5 py-[35px]'>
                             {/* <button
@@ -273,8 +286,8 @@ export default function SpeechTwoQuestionsPage({
                         </div>
                     </li>
                     <li className='h-40 w-80 overflow-hidden rounded-base bg-white shadow-base'>
-                        <div className='flex h-12 w-full items-center justify-center bg-accent1'>
-                            <span className='font-bold text-white text-body-2'>그림 설명하기</span>
+                        <div className='flex h-12 w-full items-center justify-center bg-accent3'>
+                            <span className='font-bold text-neutral3 text-body-2'>그림 설명하기</span>
                         </div>
                         <div className='flex w-full justify-center gap-5 py-[35px]'>
                             {/* <button
@@ -294,8 +307,8 @@ export default function SpeechTwoQuestionsPage({
                         </div>
                     </li>
                     <li className='h-40 w-80 overflow-hidden rounded-base bg-white shadow-base'>
-                        <div className='flex h-12 w-full items-center justify-center bg-accent1'>
-                            <span className='font-bold text-white text-body-2'>대화하기</span>
+                        <div className='flex h-12 w-full items-center justify-center bg-accent3'>
+                            <span className='font-bold text-neutral3 text-body-2'>대화하기</span>
                         </div>
                         <div className='flex w-full justify-center gap-5 py-[35px]'>
                             {/* <button
@@ -317,9 +330,9 @@ export default function SpeechTwoQuestionsPage({
                 </ul>
 
                 <table className={`${subtestStyles['question-table']}`}>
-                    <thead>
-                        <tr className='bg-accent1 text-white text-body-2'>
-                            <th className='rounded-tl-base'></th>
+                    <thead data-title={subtitle}>
+                        <tr>
+                            <th></th>
                             <th>{subtitle}</th>
                             <th>정상</th>
                             <th>경도</th>
@@ -371,14 +384,12 @@ export default function SpeechTwoQuestionsPage({
                 </div>
 
                 <div>
-                    {partId > PART_ID_START && (
-                        <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
-                            이전
-                        </button>
-                    )}
+                    <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
+                        이전
+                    </button>
 
                     <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained'>
-                        다음 검사
+                        다음
                     </button>
                 </div>
             </form>

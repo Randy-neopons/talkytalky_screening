@@ -1,44 +1,72 @@
-import { useCallback, useEffect, useMemo, useState, type MouseEventHandler, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ChangeEventHandler } from 'react';
+import { useReactToPrint } from 'react-to-print';
 import type { GetServerSideProps } from 'next';
-import Image from 'next/image';
 import { useRouter } from 'next/router';
 
 import { isAxiosError } from 'axios';
 import { deleteCookie, getCookie } from 'cookies-next';
 
+import { useCurrentSubTest } from '@/stores/testStore';
 import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import { AudioButton } from '@/components/common/Buttons';
 import Container from '@/components/common/Container';
-import { MikeIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/icons';
+import { InfoIcon, PrintIcon } from '@/components/common/icons';
+import { FontSizeButton } from '@/components/das/FontSizeButton';
+import { MemoButton } from '@/components/das/MemoButton';
+import { useConductedSubtestsQuery } from '@/hooks/das';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
-import { getAnswersCountAPI, updateSessionAPI } from '@/api/das';
+import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
 
 import styles from '../SubTests.module.css';
+
+import type { Recording } from '@/types/das';
+
+// 본문 폰트 크기 조절 className 생성
+const makeFontSizeClassName = (fontSize: number) => {
+    return fontSize === 3 ? 'text-head-1' : fontSize === 2 ? 'text-head-2' : 'text-head-3';
+};
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 3;
 const PART_ID_START = 8;
 
+type Props = {
+    recording: Recording;
+};
+
 // 문단읽기 페이지
-export default function ParagraphReadingPage() {
+export default function ParagraphReadingPage({ recording }: Props) {
     const router = useRouter();
 
     const { audioBlob, audioUrl, isRecording, isPlaying, handlePlay, handlePause, handleStartRecording, handleStopRecording } =
-        useAudioRecorder();
+        useAudioRecorder(recording?.filePath);
 
     const [partId, setPartId] = useState(PART_ID_START);
 
+    const divRef = useRef<HTMLDivElement>(null);
+
+    const reactToPrintFn = useReactToPrint({
+        contentRef: divRef,
+    });
+
+    // 현재 소검사, 선택한 소검사 정보
+    const { data: subtestsData } = useConductedSubtestsQuery({ sessionId: Number(router.query.sessionId), jwt: getCookie('jwt') || '' });
     const testTime = useTestTime();
     const { setTestStart } = useTimerActions();
+    const currentSubtest = useCurrentSubTest();
 
     // 폼 데이터 제출
     const handleSubmitData = useCallback(
         async ({ sessionId }: { sessionId: number }) => {
             try {
                 const formData = new FormData();
+
                 formData.append('audio1', audioBlob || 'null');
-                formData.append('recordings', JSON.stringify([{ filePath: null, repeatCount: null }]));
+                formData.append(
+                    'recordings',
+                    JSON.stringify([{ filePath: recording?.filePath || null, repeatCount: recording?.repeatCount || null }]),
+                );
 
                 formData.append('testTime', `${testTime}`);
                 formData.append('currentPartId', `${partId}`);
@@ -58,8 +86,37 @@ export default function ParagraphReadingPage() {
                 console.error(err);
             }
         },
-        [audioBlob, partId, testTime],
+        [audioBlob, partId, recording, testTime],
     );
+
+    // 이전 버튼 클릭
+    const handleClickPrev = useCallback(async () => {
+        try {
+            const sessionId = Number(router.query.sessionId);
+            await handleSubmitData({ sessionId });
+
+            const subtests = subtestsData?.subtests;
+            if (!subtests) {
+                throw new Error('수행할 소검사가 없습니다');
+            }
+
+            // 이전 소검사
+            const currentSubtestIndex = subtests.findIndex(v => v.subtestId === currentSubtest?.subtestId);
+            const prevSubtestItem = subtests[currentSubtestIndex - 1];
+
+            if (prevSubtestItem) {
+                // 이전 소검사가 있으면 이동
+                router.push(`/das/sessions/${sessionId}/subtests/${prevSubtestItem.pathname}`);
+            } else {
+                // 없으면 홈으로 이동
+                if (window.confirm('홈으로 이동하시겠습니까?')) {
+                    router.push('/das');
+                }
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }, [currentSubtest?.subtestId, handleSubmitData, router, subtestsData?.subtests]);
 
     // 다음 클릭
     const handleClickNext = useCallback(async () => {
@@ -77,25 +134,36 @@ export default function ParagraphReadingPage() {
         setTestStart(true);
     }, [setTestStart]);
 
+    // 폰트 크기 조절
+    const [fontSize, setFontSize] = useState(1);
+    const handleChangeFontSize = useCallback<ChangeEventHandler<HTMLInputElement>>(e => {
+        setFontSize(e.target.valueAsNumber);
+    }, []);
+
+    // 메모
+    const [memo, setMemo] = useState('');
+    const handleChangeMemo = useCallback<ChangeEventHandler<HTMLTextAreaElement>>(e => {
+        setMemo(e.target.value);
+    }, []);
+
     return (
         <Container>
-            <h2 className='flex items-center font-noto font-bold text-accent1 text-head-2'>SPEECH II : 종합적 말평가</h2>
-            <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{'문단읽기'}</h1>
-            <div className='ml-auto mt-8 flex items-center gap-[6px]'>
-                <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'>
-                    <rect x='2.5' y='7.5' width='19' height='9' rx='0.5' stroke='#212529' />
-                    <path d='M6.5 3C6.5 2.72386 6.72386 2.5 7 2.5H17C17.2761 2.5 17.5 2.72386 17.5 3V7.5H6.5V3Z' stroke='#212529' />
-                    <path
-                        d='M6 13C6 12.4477 6.44772 12 7 12H17C17.5523 12 18 12.4477 18 13V19C18 19.5523 17.5523 20 17 20H7C6.44772 20 6 19.5523 6 19V13Z'
-                        fill='#212529'
-                    />
-                    <path d='M8 14H16' stroke='#F5F7FC' strokeLinecap='round' />
-                    <path d='M8 16H16' stroke='#F5F7FC' strokeLinecap='round' />
-                    <path d='M8 18H12' stroke='#F5F7FC' strokeLinecap='round' />
-                </svg>
-                인쇄하기
+            <div className={`${styles['title']}`}>
+                <h1 className='flex items-center whitespace-pre-line text-center font-jalnan text-head-1'>문단읽기</h1>
+                <button>
+                    <InfoIcon bgColor='#6979F8' color='#FFFFFF' width={44} height={44} />
+                </button>
             </div>
-            <div className='mt-5 rounded-base bg-white p-[50px] text-head-2'>
+            <button
+                onClick={() => {
+                    reactToPrintFn();
+                }}
+                className='ml-auto mt-8 flex items-center gap-[6px] rounded-[10px] border border-neutral7 bg-white px-5 py-2.5'
+            >
+                <PrintIcon color={'#212529'} />
+                인쇄하기
+            </button>
+            <div className={`mt-5 rounded-base bg-white p-[50px] ${makeFontSizeClassName(fontSize)}`} ref={divRef}>
                 (예시문단) 높은 산에 올라가 맑은 공기를 마시며 소리를 지르면 가슴이 활찍 열리는 듯하다. 바닷가에 나가 조개를 주으며 넓게
                 펼쳐 있는 바다를 바라보면 내 마음이 역시 넓어지는 것 같다. 가로수 길게 뻗어 있는 곧은 길을 따라 걸어가면서 마치 쭉쭉 뻗어
                 있는 나무들처럼, 그리고 반듯하게 놓여있는 길처럼 바른 마음으로 자연을 벗하며 살아야겠다는 생각을 한다. 아이들이 뛰어 노는
@@ -107,7 +175,9 @@ export default function ParagraphReadingPage() {
             </div>
 
             <div className='mt-20 flex w-full flex-nowrap items-center'>
-                <div className='mx-auto flex gap-[45px]'>
+                <div className='mx-auto flex items-center gap-[45px]'>
+                    <MemoButton memo={memo} handleChangeMemo={handleChangeMemo} />
+
                     <AudioButton
                         audioUrl={audioUrl}
                         isRecording={isRecording}
@@ -117,11 +187,13 @@ export default function ParagraphReadingPage() {
                         handlePause={handlePause}
                         handlePlay={handlePlay}
                     />
+
+                    <FontSizeButton fontSize={fontSize} handleChangeFontSize={handleChangeFontSize} />
                 </div>
             </div>
             <div className='mt-20 flex gap-5'>
-                <button type='button' className='btn btn-large btn-outlined' onClick={() => {}}>
-                    이전
+                <button type='button' className='btn btn-large btn-outlined' onClick={handleClickPrev}>
+                    이전 검사로
                 </button>
                 <button key='noSubmit' type='button' className='btn btn-large btn-contained' onClick={handleClickNext}>
                     다음
@@ -152,6 +224,11 @@ export const getServerSideProps: GetServerSideProps = async context => {
             };
         }
 
+        const responseData = await getQuestionAndAnswerListAPI({ sessionId, subtestId: CURRENT_SUBTEST_ID, jwt: accessToken });
+        const recording = responseData.recordings?.[0] || null;
+
+        console.log(recording);
+
         // 검사 시작할 때마다 진행률 불러오기
         const { totalCount, notNullCount } = await getAnswersCountAPI({ sessionId, jwt: accessToken });
         const progress = Math.ceil((notNullCount / totalCount) * 100);
@@ -159,6 +236,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         return {
             props: {
                 isLoggedIn: true,
+                recording,
                 progress,
             },
         };

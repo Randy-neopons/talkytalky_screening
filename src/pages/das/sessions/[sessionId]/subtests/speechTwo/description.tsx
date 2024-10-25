@@ -1,4 +1,5 @@
-import { useCallback, useState, type ReactNode } from 'react';
+import { useCallback, useRef, useState, type ReactNode, type RefObject } from 'react';
+import { useReactToPrint } from 'react-to-print';
 import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
@@ -10,30 +11,58 @@ import { useTestTime } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import { AudioButton } from '@/components/common/Buttons';
 import Container from '@/components/common/Container';
-import { InfoIcon } from '@/components/icons';
+import { InfoIcon, PrintIcon } from '@/components/common/icons';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
-import { getAnswersCountAPI, updateSessionAPI } from '@/api/das';
+import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
 
 import styles from '../SubTests.module.css';
 
-import fontSizeIcon from 'public/static/images/font-size-icon.png';
-import memoIcon from 'public/static/images/memo-icon.png';
 import pictureDescImg from 'public/static/images/picture-desc-img.png';
+
+import type { Recording } from '@/types/das';
+
+const TooltipArrowIcon = () => {
+    return (
+        <svg
+            className={`${styles['tooltip-arrow']}`}
+            xmlns='http://www.w3.org/2000/svg'
+            width='54'
+            height='54'
+            viewBox='0 0 54 54'
+            fill='none'
+        >
+            <path
+                d='M24.4019 4.5C25.5566 2.5 28.4434 2.5 29.5981 4.5L47.7846 36C48.9393 38 47.4959 40.5 45.1865 40.5H8.81346C6.50406 40.5 5.06069 38 6.21539 36L24.4019 4.5Z'
+                fill='#495057'
+            />
+        </svg>
+    );
+};
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 3;
 const PART_ID_START = 9;
 
+type Props = {
+    recording: Recording | null;
+};
+
 // 그림설명하기 페이지
-export default function PictureDescriptionPage() {
+export default function PictureDescriptionPage({ recording }: Props) {
     const router = useRouter();
 
     const { audioBlob, audioUrl, isPlaying, isRecording, handlePause, handlePlay, handleStartRecording, handleStopRecording } =
-        useAudioRecorder();
+        useAudioRecorder(recording?.filePath);
 
     const [partId, setPartId] = useState(PART_ID_START);
 
     const testTime = useTestTime();
+
+    const imageRef = useRef<HTMLImageElement>(null);
+
+    const reactToPrintFn = useReactToPrint({
+        contentRef: imageRef,
+    });
 
     // 다음 클릭
     const handleClickPrev = useCallback(
@@ -56,7 +85,10 @@ export default function PictureDescriptionPage() {
             try {
                 const formData = new FormData();
                 formData.append('audio1', audioBlob || 'null');
-                formData.append('recordings', JSON.stringify([{ filePath: null, repeatCount: null }]));
+                formData.append(
+                    'recordings',
+                    JSON.stringify([{ filePath: recording?.filePath || null, repeatCount: recording?.repeatCount || null }]),
+                );
 
                 formData.append('testTime', `${testTime}`);
                 formData.append('currentPartId', `${partId}`);
@@ -76,7 +108,7 @@ export default function PictureDescriptionPage() {
                 console.error(err);
             }
         },
-        [audioBlob, partId, testTime],
+        [audioBlob, partId, recording, testTime],
     );
 
     // 다음 클릭
@@ -96,39 +128,35 @@ export default function PictureDescriptionPage() {
 
     return (
         <Container>
-            <h2 className='font-noto font-bold text-accent1 text-head-2'>SPEECH II : 종합적 말평가</h2>
-            <h1 className='flex items-center whitespace-pre-line text-center font-jalnan text-head-1'>
-                그림설명하기
-                <span className={`${styles['tooltip']}`}>
+            <div className={`${styles['title']}`}>
+                <h1 className='flex items-center whitespace-pre-line text-center font-jalnan text-head-1'>그림설명하기</h1>
+                <div className={`${styles['button-container']}`}>
                     <button>
-                        <InfoIcon color='#6979F8' width={40} height={40} />
+                        <InfoIcon bgColor='#6979F8' color='#FFFFFF' width={44} height={44} />
                     </button>
-                    <div className={`${styles['tooltip-content']} bg-accent3`}>
+                    <TooltipArrowIcon />
+                </div>
+                <div className={`${styles['tooltip-content']}`}>
+                    <p>
                         <b>치료사 지시문</b>
-                        <br />
+                    </p>
+                    <p>
                         “지금부터 그림을 보여드릴거예요. 그림을 잘 보시고 1분동안 최대한 자세히 설명해주세요. 가능하면 문장으로
                         설명해주세요.” (필요시 그림에서 설명하지 못한 부분을 가리키며) “여기는 어떤 일이 일어나고 있나요?” 라고 발화
                         유도하기
-                    </div>
-                </span>
-            </h1>
-            <div className='ml-auto mt-8 flex items-center gap-[6px]'>
-                <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'>
-                    <rect x='2.5' y='7.5' width='19' height='9' rx='0.5' stroke='#212529' />
-                    <path d='M6.5 3C6.5 2.72386 6.72386 2.5 7 2.5H17C17.2761 2.5 17.5 2.72386 17.5 3V7.5H6.5V3Z' stroke='#212529' />
-                    <path
-                        d='M6 13C6 12.4477 6.44772 12 7 12H17C17.5523 12 18 12.4477 18 13V19C18 19.5523 17.5523 20 17 20H7C6.44772 20 6 19.5523 6 19V13Z'
-                        fill='#212529'
-                    />
-                    <path d='M8 14H16' stroke='#F5F7FC' strokeLinecap='round' />
-                    <path d='M8 16H16' stroke='#F5F7FC' strokeLinecap='round' />
-                    <path d='M8 18H12' stroke='#F5F7FC' strokeLinecap='round' />
-                </svg>
+                    </p>
+                </div>
+            </div>
+            <button
+                onClick={() => {
+                    reactToPrintFn();
+                }}
+                className='ml-auto mt-8 flex items-center gap-[6px] rounded-[10px] border border-neutral7 bg-white px-5 py-2.5'
+            >
+                <PrintIcon color={'#212529'} />
                 인쇄하기
-            </div>
-            <div className='mt-5 rounded-[20px] bg-white px-[65px] py-5'>
-                <Image src={pictureDescImg} alt='picture-description' className='h-auto w-[871px]' />
-            </div>
+            </button>
+            <Image ref={imageRef} src={pictureDescImg} alt='picture-description' className='mt-5 h-auto w-[1000px] rounded-base' />
 
             <div className='mt-20 flex w-full flex-nowrap items-center'>
                 <div className='mx-auto flex gap-[45px]'>
@@ -184,6 +212,9 @@ export const getServerSideProps: GetServerSideProps = async context => {
             };
         }
 
+        const responseData = await getQuestionAndAnswerListAPI({ sessionId, subtestId: CURRENT_SUBTEST_ID, jwt: accessToken });
+        const recording = responseData.recordings?.[1] || null;
+
         // 검사 시작할 때마다 진행률 불러오기
         const { totalCount, notNullCount } = await getAnswersCountAPI({ sessionId, jwt: accessToken });
         const progress = Math.ceil((notNullCount / totalCount) * 100);
@@ -191,6 +222,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         return {
             props: {
                 isLoggedIn: true,
+                recording,
                 progress,
             },
         };

@@ -185,12 +185,17 @@ export default function SpeechMechanismQuestionsPage({
 
             setCheckAll1(false);
             setCheckAll2(false);
-            partId > PART_ID_START && setPartId(partId => partId - 1);
-            typeof window !== 'undefined' && window.scrollTo(0, 0);
+
+            if (partId > PART_ID_START) {
+                setPartId(partId => partId - 1);
+                typeof window !== 'undefined' && window.scrollTo(0, 0);
+            } else {
+                router.push(`/das/sessions/${sessionId}/subtests/speechMechanism`);
+            }
         } catch (err) {
             console.error(err);
         }
-    }, [getValues, handleSubmitData, partId, router.query.sessionId]);
+    }, [getValues, handleSubmitData, partId, router]);
 
     // 폼 제출
     const handleClickNext = useCallback(
@@ -255,15 +260,14 @@ export default function SpeechMechanismQuestionsPage({
 
     return (
         <Container>
-            <h2 className='flex items-center font-noto font-bold text-accent1 text-head-3'>SPEECH MECHANISM : 말기제평가</h2>
             <form onSubmit={handleSubmit(handleClickNext)} className={`${subtestStyles['subtest-form']}`}>
                 <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitleEn}</h1>
                 <h2 className='whitespace-pre-line text-center font-jalnan text-head-2'>{partTitle}</h2>
 
                 <table className={`${subtestStyles['question-table']}`}>
-                    <thead>
-                        <tr className='bg-accent1 text-white text-body-2'>
-                            <th className='rounded-tl-base'></th>
+                    <thead data-title={subtitle1}>
+                        <tr>
+                            <th></th>
                             <th>{subtitle1}</th>
                             <th>정상</th>
                             <th>경도</th>
@@ -317,9 +321,9 @@ export default function SpeechMechanismQuestionsPage({
                 {end - split > 0 && (
                     <>
                         <table className={`${subtestStyles['question-table']}`}>
-                            <thead>
+                            <thead data-title={subtitle2}>
                                 <tr className='bg-accent2 text-white text-body-2'>
-                                    <th className='rounded-tl-base'></th>
+                                    <th></th>
                                     <th>{subtitle2}</th>
                                     <th>정상</th>
                                     <th>경도</th>
@@ -373,11 +377,9 @@ export default function SpeechMechanismQuestionsPage({
                 )}
 
                 <div>
-                    {partId > PART_ID_START && (
-                        <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
-                            이전
-                        </button>
-                    )}
+                    <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
+                        이전
+                    </button>
 
                     <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained disabled:btn-contained-disabled'>
                         다음
