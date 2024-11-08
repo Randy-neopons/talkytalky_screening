@@ -16,6 +16,8 @@ import axios from 'axios';
 import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.js';
 
+import styles from './WaveformModal.module.css';
+
 const axiosInstance = axios.create({ baseURL: '' });
 
 export default function WaveformModal({
@@ -24,12 +26,14 @@ export default function WaveformModal({
     modalOpen,
     handleCloseModal,
     setRepeatCount: submitRepeatCount,
+    placeholder,
 }: {
     audioBlob?: Blob | null;
     audioUrl?: string | null;
     modalOpen: boolean;
     handleCloseModal: () => void;
     setRepeatCount: (value: number) => void;
+    placeholder?: string;
 }) {
     const waveformRef = useRef(null);
 
@@ -48,6 +52,7 @@ export default function WaveformModal({
         progressColor: 'rgb(100, 0, 100)',
         // url: '',
         url,
+        mediaControls: true,
     });
 
     useEffect(() => {
@@ -194,15 +199,15 @@ export default function WaveformModal({
                 </div>
 
                 <div className='relative flex h-full w-full flex-col items-center px-5 py-7.5'>
-                    <div className='h-[250px] w-[578px]' style={waveformBgStyle}>
+                    <div className={styles['waveform-bg']}>
                         <div ref={waveformRef} />
 
                         {/* <WavesurferPlayer height={250} url={url} onReady={onReady} plugins={[() => TimelinePlugin.create()]} /> */}
                     </div>
                     <input
                         type='number'
-                        className='mt-5 h-[44px] w-full rounded-md border border-neutral6 px-[15px] py-3 outline-accent1'
-                        placeholder='반복횟수를 입력해주세요.'
+                        className='mt-20 h-[44px] w-full rounded-md border border-neutral6 px-[15px] py-3 outline-accent1'
+                        placeholder={placeholder}
                         value={repeatCount || ''}
                         onChange={handleChangeRepeatCount}
                     />

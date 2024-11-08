@@ -10,10 +10,11 @@ type WaveformButtonProps = {
     audioBlob?: Blob | null;
     audioUrl?: string | null;
     setRepeatCount: (value: number) => void;
+    placeholder?: string;
 };
 
 // 파형 보기 버튼 (모달 포함)
-export function WaveformButton({ audioBlob, audioUrl, setRepeatCount }: WaveformButtonProps) {
+export function WaveformButton({ audioBlob, audioUrl, setRepeatCount, placeholder = '반복횟수를 입력해주세요.' }: WaveformButtonProps) {
     const visualizerRef = useRef<HTMLCanvasElement>(null);
 
     // 모달 열기/닫기
@@ -51,6 +52,7 @@ export function WaveformButton({ audioBlob, audioUrl, setRepeatCount }: Waveform
                 modalOpen={modalOpen}
                 handleCloseModal={handleCloseModal}
                 setRepeatCount={setRepeatCount}
+                placeholder={placeholder}
             />
 
             {/* <div

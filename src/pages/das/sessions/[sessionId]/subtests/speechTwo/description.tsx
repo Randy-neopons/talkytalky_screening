@@ -17,6 +17,7 @@ import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } fro
 
 import styles from '../SubTests.module.css';
 
+import marketImg from 'public/static/images/market-img.png';
 import pictureDescImg from 'public/static/images/picture-desc-img.png';
 
 import type { Recording } from '@/types/das';
@@ -156,7 +157,7 @@ export default function PictureDescriptionPage({ recording }: Props) {
                 <PrintIcon color={'#212529'} />
                 인쇄하기
             </button>
-            <Image ref={imageRef} src={pictureDescImg} alt='picture-description' className='mt-5 h-auto w-[1000px] rounded-base' />
+            <Image ref={imageRef} src={marketImg} alt='picture-description' className='mt-5 h-auto w-[1000px] rounded-base' />
 
             <div className='mt-20 flex w-full flex-nowrap items-center'>
                 <div className='mx-auto flex gap-[45px]'>
