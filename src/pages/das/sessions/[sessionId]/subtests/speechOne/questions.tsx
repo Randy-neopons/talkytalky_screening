@@ -463,7 +463,7 @@ export default function SpeechOneQuestionsPage({
                                 <th></th>
                                 <th>녹음</th>
                                 <th>재생</th>
-                                {/* <th>파형</th> */}
+                                <th>파형</th>
                                 <th className='rounded-tr-base'>지속시간</th>
                             </tr>
                         </thead>
@@ -490,9 +490,14 @@ export default function SpeechOneQuestionsPage({
                                         disabled={!audioUrl1}
                                     />
                                 </td>
-                                {/* <td className='text-center'>
-                                    <WaveformButton audioBlob={audioBlob1} audioUrl={audioUrl1} setRepeatCount={setRepeatCount(0)} />
-                                </td> */}
+                                <td className='text-center'>
+                                    <WaveformButton
+                                        audioBlob={audioBlob1}
+                                        audioUrl={audioUrl1}
+                                        setRepeatCount={setRepeatCount(0)}
+                                        placeholder='지속시간을 입력해주세요.'
+                                    />
+                                </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input
                                         type='number'
@@ -521,9 +526,14 @@ export default function SpeechOneQuestionsPage({
                                         disabled={!audioUrl2}
                                     />
                                 </td>
-                                {/* <td className='text-center'>
-                                    <WaveformButton audioBlob={audioBlob2} audioUrl={audioUrl2} setRepeatCount={setRepeatCount(1)} />
-                                </td> */}
+                                <td className='text-center'>
+                                    <WaveformButton
+                                        audioBlob={audioBlob2}
+                                        audioUrl={audioUrl2}
+                                        setRepeatCount={setRepeatCount(1)}
+                                        placeholder='지속시간을 입력해주세요.'
+                                    />
+                                </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input
                                         type='number'
@@ -552,9 +562,14 @@ export default function SpeechOneQuestionsPage({
                                         disabled={!audioUrl3}
                                     />
                                 </td>
-                                {/* <td className='text-center'>
-                                    <WaveformButton audioBlob={audioBlob3} audioUrl={audioUrl3} setRepeatCount={setRepeatCount(2)} />
-                                </td> */}
+                                <td className='text-center'>
+                                    <WaveformButton
+                                        audioBlob={audioBlob3}
+                                        audioUrl={audioUrl3}
+                                        setRepeatCount={setRepeatCount(2)}
+                                        placeholder='지속시간을 입력해주세요.'
+                                    />
+                                </td>
                                 <td className={`${subtestStyles['repeat-count']}`}>
                                     <input
                                         type='number'
