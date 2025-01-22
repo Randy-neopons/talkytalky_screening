@@ -174,40 +174,24 @@ export default function StressTestingQuestionsPage({ questionList }: { questionL
                             <th>경도</th>
                             <th>심도</th>
                             <th>평가불가</th>
-                            <th className='rounded-tr-base'>메모</th>
                         </tr>
                     </thead>
                     <tbody>
                         {fields.slice(start, split).map((item, i) => (
                             <tr key={item.id}>
-                                <td className={`${subtestStyles['num']}`}>{i + 1}</td>
+                                <td className={subtestStyles.num}>{i + 1}</td>
                                 <td className='whitespace-pre-line px-5'>{item.questionText}</td>
-                                <td className={`${subtestStyles['option']}`}>
+                                <td className={subtestStyles.option}>
                                     <input type='radio' {...register(`answers.${start + i}.answer`)} value='normal' />
                                 </td>
-                                <td className={`${subtestStyles['option']}`}>
+                                <td className={subtestStyles.option}>
                                     <input type='radio' {...register(`answers.${start + i}.answer`)} value='mild' />
                                 </td>
-                                <td className={`${subtestStyles['option']}`}>
+                                <td className={subtestStyles.option}>
                                     <input type='radio' {...register(`answers.${start + i}.answer`)} value='moderate' />
                                 </td>
-                                <td className={`${subtestStyles['option']}`}>
+                                <td className={subtestStyles.option}>
                                     <input type='radio' {...register(`answers.${start + i}.answer`)} value='unknown' />
-                                </td>
-                                <td className={`${subtestStyles['comment']}`}>
-                                    <Controller
-                                        control={control}
-                                        name={`answers.${start + i}.comment`}
-                                        render={({ field }) => (
-                                            <ReactTextareaAutosize
-                                                className={`${subtestStyles['textarea-no-border']}`}
-                                                minRows={1}
-                                                onChange={field.onChange}
-                                                onBlur={field.onBlur}
-                                                value={field.value || ''}
-                                            />
-                                        )}
-                                    />
                                 </td>
                             </tr>
                         ))}

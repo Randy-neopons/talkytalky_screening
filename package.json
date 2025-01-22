@@ -20,6 +20,7 @@
         "@tanstack/react-query-devtools": "^5.29.0",
         "@wavesurfer/react": "^1.0.7",
         "axios": "^1.7.2",
+        "classnames": "^2.5.1",
         "cookies-next": "^4.2.1",
         "cross-env": "^7.0.3",
         "dayjs": "^1.11.11",

@@ -17,6 +17,7 @@ export interface TestInfoFormValues {
     cognitiveDisorderDetail?: {
         mmseScore?: number;
     };
+    dysphagia?: string; // 삼킴장애
 }
 
 // 말운동평가 테스트 세션

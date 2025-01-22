@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
+import cx from 'classnames';
 import { getCookie } from 'cookies-next';
 import dayjs from 'dayjs';
 
@@ -488,7 +489,14 @@ export default function TestResultPage({
                                     <td className='border-l border-t border-neutral8 bg-white py-3' align='center' width='70%'>
                                         {v.questionText}
                                     </td>
-                                    <td className='border-l border-t border-neutral8 bg-white py-3' align='center' width='15%'>
+                                    <td
+                                        className={cx(
+                                            'border-l border-t border-neutral8 bg-white py-3',
+                                            v.answer === 'moderate' ? 'text-red1' : 'text-yellow-300',
+                                        )}
+                                        align='center'
+                                        width='15%'
+                                    >
                                         {answerOptions.find(answer => answer.value === v.answer)?.label}
                                     </td>
                                 </tr>

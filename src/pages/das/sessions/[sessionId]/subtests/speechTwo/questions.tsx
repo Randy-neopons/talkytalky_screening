@@ -338,40 +338,24 @@ export default function SpeechTwoQuestionsPage({
                             <th>경도</th>
                             <th>심도</th>
                             <th>평가불가</th>
-                            <th className='rounded-tr-base'>메모</th>
                         </tr>
                     </thead>
                     <tbody>
                         {fields.map((item, i) => (
                             <tr key={item.id}>
-                                <td className={`${subtestStyles['num']}`}>{i + 1}</td>
-                                <td className={`${subtestStyles['text']}`}>{item.questionText}</td>
-                                <td className={`${subtestStyles['option']}`}>
+                                <td className={subtestStyles.num}>{i + 1}</td>
+                                <td className={subtestStyles.text}>{item.questionText}</td>
+                                <td className={subtestStyles.option}>
                                     <input type='radio' {...register(`answers.${i}.answer`)} value='normal' />
                                 </td>
-                                <td className={`${subtestStyles['option']}`}>
+                                <td className={subtestStyles.option}>
                                     <input type='radio' {...register(`answers.${i}.answer`)} value='mild' />
                                 </td>
-                                <td className={`${subtestStyles['option']}`}>
+                                <td className={subtestStyles.option}>
                                     <input type='radio' {...register(`answers.${i}.answer`)} value='moderate' />
                                 </td>
-                                <td className={`${subtestStyles['option']}`}>
+                                <td className={subtestStyles.option}>
                                     <input type='radio' {...register(`answers.${i}.answer`)} value='unknown' />
-                                </td>
-                                <td className={`${subtestStyles['comment']}`}>
-                                    <Controller
-                                        control={control}
-                                        name={`answers.${i}.comment`}
-                                        render={({ field }) => (
-                                            <ReactTextareaAutosize
-                                                className={`${subtestStyles['textarea-no-border']}`}
-                                                minRows={1}
-                                                onChange={field.onChange}
-                                                onBlur={field.onBlur}
-                                                value={field.value || ''}
-                                            />
-                                        )}
-                                    />
                                 </td>
                             </tr>
                         ))}
