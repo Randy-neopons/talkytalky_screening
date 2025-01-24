@@ -24,6 +24,7 @@ import styles from './TestResultPage.module.css';
 const TestTotalScoreGraph = dynamic(() => import('@/components/das/TestTotalScoreGraph'), { ssr: false });
 const TestScoreBarGraph = dynamic(() => import('@/components/das/TestScoreBarGraph'), { ssr: false });
 const SubtestScoreGraph = dynamic(() => import('@/components/das/SubtestScoreGraph'), { ssr: false });
+const SubtestScoreLineGraph = dynamic(() => import('@/components/das/SubtestScoreLineGraph'), { ssr: false });
 
 const brainLesionOptions = [
     { value: 'bilateralUpperMotorNeuron', label: '양측상부운동신경손상' },
@@ -179,7 +180,11 @@ export const SubtestScore = ({
                     </button> */}
                 </div>
                 <div className='flex flex-1 flex-col gap-3.5'>
-                    {partList.map((part, i) => (
+                    <SubtestScoreLineGraph
+                        data={[{ id: 'score', data: partList.map(part => ({ x: part.partTitle, y: part.score, color })) }]}
+                        color={color}
+                    />
+                    {/* {partList.map((part, i) => (
                         <div key={i}>
                             <div className='ml-1 mr-2 flex justify-between'>
                                 <span className='text-neutral3 text-body-2'>{part.partTitle}</span>
@@ -194,7 +199,7 @@ export const SubtestScore = ({
                                 ></div>
                             </div>
                         </div>
-                    ))}
+                    ))} */}
                 </div>
             </div>
         </div>
@@ -438,7 +443,7 @@ export default function TestResultPage({
 
             {speechMotorResults.length > 0 && (
                 <div className='mt-20 w-full'>
-                    <h2 className='font-bold text-head-2'>SPEECH MOTOR : 말기제 평가</h2>
+                    <h2 className='font-bold text-head-2'>SPEECH MOTOR : 말운동 평가</h2>
                     <table className='mt-5 w-full overflow-hidden rounded-base'>
                         <thead>
                             <tr>
@@ -600,7 +605,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
                 .map(score => {
                     const partTitles = score.partTitle.split(',');
                     const partTitleEns = score.partTitleEn.split(',');
-                    const partTitle = partTitles.map((title, i) => `${title}(${partTitleEns[i]})`).join('/');
+                    const partTitle = partTitles.map((title, i) => `${title}(${partTitleEns[i]})`).join('\n');
 
                     return { ...score, partTitle };
                 });

@@ -72,8 +72,9 @@ export default function StressTestingQuestionsPage({ questionList }: { questionL
     const { data: qnaData } = useQuestionsAndAnswersQuery({
         sessionId: Number(router.query.sessionId),
         subtestId: CURRENT_SUBTEST_ID,
-        start,
-        end,
+        // partId,
+        // start,
+        // end,
         jwt: getCookie('jwt') || '',
     });
 
@@ -165,11 +166,17 @@ export default function StressTestingQuestionsPage({ questionList }: { questionL
             <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>Stress Testing</h1>
             <span className='text-center text-body-2'>본 검사는 중증 근무력증 선별검사로 필요시에만 실시합니다.</span>
             <form onSubmit={handleSubmit(handleOnSubmit)} className={`${subtestStyles['subtest-form']}`}>
-                <table className={`${subtestStyles['question-table']}`}>
+                <table className={subtestStyles.questionTable}>
                     <thead data-title='피로도 검사'>
-                        <tr>
+                        <tr className={subtestStyles.yesNo}>
+                            <th colSpan={2}></th>
+                            <th>예</th>
+                            <th colSpan={2}>아니오</th>
+                            <th>기타</th>
+                        </tr>
+                        <tr className={subtestStyles.option}>
                             <th></th>
-                            <th>{subtitle1}</th>
+                            <th>피로도 검사</th>
                             <th>정상</th>
                             <th>경도</th>
                             <th>심도</th>
@@ -177,7 +184,7 @@ export default function StressTestingQuestionsPage({ questionList }: { questionL
                         </tr>
                     </thead>
                     <tbody>
-                        {fields.slice(start, split).map((item, i) => (
+                        {fields.slice(0, split).map((item, i) => (
                             <tr key={item.id}>
                                 <td className={subtestStyles.num}>{i + 1}</td>
                                 <td className='whitespace-pre-line px-5'>{item.questionText}</td>

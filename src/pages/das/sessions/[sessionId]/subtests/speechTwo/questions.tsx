@@ -28,10 +28,38 @@ const PART_ID_START = 11;
 // 소검사 내 파트별 문항 index 정보
 // TODO: part title도 DB에서 가져오기
 const partIndexList = [
-    { start: 0, end: 6, subtitle: '호흡 & 발성', partTitle: '호흡 / 발성', partTitleEn: 'Respiration / Phonation', partId: 11 },
-    { start: 6, end: 8, subtitle: '공명', partTitle: '공명', partTitleEn: 'Resonance', partId: 12 },
-    { start: 8, end: 11, subtitle: '조음', partTitle: '조음', partTitleEn: 'Articulation', partId: 13 },
-    { start: 11, end: 18, subtitle: '운율', partTitle: '운율', partTitleEn: 'Prosody', partId: 14 },
+    {
+        start: 0,
+        end: 6,
+        subtitle: '문단읽기 / 그림 설명하기 / 대화하기',
+        partTitle: '호흡 / 발성',
+        partTitleEn: 'Respiration / Phonation',
+        partId: 11,
+    },
+    {
+        start: 6,
+        end: 8,
+        subtitle: '문단읽기 / 그림 설명하기 / 대화하기',
+        partTitle: '공명',
+        partTitleEn: 'Resonance',
+        partId: 12,
+    },
+    {
+        start: 8,
+        end: 11,
+        subtitle: '문단읽기 / 그림 설명하기 / 대화하기',
+        partTitle: '조음',
+        partTitleEn: 'Articulation',
+        partId: 13,
+    },
+    {
+        start: 11,
+        end: 18,
+        subtitle: '문단읽기 / 그림 설명하기 / 대화하기',
+        partTitle: '운율',
+        partTitleEn: 'Prosody',
+        partId: 14,
+    },
 ];
 
 // SPEECH II 문항 페이지
@@ -70,8 +98,9 @@ export default function SpeechTwoQuestionsPage({
     const { data: qnaData } = useQuestionsAndAnswersQuery({
         sessionId: Number(router.query.sessionId),
         subtestId: CURRENT_SUBTEST_ID,
-        start,
-        end: end - 1,
+        partId,
+        // start,
+        // end: end - 1,
         jwt: getCookie('jwt') || '',
     });
 
@@ -329,9 +358,15 @@ export default function SpeechTwoQuestionsPage({
                     </li>
                 </ul>
 
-                <table className={`${subtestStyles['question-table']}`}>
+                <table className={subtestStyles.questionTable}>
                     <thead data-title={subtitle}>
-                        <tr>
+                        <tr className={subtestStyles.yesNo}>
+                            <th colSpan={2}></th>
+                            <th>예</th>
+                            <th colSpan={2}>아니오</th>
+                            <th>기타</th>
+                        </tr>
+                        <tr className={subtestStyles.option}>
                             <th></th>
                             <th>{subtitle}</th>
                             <th>정상</th>

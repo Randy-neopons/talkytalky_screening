@@ -10,19 +10,21 @@ export const questionsQueryKey = 'questions';
 export const useQuestionsAndAnswersQuery = ({
     sessionId,
     subtestId,
+    partId,
     start,
     end,
     jwt,
 }: {
     sessionId: number;
     subtestId: number;
+    partId?: number;
     start?: number;
     end?: number;
     jwt: string;
 }) => {
     return useQuery({
-        queryKey: [questionsQueryKey, sessionId, subtestId, start, end, jwt],
-        queryFn: () => getQuestionAndAnswerListAPI({ sessionId, subtestId, start, end, jwt }),
+        queryKey: [questionsQueryKey, sessionId, subtestId, partId, start, end, jwt],
+        queryFn: () => getQuestionAndAnswerListAPI({ sessionId, subtestId, partId, start, end, jwt }),
     });
 };
 
