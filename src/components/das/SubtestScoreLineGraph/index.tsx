@@ -13,7 +13,8 @@ const graphThemeDesktop: NonNullable<LineSvgProps['theme']> = {
             text: {
                 fontSize: 14,
                 fontFamily: 'Noto Sans KR',
-                fill: '#212529',
+                fill: '#868E96',
+                fontWeight: 400,
             },
         },
     },
@@ -23,6 +24,7 @@ const graphThemeDesktop: NonNullable<LineSvgProps['theme']> = {
             fontFamily: 'Noto Sans KR',
             lineHeight: 16,
             fill: '#212529',
+            fontWeight: 400,
         },
     },
 };
@@ -32,7 +34,7 @@ export default function SubtestScoreLineGraph({ data, color }: { data: Serie[]; 
         <div className={`relative h-[200px] w-[400px] xl:h-[320px] xl:w-[640px]`}>
             <ResponsiveLine
                 data={data}
-                margin={{ top: 50, right: 60, bottom: 100, left: 60 }}
+                margin={{ top: 10, right: 60, bottom: 100, left: 80 }}
                 xScale={{ type: 'point' }}
                 yScale={{
                     type: 'linear',
@@ -41,8 +43,32 @@ export default function SubtestScoreLineGraph({ data, color }: { data: Serie[]; 
                     stacked: false,
                     reverse: false,
                 }}
+                enableGridX={false}
                 gridYValues={5}
-                yFormat=' >-.2f'
+                defs={[
+                    {
+                        colors: [
+                            {
+                                color: 'inherit',
+                                offset: 0,
+                            },
+                            {
+                                color: 'inherit',
+                                offset: 100,
+                                opacity: 0,
+                            },
+                        ],
+                        id: 'gradientA',
+                        type: 'linearGradient',
+                    },
+                ]}
+                enableArea
+                fill={[
+                    {
+                        id: 'gradientA',
+                        match: '*',
+                    },
+                ]}
                 axisTop={null}
                 axisRight={null}
                 axisBottom={{
@@ -65,7 +91,12 @@ export default function SubtestScoreLineGraph({ data, color }: { data: Serie[]; 
                                     alignmentBaseline='middle'
                                     textAnchor={textAnchor}
                                     transform={`translate(${textX},${textY}) rotate(0)`}
-                                    style={graphThemeDesktop.axis?.ticks?.text}
+                                    style={{
+                                        fontSize: 14,
+                                        fontFamily: 'Noto Sans KR',
+                                        fill: '#212529',
+                                        fontWeight: 400,
+                                    }}
                                 >
                                     {String(value)
                                         .split('\n')
@@ -81,18 +112,47 @@ export default function SubtestScoreLineGraph({ data, color }: { data: Serie[]; 
                 }}
                 axisLeft={{
                     tickValues: 5,
-                    tickSize: 5,
-                    tickPadding: 5,
+                    tickSize: 0,
+                    tickPadding: 60,
                     tickRotation: 0,
                     truncateTickAt: 0,
                 }}
                 colors={color}
+                lineWidth={3}
                 pointSize={10}
-                pointColor={{ theme: 'background' }}
-                pointBorderWidth={2}
+                pointColor='#FFFFFF'
+                pointBorderWidth={3}
                 pointBorderColor={{ from: 'serieColor' }}
                 pointLabelYOffset={-12}
-                theme={graphThemeDesktop}
+                enablePointLabel
+                theme={{
+                    text: {
+                        fontSize: 16,
+                        fontFamily: 'Noto Sans KR',
+                        lineHeight: 28,
+                        fill: color,
+                        fontWeight: 700,
+                    },
+                    axis: {
+                        ticks: {
+                            text: {
+                                fontSize: 14,
+                                fontFamily: 'Noto Sans KR',
+                                fill: '#868E96',
+                                fontWeight: 400,
+                            },
+                        },
+                    },
+                    legends: {
+                        text: {
+                            fontSize: 16,
+                            fontFamily: 'Noto Sans KR',
+                            lineHeight: 16,
+                            fill: '#212529',
+                            fontWeight: 400,
+                        },
+                    },
+                }}
             />
         </div>
     );
