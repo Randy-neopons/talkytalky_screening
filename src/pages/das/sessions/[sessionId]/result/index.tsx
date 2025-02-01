@@ -488,21 +488,23 @@ export default function TestResultPage({
                         <tbody>
                             {mildAndModerateAnswers.map((v, i) => (
                                 <tr key={i} className=''>
-                                    <td className='border-t border-neutral8 bg-white py-3' align='center' width='15%'>
+                                    <td className='border-t border-neutral8 bg-white py-3' align='center' width='13%'>
                                         {v.partTitle}
                                     </td>
-                                    <td className='border-l border-t border-neutral8 bg-white py-3' align='center' width='70%'>
+                                    <td className='border-l border-t border-neutral8 bg-white py-3' align='center' width='74%'>
                                         {v.questionText}
                                     </td>
                                     <td
                                         className={cx(
-                                            'border-l border-t border-neutral8 bg-white py-3',
-                                            v.answer === 'moderate' ? 'text-red1' : 'text-yellow-300',
+                                            'border-l border-t border-neutral8 bg-white py-3 font-bold',
+                                            v.answer === 'moderate' ? 'text-red1' : 'text-orange1',
                                         )}
                                         align='center'
-                                        width='15%'
+                                        width='13%'
                                     >
-                                        {answerOptions.find(answer => answer.value === v.answer)?.label}
+                                        <span className={styles.answer}>
+                                            {answerOptions.find(answer => answer.value === v.answer)?.label}
+                                        </span>
                                     </td>
                                 </tr>
                             ))}

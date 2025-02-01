@@ -9,13 +9,14 @@ export function TestScoreBarGraphTablet({ data }: { data: BarDatum[] }) {
                 indexBy='graphTitle'
                 groupMode='grouped'
                 margin={{ top: 50, right: 40, bottom: 100, left: 80 }}
-                padding={0.6}
+                padding={0.8}
                 valueScale={{ type: 'linear' }}
                 indexScale={{ type: 'band', round: true }}
                 colors={['#20C997', '#FFA26B', '#0084F4']}
                 colorBy='indexValue'
                 minValue={0}
                 maxValue={100}
+                gridYValues={5}
                 borderColor={{
                     from: 'color',
                     modifiers: [['darker', 1.6]],
@@ -79,6 +80,11 @@ export function TestScoreBarGraphTablet({ data }: { data: BarDatum[] }) {
                             },
                         },
                     },
+                    grid: {
+                        line: {
+                            stroke: '#868E96',
+                        },
+                    },
                 }}
             />
         </div>
@@ -94,13 +100,14 @@ export function TestScoreBarGraphDesktop({ data }: { data: BarDatum[] }) {
                 indexBy='graphTitle'
                 groupMode='grouped'
                 margin={{ top: 50, right: 40, bottom: 100, left: 80 }}
-                padding={0.6}
+                padding={0.8}
                 valueScale={{ type: 'linear' }}
                 indexScale={{ type: 'band', round: true }}
                 colors={['#20C997', '#FFA26B', '#0084F4']}
                 colorBy='indexValue'
                 minValue={0}
                 maxValue={100}
+                gridYValues={5}
                 borderColor={{
                     from: 'color',
                     modifiers: [['darker', 1.6]],
@@ -162,6 +169,11 @@ export function TestScoreBarGraphDesktop({ data }: { data: BarDatum[] }) {
                                 fontFamily: 'Noto Sans KR',
                                 fill: '#868E96',
                             },
+                        },
+                    },
+                    grid: {
+                        line: {
+                            stroke: '#868E96',
                         },
                     },
                 }}

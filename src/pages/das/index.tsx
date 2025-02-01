@@ -36,28 +36,29 @@ export default function Home() {
                 말실행증보다는 마비말장애 여부를 판단하는 데에 초점을 두고 있습니다.
             </span>
             <ul className='mt-15'>
-                <li className='float-left mr-7.5 flex h-[467px] w-[300px] flex-col flex-nowrap items-center rounded-[20px] bg-white px-[58px] py-7.5 shadow-base xl:h-[440px] xl:w-[477px] xl:items-start'>
+                <li className='float-left mr-7.5 flex h-[467px] w-[300px] flex-col flex-nowrap items-center rounded-[20px] bg-white px-[50px] py-7.5 shadow-base xl:h-[440px] xl:w-[477px] xl:items-start'>
                     <Image src={testStartIcon} alt='test-start' width={120} height={100} />
                     <span className='mt-5 font-bold leading-normal text-accent1 text-head-2 xl:leading-tight'>테스트 시작하기</span>
-                    <span className='mt-[10px] text-center text-neutral4 text-body-2 xl:mt-2 xl:text-left'>
-                        환자의 기본정보 입력 후 원하는 소검사를 선택하여 평가를 진행할 수 있습니다.
+                    <span className='mt-[10px] max-w-[350px] break-keep text-center text-neutral4 text-body-2 xl:mt-2 xl:text-left'>
+                        환자의 기본정보 입력 후 원하는 소검사를 선택하여 평가를 진행할 수 있고, 검사지를 출력하여 오프라인으로 테스트를
+                        진행할 수도 있습니다.
                     </span>
-                    <div className='mt-auto flex w-full items-center justify-between'>
+                    <div className='mt-auto flex w-full items-center gap-2.5'>
                         <Link className='mt-auto flex items-center justify-center btn btn-small btn-contained' href='/das/personalInfo'>
                             시작하기
                         </Link>
                         <a
-                            className='underline'
+                            className='mt-auto flex items-center justify-center btn btn-small btn-outlined'
                             target='_blank'
                             rel='noopener noreferrer'
                             href='https://storage.googleapis.com/multimodal-assets/others/DAS_paper.hwp'
                         >
-                            평가지 다운로드
+                            검사지 출력
                         </a>
                     </div>
                 </li>
 
-                <li className='float-left flex h-[467px] w-[300px] flex-col flex-nowrap items-center rounded-[20px] bg-white px-[58px] py-7.5 text-center shadow-base xl:h-[440px] xl:w-[477px] xl:items-start xl:text-left'>
+                <li className='float-left flex h-[467px] w-[300px] flex-col flex-nowrap items-center break-keep rounded-[20px] bg-white px-[50px] py-7.5 text-center shadow-base xl:h-[440px] xl:w-[477px] xl:items-start xl:text-left'>
                     <Image src={testResultIcon} alt='test-result' width={120} height={100} />
                     <span className='mt-5 font-bold leading-normal text-accent1 text-head-2 xl:leading-tight'>테스트 결과보기</span>
                     <span className='mt-[10px] text-neutral4 text-body-2 xl:mt-2'>
