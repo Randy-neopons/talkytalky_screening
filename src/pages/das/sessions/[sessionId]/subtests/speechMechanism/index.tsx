@@ -13,10 +13,10 @@ import styles from '../SubTests.module.css';
 import infoIcon from 'public/static/images/info-icon.png';
 
 const partList = [
-    { partName: 'Facial (안면)', questionCount: 12 },
-    { partName: 'Jaw (턱)', questionCount: 6 },
-    { partName: 'Tongue (혀)', questionCount: 12 },
-    { partName: 'Velar (연구개)\nPharynx (인두)\nLarynx (후두)', questionCount: 5 },
+    { partName: 'Facial (안면)', questionCount: 8 },
+    { partName: 'Jaw (턱)', questionCount: 5 },
+    { partName: 'Tongue (혀)', questionCount: 11 },
+    { partName: 'Velar (연구개)\nPharynx (인두)\nLarynx (후두)', questionCount: 6 },
 ];
 
 const PartListItem = ({ partName, questionCount }: { partName: string; questionCount: number }) => {
@@ -49,7 +49,7 @@ export default function SpeechMechanismMainPage() {
                 <span className={`${styles['tooltip']}`}>
                     <Image src={infoIcon} alt='info' className={`ml-[10px] inline-block`} />
                     <div className={`${styles['tooltip-content']} bg-white`}>
-                        말기제평가는 안면/턱/혀/기타 등 말산출과 관련한 구조와 해당 기능을 평가합니다. (총 35개 항목) <br />
+                        말기제평가는 안면/턱/혀/기타 등 말산출과 관련한 구조와 해당 기능을 평가합니다. (총 30개 항목) <br />
                         해당 항목에 대해 문제가 없을 경우 &apos;정상&apos;에, 문제가 있을 경우, &apos;경도&apos; 또는 &apos;심도&apos; 에
                         체크해주세요. 평가 불가한 상황에서는 &apos;평가불가&apos;에 체크하고 필요 시, 메모란을 이용해주세요.
                         <br />

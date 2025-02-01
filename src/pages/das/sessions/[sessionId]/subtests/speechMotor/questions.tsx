@@ -20,6 +20,7 @@ import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
+import { LoadingOverlay } from '@/components/das/LoadingOverlay';
 import { WaveformButton } from '@/components/das/WaveformButton';
 import { useConductedSubtestsQuery, useQuestionsAndAnswersQuery } from '@/hooks/das';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
@@ -221,10 +222,14 @@ export default function SpeechMotorQuestionsPage({
         }
     }, [qnaData, setValue]);
 
+    const [loading, setLoading] = useState(false);
+
     // 폼 데이터 제출
     const handleSubmitData = useCallback(
         async ({ sessionId, data }: { sessionId: number; data: any }) => {
             try {
+                setLoading(true);
+
                 const formData = new FormData();
                 formData.append('audio1', audioBlob1 || 'null');
                 formData.append('audio2', audioBlob2 || 'null');
@@ -239,7 +244,11 @@ export default function SpeechMotorQuestionsPage({
                 // 세션 갱신
                 const accessToken = getCookie('jwt') as string;
                 await updateSessionAPI({ sessionId, formData, jwt: accessToken });
+
+                setLoading(false);
             } catch (err) {
+                setLoading(false);
+
                 if (isAxiosError(err)) {
                     if (err.response?.status === 401) {
                         deleteCookie('jwt');
@@ -349,191 +358,194 @@ export default function SpeechMotorQuestionsPage({
     }, [audioUrl4, setValue]);
 
     return (
-        <Container>
-            <form onSubmit={handleSubmit(handleClickNext)} className={`${subtestStyles['subtest-form']}`}>
-                <input type='hidden' />
-                <h2 className='whitespace-pre-line text-center font-jalnan text-head-2'>{partTitle}</h2>
-                <h3 className='whitespace-pre-line text-center font-jalnan text-head-3'>{partTitleKo}</h3>
+        <>
+            <LoadingOverlay loading={loading} />
+            <Container>
+                <form onSubmit={handleSubmit(handleClickNext)} className={`${subtestStyles['subtest-form']}`}>
+                    <input type='hidden' />
+                    <h2 className='whitespace-pre-line text-center font-jalnan text-head-2'>{partTitle}</h2>
+                    <h3 className='whitespace-pre-line text-center font-jalnan text-head-3'>{partTitleKo}</h3>
 
-                {partId === PART_ID_START ? (
-                    <table className={`${subtestStyles['recording-table']}`}>
-                        <thead data-title='AMR 측정' data-caption='*반복횟수란 1초당 각 음절을 반복한 횟수를 의미함'>
-                            <tr>
-                                <th>AMR 측정 (5초)</th>
-                                <th></th>
-                                <th>녹음</th>
-                                <th>재생</th>
-                                <th>파형</th>
-                                <th className='rounded-tr-base'>반복횟수</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td rowSpan={3} className='rounded-bl-base text-center'>
-                                    숨을 크게 들어 마신 뒤, &apos;파&apos; 를 가능한 빨리
-                                    <br /> 규칙적으로 반복해서 말해보세요. <br />
-                                    (&apos;타&apos; 와 &apos;카&apos; 도 동일하게 시행)
-                                </td>
-                                <td className={`${subtestStyles['button']}`}>파</td>
-                                <td className={`${subtestStyles['button']}`}>
-                                    <RecordButton
-                                        isRecording={isRecording1}
-                                        handleStart={handleStartRecording1}
-                                        handleStop={handleStopRecording1}
-                                    />
-                                </td>
-                                <td className={`${subtestStyles['button']}`}>
-                                    <PlayButton
-                                        isPlaying={isPlaying1}
-                                        handlePlay={handlePlay1}
-                                        handlePause={handlePause1}
-                                        disabled={!audioUrl1}
-                                    />
-                                </td>
-                                <td className='text-center'>
-                                    <WaveformButton audioBlob={audioBlob1} audioUrl={audioUrl1} setRepeatCount={setRepeatCount(0)} />
-                                </td>
-                                <td className={`${subtestStyles['repeat-count']}`}>
-                                    <input
-                                        type='number'
-                                        className='text-center outline-none'
-                                        autoComplete='off'
-                                        onKeyDown={handleKeyDown}
-                                        {...register(`recordings.0.repeatCount`)}
-                                    />
-                                    회
-                                </td>
-                            </tr>
-                            <tr className={`${subtestStyles['repeat-count']}`}>
-                                <td className={`${subtestStyles['button']}`}>타</td>
-                                <td className={`${subtestStyles['button']}`}>
-                                    <RecordButton
-                                        isRecording={isRecording2}
-                                        handleStart={handleStartRecording2}
-                                        handleStop={handleStopRecording2}
-                                    />
-                                </td>
-                                <td className={`${subtestStyles['button']}`}>
-                                    <PlayButton
-                                        isPlaying={isPlaying2}
-                                        handlePlay={handlePlay2}
-                                        handlePause={handlePause2}
-                                        disabled={!audioUrl2}
-                                    />
-                                </td>
-                                <td className='text-center'>
-                                    <WaveformButton audioBlob={audioBlob2} audioUrl={audioUrl2} setRepeatCount={setRepeatCount(1)} />
-                                </td>
-                                <td className={`${subtestStyles['repeat-count']}`}>
-                                    <input
-                                        type='number'
-                                        className='text-center outline-none'
-                                        autoComplete='off'
-                                        onKeyDown={handleKeyDown}
-                                        {...register(`recordings.1.repeatCount`)}
-                                    />
-                                    회
-                                </td>
-                            </tr>
-                            <tr>
-                                <td className={`${subtestStyles['button']}`}>카</td>
-                                <td className={`${subtestStyles['button']}`}>
-                                    <RecordButton
-                                        isRecording={isRecording3}
-                                        handleStart={handleStartRecording3}
-                                        handleStop={handleStopRecording3}
-                                    />
-                                </td>
-                                <td className={`${subtestStyles['button']}`}>
-                                    <PlayButton
-                                        isPlaying={isPlaying3}
-                                        handlePlay={handlePlay3}
-                                        handlePause={handlePause3}
-                                        disabled={!audioUrl3}
-                                    />
-                                </td>
-                                <td className='text-center'>
-                                    <WaveformButton audioBlob={audioBlob3} audioUrl={audioUrl3} setRepeatCount={setRepeatCount(2)} />
-                                </td>
-                                <td className={`${subtestStyles['repeat-count']}`}>
-                                    <input
-                                        type='number'
-                                        className='text-center outline-none'
-                                        autoComplete='off'
-                                        onKeyDown={handleKeyDown}
-                                        {...register(`recordings.2.repeatCount`)}
-                                    />
-                                    회
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                ) : (
-                    <table className={`${subtestStyles['recording-table']}`}>
-                        <thead
-                            data-title='SMR 측정'
-                            data-caption={`*반복횟수란 1초당 각 음절을 반복한 횟수를 의미함('파타카'모두를 반복한 횟수가 아님)`}
-                        >
-                            <tr>
-                                <th>SMR 측정 (5초)</th>
-                                <th></th>
-                                <th>녹음</th>
-                                <th>재생</th>
-                                <th>파형</th>
-                                <th className='rounded-tr-base'>반복횟수</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td align='center' className='rounded-bl-base'>
-                                    &apos;파-타-카&apos;를 가능한 한 빨리, 규칙적으로 <br />
-                                    반복해서 말해보세요.
-                                </td>
-                                <td className={`${subtestStyles['button']}`}>파타카</td>
-                                <td className={`${subtestStyles['button']}`}>
-                                    <RecordButton
-                                        isRecording={isRecording4}
-                                        handleStart={handleStartRecording4}
-                                        handleStop={handleStopRecording4}
-                                    />
-                                </td>
-                                <td className={`${subtestStyles['button']}`}>
-                                    <PlayButton
-                                        isPlaying={isPlaying4}
-                                        handlePlay={handlePlay4}
-                                        handlePause={handlePause4}
-                                        disabled={!audioUrl4}
-                                    />
-                                </td>
-                                <td className='text-center'>
-                                    <WaveformButton audioBlob={audioBlob4} audioUrl={audioUrl4} setRepeatCount={setRepeatCount(3)} />
-                                </td>
-                                <td className={`${subtestStyles['repeat-count']}`}>
-                                    <input
-                                        type='number'
-                                        className='w-full text-center outline-none'
-                                        autoComplete='off'
-                                        onKeyDown={handleKeyDown}
-                                        {...register(`recordings.3.repeatCount`)}
-                                    />
-                                    회
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                )}
+                    {partId === PART_ID_START ? (
+                        <table className={`${subtestStyles['recording-table']}`}>
+                            <thead data-title='AMR 측정' data-caption='*반복횟수란 1초당 각 음절을 반복한 횟수를 의미함'>
+                                <tr>
+                                    <th>AMR 측정 (5초)</th>
+                                    <th></th>
+                                    <th>녹음</th>
+                                    <th>재생</th>
+                                    <th>파형</th>
+                                    <th className='rounded-tr-base'>반복횟수</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td rowSpan={3} className='rounded-bl-base text-center'>
+                                        숨을 크게 들어 마신 뒤, &apos;파&apos; 를 가능한 빨리
+                                        <br /> 규칙적으로 반복해서 말해보세요. <br />
+                                        (&apos;타&apos; 와 &apos;카&apos; 도 동일하게 시행)
+                                    </td>
+                                    <td className={`${subtestStyles['button']}`}>파</td>
+                                    <td className={`${subtestStyles['button']}`}>
+                                        <RecordButton
+                                            isRecording={isRecording1}
+                                            handleStart={handleStartRecording1}
+                                            handleStop={handleStopRecording1}
+                                        />
+                                    </td>
+                                    <td className={`${subtestStyles['button']}`}>
+                                        <PlayButton
+                                            isPlaying={isPlaying1}
+                                            handlePlay={handlePlay1}
+                                            handlePause={handlePause1}
+                                            disabled={!audioUrl1}
+                                        />
+                                    </td>
+                                    <td className='text-center'>
+                                        <WaveformButton audioBlob={audioBlob1} audioUrl={audioUrl1} setRepeatCount={setRepeatCount(0)} />
+                                    </td>
+                                    <td className={`${subtestStyles['repeat-count']}`}>
+                                        <input
+                                            type='number'
+                                            className='text-center outline-none'
+                                            autoComplete='off'
+                                            onKeyDown={handleKeyDown}
+                                            {...register(`recordings.0.repeatCount`)}
+                                        />
+                                        회
+                                    </td>
+                                </tr>
+                                <tr className={`${subtestStyles['repeat-count']}`}>
+                                    <td className={`${subtestStyles['button']}`}>타</td>
+                                    <td className={`${subtestStyles['button']}`}>
+                                        <RecordButton
+                                            isRecording={isRecording2}
+                                            handleStart={handleStartRecording2}
+                                            handleStop={handleStopRecording2}
+                                        />
+                                    </td>
+                                    <td className={`${subtestStyles['button']}`}>
+                                        <PlayButton
+                                            isPlaying={isPlaying2}
+                                            handlePlay={handlePlay2}
+                                            handlePause={handlePause2}
+                                            disabled={!audioUrl2}
+                                        />
+                                    </td>
+                                    <td className='text-center'>
+                                        <WaveformButton audioBlob={audioBlob2} audioUrl={audioUrl2} setRepeatCount={setRepeatCount(1)} />
+                                    </td>
+                                    <td className={`${subtestStyles['repeat-count']}`}>
+                                        <input
+                                            type='number'
+                                            className='text-center outline-none'
+                                            autoComplete='off'
+                                            onKeyDown={handleKeyDown}
+                                            {...register(`recordings.1.repeatCount`)}
+                                        />
+                                        회
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className={`${subtestStyles['button']}`}>카</td>
+                                    <td className={`${subtestStyles['button']}`}>
+                                        <RecordButton
+                                            isRecording={isRecording3}
+                                            handleStart={handleStartRecording3}
+                                            handleStop={handleStopRecording3}
+                                        />
+                                    </td>
+                                    <td className={`${subtestStyles['button']}`}>
+                                        <PlayButton
+                                            isPlaying={isPlaying3}
+                                            handlePlay={handlePlay3}
+                                            handlePause={handlePause3}
+                                            disabled={!audioUrl3}
+                                        />
+                                    </td>
+                                    <td className='text-center'>
+                                        <WaveformButton audioBlob={audioBlob3} audioUrl={audioUrl3} setRepeatCount={setRepeatCount(2)} />
+                                    </td>
+                                    <td className={`${subtestStyles['repeat-count']}`}>
+                                        <input
+                                            type='number'
+                                            className='text-center outline-none'
+                                            autoComplete='off'
+                                            onKeyDown={handleKeyDown}
+                                            {...register(`recordings.2.repeatCount`)}
+                                        />
+                                        회
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    ) : (
+                        <table className={`${subtestStyles['recording-table']}`}>
+                            <thead
+                                data-title='SMR 측정'
+                                data-caption={`*반복횟수란 1초당 각 음절을 반복한 횟수를 의미함('파타카'모두를 반복한 횟수가 아님)`}
+                            >
+                                <tr>
+                                    <th>SMR 측정 (5초)</th>
+                                    <th></th>
+                                    <th>녹음</th>
+                                    <th>재생</th>
+                                    <th>파형</th>
+                                    <th className='rounded-tr-base'>반복횟수</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td align='center' className='rounded-bl-base'>
+                                        &apos;파-타-카&apos;를 가능한 한 빨리, 규칙적으로 <br />
+                                        반복해서 말해보세요.
+                                    </td>
+                                    <td className={`${subtestStyles['button']}`}>파타카</td>
+                                    <td className={`${subtestStyles['button']}`}>
+                                        <RecordButton
+                                            isRecording={isRecording4}
+                                            handleStart={handleStartRecording4}
+                                            handleStop={handleStopRecording4}
+                                        />
+                                    </td>
+                                    <td className={`${subtestStyles['button']}`}>
+                                        <PlayButton
+                                            isPlaying={isPlaying4}
+                                            handlePlay={handlePlay4}
+                                            handlePause={handlePause4}
+                                            disabled={!audioUrl4}
+                                        />
+                                    </td>
+                                    <td className='text-center'>
+                                        <WaveformButton audioBlob={audioBlob4} audioUrl={audioUrl4} setRepeatCount={setRepeatCount(3)} />
+                                    </td>
+                                    <td className={`${subtestStyles['repeat-count']}`}>
+                                        <input
+                                            type='number'
+                                            className='w-full text-center outline-none'
+                                            autoComplete='off'
+                                            onKeyDown={handleKeyDown}
+                                            {...register(`recordings.3.repeatCount`)}
+                                        />
+                                        회
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    )}
 
-                <div>
-                    <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
-                        이전
-                    </button>
+                    <div>
+                        <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
+                            이전
+                        </button>
 
-                    <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained'>
-                        다음
-                    </button>
-                </div>
-            </form>
-        </Container>
+                        <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained'>
+                            다음
+                        </button>
+                    </div>
+                </form>
+            </Container>
+        </>
     );
 }
 

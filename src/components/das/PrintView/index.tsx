@@ -6,6 +6,33 @@ import { CheckBoxGroupItem } from '@/components/common/CheckBox';
 
 import styles from './PrintView.module.css';
 
+// function svgToPng(svgElement, callback) {
+//     // SVG 요소를 문자열로 변환
+//     const svgData = new XMLSerializer().serializeToString(svgElement);
+
+//     // SVG 데이터를 base64로 인코딩
+//     const svgBase64 = 'data:image/svg+xml;base64,' + btoa(svgData);
+
+//     // 이미지 객체 생성
+//     const img = new Image();
+//     img.onload = function () {
+//         // Canvas에 이미지 그리기
+//         const canvas = document.createElement('canvas');
+//         canvas.width = svgElement.clientWidth || 300; // 원하는 크기로 조정 가능
+//         canvas.height = svgElement.clientHeight || 300;
+//         const ctx = canvas.getContext('2d');
+//         ctx.drawImage(img, 0, 0);
+
+//         // Canvas에서 PNG 데이터 URL 가져오기
+//         const pngDataUrl = canvas.toDataURL('image/png');
+
+//         // 콜백으로 PNG 데이터 URL 반환
+//         callback(pngDataUrl);
+//     };
+
+//     img.src = svgBase64;
+// }
+
 const TestTotalScoreGraphPrintView = dynamic(
     () => import('@/components/das/TestTotalScoreGraph').then(res => res.TestTotalScoreGraphPrintView),
     { ssr: false },
@@ -280,7 +307,7 @@ export default function PrintView({
 
                         {speechMotorResults.length > 0 && (
                             <div className='mt-7.5 w-full'>
-                                <h2 className='text-xs font-bold'>SPEECH MOTOR : 말기제 평가</h2>
+                                <h2 className='text-xs font-bold'>SPEECH MOTOR : 말운동 평가</h2>
                                 <table className='mt-2.5 w-full overflow-hidden border-b border-b-neutral7 text-[8px]'>
                                     <thead>
                                         <tr className='border-t border-t-black'>
@@ -292,13 +319,13 @@ export default function PrintView({
                                     <tbody>
                                         {speechMotorResults.map((v, i) => (
                                             <tr key={i}>
-                                                <td className='border-t border-neutral7 bg-white py-[7px] pl-[15px]' width='80%'>
+                                                <td className='border-t border-neutral7 bg-white py-[7px] pl-[15px]' width='87%'>
                                                     {v.questionText}
                                                 </td>
                                                 <td
                                                     className='border-l border-t border-neutral7 bg-white py-[7px]'
                                                     align='center'
-                                                    width='20%'
+                                                    width='13%'
                                                 >
                                                     {v.value}
                                                 </td>
@@ -329,16 +356,16 @@ export default function PrintView({
                                     <tbody>
                                         {mildAndModerateAnswers.map((v, i) => (
                                             <tr key={i} className=''>
-                                                <td className='border-t border-neutral7 bg-white py-[7px]' align='center' width='15%'>
+                                                <td className='border-t border-neutral7 bg-white py-[7px]' align='center' width='13%'>
                                                     {v.partTitle}
                                                 </td>
-                                                <td className='border-l border-t border-neutral7 bg-white py-[7px] pl-[15px]' width='70%'>
+                                                <td className='border-l border-t border-neutral7 bg-white py-[7px] pl-[15px]' width='74%'>
                                                     {v.questionText}
                                                 </td>
                                                 <td
                                                     className='border-l border-t border-neutral7 bg-white py-[7px]'
                                                     align='center'
-                                                    width='15%'
+                                                    width='13%'
                                                 >
                                                     {answerOptions.find(answer => answer.value === v.answer)?.label}
                                                 </td>

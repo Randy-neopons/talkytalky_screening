@@ -66,12 +66,14 @@ export async function getSessionListAPI({
 export async function getQuestionAndAnswerListAPI({
     sessionId,
     subtestId,
+    partId,
     start,
     end,
     jwt,
 }: {
     sessionId: number;
     subtestId: number;
+    partId?: number;
     start?: number;
     end?: number;
     jwt: string;
@@ -95,7 +97,7 @@ export async function getQuestionAndAnswerListAPI({
         }[];
     }>(`/assessment/session/${sessionId}/questions`, {
         headers: makeHeaders(jwt),
-        params: { subtestId, start, end },
+        params: { subtestId, partId, start, end },
     });
     return response.data;
 }

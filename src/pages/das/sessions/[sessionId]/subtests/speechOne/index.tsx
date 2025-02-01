@@ -18,12 +18,12 @@ const partList = [
     {
         subtestName: '영역별 말평가',
         partName: 'Respiration(호흡) / Phonation(발성)\nResonance(공명)\nArticulation(조음)\n ',
-        questionCount: 27,
+        questionCount: 25,
     },
     {
         subtestName: '종합적 말평가',
         partName: 'Respiration(호흡) / Phonation(발성)\nResonance(공명)\nArticulation(조음)\nProsody(운율)',
-        questionCount: 21,
+        questionCount: 25,
     },
 ];
 

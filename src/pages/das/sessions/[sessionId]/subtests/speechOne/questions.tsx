@@ -30,52 +30,41 @@ const PART_ID_START = 5;
 const partIndexList = [
     {
         start: 0,
-        split: 0,
-        end: 1,
-        subtitle1: '잠복시간',
-        subtitle2: '잠복시간',
-        partTitle: '호흡 / 발성',
-        partTitleEn: 'Respiration / Phonation',
-        partId: 5,
-        page: 0,
-    },
-    {
-        start: 1,
-        split: 1,
+        split: 6,
         end: 6,
         subtitle1: '음질',
         subtitle2: '음질',
         partTitle: '호흡 / 발성',
         partTitleEn: 'Respiration / Phonation',
         partId: 5,
-        page: 1,
+        page: 0,
     },
     {
         start: 6,
-        split: 6,
-        end: 11,
+        split: 10,
+        end: 10,
         subtitle1: '음도',
         subtitle2: '음도',
+        partTitle: '호흡 / 발성',
+        partTitleEn: 'Respiration / Phonation',
+        partId: 5,
+        page: 1,
+    },
+    {
+        start: 10,
+        split: 12,
+        end: 12,
+        subtitle1: '강도',
+        subtitle2: '강도',
         partTitle: '호흡 / 발성',
         partTitleEn: 'Respiration / Phonation',
         partId: 5,
         page: 2,
     },
     {
-        start: 11,
-        split: 11,
-        end: 14,
-        subtitle1: '강도',
-        subtitle2: '강도',
-        partTitle: '호흡 / 발성',
-        partTitleEn: 'Respiration / Phonation',
-        partId: 5,
-        page: 3,
-    },
-    {
-        start: 14,
-        split: 18,
-        end: 22,
+        start: 0,
+        split: 4,
+        end: 8,
         subtitle1: '과다비성',
         subtitle2: '비강누출',
         partTitle: '공명',
@@ -84,10 +73,10 @@ const partIndexList = [
         page: 0,
     },
     {
-        start: 22,
-        split: 27,
-        end: 27,
-        subtitle1: '따라하기',
+        start: 0,
+        split: 5,
+        end: 5,
+        subtitle1: '자음정확성',
         partTitle: '조음',
         partTitleEn: 'Articulation',
         partId: 7,
@@ -240,6 +229,7 @@ export default function SpeechOneQuestionsPage({
     const { data: qnaData } = useQuestionsAndAnswersQuery({
         sessionId: Number(router.query.sessionId),
         subtestId: CURRENT_SUBTEST_ID,
+        partId,
         start,
         end: end - 1,
         jwt: getCookie('jwt') || '',
@@ -375,13 +365,16 @@ export default function SpeechOneQuestionsPage({
                 setCheckAll1(false);
                 setCheckAll2(false);
 
-                if (partId === PART_ID_START && page < 3) {
+                if (partId === PART_ID_START && page < 2) {
                     setPage(page => page + 1);
+                    console.log('here1');
                 } else {
                     if (partId < partIndexList[partIndexList.length - 1].partId) {
+                        console.log('here2');
                         setPartId(partId => partId + 1);
                         setPage(0);
                     } else {
+                        console.log('here3');
                         const subtests = subtestsData?.subtests;
                         if (!subtests) {
                             throw new Error('수행할 소검사가 없습니다');
@@ -586,49 +579,39 @@ export default function SpeechOneQuestionsPage({
                 )}
                 {split - start > 0 && (
                     <>
-                        <table className={`${subtestStyles['question-table']}`}>
-                            <thead data-title={subtitle1}>
-                                <tr>
+                        <table className={subtestStyles.questionTable}>
+                            <thead>
+                                <tr className={subtestStyles.yesNo}>
+                                    <th colSpan={2}></th>
+                                    <th>예</th>
+                                    <th colSpan={2}>아니오</th>
+                                    <th>기타</th>
+                                </tr>
+                                <tr className={subtestStyles.option}>
                                     <th></th>
                                     <th>{subtitle1}</th>
                                     <th>정상</th>
                                     <th>경도</th>
                                     <th>심도</th>
                                     <th>평가불가</th>
-                                    <th className='rounded-tr-base'>메모</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {fields.slice(0, split - start).map((item, i) => (
                                     <tr key={item.id}>
-                                        <td className={`${subtestStyles['num']}`}>{i + 1}</td>
-                                        <td className={`${subtestStyles['text']}`}>{item.questionText}</td>
-                                        <td className={`${subtestStyles['option']}`}>
+                                        <td className={subtestStyles.num}>{i + 1}</td>
+                                        <td className={subtestStyles.text}>{item.questionText}</td>
+                                        <td className={subtestStyles.option}>
                                             <input type='radio' {...register(`answers.${i}.answer`)} value='normal' />
                                         </td>
-                                        <td className={`${subtestStyles['option']}`}>
+                                        <td className={subtestStyles.option}>
                                             <input type='radio' {...register(`answers.${i}.answer`)} value='mild' />
                                         </td>
-                                        <td className={`${subtestStyles['option']}`}>
+                                        <td className={subtestStyles.option}>
                                             <input type='radio' {...register(`answers.${i}.answer`)} value='moderate' />
                                         </td>
-                                        <td className={`${subtestStyles['option']}`}>
+                                        <td className={subtestStyles.option}>
                                             <input type='radio' {...register(`answers.${i}.answer`)} value='unknown' />
-                                        </td>
-                                        <td className={`${subtestStyles['comment']}`}>
-                                            <Controller
-                                                control={control}
-                                                name={`answers.${i}.comment`}
-                                                render={({ field }) => (
-                                                    <ReactTextareaAutosize
-                                                        className={`${subtestStyles['textarea-no-border']}`}
-                                                        minRows={1}
-                                                        onChange={field.onChange}
-                                                        onBlur={field.onBlur}
-                                                        value={field.value || ''}
-                                                    />
-                                                )}
-                                            />
                                         </td>
                                     </tr>
                                 ))}
@@ -644,49 +627,39 @@ export default function SpeechOneQuestionsPage({
 
                 {end - split > 0 && (
                     <>
-                        <table className={`${subtestStyles['question-table']}`}>
-                            <thead data-title={subtitle2}>
-                                <tr className='bg-accent2 text-white text-body-2'>
+                        <table className={subtestStyles.questionTable}>
+                            <thead>
+                                <tr className={subtestStyles.yesNo}>
+                                    <th colSpan={2}></th>
+                                    <th>예</th>
+                                    <th colSpan={2}>아니오</th>
+                                    <th>기타</th>
+                                </tr>
+                                <tr className={subtestStyles.option}>
                                     <th></th>
                                     <th>{subtitle2}</th>
                                     <th>정상</th>
                                     <th>경도</th>
                                     <th>심도</th>
                                     <th>평가불가</th>
-                                    <th className='rounded-tr-base'>메모</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {fields.slice(split - start).map((item, i) => (
                                     <tr key={item.id}>
-                                        <td className={`${subtestStyles['num']}`}>{split - start + i + 1}</td>
-                                        <td className={`${subtestStyles['text']}`}>{item.questionText}</td>
-                                        <td className={`${subtestStyles['option']}`}>
+                                        <td className={subtestStyles.num}>{split - start + i + 1}</td>
+                                        <td className={subtestStyles.text}>{item.questionText}</td>
+                                        <td className={subtestStyles.option}>
                                             <input type='radio' {...register(`answers.${split - start + i}.answer`)} value='normal' />
                                         </td>
-                                        <td className={`${subtestStyles['option']}`}>
+                                        <td className={subtestStyles.option}>
                                             <input type='radio' {...register(`answers.${split - start + i}.answer`)} value='mild' />
                                         </td>
-                                        <td className={`${subtestStyles['option']}`}>
+                                        <td className={subtestStyles.option}>
                                             <input type='radio' {...register(`answers.${split - start + i}.answer`)} value='moderate' />
                                         </td>
-                                        <td className={`${subtestStyles['option']}`}>
+                                        <td className={subtestStyles.option}>
                                             <input type='radio' {...register(`answers.${split - start + i}.answer`)} value='unknown' />
-                                        </td>
-                                        <td className={`${subtestStyles['comment']}`}>
-                                            <Controller
-                                                control={control}
-                                                name={`answers.${split - start + i}.comment`}
-                                                render={({ field }) => (
-                                                    <ReactTextareaAutosize
-                                                        className={`${subtestStyles['textarea-no-border']}`}
-                                                        minRows={1}
-                                                        onChange={field.onChange}
-                                                        onBlur={field.onBlur}
-                                                        value={field.value || ''}
-                                                    />
-                                                )}
-                                            />
                                         </td>
                                     </tr>
                                 ))}
