@@ -109,6 +109,7 @@ export const PersonalInfoForm = ({
         cognitiveDisorderDetail?: {
             mmseScore?: number;
         };
+        dysphagia?: string;
     };
     onSubmit: (data: FormValues) => void;
 }) => {
@@ -294,6 +295,7 @@ export const PersonalInfoForm = ({
                         </div>
                     </div>
                 </div>
+
                 <div className='mt-7.5 flex flex-row gap-5'>
                     <span className='font-bold text-body-1'>인지장애</span>
                     <div>
@@ -305,27 +307,26 @@ export const PersonalInfoForm = ({
                                 </label>
                             ))}
                         </div>
-                        {watchCognitiveDisorder === 'Y' && (
-                            <div className='mt-3.5 flex flex-row gap-5'>
-                                <div className='flex items-center gap-2'>
-                                    <span>MMSE 총점:</span>
-                                    <input
-                                        type='number'
-                                        className='w-20 border-b border-black'
-                                        {...register('cognitiveDisorderDetail.mmseScore')}
-                                    />
-                                </div>
+                        <div className='mt-3.5 flex flex-row gap-5'>
+                            <div className='flex items-center gap-2'>
+                                <span>MMSE 총점:</span>
+                                <input
+                                    type='number'
+                                    className='w-20 border-b border-black'
+                                    {...register('cognitiveDisorderDetail.mmseScore')}
+                                />
                             </div>
-                        )}
+                        </div>
                     </div>
                 </div>
+
                 <div className='mt-7.5 flex flex-row gap-5'>
                     <span className='font-bold text-body-1'>삼킴장애</span>
                     <div>
                         <div className='flex flex-row gap-7.5'>
                             {comorbidityOptions.map((option, i) => (
                                 <label key={option.value} className='flex items-center gap-[10px] text-body-1'>
-                                    <input type='radio' {...register('cognitiveDisorder')} value={option.value} className='h-6 w-6' />
+                                    <input type='radio' {...register('dysphagia')} value={option.value} className='h-6 w-6' />
                                     {option.label}
                                 </label>
                             ))}

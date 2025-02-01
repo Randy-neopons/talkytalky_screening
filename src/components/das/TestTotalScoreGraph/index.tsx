@@ -17,7 +17,7 @@ export default function TestTotalScoreGraph({
                 data={data}
                 valueFormat='>-.2f'
                 padding={0}
-                innerRadius={0.8}
+                innerRadius={0.9}
                 cornerRadius={20}
                 startAngle={270}
                 endAngle={450}

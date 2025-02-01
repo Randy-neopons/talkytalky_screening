@@ -17,7 +17,7 @@ export default function SubtestScoreGraph({
                 data={data}
                 valueFormat='>-.2f'
                 padding={0}
-                innerRadius={0.75}
+                innerRadius={0.85}
                 cornerRadius={20}
                 startAngle={90}
                 endAngle={450}

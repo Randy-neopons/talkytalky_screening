@@ -104,72 +104,84 @@ button.tooltip-button:hover + .tooltip-content {
     @apply h-4 w-4;
 }
 
-.question-table {
+.questionTable {
     @apply mb-5 mt-[110px] w-[728px] border-collapse rounded-base xl:w-[1000px];
 }
 
-.question-table thead {
+.questionTable thead {
     @apply relative;
 }
-
-.question-table thead::before {
+/* 
+.questionTable thead::before {
     @apply absolute -top-full inline-flex h-12 w-40 items-center justify-center rounded-t-2xl bg-accent1 font-bold text-white text-body-2;
     content: attr(data-title);
+} */
+
+.questionTable thead tr.yesNo {
+    @apply bg-accent1 text-neutral11 text-body-2;
 }
 
-.question-table thead tr {
+.questionTable thead tr.yesNo th:first-child {
+    @apply rounded-tl-base;
+}
+
+.questionTable thead tr.yesNo th:last-child {
+    @apply rounded-tr-base;
+}
+
+.questionTable thead tr.option {
     @apply bg-accent3 text-neutral3 text-body-2;
 }
 
-.question-table thead tr th {
+.questionTable thead tr th {
     @apply text-nowrap px-1 py-3;
 }
 
-.question-table tbody td {
+.questionTable tbody td {
     @apply border border-solid border-neutral6 bg-white py-3 text-body-1;
 }
 
-.question-table tbody td.num {
+.questionTable tbody td.num {
     @apply w-10 text-center xl:w-12;
 }
 
-.question-table tbody td.text {
+.questionTable tbody td.text {
     @apply px-5;
 }
 
-.question-table tbody td.option {
+.questionTable tbody td.option {
     @apply w-[45px] text-center align-middle xl:w-[65px];
 }
 
-.question-table tbody td.comment {
+.questionTable tbody td.comment {
     @apply w-40 p-0 text-center xl:w-[228px];
 }
 
-.question-table tbody tr:first-child td {
+.questionTable tbody tr:first-child td {
     @apply border-t-0;
 }
-.question-table tbody tr:last-child td {
+.questionTable tbody tr:last-child td {
     @apply border-b-0;
 }
 
-.question-table tbody tr td:first-child {
+.questionTable tbody tr td:first-child {
     @apply border-l-0;
 }
-.question-table tbody tr td:last-child {
+.questionTable tbody tr td:last-child {
     @apply border-r-0;
 }
 
-.question-table tbody tr:last-child td:first-child {
+.questionTable tbody tr:last-child td:first-child {
     @apply rounded-bl-base;
 }
-.question-table tbody tr:last-child td:last-child {
+.questionTable tbody tr:last-child td:last-child {
     @apply rounded-br-base;
 }
-/* .question-table tbody tr td:last-child {
+/* .questionTable tbody tr td:last-child {
     @apply px-2;
 } */
 
-.question-table input[type='radio'] {
+.questionTable input[type='radio'] {
     @apply h-6 w-6 align-text-bottom leading-none;
 }
 
