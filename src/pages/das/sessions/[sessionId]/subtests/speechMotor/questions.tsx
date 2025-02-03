@@ -21,6 +21,7 @@ import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import { LoadingOverlay } from '@/components/das/LoadingOverlay';
+import VolumeModal from '@/components/das/VolumeModal';
 import { WaveformButton } from '@/components/das/WaveformButton';
 import { useConductedSubtestsQuery, useQuestionsAndAnswersQuery } from '@/hooks/das';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
@@ -88,15 +89,53 @@ const RecordButton = ({
     isRecording,
     handleStop,
     handleStart,
+    volume,
+
+    modalTitle,
+    modalContent,
 }: {
     isRecording: boolean;
     handleStop: () => void;
     handleStart: () => void;
+    volume?: number;
+
+    modalTitle: string;
+    modalContent: string;
 }) => {
+    const [modalOpen, setModalOpen] = useState(false);
+    const handleOpenModal = useCallback(() => {
+        setModalOpen(true);
+        handleStart();
+    }, [handleStart]);
+    const handleCloseModal = useCallback(() => {
+        setModalOpen(false);
+        handleStop();
+    }, [handleStop]);
+
     return (
-        <button type='button' className='m-auto flex' onClick={isRecording ? handleStop : handleStart}>
-            {isRecording ? <StopRecordIcon /> : <RecordIcon />}
-        </button>
+        <>
+            <button
+                type='button'
+                className='m-auto flex'
+                onClick={
+                    isRecording
+                        ? handleStop
+                        : () => {
+                              handleOpenModal();
+                              handleStart();
+                          }
+                }
+            >
+                {isRecording ? <StopRecordIcon /> : <RecordIcon />}
+            </button>
+            <VolumeModal
+                title={modalTitle}
+                content={modalContent}
+                volume={volume}
+                modalOpen={modalOpen}
+                handleCloseModal={handleCloseModal}
+            />
+        </>
     );
 };
 
@@ -140,6 +179,7 @@ export default function SpeechMotorQuestionsPage({
         handleStopRecording: handleStopRecording1,
         handlePlay: handlePlay1,
         handlePause: handlePause1,
+        volume: volume1,
     } = useAudioRecorder(recordingList[0]?.filePath);
     const {
         isRecording: isRecording2,
@@ -150,6 +190,7 @@ export default function SpeechMotorQuestionsPage({
         handleStopRecording: handleStopRecording2,
         handlePlay: handlePlay2,
         handlePause: handlePause2,
+        volume: volume2,
     } = useAudioRecorder(recordingList[1]?.filePath);
     const {
         isRecording: isRecording3,
@@ -160,6 +201,7 @@ export default function SpeechMotorQuestionsPage({
         handleStopRecording: handleStopRecording3,
         handlePlay: handlePlay3,
         handlePause: handlePause3,
+        volume: volume3,
     } = useAudioRecorder(recordingList[2]?.filePath);
     const {
         isRecording: isRecording4,
@@ -170,6 +212,7 @@ export default function SpeechMotorQuestionsPage({
         handleStopRecording: handleStopRecording4,
         handlePlay: handlePlay4,
         handlePause: handlePause4,
+        volume: volume4,
     } = useAudioRecorder(recordingList[3]?.filePath);
 
     // 현재 소검사, 선택한 소검사 정보
@@ -391,6 +434,9 @@ export default function SpeechMotorQuestionsPage({
                                             isRecording={isRecording1}
                                             handleStart={handleStartRecording1}
                                             handleStop={handleStopRecording1}
+                                            volume={volume1}
+                                            modalTitle='AMR 측정 (파)'
+                                            modalContent="'파'를 가능한 빨리 규칙적으로 반복해서 말해보세요."
                                         />
                                     </td>
                                     <td className={`${subtestStyles['button']}`}>
@@ -422,6 +468,9 @@ export default function SpeechMotorQuestionsPage({
                                             isRecording={isRecording2}
                                             handleStart={handleStartRecording2}
                                             handleStop={handleStopRecording2}
+                                            volume={volume2}
+                                            modalTitle='AMR 측정 (타)'
+                                            modalContent="'타'를 가능한 빨리 규칙적으로 반복해서 말해보세요."
                                         />
                                     </td>
                                     <td className={`${subtestStyles['button']}`}>
@@ -453,6 +502,9 @@ export default function SpeechMotorQuestionsPage({
                                             isRecording={isRecording3}
                                             handleStart={handleStartRecording3}
                                             handleStop={handleStopRecording3}
+                                            volume={volume3}
+                                            modalTitle='AMR 측정 (카)'
+                                            modalContent="'카'를 가능한 빨리 규칙적으로 반복해서 말해보세요."
                                         />
                                     </td>
                                     <td className={`${subtestStyles['button']}`}>
@@ -506,6 +558,9 @@ export default function SpeechMotorQuestionsPage({
                                             isRecording={isRecording4}
                                             handleStart={handleStartRecording4}
                                             handleStop={handleStopRecording4}
+                                            volume={volume4}
+                                            modalTitle='SMR 측정 (파-타-카)'
+                                            modalContent="'파-타-카'를 가능한 빨리 규칙적으로 반복해서 말해보세요."
                                         />
                                     </td>
                                     <td className={`${subtestStyles['button']}`}>

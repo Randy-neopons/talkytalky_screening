@@ -496,13 +496,14 @@ export default function TestResultPage({
                                     </td>
                                     <td
                                         className={cx(
-                                            'border-l border-t border-neutral8 bg-white py-3 font-bold',
-                                            v.answer === 'moderate' ? 'text-red1' : 'text-orange1',
+                                            'border-l border-t border-neutral8 bg-white py-3',
+                                            v.answer === 'moderate' ? 'text-red1' : 'text-primary1',
                                         )}
                                         align='center'
                                         width='13%'
                                     >
-                                        <span className={styles.answer}>
+                                        <span className={styles.answer}></span>
+                                        <span className='text-neutral1'>
                                             {answerOptions.find(answer => answer.value === v.answer)?.label}
                                         </span>
                                     </td>
