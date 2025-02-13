@@ -99,7 +99,7 @@ export default function StressTestingQuestionsPage({ questionList }: { questionL
         e => {
             if (e.target.checked === true) {
                 Array.from({ length: split - start }, (v, i) => start + i).map(v => {
-                    setValue(`answers.${v}.answer`, 'normal');
+                    setValue(`answers.${v}.answer`, 'normal', { shouldValidate: true });
                 });
             }
 

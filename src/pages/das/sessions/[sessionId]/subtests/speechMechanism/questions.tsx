@@ -37,9 +37,9 @@ const partIndexList = [
         partId: 1,
     },
     {
-        start: 12,
+        start: 0,
         split: 1,
-        end: 18,
+        end: 6,
         subtitle1: '휴식시',
         subtitle2: '활동시',
         partTitle: '아랫턱 근육',
@@ -47,9 +47,9 @@ const partIndexList = [
         partId: 2,
     },
     {
-        start: 18,
+        start: 0,
         split: 5,
-        end: 30,
+        end: 12,
         subtitle1: '휴식시',
         subtitle2: '활동시',
         partTitle: '혀',
@@ -57,9 +57,9 @@ const partIndexList = [
         partId: 3,
     },
     {
-        start: 30,
+        start: 0,
         split: 1,
-        end: 35,
+        end: 6,
         subtitle1: '휴식시',
         subtitle2: '활동시',
         partTitle: '연구개 / 인두 / 후두',
@@ -119,14 +119,14 @@ export default function SpeechMechanismQuestionsPage({
     const handleChangeCheckAll1 = useCallback<ChangeEventHandler<HTMLInputElement>>(
         e => {
             if (e.target.checked === true) {
-                Array.from({ length: split - start }, (v, i) => i).map(v => {
-                    setValue(`answers.${v}.answer`, 'normal');
+                Array.from({ length: split }, (v, i) => i).map(v => {
+                    setValue(`answers.${v}.answer`, 'normal', { shouldValidate: true });
                 });
             }
 
             setCheckAll1(e.target.checked);
         },
-        [setValue, split, start],
+        [setValue, split],
     );
 
     // 모두 정상 체크
@@ -134,7 +134,7 @@ export default function SpeechMechanismQuestionsPage({
         e => {
             if (e.target.checked === true) {
                 Array.from({ length: end - split }, (v, i) => split - start + i).map(v => {
-                    setValue(`answers.${v}.answer`, 'normal');
+                    setValue(`answers.${v}.answer`, 'normal', { shouldValidate: true });
                 });
             }
 
@@ -289,16 +289,16 @@ export default function SpeechMechanismQuestionsPage({
                                 <td className={subtestStyles.num}>{i + 1}</td>
                                 <td className={subtestStyles.text}>{item.questionText}</td>
                                 <td className={subtestStyles.option}>
-                                    <input type='radio' {...register(`answers.${i}.answer`)} value='normal' />
+                                    <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='normal' />
                                 </td>
                                 <td className={subtestStyles.option}>
-                                    <input type='radio' {...register(`answers.${i}.answer`)} value='mild' />
+                                    <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='mild' />
                                 </td>
                                 <td className={subtestStyles.option}>
-                                    <input type='radio' {...register(`answers.${i}.answer`)} value='moderate' />
+                                    <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='moderate' />
                                 </td>
                                 <td className={subtestStyles.option}>
-                                    <input type='radio' {...register(`answers.${i}.answer`)} value='unknown' />
+                                    <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='unknown' />
                                 </td>
                             </tr>
                         ))}
@@ -335,16 +335,32 @@ export default function SpeechMechanismQuestionsPage({
                                         <td className={subtestStyles.num}>{split + i + 1}</td>
                                         <td className={subtestStyles.text}>{item.questionText}</td>
                                         <td className={subtestStyles.option}>
-                                            <input type='radio' {...register(`answers.${split + i}.answer`)} value='normal' />
+                                            <input
+                                                type='radio'
+                                                {...register(`answers.${split + i}.answer`, { required: true })}
+                                                value='normal'
+                                            />
                                         </td>
                                         <td className={subtestStyles.option}>
-                                            <input type='radio' {...register(`answers.${split + i}.answer`)} value='mild' />
+                                            <input
+                                                type='radio'
+                                                {...register(`answers.${split + i}.answer`, { required: true })}
+                                                value='mild'
+                                            />
                                         </td>
                                         <td className={subtestStyles.option}>
-                                            <input type='radio' {...register(`answers.${split + i}.answer`)} value='moderate' />
+                                            <input
+                                                type='radio'
+                                                {...register(`answers.${split + i}.answer`, { required: true })}
+                                                value='moderate'
+                                            />
                                         </td>
                                         <td className={subtestStyles.option}>
-                                            <input type='radio' {...register(`answers.${split + i}.answer`)} value='unknown' />
+                                            <input
+                                                type='radio'
+                                                {...register(`answers.${split + i}.answer`, { required: true })}
+                                                value='unknown'
+                                            />
                                         </td>
                                     </tr>
                                 ))}
@@ -363,7 +379,12 @@ export default function SpeechMechanismQuestionsPage({
                         이전
                     </button>
 
-                    <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained disabled:btn-contained-disabled'>
+                    <button
+                        key='submit'
+                        type='submit'
+                        className='ml-5 mt-20 btn btn-large btn-contained disabled:btn-contained-disabled'
+                        disabled={!isValid}
+                    >
                         다음
                     </button>
                 </div>

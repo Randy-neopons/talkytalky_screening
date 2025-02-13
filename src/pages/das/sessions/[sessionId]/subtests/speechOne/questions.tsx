@@ -236,7 +236,14 @@ export default function SpeechOneQuestionsPage({
     });
 
     // react-hook-form
-    const { control, register, setValue, handleSubmit, getValues } = useForm<{
+    const {
+        control,
+        register,
+        setValue,
+        handleSubmit,
+        formState: { isDirty, isValid },
+        getValues,
+    } = useForm<{
         recordings: Recording[];
         answers: Answer[];
     }>();
@@ -247,7 +254,7 @@ export default function SpeechOneQuestionsPage({
         e => {
             if (e.target.checked === true) {
                 Array.from({ length: split - start }, (v, i) => i).map(v => {
-                    setValue(`answers.${v}.answer`, 'normal');
+                    setValue(`answers.${v}.answer`, 'normal', { shouldValidate: true });
                 });
             }
 
@@ -262,7 +269,7 @@ export default function SpeechOneQuestionsPage({
             if (e.target.checked === true) {
                 Array.from({ length: end - split }, (v, i) => split - start + i).map(v => {
                     console.log(v);
-                    setValue(`answers.${v}.answer`, 'normal');
+                    setValue(`answers.${v}.answer`, 'normal', { shouldValidate: true });
                 });
             }
 
@@ -602,16 +609,16 @@ export default function SpeechOneQuestionsPage({
                                         <td className={subtestStyles.num}>{i + 1}</td>
                                         <td className={subtestStyles.text}>{item.questionText}</td>
                                         <td className={subtestStyles.option}>
-                                            <input type='radio' {...register(`answers.${i}.answer`)} value='normal' />
+                                            <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='normal' />
                                         </td>
                                         <td className={subtestStyles.option}>
-                                            <input type='radio' {...register(`answers.${i}.answer`)} value='mild' />
+                                            <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='mild' />
                                         </td>
                                         <td className={subtestStyles.option}>
-                                            <input type='radio' {...register(`answers.${i}.answer`)} value='moderate' />
+                                            <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='moderate' />
                                         </td>
                                         <td className={subtestStyles.option}>
-                                            <input type='radio' {...register(`answers.${i}.answer`)} value='unknown' />
+                                            <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='unknown' />
                                         </td>
                                     </tr>
                                 ))}
@@ -650,16 +657,32 @@ export default function SpeechOneQuestionsPage({
                                         <td className={subtestStyles.num}>{split - start + i + 1}</td>
                                         <td className={subtestStyles.text}>{item.questionText}</td>
                                         <td className={subtestStyles.option}>
-                                            <input type='radio' {...register(`answers.${split - start + i}.answer`)} value='normal' />
+                                            <input
+                                                type='radio'
+                                                {...register(`answers.${split - start + i}.answer`, { required: true })}
+                                                value='normal'
+                                            />
                                         </td>
                                         <td className={subtestStyles.option}>
-                                            <input type='radio' {...register(`answers.${split - start + i}.answer`)} value='mild' />
+                                            <input
+                                                type='radio'
+                                                {...register(`answers.${split - start + i}.answer`, { required: true })}
+                                                value='mild'
+                                            />
                                         </td>
                                         <td className={subtestStyles.option}>
-                                            <input type='radio' {...register(`answers.${split - start + i}.answer`)} value='moderate' />
+                                            <input
+                                                type='radio'
+                                                {...register(`answers.${split - start + i}.answer`, { required: true })}
+                                                value='moderate'
+                                            />
                                         </td>
                                         <td className={subtestStyles.option}>
-                                            <input type='radio' {...register(`answers.${split - start + i}.answer`)} value='unknown' />
+                                            <input
+                                                type='radio'
+                                                {...register(`answers.${split - start + i}.answer`, { required: true })}
+                                                value='unknown'
+                                            />
                                         </td>
                                     </tr>
                                 ))}
@@ -678,7 +701,7 @@ export default function SpeechOneQuestionsPage({
                         이전
                     </button>
 
-                    <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained'>
+                    <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained' disabled={!isValid}>
                         다음
                     </button>
                 </div>

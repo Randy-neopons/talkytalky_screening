@@ -4,6 +4,9 @@ export interface TestInfoFormValues {
     patientName: string;
     patientGender: string;
     patientBirthdate: string;
+    dominantHand: string;
+    hearingAidsUse: string;
+    educationYear: string;
     brainLesions: string[]; // 뇌병변
     medicalHistory?: string; // 병력
     patientMemo?: string; // 개인정보

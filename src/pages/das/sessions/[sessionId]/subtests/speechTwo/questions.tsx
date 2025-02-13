@@ -30,31 +30,31 @@ const PART_ID_START = 11;
 const partIndexList = [
     {
         start: 0,
-        end: 6,
+        end: 9,
         subtitle: '문단읽기 / 그림 설명하기 / 대화하기',
         partTitle: '호흡 / 발성',
         partTitleEn: 'Respiration / Phonation',
         partId: 11,
     },
     {
-        start: 6,
-        end: 8,
+        start: 0,
+        end: 2,
         subtitle: '문단읽기 / 그림 설명하기 / 대화하기',
         partTitle: '공명',
         partTitleEn: 'Resonance',
         partId: 12,
     },
     {
-        start: 8,
-        end: 11,
+        start: 0,
+        end: 4,
         subtitle: '문단읽기 / 그림 설명하기 / 대화하기',
         partTitle: '조음',
         partTitleEn: 'Articulation',
         partId: 13,
     },
     {
-        start: 11,
-        end: 18,
+        start: 0,
+        end: 10,
         subtitle: '문단읽기 / 그림 설명하기 / 대화하기',
         partTitle: '운율',
         partTitleEn: 'Prosody',
@@ -90,7 +90,14 @@ export default function SpeechTwoQuestionsPage({
     );
 
     // react-hook-form
-    const { control, register, setValue, handleSubmit, getValues } = useForm<{
+    const {
+        control,
+        register,
+        setValue,
+        handleSubmit,
+        formState: { isDirty, isValid },
+        getValues,
+    } = useForm<{
         answers: Answer[];
     }>();
     const { fields } = useFieldArray({ name: 'answers', control });
@@ -157,7 +164,7 @@ export default function SpeechTwoQuestionsPage({
         e => {
             if (e.target.checked === true) {
                 Array.from({ length: end - start }, (v, i) => i).map(v => {
-                    setValue(`answers.${v}.answer`, 'normal');
+                    setValue(`answers.${v}.answer`, 'normal', { shouldValidate: true });
                 });
             }
 
@@ -381,16 +388,16 @@ export default function SpeechTwoQuestionsPage({
                                 <td className={subtestStyles.num}>{i + 1}</td>
                                 <td className={subtestStyles.text}>{item.questionText}</td>
                                 <td className={subtestStyles.option}>
-                                    <input type='radio' {...register(`answers.${i}.answer`)} value='normal' />
+                                    <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='normal' />
                                 </td>
                                 <td className={subtestStyles.option}>
-                                    <input type='radio' {...register(`answers.${i}.answer`)} value='mild' />
+                                    <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='mild' />
                                 </td>
                                 <td className={subtestStyles.option}>
-                                    <input type='radio' {...register(`answers.${i}.answer`)} value='moderate' />
+                                    <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='moderate' />
                                 </td>
                                 <td className={subtestStyles.option}>
-                                    <input type='radio' {...register(`answers.${i}.answer`)} value='unknown' />
+                                    <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='unknown' />
                                 </td>
                             </tr>
                         ))}
@@ -407,7 +414,7 @@ export default function SpeechTwoQuestionsPage({
                         이전
                     </button>
 
-                    <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained'>
+                    <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained' disabled={!isValid}>
                         다음
                     </button>
                 </div>

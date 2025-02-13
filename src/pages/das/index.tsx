@@ -36,7 +36,7 @@ export default function Home() {
                 말실행증보다는 마비말장애 여부를 판단하는 데에 초점을 두고 있습니다.
             </span>
             <ul className='mt-15'>
-                <li className='float-left mr-7.5 flex h-[467px] w-[300px] flex-col flex-nowrap items-center rounded-[20px] bg-white px-[50px] py-7.5 shadow-base xl:h-[440px] xl:w-[477px] xl:items-start'>
+                <li className='float-left mr-7.5 flex h-[467px] w-[300px] flex-col flex-nowrap items-center rounded-2xl bg-white px-[50px] py-7.5 shadow-base xl:h-[440px] xl:w-[477px] xl:items-start'>
                     <Image src={testStartIcon} alt='test-start' width={120} height={100} />
                     <span className='mt-5 font-bold leading-normal text-accent1 text-head-2 xl:leading-tight'>테스트 시작하기</span>
                     <span className='mt-[10px] max-w-[350px] break-keep text-center text-neutral4 text-body-2 xl:mt-2 xl:text-left'>
@@ -58,7 +58,7 @@ export default function Home() {
                     </div>
                 </li>
 
-                <li className='float-left flex h-[467px] w-[300px] flex-col flex-nowrap items-center break-keep rounded-[20px] bg-white px-[50px] py-7.5 text-center shadow-base xl:h-[440px] xl:w-[477px] xl:items-start xl:text-left'>
+                <li className='float-left flex h-[467px] w-[300px] flex-col flex-nowrap items-center break-keep rounded-2xl bg-white px-[50px] py-7.5 text-center shadow-base xl:h-[440px] xl:w-[477px] xl:items-start xl:text-left'>
                     <Image src={testResultIcon} alt='test-result' width={120} height={100} />
                     <span className='mt-5 font-bold leading-normal text-accent1 text-head-2 xl:leading-tight'>테스트 결과보기</span>
                     <span className='mt-[10px] text-neutral4 text-body-2 xl:mt-2'>
