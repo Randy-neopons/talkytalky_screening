@@ -18,7 +18,7 @@ import { useConductedSubtestsQuery } from '@/hooks/das';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
 
-import styles from '../SubTests.module.css';
+import styles from '../SubTests.module.scss';
 
 import type { Recording } from '@/types/das';
 

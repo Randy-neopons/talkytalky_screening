@@ -3,7 +3,7 @@ import { AudioVisualizer } from 'react-audio-visualize';
 
 import axios from 'axios';
 
-import WaveformModal from '../WaveformModal/indext';
+import WaveformModal from '../WaveformModal';
 const axiosInstance = axios.create({ baseURL: '' });
 
 type WaveformButtonProps = {

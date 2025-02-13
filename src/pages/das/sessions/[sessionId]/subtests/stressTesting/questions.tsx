@@ -13,7 +13,7 @@ import Container from '@/components/common/Container';
 import { useQuestionsAndAnswersQuery } from '@/hooks/das';
 import { getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
 
-import subtestStyles from '../SubTests.module.css';
+import subtestStyles from '../SubTests.module.scss';
 
 import type { Answer, QuestionAnswer } from '@/types/das';
 

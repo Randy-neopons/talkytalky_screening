@@ -14,7 +14,7 @@ import { InfoIcon, PrintIcon } from '@/components/common/icons';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
 
-import styles from '../SubTests.module.css';
+import styles from '../SubTests.module.scss';
 
 import conversationImg from 'public/static/images/conversation-img.png';
 

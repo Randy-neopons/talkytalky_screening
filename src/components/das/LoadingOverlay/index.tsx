@@ -2,7 +2,7 @@ import { useMemo, type CSSProperties } from 'react';
 
 import cx from 'classnames';
 
-import styles from './LoadingOverlay.module.css';
+import styles from './LoadingOverlay.module.scss';
 
 type Props = {
     loading?: boolean;

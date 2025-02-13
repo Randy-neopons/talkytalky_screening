@@ -19,7 +19,7 @@ import PrintView from '@/components/das/PrintView';
 import { useUserQuery } from '@/hooks/user';
 import { getTestInfoAPI, getTestResultAPI, updateTestResultAPI } from '@/api/das';
 
-import styles from './TestResultPage.module.css';
+import styles from './TestResultPage.module.scss';
 
 const TestTotalScoreGraph = dynamic(() => import('@/components/das/TestTotalScoreGraph'), { ssr: false });
 const TestScoreBarGraph = dynamic(() => import('@/components/das/TestScoreBarGraph'), { ssr: false });

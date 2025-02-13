@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 
 import { CheckBoxGroupItem } from '@/components/common/CheckBox';
 
-import styles from './PrintView.module.css';
+import styles from './PrintView.module.scss';
 
 // function svgToPng(svgElement, callback) {
 //     // SVG 요소를 문자열로 변환

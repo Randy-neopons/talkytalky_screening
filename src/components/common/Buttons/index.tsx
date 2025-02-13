@@ -2,7 +2,7 @@ import { useEffect, useState, type ChangeEventHandler, type ReactNode } from 're
 
 import { MikeIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/common/icons';
 
-import styles from './Buttons.module.css';
+import styles from './Buttons.module.scss';
 
 // 주위에 테두리 효과 주기
 export const RoundedBox = ({ isShining, children }: { isShining?: boolean; children: ReactNode }) => {

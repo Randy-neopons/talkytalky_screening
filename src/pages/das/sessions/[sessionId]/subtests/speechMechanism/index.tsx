@@ -8,7 +8,7 @@ import { getCookie } from 'cookies-next';
 import { useTimerActions } from '@/stores/timerStore';
 import Container from '@/components/common/Container';
 
-import styles from '../SubTests.module.css';
+import styles from '../SubTests.module.scss';
 
 import infoIcon from 'public/static/images/info-icon.png';
 

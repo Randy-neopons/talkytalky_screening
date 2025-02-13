@@ -15,7 +15,7 @@ import { InfoIcon, PrintIcon } from '@/components/common/icons';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
 
-import styles from '../SubTests.module.css';
+import styles from '../SubTests.module.scss';
 
 import marketImg from 'public/static/images/market-img.png';
 import pictureDescImg from 'public/static/images/picture-desc-img.png';

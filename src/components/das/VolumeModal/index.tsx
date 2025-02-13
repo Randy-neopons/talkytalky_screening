@@ -16,7 +16,7 @@ import axios from 'axios';
 import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.js';
 
-import styles from './VolumeModal.module.css';
+import styles from './VolumeModal.module.scss';
 
 const axiosInstance = axios.create({ baseURL: '' });
 
