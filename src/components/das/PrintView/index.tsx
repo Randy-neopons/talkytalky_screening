@@ -190,16 +190,16 @@ export default function PrintView({
 }) {
     return (
         <div ref={printViewRef}>
-            <div className={styles['print-view']}>
+            <div className={styles.printView}>
                 <div className='flex h-[842px] w-[595px] flex-col bg-white p-7.5 text-black'>
-                    <div className={styles['print-header']}>
+                    <div className={styles.printHeader}>
                         <h3 className='mt-2.5'>
                             <span className='font-bold'>마비말장애 평가시스템</span>
                             <span className='ml-2 text-neutral4'>Dysarthria Assessment System</span>
                             <span className='absolute right-0'>{testInfo.patientName}님</span>
                         </h3>
                     </div>
-                    <div className={styles['cover-page']}>
+                    <div className={styles.coverPage}>
                         <div className='mt-[100px] text-center'>
                             <h1 className='text-2xl font-bold'>마비말장애 평가시스템</h1>
                             <h2 className='text-xl font-bold'>Dysarthria Assessment System</h2>
@@ -256,7 +256,7 @@ export default function PrintView({
                         </div>
                     </div>
                 </div>
-                <div className={styles['content-page']}>
+                <div className={styles.contentPage}>
                     <div className='h-full w-full'>
                         <div className='w-full'>
                             <div className='relative flex w-full'>

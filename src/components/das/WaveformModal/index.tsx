@@ -199,7 +199,7 @@ export default function WaveformModal({
                 </div>
 
                 <div className='relative flex h-full w-full flex-col items-center px-5 py-7.5'>
-                    <div className={styles['waveform-bg']}>
+                    <div className={styles.waveformBg}>
                         <div ref={waveformRef} />
 
                         {/* <WavesurferPlayer height={250} url={url} onReady={onReady} plugins={[() => TimelinePlugin.create()]} /> */}

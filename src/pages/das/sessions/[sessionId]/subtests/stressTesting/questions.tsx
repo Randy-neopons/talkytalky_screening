@@ -165,7 +165,7 @@ export default function StressTestingQuestionsPage({ questionList }: { questionL
         <Container>
             <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>Stress Testing</h1>
             <span className='text-center text-body-2'>본 검사는 중증 근무력증 선별검사로 필요시에만 실시합니다.</span>
-            <form onSubmit={handleSubmit(handleOnSubmit)} className={`${subtestStyles['subtest-form']}`}>
+            <form onSubmit={handleSubmit(handleOnSubmit)} className={`${subtestStyles.subtestForm}`}>
                 <table className={subtestStyles.questionTable}>
                     <thead data-title='피로도 검사'>
                         <tr className={subtestStyles.yesNo}>

@@ -1,18 +1,18 @@
-.print-header {
+.printHeader {
     @apply relative w-full border-t-4 border-neutral3 text-xs;
 }
 
-.cover-page {
+.coverPage {
     @apply h-full w-full border-y-4 border-neutral3 px-[50px];
 }
 
-.content-page {
+.contentPage {
     @apply flex w-[595px] flex-col bg-white px-7.5 text-black;
     page-break-inside: avoid; /* 큰 섹션 안에서 페이지 넘김이 일어나지 않도록 */
 }
 
 @media print {
-    .print-header {
+    .printHeader {
         display: none;
         position: fixed;
         top: 0;

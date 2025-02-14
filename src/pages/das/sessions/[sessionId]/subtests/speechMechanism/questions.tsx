@@ -262,7 +262,7 @@ export default function SpeechMechanismQuestionsPage({
 
     return (
         <Container>
-            <form onSubmit={handleSubmit(handleClickNext)} className={`${subtestStyles['subtest-form']}`}>
+            <form onSubmit={handleSubmit(handleClickNext)} className={`${subtestStyles.subtestForm}`}>
                 <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitleEn}</h1>
                 <h2 className='whitespace-pre-line text-center font-jalnan text-head-2'>{partTitle}</h2>
 

@@ -24,14 +24,7 @@ import type { Recording } from '@/types/das';
 
 const TooltipArrowIcon = () => {
     return (
-        <svg
-            className={`${styles['tooltip-arrow']}`}
-            xmlns='http://www.w3.org/2000/svg'
-            width='54'
-            height='54'
-            viewBox='0 0 54 54'
-            fill='none'
-        >
+        <svg className={`${styles.tooltipArrow}`} xmlns='http://www.w3.org/2000/svg' width='54' height='54' viewBox='0 0 54 54' fill='none'>
             <path
                 d='M24.4019 4.5C25.5566 2.5 28.4434 2.5 29.5981 4.5L47.7846 36C48.9393 38 47.4959 40.5 45.1865 40.5H8.81346C6.50406 40.5 5.06069 38 6.21539 36L24.4019 4.5Z'
                 fill='#495057'
@@ -129,15 +122,15 @@ export default function PictureDescriptionPage({ recording }: Props) {
 
     return (
         <Container>
-            <div className={`${styles['title']}`}>
+            <div className={`${styles.title}`}>
                 <h1 className='flex items-center whitespace-pre-line text-center font-jalnan text-head-1'>그림설명하기</h1>
-                <div className={`${styles['button-container']}`}>
+                <div className={`${styles.buttonContainer}`}>
                     <button>
                         <InfoIcon bgColor='#6979F8' color='#FFFFFF' width={44} height={44} />
                     </button>
                     <TooltipArrowIcon />
                 </div>
-                <div className={`${styles['tooltip-content']}`}>
+                <div className={`${styles.tooltipContent}`}>
                     <p>
                         <b>치료사 지시문</b>
                     </p>

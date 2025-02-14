@@ -450,13 +450,13 @@ export default function SpeechOneQuestionsPage({
 
     return (
         <Container>
-            <form onSubmit={handleSubmit(handleClickNext)} className={`${subtestStyles['subtest-form']}`}>
+            <form onSubmit={handleSubmit(handleClickNext)} className={`${subtestStyles.subtestForm}`}>
                 <input type='hidden' />
                 <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitleEn}</h1>
                 <h2 className='whitespace-pre-line text-center font-jalnan text-head-2'>{partTitle}</h2>
 
                 {partId === PART_ID_START && (
-                    <table className={`${subtestStyles['recording-table']}`}>
+                    <table className={`${subtestStyles.recordingTable}`}>
                         <thead data-title='MPT 측정'>
                             <tr>
                                 <th>MPT 측정</th>
@@ -474,15 +474,15 @@ export default function SpeechOneQuestionsPage({
                                     <br />
                                     편안하게 ‘아~’ 소리를 내보세요.
                                 </td>
-                                <td className={`${subtestStyles['button']}`}>1차</td>
-                                <td className={`${subtestStyles['button']}`}>
+                                <td className={`${subtestStyles.button}`}>1차</td>
+                                <td className={`${subtestStyles.button}`}>
                                     <RecordButton
                                         isRecording={isRecording1}
                                         handleStart={handleStartRecording1}
                                         handleStop={handleStopRecording1}
                                     />
                                 </td>
-                                <td className={`${subtestStyles['button']}`}>
+                                <td className={`${subtestStyles.button}`}>
                                     <PlayButton
                                         isPlaying={isPlaying1}
                                         handlePlay={handlePlay1}
@@ -498,7 +498,7 @@ export default function SpeechOneQuestionsPage({
                                         placeholder='지속시간을 입력해주세요.'
                                     />
                                 </td>
-                                <td className={`${subtestStyles['repeat-count']}`}>
+                                <td className={`${subtestStyles.repeatCount}`}>
                                     <input
                                         type='number'
                                         className='outline-none'
@@ -510,15 +510,15 @@ export default function SpeechOneQuestionsPage({
                                 </td>
                             </tr>
                             <tr>
-                                <td className={`${subtestStyles['button']}`}>2차</td>
-                                <td className={`${subtestStyles['button']}`}>
+                                <td className={`${subtestStyles.button}`}>2차</td>
+                                <td className={`${subtestStyles.button}`}>
                                     <RecordButton
                                         isRecording={isRecording2}
                                         handleStart={handleStartRecording2}
                                         handleStop={handleStopRecording2}
                                     />
                                 </td>
-                                <td className={`${subtestStyles['button']}`}>
+                                <td className={`${subtestStyles.button}`}>
                                     <PlayButton
                                         isPlaying={isPlaying2}
                                         handlePlay={handlePlay2}
@@ -534,7 +534,7 @@ export default function SpeechOneQuestionsPage({
                                         placeholder='지속시간을 입력해주세요.'
                                     />
                                 </td>
-                                <td className={`${subtestStyles['repeat-count']}`}>
+                                <td className={`${subtestStyles.repeatCount}`}>
                                     <input
                                         type='number'
                                         className='outline-none'
@@ -546,15 +546,15 @@ export default function SpeechOneQuestionsPage({
                                 </td>
                             </tr>
                             <tr>
-                                <td className={`${subtestStyles['button']}`}>3차</td>
-                                <td className={`${subtestStyles['button']}`}>
+                                <td className={`${subtestStyles.button}`}>3차</td>
+                                <td className={`${subtestStyles.button}`}>
                                     <RecordButton
                                         isRecording={isRecording3}
                                         handleStart={handleStartRecording3}
                                         handleStop={handleStopRecording3}
                                     />
                                 </td>
-                                <td className={`${subtestStyles['button']}`}>
+                                <td className={`${subtestStyles.button}`}>
                                     <PlayButton
                                         isPlaying={isPlaying3}
                                         handlePlay={handlePlay3}
@@ -570,7 +570,7 @@ export default function SpeechOneQuestionsPage({
                                         placeholder='지속시간을 입력해주세요.'
                                     />
                                 </td>
-                                <td className={`${subtestStyles['repeat-count']}`}>
+                                <td className={`${subtestStyles.repeatCount}`}>
                                     <input
                                         type='number'
                                         className='outline-none'
