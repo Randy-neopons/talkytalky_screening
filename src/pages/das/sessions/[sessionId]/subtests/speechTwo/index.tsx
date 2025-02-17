@@ -11,6 +11,7 @@ import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import { AudioButton } from '@/components/common/Buttons';
 import Container from '@/components/common/Container';
+import { useModal } from '@/components/common/Modal/context';
 import { InfoIcon, PrintIcon } from '@/components/common/icons';
 import { FontSizeButton } from '@/components/das/FontSizeButton';
 import { MemoButton } from '@/components/das/MemoButton';
@@ -66,6 +67,7 @@ export default function ParagraphReadingPage({ recording }: Props) {
     const testTime = useTestTime();
     const { setTestStart } = useTimerActions();
     const currentSubtest = useCurrentSubTest();
+    const { handleOpenModal } = useModal();
 
     // 폼 데이터 제출
     const handleSubmitData = useCallback(
@@ -120,14 +122,19 @@ export default function ParagraphReadingPage({ recording }: Props) {
                 router.push(`/das/sessions/${sessionId}/subtests/${prevSubtestItem.pathname}`);
             } else {
                 // 없으면 홈으로 이동
-                if (window.confirm('홈으로 이동하시겠습니까?')) {
-                    router.push('/das');
-                }
+                handleOpenModal({
+                    content: '홈으로 이동하시겠습니까?',
+                    cancelText: '아니오',
+                    okText: '네',
+                    onOk: () => {
+                        router.push('/das');
+                    },
+                });
             }
         } catch (err) {
             console.error(err);
         }
-    }, [currentSubtest?.subtestId, handleSubmitData, router, subtestsData?.subtests]);
+    }, [currentSubtest?.subtestId, handleOpenModal, handleSubmitData, router, subtestsData?.subtests]);
 
     // 다음 클릭
     const handleClickNext = useCallback(async () => {
@@ -157,26 +164,48 @@ export default function ParagraphReadingPage({ recording }: Props) {
         setMemo(e.target.value);
     }, []);
 
+    const [showTooltip, setShowTooltip] = useState(true);
+    const tooltipContentRef = useRef<HTMLDivElement | null>(null);
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (tooltipContentRef.current && !tooltipContentRef.current.contains(event.target as Node)) {
+                console.log('here');
+                setShowTooltip(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     return (
         <Container>
             <div className={`${styles.title}`}>
                 <h1 className='flex items-center whitespace-pre-line text-center font-jalnan text-head-1'>문단읽기</h1>
-                <div className={`${styles.buttonContainer}`}>
+                <div
+                    className={`${styles.buttonContainer}`}
+                    onMouseEnter={() => setShowTooltip(true)}
+                    onMouseLeave={() => setShowTooltip(false)}
+                >
                     <button>
                         <InfoIcon bgColor='#6979F8' color='#FFFFFF' width={44} height={44} />
                     </button>
-                    <TooltipArrowIcon />
+                    {showTooltip && <TooltipArrowIcon />}
                 </div>
-                <div className={`${styles.tooltipContent}`}>
-                    <p>
-                        <b>치료사 지시문</b>
-                    </p>
-                    <p>
-                        “지금부터 그림을 보여드릴거예요. 그림을 잘 보시고 1분동안 최대한 자세히 설명해주세요. 가능하면 문장으로
-                        설명해주세요.” (필요시 그림에서 설명하지 못한 부분을 가리키며) “여기는 어떤 일이 일어나고 있나요?” 라고 발화
-                        유도하기
-                    </p>
-                </div>
+                {showTooltip && (
+                    <div className={`${styles.tooltipContent}`}>
+                        <p>
+                            <b>치료사 지시문</b>
+                        </p>
+                        <p>
+                            “지금부터 그림을 보여드릴거예요. 그림을 잘 보시고 1분동안 최대한 자세히 설명해주세요. 가능하면 문장으로
+                            설명해주세요.” (필요시 그림에서 설명하지 못한 부분을 가리키며) “여기는 어떤 일이 일어나고 있나요?” 라고 발화
+                            유도하기
+                        </p>
+                    </div>
+                )}
             </div>
             <button
                 onClick={() => {

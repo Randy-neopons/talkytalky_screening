@@ -1,4 +1,4 @@
-import { useCallback, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
@@ -107,24 +107,47 @@ export default function ConversationPage({ recording }: Props) {
         }
     }, [handleSubmitData, router]);
 
+    const [showTooltip, setShowTooltip] = useState(true);
+    const tooltipContentRef = useRef<HTMLDivElement | null>(null);
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (tooltipContentRef.current && !tooltipContentRef.current.contains(event.target as Node)) {
+                console.log('here');
+                setShowTooltip(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     return (
         <Container>
             <div className={`${styles.title}`}>
                 <h1 className='flex items-center whitespace-pre-line text-center font-jalnan text-head-1'>대화하기</h1>
-                <div className={`${styles.buttonContainer}`}>
+                <div
+                    className={`${styles.buttonContainer}`}
+                    onMouseEnter={() => setShowTooltip(true)}
+                    onMouseLeave={() => setShowTooltip(false)}
+                >
                     <button>
                         <InfoIcon bgColor='#6979F8' color='#FFFFFF' width={44} height={44} />
                     </button>
-                    <TooltipArrowIcon />
+                    {showTooltip && <TooltipArrowIcon />}
                 </div>
-                <div className={`${styles.tooltipContent}`}>
-                    <p>
-                        <b>치료사 지시문</b>
-                    </p>
-                    <p>
-                        “오늘(또는 요즘에) 무슨 일을 하셨는지 얘기해 주세요. 될 수 있는 대로 문장으로 설명해 주세요. 시간은 1분 드릴게요.”
-                    </p>
-                </div>
+                {showTooltip && (
+                    <div className={`${styles.tooltipContent}`} ref={tooltipContentRef}>
+                        <p>
+                            <b>치료사 지시문</b>
+                        </p>
+                        <p>
+                            “오늘(또는 요즘에) 무슨 일을 하셨는지 얘기해 주세요. 될 수 있는 대로 문장으로 설명해 주세요. 시간은 1분
+                            드릴게요.”
+                        </p>
+                    </div>
+                )}
             </div>
 
             <Image src={conversationImg} alt='conversation' className='mt-5 h-auto w-[1000px] rounded-base' />

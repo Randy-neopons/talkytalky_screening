@@ -11,10 +11,9 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 
-import WavesurferPlayer, { useWavesurfer } from '@wavesurfer/react';
 import axios from 'axios';
-import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.js';
-import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.js';
+import WaveSurfer from 'wavesurfer.js';
+import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions';
 
 import styles from './WaveformModal.module.scss';
 
@@ -35,74 +34,71 @@ export default function WaveformModal({
     setRepeatCount: (value: number) => void;
     placeholder?: string;
 }) {
-    const waveformRef = useRef(null);
-
     const url = useMemo(
         () => (audioBlob ? URL.createObjectURL(audioBlob) : audioUrl ? `/api/proxy?audioUrl=${audioUrl}` : ''),
         [audioBlob, audioUrl],
     );
 
-    const { wavesurfer, isPlaying, currentTime } = useWavesurfer({
-        container: waveformRef,
-        height: 250,
-        waveColor: '#6979F8',
-        barWidth: 2,
-        barGap: 1,
-        barRadius: 2,
-        progressColor: 'rgb(100, 0, 100)',
-        // url: '',
-        url,
-        mediaControls: true,
-    });
+    const waveformRef = useRef<HTMLDivElement>(null);
+    const wavesurferRef = useRef<WaveSurfer | null>(null);
+    const audioRef = useRef<HTMLAudioElement>(null);
+
+    const [startTime, setStartTime] = useState(0);
+    const [endTime, setEndTime] = useState(0);
+
+    const create = useCallback(async () => {
+        if (waveformRef.current && audioRef.current && url) {
+            const regionsPlugin = RegionsPlugin.create();
+            // const WaveSurfer = (await import('wavesurfer.js')).default;
+            wavesurferRef.current = WaveSurfer.create({
+                container: waveformRef.current,
+                height: 233,
+                waveColor: '#6979F8',
+                barWidth: 2,
+                barGap: 1,
+                barRadius: 2,
+                progressColor: 'rgb(100, 0, 100)',
+                url,
+                media: audioRef.current ?? undefined,
+                mediaControls: true,
+                plugins: [regionsPlugin],
+            });
+
+            // wavesurferRef.current.registerPlugin(regionsPlugin);
+
+            wavesurferRef.current.on('decode', () => {
+                if (wavesurferRef.current) {
+                    setStartTime(0);
+                    setEndTime(wavesurferRef.current.getDuration());
+
+                    wavesurferRef.current.registerPlugin(regionsPlugin);
+
+                    regionsPlugin.addRegion({
+                        start: 0,
+                        end: wavesurferRef.current.getDuration(),
+                        color: 'rgba(109, 92, 232, 0.1)',
+                        resize: true,
+                        drag: true,
+                    });
+
+                    regionsPlugin.on('region-updated', obj => {
+                        setStartTime(obj.start);
+                        setEndTime(obj.end);
+                    });
+                }
+            });
+        }
+    }, [url]);
 
     useEffect(() => {
-        if (wavesurfer) {
-            // 타임라인 플러그인을 동적으로 로드
-            // import('wavesurfer.js/dist/plugins/timeline.js').then(module => {
-            //     const TimelinePlugin = module.default; // default export 사용
-            //     wavesurfer.registerPlugin(
-            //         TimelinePlugin.create({
-            //             height: 20,
-            //             timeInterval: 0.1,
-            //             primaryLabelInterval: 1,
-            //             style: {
-            //                 fontFamily: 'Noto Sans KR',
-            //                 fontSize: '15px',
-            //                 color: '#000000',
-            //             },
-            //         }),
-            //     );
-            // });
-            // import('wavesurfer.js/dist/plugins/regions.js').then(module => {
-            //     const RegionPlugin = module.default;
-            //     const regions = RegionPlugin.create();
-            //     wavesurfer.registerPlugin(regions);
-            //     regions.addRegion({
-            //         content: 'abcd',
-            //         start: 0,
-            //         end: 1,
-            //         resize: true,
-            //         drag: true,
-            //     });
-            //     regions.enableDragSelection({ color: 'rgba(255,0,0,0.1)' });
-            //     regions.on('region-created', region => {
-            //         console.log('created');
-            //         const regionList = regions.getRegions();
-            //         console.log(regionList);
-            //         if (regionList.length > 1) {
-            //             region.remove();
-            //         }
-            //     });
-            // });
-        }
+        create();
 
-        // 컴포넌트 언마운트 시 WaveSurfer 인스턴스를 정리합니다.
         return () => {
-            if (wavesurfer) {
-                wavesurfer.destroy();
+            if (wavesurferRef.current) {
+                wavesurferRef.current.destroy();
             }
         };
-    }, [audioBlob, wavesurfer]);
+    }, [create]);
 
     const handleClickOverlay = useCallback<MouseEventHandler<HTMLDivElement>>(
         e => {
@@ -199,11 +195,11 @@ export default function WaveformModal({
                 </div>
 
                 <div className='relative flex h-full w-full flex-col items-center px-5 py-7.5'>
-                    <div className={styles.waveformBg}>
-                        <div ref={waveformRef} />
+                    <div ref={waveformRef} />
+                    <audio ref={audioRef} />
 
-                        {/* <WavesurferPlayer height={250} url={url} onReady={onReady} plugins={[() => TimelinePlugin.create()]} /> */}
-                    </div>
+                    {/* <WavesurferPlayer height={250} url={url} onReady={onReady} plugins={[() => TimelinePlugin.create()]} /> */}
+
                     <input
                         type='number'
                         className='mt-20 h-[44px] w-full rounded-md border border-neutral6 px-[15px] py-3 outline-accent1'

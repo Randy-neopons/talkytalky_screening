@@ -7,24 +7,24 @@
 }
 
 svg.tooltipArrow {
-    @apply absolute left-1/2 top-full hidden -translate-x-1/2;
+    @apply absolute left-1/2 top-full block -translate-x-1/2;
 }
 
 .tooltipContent {
-    @apply absolute top-full m-9 hidden w-[700px] flex-col gap-2 rounded-[20px] bg-neutral3 p-7.5 text-left text-white shadow-base text-body-2 xl:m-7.5 xl:w-[1000px];
+    @apply absolute top-full m-9 w-[700px] flex-col gap-2 rounded-[20px] bg-neutral3 p-7.5 text-left text-white shadow-base text-body-2 xl:m-7.5 xl:w-[1000px];
 }
 
-.buttonContainer:hover + .tooltipContent {
-    @apply flex;
-}
+// .buttonContainer:hover + .tooltipContent {
+//     @apply flex;
+// }
 
-.buttonContainer:hover > svg.tooltipArrow {
-    @apply block;
-}
+// .buttonContainer:hover > svg.tooltipArrow {
+//     @apply block;
+// }
 
-button.tooltipButton:hover + .tooltipContent {
-    @apply flex;
-}
+// button.tooltipButton:hover + .tooltipContent {
+//     @apply flex;
+// }
 
 .part {
     @apply h-[264px] w-[236px] rounded-base shadow-base;

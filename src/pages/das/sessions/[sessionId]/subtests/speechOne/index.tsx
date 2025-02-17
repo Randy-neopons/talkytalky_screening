@@ -8,6 +8,7 @@ import { getCookie } from 'cookies-next';
 import { useCurrentSubTest } from '@/stores/testStore';
 import { useTimerActions } from '@/stores/timerStore';
 import Container from '@/components/common/Container';
+import { useModal } from '@/components/common/Modal/context';
 import { useConductedSubtestsQuery } from '@/hooks/das';
 
 import styles from '../SubTests.module.scss';
@@ -52,6 +53,7 @@ export default function SpeechMainPage() {
     const { data: subtestsData } = useConductedSubtestsQuery({ sessionId: Number(router.query.sessionId), jwt: getCookie('jwt') || '' });
     const { setTestStart } = useTimerActions();
     const currentSubtest = useCurrentSubTest();
+    const { handleOpenModal } = useModal();
 
     useEffect(() => {
         setTestStart(true);
@@ -76,14 +78,19 @@ export default function SpeechMainPage() {
                 router.push(`/das/sessions/${sessionId}/subtests/${prevSubtestItem.pathname}`);
             } else {
                 // 없으면 홈으로 이동
-                if (window.confirm('홈으로 이동하시겠습니까?')) {
-                    router.push('/das');
-                }
+                handleOpenModal({
+                    content: '홈으로 이동하시겠습니까?',
+                    cancelText: '아니오',
+                    okText: '네',
+                    onOk: () => {
+                        router.push('/das');
+                    },
+                });
             }
         } catch (err) {
             console.error(err);
         }
-    }, [currentSubtest?.subtestId, router, subtestsData?.subtests]);
+    }, [currentSubtest?.subtestId, handleOpenModal, router, subtestsData?.subtests]);
 
     // 검사 시작
     const handleClickNext = useCallback(() => {

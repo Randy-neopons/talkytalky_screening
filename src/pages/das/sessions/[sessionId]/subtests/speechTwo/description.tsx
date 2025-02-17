@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, type ReactNode, type RefObject } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
@@ -120,22 +120,47 @@ export default function PictureDescriptionPage({ recording }: Props) {
         [handleSubmitData, router],
     );
 
+    const [showTooltip, setShowTooltip] = useState(true);
+    const tooltipContentRef = useRef<HTMLDivElement | null>(null);
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (tooltipContentRef.current && !tooltipContentRef.current.contains(event.target as Node)) {
+                console.log('here');
+                setShowTooltip(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     return (
         <Container>
             <div className={`${styles.title}`}>
                 <h1 className='flex items-center whitespace-pre-line text-center font-jalnan text-head-1'>그림설명하기</h1>
-                <div className={`${styles.buttonContainer}`}>
+                <div
+                    className={`${styles.buttonContainer}`}
+                    onMouseEnter={() => setShowTooltip(true)}
+                    onMouseLeave={() => setShowTooltip(false)}
+                >
                     <button>
                         <InfoIcon bgColor='#6979F8' color='#FFFFFF' width={44} height={44} />
                     </button>
-                    <TooltipArrowIcon />
+                    {showTooltip && <TooltipArrowIcon />}
                 </div>
-                <div className={`${styles.tooltipContent}`}>
-                    <p>
-                        <b>치료사 지시문</b>
-                    </p>
-                    <p>자, 이 글 보이시나요?(안보인다면 크기 조절하기) 제가 &apos;시작&apos;하면 이 글을 소리내서 자연스럽게 읽어주세요.</p>
-                </div>
+                {showTooltip && (
+                    <div className={`${styles.tooltipContent}`} ref={tooltipContentRef}>
+                        <p>
+                            <b>치료사 지시문</b>
+                        </p>
+                        <p>
+                            자, 이 글 보이시나요?(안보인다면 크기 조절하기) 제가 &apos;시작&apos;하면 이 글을 소리내서 자연스럽게
+                            읽어주세요.
+                        </p>
+                    </div>
+                )}
             </div>
             <button
                 onClick={() => {
