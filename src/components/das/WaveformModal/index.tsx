@@ -35,7 +35,7 @@ export default function WaveformModal({
     placeholder?: string;
 }) {
     const url = useMemo(
-        () => (audioBlob ? URL.createObjectURL(audioBlob) : audioUrl ? `/api/proxy?audioUrl=${audioUrl}` : ''),
+        () => (audioBlob ? URL.createObjectURL(audioBlob) : audioUrl ? `/api/proxy?audioUrl=${audioUrl}` : undefined),
         [audioBlob, audioUrl],
     );
 
@@ -68,6 +68,7 @@ export default function WaveformModal({
 
             wavesurferRef.current.on('decode', () => {
                 if (wavesurferRef.current) {
+                    console.log('decode');
                     setStartTime(0);
                     setEndTime(wavesurferRef.current.getDuration());
 
@@ -195,11 +196,11 @@ export default function WaveformModal({
                 </div>
 
                 <div className='relative flex h-full w-full flex-col items-center px-5 py-7.5'>
-                    <div ref={waveformRef} />
+                    <div ref={waveformRef} className='w-full' />
+                    발화시간 : {endTime - startTime}초
+                    <br />
                     <audio ref={audioRef} />
-
                     {/* <WavesurferPlayer height={250} url={url} onReady={onReady} plugins={[() => TimelinePlugin.create()]} /> */}
-
                     <input
                         type='number'
                         className='mt-20 h-[44px] w-full rounded-md border border-neutral6 px-[15px] py-3 outline-accent1'
@@ -208,7 +209,7 @@ export default function WaveformModal({
                         onChange={handleChangeRepeatCount}
                     />
                     <button className='mt-7.5 btn btn-large btn-contained' onClick={handleClickOk}>
-                        적용하기
+                        완료
                     </button>
                 </div>
             </div>

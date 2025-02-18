@@ -15,8 +15,6 @@ type WaveformButtonProps = {
 
 // 파형 보기 버튼 (모달 포함)
 export function WaveformButton({ audioBlob, audioUrl, setRepeatCount, placeholder = '반복횟수를 입력해주세요.' }: WaveformButtonProps) {
-    const visualizerRef = useRef<HTMLCanvasElement>(null);
-
     // 모달 열기/닫기
     const [modalOpen, setModalOpen] = useState(false);
     const handleOpenModal = useCallback(() => {
@@ -29,16 +27,16 @@ export function WaveformButton({ audioBlob, audioUrl, setRepeatCount, placeholde
     const [blob, setBlob] = useState<Blob | null>(null);
 
     // blob 세팅
-    // useEffect(() => {
-    //     if (audioBlob) {
-    //         setBlob(audioBlob);
-    //     } else if (audioUrl) {
-    //         axiosInstance.get(`/api/proxy?audioUrl=${audioUrl}`, { responseType: 'arraybuffer' }).then(res => {
-    //             console.log(res);
-    //             setBlob(new Blob([res.data]));
-    //         });
-    //     }
-    // }, [audioBlob, audioUrl]);
+    useEffect(() => {
+        if (audioBlob) {
+            setBlob(audioBlob);
+        } else if (audioUrl) {
+            axiosInstance.get(`/api/proxy?audioUrl=${audioUrl}`, { responseType: 'arraybuffer' }).then(res => {
+                console.log(res);
+                setBlob(new Blob([res.data]));
+            });
+        }
+    }, [audioBlob, audioUrl]);
 
     return (
         <div className='relative flex items-center justify-center'>

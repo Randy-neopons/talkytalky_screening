@@ -23,6 +23,7 @@ import Container from '@/components/common/Container';
 import { LoadingOverlay } from '@/components/das/LoadingOverlay';
 import VolumeModal from '@/components/das/VolumeModal';
 import { WaveformButton } from '@/components/das/WaveformButton';
+import WaveformModal from '@/components/das/WaveformModal';
 import { useConductedSubtestsQuery, useQuestionsAndAnswersQuery } from '@/hooks/das';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
@@ -140,20 +141,57 @@ const RecordButton = ({
 };
 
 const PlayButton = ({
+    audioBlob,
+    audioUrl,
+    setRepeatCount,
+
     isPlaying,
     handlePause,
     handlePlay,
     disabled,
 }: {
+    audioBlob?: Blob | null;
+    audioUrl?: string | null;
+    setRepeatCount: (value: number) => void;
+
     isPlaying: boolean;
     handlePause: () => void;
     handlePlay: () => void;
     disabled?: boolean;
 }) => {
+    // 모달 열기/닫기
+    const [modalOpen, setModalOpen] = useState(false);
+    const handleOpenModal = useCallback(() => {
+        setModalOpen(true);
+    }, []);
+    const handleCloseModal = useCallback(() => {
+        setModalOpen(false);
+    }, []);
+
     return (
-        <button type='button' className='m-auto flex' onClick={isPlaying ? handlePause : handlePlay} disabled={disabled}>
-            {isPlaying ? <PauseIcon /> : <PlayIcon disabled={disabled} />}
-        </button>
+        <>
+            <button
+                type='button'
+                className='m-auto flex'
+                onClick={
+                    isPlaying
+                        ? handlePause
+                        : () => {
+                              handleOpenModal();
+                          }
+                }
+                disabled={disabled}
+            >
+                {isPlaying ? <PauseIcon /> : <PlayIcon disabled={disabled} />}
+            </button>
+            <WaveformModal
+                audioBlob={audioBlob}
+                audioUrl={audioUrl}
+                modalOpen={modalOpen}
+                handleCloseModal={handleCloseModal}
+                setRepeatCount={setRepeatCount}
+            />
+        </>
     );
 };
 
@@ -441,6 +479,9 @@ export default function SpeechMotorQuestionsPage({
                                     </td>
                                     <td className={`${subtestStyles.button}`}>
                                         <PlayButton
+                                            audioBlob={audioBlob1}
+                                            audioUrl={audioUrl1}
+                                            setRepeatCount={setRepeatCount(0)}
                                             isPlaying={isPlaying1}
                                             handlePlay={handlePlay1}
                                             handlePause={handlePause1}
@@ -475,6 +516,9 @@ export default function SpeechMotorQuestionsPage({
                                     </td>
                                     <td className={`${subtestStyles.button}`}>
                                         <PlayButton
+                                            audioBlob={audioBlob2}
+                                            audioUrl={audioUrl2}
+                                            setRepeatCount={setRepeatCount(1)}
                                             isPlaying={isPlaying2}
                                             handlePlay={handlePlay2}
                                             handlePause={handlePause2}
@@ -509,6 +553,9 @@ export default function SpeechMotorQuestionsPage({
                                     </td>
                                     <td className={`${subtestStyles.button}`}>
                                         <PlayButton
+                                            audioBlob={audioBlob3}
+                                            audioUrl={audioUrl3}
+                                            setRepeatCount={setRepeatCount(2)}
                                             isPlaying={isPlaying3}
                                             handlePlay={handlePlay3}
                                             handlePause={handlePause3}
@@ -565,6 +612,9 @@ export default function SpeechMotorQuestionsPage({
                                     </td>
                                     <td className={`${subtestStyles.button}`}>
                                         <PlayButton
+                                            audioBlob={audioBlob4}
+                                            audioUrl={audioUrl4}
+                                            setRepeatCount={setRepeatCount(3)}
                                             isPlaying={isPlaying4}
                                             handlePlay={handlePlay4}
                                             handlePause={handlePause4}
