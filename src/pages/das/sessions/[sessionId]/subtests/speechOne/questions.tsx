@@ -12,7 +12,7 @@ import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
-import { WaveformButton } from '@/components/das/WaveformButton';
+import WaveformModal from '@/components/das/WaveformModal';
 import { useConductedSubtestsQuery, useQuestionsAndAnswersQuery } from '@/hooks/das';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
@@ -144,20 +144,54 @@ const RecordButton = ({
 };
 
 const PlayButton = ({
+    audioBlob,
+    audioUrl,
+    setRepeatCount,
+    setMPT,
+
     isPlaying,
     handlePause,
     handlePlay,
     disabled,
 }: {
+    audioBlob?: Blob | null;
+    audioUrl?: string | null;
+    setRepeatCount?: (value: number) => void;
+    setMPT?: (value: number) => void;
+
     isPlaying: boolean;
     handlePause: () => void;
     handlePlay: () => void;
     disabled?: boolean;
 }) => {
+    const [url, setUrl] = useState<string>();
+
+    // 모달 열기/닫기
+    const [modalOpen, setModalOpen] = useState(false);
+    const handleOpenModal = useCallback(() => {
+        // modal이 열려있을 때 Wavesurfer 플러그인이 로드되어야 한다.
+        // 그래서 modalOpen을 true로 만들고 동시에 url을 세팅함
+        setUrl(audioBlob ? URL.createObjectURL(audioBlob) : audioUrl ? `/api/proxy?audioUrl=${audioUrl}` : undefined);
+        setModalOpen(true);
+    }, [audioBlob, audioUrl]);
+    const handleCloseModal = useCallback(() => {
+        setModalOpen(false);
+    }, []);
+
     return (
-        <button type='button' className='m-auto flex' onClick={isPlaying ? handlePause : handlePlay} disabled={disabled}>
-            {isPlaying ? <PauseIcon /> : <PlayIcon disabled={disabled} />}
-        </button>
+        <>
+            <button type='button' className='m-auto flex' onClick={isPlaying ? handlePause : handleOpenModal} disabled={disabled}>
+                {isPlaying ? <PauseIcon /> : <PlayIcon disabled={disabled} />}
+            </button>
+            <WaveformModal
+                title='MPT 측정파형'
+                audioUrl={url}
+                modalOpen={modalOpen}
+                handleCloseModal={handleCloseModal}
+                setRepeatCount={setRepeatCount}
+                setMPT={setMPT}
+            />
+        </>
     );
 };
 
@@ -463,7 +497,6 @@ export default function SpeechOneQuestionsPage({
                                 <th></th>
                                 <th>녹음</th>
                                 <th>재생</th>
-                                <th>파형</th>
                                 <th className='rounded-tr-base'>지속시간</th>
                             </tr>
                         </thead>
@@ -484,18 +517,13 @@ export default function SpeechOneQuestionsPage({
                                 </td>
                                 <td className={`${subtestStyles.button}`}>
                                     <PlayButton
+                                        audioBlob={audioBlob1}
+                                        audioUrl={audioUrl1}
                                         isPlaying={isPlaying1}
                                         handlePlay={handlePlay1}
                                         handlePause={handlePause1}
                                         disabled={!audioUrl1}
-                                    />
-                                </td>
-                                <td className='text-center'>
-                                    <WaveformButton
-                                        audioBlob={audioBlob1}
-                                        audioUrl={audioUrl1}
-                                        setRepeatCount={setRepeatCount(0)}
-                                        placeholder='지속시간을 입력해주세요.'
+                                        setMPT={setRepeatCount(0)}
                                     />
                                 </td>
                                 <td className={`${subtestStyles.repeatCount}`}>
@@ -520,18 +548,13 @@ export default function SpeechOneQuestionsPage({
                                 </td>
                                 <td className={`${subtestStyles.button}`}>
                                     <PlayButton
+                                        audioBlob={audioBlob2}
+                                        audioUrl={audioUrl2}
                                         isPlaying={isPlaying2}
                                         handlePlay={handlePlay2}
                                         handlePause={handlePause2}
                                         disabled={!audioUrl2}
-                                    />
-                                </td>
-                                <td className='text-center'>
-                                    <WaveformButton
-                                        audioBlob={audioBlob2}
-                                        audioUrl={audioUrl2}
-                                        setRepeatCount={setRepeatCount(1)}
-                                        placeholder='지속시간을 입력해주세요.'
+                                        setMPT={setRepeatCount(1)}
                                     />
                                 </td>
                                 <td className={`${subtestStyles.repeatCount}`}>
@@ -556,18 +579,13 @@ export default function SpeechOneQuestionsPage({
                                 </td>
                                 <td className={`${subtestStyles.button}`}>
                                     <PlayButton
+                                        audioBlob={audioBlob3}
+                                        audioUrl={audioUrl3}
                                         isPlaying={isPlaying3}
                                         handlePlay={handlePlay3}
                                         handlePause={handlePause3}
                                         disabled={!audioUrl3}
-                                    />
-                                </td>
-                                <td className='text-center'>
-                                    <WaveformButton
-                                        audioBlob={audioBlob3}
-                                        audioUrl={audioUrl3}
-                                        setRepeatCount={setRepeatCount(2)}
-                                        placeholder='지속시간을 입력해주세요.'
+                                        setMPT={setRepeatCount(2)}
                                     />
                                 </td>
                                 <td className={`${subtestStyles.repeatCount}`}>

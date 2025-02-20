@@ -13,32 +13,33 @@ import { createPortal } from 'react-dom';
 
 import axios from 'axios';
 import WaveSurfer from 'wavesurfer.js';
-import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions';
+import RegionsPlugin, { Region } from 'wavesurfer.js/dist/plugins/regions';
+
+import CheckBox from '@/components/common/CheckBox';
 
 import styles from './WaveformModal.module.scss';
 
 const axiosInstance = axios.create({ baseURL: '' });
 
 export default function WaveformModal({
-    audioBlob,
     audioUrl,
     modalOpen,
     handleCloseModal,
     setRepeatCount: submitRepeatCount,
+    setMPT,
+
+    title,
     placeholder,
 }: {
-    audioBlob?: Blob | null;
-    audioUrl?: string | null;
+    audioUrl?: string;
     modalOpen: boolean;
     handleCloseModal: () => void;
-    setRepeatCount: (value: number) => void;
+    setRepeatCount?: (value: number) => void;
+    setMPT?: (value: number) => void;
+
+    title?: string;
     placeholder?: string;
 }) {
-    const url = useMemo(
-        () => (audioBlob ? URL.createObjectURL(audioBlob) : audioUrl ? `/api/proxy?audioUrl=${audioUrl}` : undefined),
-        [audioBlob, audioUrl],
-    );
-
     const waveformRef = useRef<HTMLDivElement>(null);
     const wavesurferRef = useRef<WaveSurfer | null>(null);
     const audioRef = useRef<HTMLAudioElement>(null);
@@ -46,8 +47,10 @@ export default function WaveformModal({
     const [startTime, setStartTime] = useState(0);
     const [endTime, setEndTime] = useState(0);
 
+    const regionRef = useRef<Region>();
+
     const create = useCallback(async () => {
-        if (waveformRef.current && audioRef.current && url) {
+        if (waveformRef.current && audioRef.current) {
             const regionsPlugin = RegionsPlugin.create();
             // const WaveSurfer = (await import('wavesurfer.js')).default;
             wavesurferRef.current = WaveSurfer.create({
@@ -58,7 +61,7 @@ export default function WaveformModal({
                 barGap: 1,
                 barRadius: 2,
                 progressColor: 'rgb(100, 0, 100)',
-                url,
+                url: audioUrl,
                 media: audioRef.current ?? undefined,
                 mediaControls: true,
                 plugins: [regionsPlugin],
@@ -68,19 +71,22 @@ export default function WaveformModal({
 
             wavesurferRef.current.on('decode', () => {
                 if (wavesurferRef.current) {
-                    console.log('decode');
-                    setStartTime(0);
-                    setEndTime(wavesurferRef.current.getDuration());
+                    const duration = wavesurferRef.current.getDuration();
+
+                    setStartTime(duration * 0.1);
+                    setEndTime(duration * 0.9);
 
                     wavesurferRef.current.registerPlugin(regionsPlugin);
 
-                    regionsPlugin.addRegion({
-                        start: 0,
-                        end: wavesurferRef.current.getDuration(),
+                    const singleRegion = regionsPlugin.addRegion({
+                        start: duration * 0.1,
+                        end: duration * 0.9,
                         color: 'rgba(109, 92, 232, 0.1)',
                         resize: true,
                         drag: true,
                     });
+
+                    regionRef.current = singleRegion;
 
                     regionsPlugin.on('region-updated', obj => {
                         setStartTime(obj.start);
@@ -89,7 +95,7 @@ export default function WaveformModal({
                 }
             });
         }
-    }, [url]);
+    }, [audioUrl]);
 
     useEffect(() => {
         create();
@@ -117,11 +123,17 @@ export default function WaveformModal({
     const handleClickOk = useCallback<MouseEventHandler<HTMLButtonElement>>(
         e => {
             e.preventDefault();
-            repeatCount && submitRepeatCount(repeatCount);
-            // onOk && onOk(e);
+
+            // MPT 설정
+            setMPT && setMPT(Number((endTime - startTime).toFixed(2)));
+
+            // 반복 횟수 설정
+            submitRepeatCount && repeatCount && submitRepeatCount(repeatCount);
+
+            // 모달 닫기
             handleCloseModal();
         },
-        [handleCloseModal, repeatCount, submitRepeatCount],
+        [endTime, handleCloseModal, repeatCount, setMPT, startTime, submitRepeatCount],
     );
 
     const modalStyle: CSSProperties = useMemo(
@@ -182,7 +194,7 @@ export default function WaveformModal({
                 style={modalBoxStyle}
             >
                 <div className='relative w-full bg-accent1 p-2'>
-                    <h6 className='text-center font-bold text-white text-body-2'>파형</h6>
+                    <h6 className='text-center font-bold text-white text-body-2'>{title || '파형'}</h6>
                     <button type='button' className='absolute right-2 top-1/2 -translate-y-1/2' onClick={handleCloseModal}>
                         <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
                             <path
@@ -197,9 +209,9 @@ export default function WaveformModal({
 
                 <div className='relative flex h-full w-full flex-col items-center px-5 py-7.5'>
                     <div ref={waveformRef} className='w-full' />
-                    발화시간 : {endTime - startTime}초
+                    <p className='ml-2 mt-4 flex w-full text-left'>발화시간 : {(endTime - startTime).toFixed(2)}초</p>
                     <br />
-                    <audio ref={audioRef} />
+                    <audio className='w-full' ref={audioRef} />
                     {/* <WavesurferPlayer height={250} url={url} onReady={onReady} plugins={[() => TimelinePlugin.create()]} /> */}
                     <input
                         type='number'

@@ -22,7 +22,6 @@ import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import { LoadingOverlay } from '@/components/das/LoadingOverlay';
 import VolumeModal from '@/components/das/VolumeModal';
-import { WaveformButton } from '@/components/das/WaveformButton';
 import WaveformModal from '@/components/das/WaveformModal';
 import { useConductedSubtestsQuery, useQuestionsAndAnswersQuery } from '@/hooks/das';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
@@ -159,34 +158,29 @@ const PlayButton = ({
     handlePlay: () => void;
     disabled?: boolean;
 }) => {
+    const [url, setUrl] = useState<string>();
+
     // 모달 열기/닫기
     const [modalOpen, setModalOpen] = useState(false);
     const handleOpenModal = useCallback(() => {
+        // modal이 열려있을 때 Wavesurfer 플러그인이 로드되어야 한다.
+        // 그래서 modalOpen을 true로 만들고 동시에 url을 세팅함
+        setUrl(audioBlob ? URL.createObjectURL(audioBlob) : audioUrl ? `/api/proxy?audioUrl=${audioUrl}` : undefined);
         setModalOpen(true);
-    }, []);
+    }, [audioBlob, audioUrl]);
     const handleCloseModal = useCallback(() => {
         setModalOpen(false);
     }, []);
 
     return (
         <>
-            <button
-                type='button'
-                className='m-auto flex'
-                onClick={
-                    isPlaying
-                        ? handlePause
-                        : () => {
-                              handleOpenModal();
-                          }
-                }
-                disabled={disabled}
-            >
+            <button type='button' className='m-auto flex' onClick={isPlaying ? handlePause : handleOpenModal} disabled={disabled}>
                 {isPlaying ? <PauseIcon /> : <PlayIcon disabled={disabled} />}
             </button>
+
             <WaveformModal
-                audioBlob={audioBlob}
-                audioUrl={audioUrl}
+                // audioBlob={audioBlob}
+                audioUrl={url}
                 modalOpen={modalOpen}
                 handleCloseModal={handleCloseModal}
                 setRepeatCount={setRepeatCount}
@@ -219,6 +213,15 @@ export default function SpeechMotorQuestionsPage({
         handlePause: handlePause1,
         volume: volume1,
     } = useAudioRecorder(recordingList[0]?.filePath);
+
+    useEffect(() => {
+        console.log('audioBlob1', audioBlob1);
+    }, [audioBlob1]);
+
+    useEffect(() => {
+        console.log('audioUrl1', audioUrl1);
+    }, [audioUrl1]);
+
     const {
         isRecording: isRecording2,
         isPlaying: isPlaying2,
@@ -455,7 +458,7 @@ export default function SpeechMotorQuestionsPage({
                                     <th></th>
                                     <th>녹음</th>
                                     <th>재생</th>
-                                    <th>파형</th>
+                                    {/* <th>파형</th> */}
                                     <th className='rounded-tr-base'>반복횟수</th>
                                 </tr>
                             </thead>
@@ -481,15 +484,18 @@ export default function SpeechMotorQuestionsPage({
                                         <PlayButton
                                             audioBlob={audioBlob1}
                                             audioUrl={audioUrl1}
+                                            //     audioBlob1
+                                            //         ? URL.createObjectURL(audioBlob1)
+                                            //         : audioUrl1
+                                            //           ? `/api/proxy?audioUrl=${audioUrl1}`
+                                            //           : undefined
+                                            // }
                                             setRepeatCount={setRepeatCount(0)}
                                             isPlaying={isPlaying1}
                                             handlePlay={handlePlay1}
                                             handlePause={handlePause1}
-                                            disabled={!audioUrl1}
+                                            disabled={!audioBlob1}
                                         />
-                                    </td>
-                                    <td className='text-center'>
-                                        <WaveformButton audioBlob={audioBlob1} audioUrl={audioUrl1} setRepeatCount={setRepeatCount(0)} />
                                     </td>
                                     <td className={`${subtestStyles.repeatCount}`}>
                                         <input
@@ -525,9 +531,6 @@ export default function SpeechMotorQuestionsPage({
                                             disabled={!audioUrl2}
                                         />
                                     </td>
-                                    <td className='text-center'>
-                                        <WaveformButton audioBlob={audioBlob2} audioUrl={audioUrl2} setRepeatCount={setRepeatCount(1)} />
-                                    </td>
                                     <td className={`${subtestStyles.repeatCount}`}>
                                         <input
                                             type='number'
@@ -562,9 +565,6 @@ export default function SpeechMotorQuestionsPage({
                                             disabled={!audioUrl3}
                                         />
                                     </td>
-                                    <td className='text-center'>
-                                        <WaveformButton audioBlob={audioBlob3} audioUrl={audioUrl3} setRepeatCount={setRepeatCount(2)} />
-                                    </td>
                                     <td className={`${subtestStyles.repeatCount}`}>
                                         <input
                                             type='number'
@@ -589,7 +589,7 @@ export default function SpeechMotorQuestionsPage({
                                     <th></th>
                                     <th>녹음</th>
                                     <th>재생</th>
-                                    <th>파형</th>
+                                    {/* <th>파형</th> */}
                                     <th className='rounded-tr-base'>반복횟수</th>
                                 </tr>
                             </thead>
@@ -620,9 +620,6 @@ export default function SpeechMotorQuestionsPage({
                                             handlePause={handlePause4}
                                             disabled={!audioUrl4}
                                         />
-                                    </td>
-                                    <td className='text-center'>
-                                        <WaveformButton audioBlob={audioBlob4} audioUrl={audioUrl4} setRepeatCount={setRepeatCount(3)} />
                                     </td>
                                     <td className={`${subtestStyles.repeatCount}`}>
                                         <input
