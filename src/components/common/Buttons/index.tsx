@@ -24,6 +24,83 @@ export const RoundedBox = ({ isShining, children }: { isShining?: boolean; child
 };
 
 // 녹음, 재생, 정지, 일시정지 버튼 렌더링
+export const RecordButtonWithTime = ({
+    isRecording,
+    volume,
+    handleStartRecording,
+    handleStopRecording,
+}: {
+    isRecording: boolean;
+    volume?: number;
+    handleStartRecording: () => Promise<void>;
+    handleStopRecording: () => void;
+}) => {
+    // 녹음 버튼 빛나게 하기
+    const [speaking, setSpeaking] = useState(false);
+
+    // 녹음 버튼 누르고 목소리를 처음 냈을 때 shining
+    useEffect(() => {
+        if (isRecording && volume && volume > 20) {
+            setSpeaking(true);
+        }
+    }, [isRecording, volume]);
+
+    // 녹음 종료 시 shining 종료
+    useEffect(() => {
+        if (!isRecording) {
+            setSpeaking(false);
+        }
+    }, [isRecording]);
+
+    const RADIUS = 41;
+    const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
+    const [progress, setProgress] = useState(0);
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setProgress(prev => {
+                return prev + 0.01;
+            });
+        }, 10);
+    }, []);
+
+    if (isRecording) {
+        return (
+            <div className={styles.circleProgressWrap}>
+                <button
+                    type='button'
+                    className={styles.roundButton}
+                    onClick={handleStopRecording}
+                    style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
+                >
+                    <StopIcon width={50} height={50} />
+                </button>
+                <svg className={styles.circleProgress} width='94' height='94' viewBox='0 0 94 94'>
+                    <circle className={styles.frame} cx='47' cy='47' r={'41'} strokeWidth='12' />
+                    <circle
+                        className={styles.bar}
+                        cx='47'
+                        cy='47'
+                        r={'41'}
+                        strokeWidth='12'
+                        style={{ strokeDashoffset: CIRCUMFERENCE * (1 - progress / 30), strokeDasharray: CIRCUMFERENCE }}
+                    />
+                </svg>
+            </div>
+        );
+    }
+
+    return (
+        <RoundedBox>
+            <button type='button' className={styles.roundButton} onClick={handleStartRecording}>
+                <MikeIcon width={50} height={50} />
+            </button>
+        </RoundedBox>
+    );
+};
+
+// 녹음, 재생, 정지, 일시정지 버튼 렌더링
 export const AudioButton = ({
     audioUrl,
     isRecording,

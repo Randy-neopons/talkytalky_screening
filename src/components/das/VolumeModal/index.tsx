@@ -16,6 +16,10 @@ import axios from 'axios';
 import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.js';
 
+import { RecordButtonWithTime } from '@/components/common/Buttons';
+import { MikeIcon } from '@/components/common/icons';
+import useAudioRecorder from '@/hooks/useAudioRecorder';
+
 import styles from './VolumeModal.module.scss';
 
 const axiosInstance = axios.create({ baseURL: '' });
@@ -23,13 +27,15 @@ const axiosInstance = axios.create({ baseURL: '' });
 export default function VolumeModal({
     title,
     content,
-    volume,
+
+    filePath,
     modalOpen,
     handleCloseModal,
 }: {
     title: string;
     content: string;
-    volume?: number;
+
+    filePath?: string;
     modalOpen: boolean;
     handleCloseModal: () => void;
 }) {
@@ -42,6 +48,10 @@ export default function VolumeModal({
     );
 
     const [repeatCount, setRepeatCount] = useState<number | null>(0);
+
+    // 파타카 녹음
+    const { isRecording, isPlaying, audioUrl, audioBlob, handleStartRecording, handleStopRecording, handlePlay, handlePause, volume } =
+        useAudioRecorder(filePath);
 
     const modalStyle: CSSProperties = useMemo(
         () =>
@@ -111,6 +121,13 @@ export default function VolumeModal({
                     <div className={styles.volumeBar}>
                         <div ref={barActiveRef} className={styles.volumeBarActive} style={{ width: `${volume}%` }}></div>
                     </div>
+
+                    <RecordButtonWithTime
+                        isRecording={isRecording}
+                        volume={volume}
+                        handleStartRecording={handleStartRecording}
+                        handleStopRecording={handleStopRecording}
+                    />
 
                     <button className='mt-7.5 btn btn-small btn-contained' onClick={handleCloseModal}>
                         완료

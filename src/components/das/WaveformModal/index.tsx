@@ -47,8 +47,6 @@ export default function WaveformModal({
     const [startTime, setStartTime] = useState(0);
     const [endTime, setEndTime] = useState(0);
 
-    const regionRef = useRef<Region>();
-
     const create = useCallback(async () => {
         if (waveformRef.current && audioRef.current) {
             const regionsPlugin = RegionsPlugin.create();
@@ -85,8 +83,6 @@ export default function WaveformModal({
                         resize: true,
                         drag: true,
                     });
-
-                    regionRef.current = singleRegion;
 
                     regionsPlugin.on('region-updated', obj => {
                         setStartTime(obj.start);
@@ -213,13 +209,15 @@ export default function WaveformModal({
                     <br />
                     <audio className='w-full' ref={audioRef} />
                     {/* <WavesurferPlayer height={250} url={url} onReady={onReady} plugins={[() => TimelinePlugin.create()]} /> */}
-                    <input
-                        type='number'
-                        className='mt-20 h-[44px] w-full rounded-md border border-neutral6 px-[15px] py-3 outline-accent1'
-                        placeholder={placeholder}
-                        value={repeatCount || ''}
-                        onChange={handleChangeRepeatCount}
-                    />
+                    {submitRepeatCount && (
+                        <input
+                            type='number'
+                            className='mt-20 h-[44px] w-full rounded-md border border-neutral6 px-[15px] py-3 outline-accent1'
+                            placeholder={placeholder}
+                            value={repeatCount || ''}
+                            onChange={handleChangeRepeatCount}
+                        />
+                    )}
                     <button className='mt-7.5 btn btn-large btn-contained' onClick={handleClickOk}>
                         완료
                     </button>

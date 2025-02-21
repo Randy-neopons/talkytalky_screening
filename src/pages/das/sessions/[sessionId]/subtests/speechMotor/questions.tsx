@@ -128,13 +128,7 @@ const RecordButton = ({
             >
                 {isRecording ? <StopRecordIcon /> : <RecordIcon />}
             </button>
-            <VolumeModal
-                title={modalTitle}
-                content={modalContent}
-                volume={volume}
-                modalOpen={modalOpen}
-                handleCloseModal={handleCloseModal}
-            />
+            <VolumeModal title={modalTitle} content={modalContent} modalOpen={modalOpen} handleCloseModal={handleCloseModal} />
         </>
     );
 };
@@ -390,7 +384,6 @@ export default function SpeechMotorQuestionsPage({
                         throw new Error('수행할 소검사가 없습니다');
                     }
 
-                    console.log('subtests', subtests);
                     const currentSubtestIndex = subtests.findIndex(v => v.subtestId === CURRENT_SUBTEST_ID);
                     const nextSubtestItem = subtests[currentSubtestIndex + 1];
                     if (nextSubtestItem) {
@@ -422,22 +415,18 @@ export default function SpeechMotorQuestionsPage({
 
     // 녹음 파일 로컬 주소 form 세팅
     useEffect(() => {
-        console.log(audioUrl1);
         audioUrl1 && setValue(`recordings.0.filePath`, audioUrl1);
     }, [audioUrl1, setValue]);
 
     useEffect(() => {
-        console.log(audioUrl2);
         audioUrl2 && setValue(`recordings.1.filePath`, audioUrl2);
     }, [audioUrl2, setValue]);
 
     useEffect(() => {
-        console.log(audioUrl3);
         audioUrl3 && setValue(`recordings.2.filePath`, audioUrl3);
     }, [audioUrl3, setValue]);
 
     useEffect(() => {
-        console.log(audioUrl4);
         audioUrl4 && setValue(`recordings.3.filePath`, audioUrl4);
     }, [audioUrl4, setValue]);
 
@@ -451,7 +440,7 @@ export default function SpeechMotorQuestionsPage({
                     <h3 className='whitespace-pre-line text-center font-jalnan text-head-3'>{partTitleKo}</h3>
 
                     {partId === PART_ID_START ? (
-                        <table className={`${subtestStyles.recordingTable}`}>
+                        <table className={subtestStyles.recordingTable}>
                             <thead data-title='AMR 측정' data-caption='*반복횟수란 1초당 각 음절을 반복한 횟수를 의미함'>
                                 <tr>
                                     <th>AMR 측정 (5초)</th>
@@ -469,8 +458,8 @@ export default function SpeechMotorQuestionsPage({
                                         <br /> 규칙적으로 반복해서 말해보세요. <br />
                                         (&apos;타&apos; 와 &apos;카&apos; 도 동일하게 시행)
                                     </td>
-                                    <td className={`${subtestStyles.button}`}>파</td>
-                                    <td className={`${subtestStyles.button}`}>
+                                    <td className={subtestStyles.button}>파</td>
+                                    <td className={subtestStyles.button}>
                                         <RecordButton
                                             isRecording={isRecording1}
                                             handleStart={handleStartRecording1}
@@ -480,24 +469,18 @@ export default function SpeechMotorQuestionsPage({
                                             modalContent="'파'를 가능한 빨리 규칙적으로 반복해서 말해보세요."
                                         />
                                     </td>
-                                    <td className={`${subtestStyles.button}`}>
+                                    <td className={subtestStyles.button}>
                                         <PlayButton
                                             audioBlob={audioBlob1}
                                             audioUrl={audioUrl1}
-                                            //     audioBlob1
-                                            //         ? URL.createObjectURL(audioBlob1)
-                                            //         : audioUrl1
-                                            //           ? `/api/proxy?audioUrl=${audioUrl1}`
-                                            //           : undefined
-                                            // }
                                             setRepeatCount={setRepeatCount(0)}
                                             isPlaying={isPlaying1}
                                             handlePlay={handlePlay1}
                                             handlePause={handlePause1}
-                                            disabled={!audioBlob1}
+                                            disabled={!audioUrl1}
                                         />
                                     </td>
-                                    <td className={`${subtestStyles.repeatCount}`}>
+                                    <td className={subtestStyles.repeatCount}>
                                         <input
                                             type='number'
                                             className='text-center outline-none'
@@ -508,9 +491,9 @@ export default function SpeechMotorQuestionsPage({
                                         회
                                     </td>
                                 </tr>
-                                <tr className={`${subtestStyles.repeatCount}`}>
-                                    <td className={`${subtestStyles.button}`}>타</td>
-                                    <td className={`${subtestStyles.button}`}>
+                                <tr className={subtestStyles.repeatCount}>
+                                    <td className={subtestStyles.button}>타</td>
+                                    <td className={subtestStyles.button}>
                                         <RecordButton
                                             isRecording={isRecording2}
                                             handleStart={handleStartRecording2}
@@ -520,7 +503,7 @@ export default function SpeechMotorQuestionsPage({
                                             modalContent="'타'를 가능한 빨리 규칙적으로 반복해서 말해보세요."
                                         />
                                     </td>
-                                    <td className={`${subtestStyles.button}`}>
+                                    <td className={subtestStyles.button}>
                                         <PlayButton
                                             audioBlob={audioBlob2}
                                             audioUrl={audioUrl2}
@@ -531,7 +514,7 @@ export default function SpeechMotorQuestionsPage({
                                             disabled={!audioUrl2}
                                         />
                                     </td>
-                                    <td className={`${subtestStyles.repeatCount}`}>
+                                    <td className={subtestStyles.repeatCount}>
                                         <input
                                             type='number'
                                             className='text-center outline-none'
@@ -543,8 +526,8 @@ export default function SpeechMotorQuestionsPage({
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td className={`${subtestStyles.button}`}>카</td>
-                                    <td className={`${subtestStyles.button}`}>
+                                    <td className={subtestStyles.button}>카</td>
+                                    <td className={subtestStyles.button}>
                                         <RecordButton
                                             isRecording={isRecording3}
                                             handleStart={handleStartRecording3}
@@ -554,7 +537,7 @@ export default function SpeechMotorQuestionsPage({
                                             modalContent="'카'를 가능한 빨리 규칙적으로 반복해서 말해보세요."
                                         />
                                     </td>
-                                    <td className={`${subtestStyles.button}`}>
+                                    <td className={subtestStyles.button}>
                                         <PlayButton
                                             audioBlob={audioBlob3}
                                             audioUrl={audioUrl3}
@@ -565,7 +548,7 @@ export default function SpeechMotorQuestionsPage({
                                             disabled={!audioUrl3}
                                         />
                                     </td>
-                                    <td className={`${subtestStyles.repeatCount}`}>
+                                    <td className={subtestStyles.repeatCount}>
                                         <input
                                             type='number'
                                             className='text-center outline-none'
@@ -579,7 +562,7 @@ export default function SpeechMotorQuestionsPage({
                             </tbody>
                         </table>
                     ) : (
-                        <table className={`${subtestStyles.recordingTable}`}>
+                        <table className={subtestStyles.recordingTable}>
                             <thead
                                 data-title='SMR 측정'
                                 data-caption={`*반복횟수란 1초당 각 음절을 반복한 횟수를 의미함('파타카'모두를 반복한 횟수가 아님)`}
@@ -599,8 +582,8 @@ export default function SpeechMotorQuestionsPage({
                                         &apos;파-타-카&apos;를 가능한 한 빨리, 규칙적으로 <br />
                                         반복해서 말해보세요.
                                     </td>
-                                    <td className={`${subtestStyles.button}`}>파타카</td>
-                                    <td className={`${subtestStyles.button}`}>
+                                    <td className={subtestStyles.button}>파타카</td>
+                                    <td className={subtestStyles.button}>
                                         <RecordButton
                                             isRecording={isRecording4}
                                             handleStart={handleStartRecording4}
@@ -610,7 +593,7 @@ export default function SpeechMotorQuestionsPage({
                                             modalContent="'파-타-카'를 가능한 빨리 규칙적으로 반복해서 말해보세요."
                                         />
                                     </td>
-                                    <td className={`${subtestStyles.button}`}>
+                                    <td className={subtestStyles.button}>
                                         <PlayButton
                                             audioBlob={audioBlob4}
                                             audioUrl={audioUrl4}
@@ -621,7 +604,7 @@ export default function SpeechMotorQuestionsPage({
                                             disabled={!audioUrl4}
                                         />
                                     </td>
-                                    <td className={`${subtestStyles.repeatCount}`}>
+                                    <td className={subtestStyles.repeatCount}>
                                         <input
                                             type='number'
                                             className='w-full text-center outline-none'
