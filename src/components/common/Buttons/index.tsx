@@ -1,4 +1,4 @@
-import { useEffect, useState, type ChangeEventHandler, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ChangeEventHandler, type ReactNode } from 'react';
 
 import { MikeIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/common/icons';
 
@@ -31,7 +31,7 @@ export const RecordButtonWithTime = ({
     handleStopRecording,
 }: {
     isRecording: boolean;
-    volume?: number;
+    volume: number;
     handleStartRecording: () => Promise<void>;
     handleStopRecording: () => void;
 }) => {
@@ -56,13 +56,39 @@ export const RecordButtonWithTime = ({
     const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
     const [progress, setProgress] = useState(0);
+    const animationFrameIdRef = useRef<number | null>(null);
+    const volumeRef = useRef(volume);
 
+    // 실시간 볼륨 저장
     useEffect(() => {
-        const timer = setInterval(() => {
-            setProgress(prev => {
-                return prev + 0.01;
-            });
-        }, 10);
+        volumeRef.current = volume;
+    }, [volume]);
+
+    // 애니메이션
+    useEffect(() => {
+        let lastTime: number | null = null;
+
+        const animate = (timestamp: number) => {
+            if (lastTime === null) {
+                lastTime = timestamp;
+            }
+            const delta = timestamp - lastTime; // 프레임 마다 증가량 (ms)
+
+            if (volumeRef.current > 30) {
+                setProgress(prev => Math.min(30, prev + delta / 1000)); // 초 단위로 더하기
+            }
+
+            lastTime = timestamp; // 기존 프레임 저장
+            animationFrameIdRef.current = requestAnimationFrame(animate);
+        };
+
+        animationFrameIdRef.current = requestAnimationFrame(animate);
+
+        return () => {
+            if (animationFrameIdRef.current) {
+                cancelAnimationFrame(animationFrameIdRef.current);
+            }
+        };
     }, []);
 
     if (isRecording) {
@@ -76,7 +102,7 @@ export const RecordButtonWithTime = ({
                 >
                     <StopIcon width={50} height={50} />
                 </button>
-                <svg className={styles.circleProgress} width='94' height='94' viewBox='0 0 94 94'>
+                <svg className={styles.circleProgress} width='94' height='94' viewBox='0 0 94 94' onClick={handleStopRecording}>
                     <circle className={styles.frame} cx='47' cy='47' r={'41'} strokeWidth='12' />
                     <circle
                         className={styles.bar}
