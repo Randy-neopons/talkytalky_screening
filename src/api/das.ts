@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import { API_URL } from '@/utils/const';
 
-import type { Answer, Subtest, TestInfoFormValues, TestSession } from '@/types/das';
+import type { Answer, Recording, Subtest, TestInfoFormValues, TestSession } from '@/types/das';
 
 const axiosInstance = axios.create({ baseURL: API_URL });
 
@@ -138,9 +138,58 @@ export async function createSessionAPI({
     return response.data;
 }
 
+// 레코딩 업로드
+export async function upsertRecordingAPI({
+    sessionId,
+    audioBlob,
+    recordingId,
+    partId,
+    jwt,
+}: {
+    sessionId: number;
+    audioBlob: Blob;
+    recordingId?: number;
+    partId: number;
+    jwt: string;
+}) {
+    const formData = new FormData();
+    formData.append('audio', audioBlob);
+    recordingId && formData.append('recordingId', String(recordingId));
+    console.log('recordingId', recordingId);
+    formData.append('partId', String(partId));
+
+    const response = await axiosInstance.post<{ result: boolean; recordingId: Number; filePath: string }>(
+        `/assessment/session/${sessionId}/recording`,
+        formData,
+        {
+            headers: makeHeaders(jwt),
+        },
+    );
+
+    return response.data;
+}
+
 // 세션 업데이트
-export async function updateSessionAPI({ sessionId, formData, jwt }: { sessionId: number; formData: FormData; jwt: string }) {
-    const response = await axiosInstance.patch(`/assessment/session/${sessionId}`, formData, { headers: makeHeaders(jwt) });
+export async function updateSessionAPI({
+    sessionId,
+    recordings,
+    testTime,
+    currentPartId,
+    answers,
+    jwt,
+}: {
+    sessionId: number;
+    recordings?: Recording[];
+    testTime: number;
+    currentPartId: number;
+    answers: Answer[];
+    jwt: string;
+}) {
+    const response = await axiosInstance.patch(
+        `/assessment/session/${sessionId}`,
+        { recordings, testTime, currentPartId, answers },
+        { headers: makeHeaders(jwt) },
+    );
 
     return response.data;
 }

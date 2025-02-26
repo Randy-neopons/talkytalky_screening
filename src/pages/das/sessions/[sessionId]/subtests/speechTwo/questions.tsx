@@ -177,14 +177,15 @@ export default function SpeechTwoQuestionsPage({
     const handleSubmitData = useCallback(
         async ({ sessionId, data }: { sessionId: number; data: any }) => {
             try {
-                const formData = new FormData();
-                formData.append('testTime', `${testTime}`);
-                formData.append('currentPartId', `${partId}`);
-                formData.append('answers', JSON.stringify(data.answers));
-
                 // 세션 갱신
                 const accessToken = getCookie('jwt') as string;
-                await updateSessionAPI({ sessionId, formData, jwt: accessToken });
+                await updateSessionAPI({
+                    sessionId,
+                    testTime,
+                    currentPartId: partId,
+                    answers: data.answers,
+                    jwt: accessToken,
+                });
             } catch (err) {
                 if (isAxiosError(err)) {
                     if (err.response?.status === 401) {

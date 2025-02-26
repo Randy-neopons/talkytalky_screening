@@ -50,7 +50,10 @@ export default function SpeechMainPage() {
     const router = useRouter();
 
     // 현재 소검사, 선택한 소검사 정보
-    const { data: subtestsData } = useConductedSubtestsQuery({ sessionId: Number(router.query.sessionId), jwt: getCookie('jwt') || '' });
+    const { data: subtestsData } = useConductedSubtestsQuery({
+        sessionId: Number(router.query.sessionId),
+        jwt: getCookie('jwt') || '',
+    });
     const { setTestStart } = useTimerActions();
     const currentSubtest = useCurrentSubTest();
     const { handleOpenModal } = useModal();

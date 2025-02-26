@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type ChangeEventHandler, type KeyboardEventHandler } from 'react';
-import { Controller, useFieldArray, useForm } from 'react-hook-form';
+import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import ReactTextareaAutosize from 'react-textarea-autosize';
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
@@ -12,6 +12,7 @@ import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
+import VolumeModal from '@/components/das/VolumeModal';
 import WaveformModal from '@/components/das/WaveformModal';
 import { useConductedSubtestsQuery, useQuestionsAndAnswersQuery } from '@/hooks/das';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
@@ -128,41 +129,53 @@ const PauseIcon = () => {
 };
 
 const RecordButton = ({
-    isRecording,
-    handleStop,
-    handleStart,
+    recordingId,
+    partId,
+    modalTitle,
+    modalContent,
+    onSuccess,
 }: {
-    isRecording: boolean;
-    handleStop: () => void;
-    handleStart: () => void;
+    recordingId?: number | null;
+    partId: number;
+    modalTitle: string;
+    modalContent: string;
+    onSuccess: (filePath: string) => void;
 }) => {
+    const [modalOpen, setModalOpen] = useState(false);
+    const handleOpenModal = useCallback(() => {
+        setModalOpen(true);
+        // handleStart();
+    }, []);
+    const handleCloseModal = useCallback(() => {
+        setModalOpen(false);
+        // handleStop();
+    }, []);
+
     return (
-        <button type='button' className='m-auto flex' onClick={isRecording ? handleStop : handleStart}>
-            {isRecording ? <StopRecordIcon /> : <RecordIcon />}
-        </button>
+        <>
+            <button type='button' className='m-auto flex' onClick={handleOpenModal}>
+                <RecordIcon />
+            </button>
+            <VolumeModal
+                title={modalTitle}
+                content={modalContent}
+                recordingId={recordingId}
+                partId={partId}
+                modalOpen={modalOpen}
+                handleCloseModal={handleCloseModal}
+                onSuccess={onSuccess}
+            />
+        </>
     );
 };
 
 const PlayButton = ({
-    audioBlob,
     audioUrl,
-    setRepeatCount,
     setMPT,
-
-    isPlaying,
-    handlePause,
-    handlePlay,
-    disabled,
 }: {
-    audioBlob?: Blob | null;
     audioUrl?: string | null;
     setRepeatCount?: (value: number) => void;
     setMPT?: (value: number) => void;
-
-    isPlaying: boolean;
-    handlePause: () => void;
-    handlePlay: () => void;
-    disabled?: boolean;
 }) => {
     const [url, setUrl] = useState<string>();
 
@@ -171,26 +184,19 @@ const PlayButton = ({
     const handleOpenModal = useCallback(() => {
         // modal이 열려있을 때 Wavesurfer 플러그인이 로드되어야 한다.
         // 그래서 modalOpen을 true로 만들고 동시에 url을 세팅함
-        setUrl(audioBlob ? URL.createObjectURL(audioBlob) : audioUrl ? `/api/proxy?audioUrl=${audioUrl}` : undefined);
+        setUrl(audioUrl ? `/api/proxy?audioUrl=${audioUrl}` : undefined);
         setModalOpen(true);
-    }, [audioBlob, audioUrl]);
+    }, [audioUrl]);
     const handleCloseModal = useCallback(() => {
         setModalOpen(false);
     }, []);
 
     return (
         <>
-            <button type='button' className='m-auto flex' onClick={isPlaying ? handlePause : handleOpenModal} disabled={disabled}>
-                {isPlaying ? <PauseIcon /> : <PlayIcon disabled={disabled} />}
+            <button type='button' className='m-auto flex' onClick={handleOpenModal} disabled={!audioUrl}>
+                <PlayIcon disabled={!audioUrl} />
             </button>
-            <WaveformModal
-                title='MPT 측정파형'
-                audioUrl={url}
-                modalOpen={modalOpen}
-                handleCloseModal={handleCloseModal}
-                setRepeatCount={setRepeatCount}
-                setMPT={setMPT}
-            />
+            <WaveformModal title='MPT 측정파형' audioUrl={url} modalOpen={modalOpen} handleCloseModal={handleCloseModal} setMPT={setMPT} />
         </>
     );
 };
@@ -208,36 +214,36 @@ export default function SpeechOneQuestionsPage({
     const router = useRouter();
 
     // MPT 측정 녹음
-    const {
-        isRecording: isRecording1,
-        isPlaying: isPlaying1,
-        audioUrl: audioUrl1,
-        audioBlob: audioBlob1,
-        handleStartRecording: handleStartRecording1,
-        handleStopRecording: handleStopRecording1,
-        handlePlay: handlePlay1,
-        handlePause: handlePause1,
-    } = useAudioRecorder(recordingList[0]?.filePath);
-    const {
-        isRecording: isRecording2,
-        isPlaying: isPlaying2,
-        audioUrl: audioUrl2,
-        audioBlob: audioBlob2,
-        handleStartRecording: handleStartRecording2,
-        handleStopRecording: handleStopRecording2,
-        handlePlay: handlePlay2,
-        handlePause: handlePause2,
-    } = useAudioRecorder(recordingList[1]?.filePath);
-    const {
-        isRecording: isRecording3,
-        isPlaying: isPlaying3,
-        audioUrl: audioUrl3,
-        audioBlob: audioBlob3,
-        handleStartRecording: handleStartRecording3,
-        handleStopRecording: handleStopRecording3,
-        handlePlay: handlePlay3,
-        handlePause: handlePause3,
-    } = useAudioRecorder(recordingList[2]?.filePath);
+    // const {
+    //     isRecording: isRecording1,
+    //     isPlaying: isPlaying1,
+    //     audioUrl: audioUrl1,
+    //     audioBlob: audioBlob1,
+    //     handleStartRecording: handleStartRecording1,
+    //     handleStopRecording: handleStopRecording1,
+    //     handlePlay: handlePlay1,
+    //     handlePause: handlePause1,
+    // } = useAudioRecorder(recordingList[0]?.filePath);
+    // const {
+    //     isRecording: isRecording2,
+    //     isPlaying: isPlaying2,
+    //     audioUrl: audioUrl2,
+    //     audioBlob: audioBlob2,
+    //     handleStartRecording: handleStartRecording2,
+    //     handleStopRecording: handleStopRecording2,
+    //     handlePlay: handlePlay2,
+    //     handlePause: handlePause2,
+    // } = useAudioRecorder(recordingList[1]?.filePath);
+    // const {
+    //     isRecording: isRecording3,
+    //     isPlaying: isPlaying3,
+    //     audioUrl: audioUrl3,
+    //     audioBlob: audioBlob3,
+    //     handleStartRecording: handleStartRecording3,
+    //     handleStopRecording: handleStopRecording3,
+    //     handlePlay: handlePlay3,
+    //     handlePause: handlePause3,
+    // } = useAudioRecorder(recordingList[2]?.filePath);
 
     // 현재 소검사, 선택한 소검사 정보
     const { data: subtestsData } = useConductedSubtestsQuery({ sessionId: Number(router.query.sessionId), jwt: getCookie('jwt') || '' });
@@ -282,6 +288,16 @@ export default function SpeechOneQuestionsPage({
         answers: Answer[];
     }>();
     const { fields } = useFieldArray({ name: 'answers', control });
+
+    const recordingId1 = useWatch({ control, name: 'recordings.0.recordingId' });
+    const recordingId2 = useWatch({ control, name: 'recordings.1.recordingId' });
+    const recordingId3 = useWatch({ control, name: 'recordings.2.recordingId' });
+    const recordingId4 = useWatch({ control, name: 'recordings.3.recordingId' });
+
+    const audioUrl1 = useWatch({ control, name: 'recordings.0.filePath' });
+    const audioUrl2 = useWatch({ control, name: 'recordings.1.filePath' });
+    const audioUrl3 = useWatch({ control, name: 'recordings.2.filePath' });
+    const audioUrl4 = useWatch({ control, name: 'recordings.3.filePath' });
 
     // 모두 정상 체크
     const handleChangeCheckAll1 = useCallback<ChangeEventHandler<HTMLInputElement>>(
@@ -341,21 +357,16 @@ export default function SpeechOneQuestionsPage({
     const handleSubmitData = useCallback(
         async ({ sessionId, data }: { sessionId: number; data: any }) => {
             try {
-                const formData = new FormData();
-                formData.append('audio1', audioBlob1 || 'null');
-                formData.append('audio2', audioBlob2 || 'null');
-                formData.append('audio3', audioBlob3 || 'null');
-                formData.append('recordings', JSON.stringify(data.recordings));
-
-                // console.log(data.recordings);
-
-                formData.append('testTime', `${testTime}`);
-                formData.append('currentPartId', `${partId}`);
-                formData.append('answers', JSON.stringify(data.answers));
-
                 // 세션 갱신
                 const accessToken = getCookie('jwt') as string;
-                await updateSessionAPI({ sessionId, formData, jwt: accessToken });
+                await updateSessionAPI({
+                    sessionId,
+                    testTime,
+                    currentPartId: partId,
+                    answers: data.answers,
+                    recordings: data.recordings,
+                    jwt: accessToken,
+                });
             } catch (err) {
                 console.error(err);
                 if (isAxiosError(err)) {
@@ -369,7 +380,7 @@ export default function SpeechOneQuestionsPage({
                 console.error(err);
             }
         },
-        [audioBlob1, audioBlob2, audioBlob3, partId, testTime],
+        [partId, testTime],
     );
 
     // 이전 파트로
@@ -510,21 +521,17 @@ export default function SpeechOneQuestionsPage({
                                 <td className={`${subtestStyles.button}`}>1차</td>
                                 <td className={`${subtestStyles.button}`}>
                                     <RecordButton
-                                        isRecording={isRecording1}
-                                        handleStart={handleStartRecording1}
-                                        handleStop={handleStopRecording1}
+                                        recordingId={recordingId1}
+                                        partId={partId}
+                                        modalTitle='MPT 측정'
+                                        modalContent='숨을 크게 들어 마신 뒤, 쉬지 말고 최대한 길게 편안하게 ‘아~’ 소리를 내보세요.'
+                                        onSuccess={(filePath: string) => {
+                                            setValue('recordings.0.filePath', filePath);
+                                        }}
                                     />
                                 </td>
                                 <td className={`${subtestStyles.button}`}>
-                                    <PlayButton
-                                        audioBlob={audioBlob1}
-                                        audioUrl={audioUrl1}
-                                        isPlaying={isPlaying1}
-                                        handlePlay={handlePlay1}
-                                        handlePause={handlePause1}
-                                        disabled={!audioUrl1}
-                                        setMPT={setRepeatCount(0)}
-                                    />
+                                    <PlayButton audioUrl={audioUrl1} setMPT={setRepeatCount(0)} />
                                 </td>
                                 <td className={`${subtestStyles.repeatCount}`}>
                                     <input
@@ -541,21 +548,17 @@ export default function SpeechOneQuestionsPage({
                                 <td className={`${subtestStyles.button}`}>2차</td>
                                 <td className={`${subtestStyles.button}`}>
                                     <RecordButton
-                                        isRecording={isRecording2}
-                                        handleStart={handleStartRecording2}
-                                        handleStop={handleStopRecording2}
+                                        recordingId={recordingId2}
+                                        partId={partId}
+                                        modalTitle='MPT 측정'
+                                        modalContent='숨을 크게 들어 마신 뒤, 쉬지 말고 최대한 길게 편안하게 ‘아~’ 소리를 내보세요.'
+                                        onSuccess={(filePath: string) => {
+                                            setValue('recordings.1.filePath', filePath);
+                                        }}
                                     />
                                 </td>
                                 <td className={`${subtestStyles.button}`}>
-                                    <PlayButton
-                                        audioBlob={audioBlob2}
-                                        audioUrl={audioUrl2}
-                                        isPlaying={isPlaying2}
-                                        handlePlay={handlePlay2}
-                                        handlePause={handlePause2}
-                                        disabled={!audioUrl2}
-                                        setMPT={setRepeatCount(1)}
-                                    />
+                                    <PlayButton audioUrl={audioUrl2} setMPT={setRepeatCount(1)} />
                                 </td>
                                 <td className={`${subtestStyles.repeatCount}`}>
                                     <input
@@ -572,21 +575,17 @@ export default function SpeechOneQuestionsPage({
                                 <td className={`${subtestStyles.button}`}>3차</td>
                                 <td className={`${subtestStyles.button}`}>
                                     <RecordButton
-                                        isRecording={isRecording3}
-                                        handleStart={handleStartRecording3}
-                                        handleStop={handleStopRecording3}
+                                        recordingId={recordingId3}
+                                        partId={partId}
+                                        modalTitle='MPT 측정'
+                                        modalContent='숨을 크게 들어 마신 뒤, 쉬지 말고 최대한 길게 편안하게 ‘아~’ 소리를 내보세요.'
+                                        onSuccess={(filePath: string) => {
+                                            setValue('recordings.2.filePath', filePath);
+                                        }}
                                     />
                                 </td>
                                 <td className={`${subtestStyles.button}`}>
-                                    <PlayButton
-                                        audioBlob={audioBlob3}
-                                        audioUrl={audioUrl3}
-                                        isPlaying={isPlaying3}
-                                        handlePlay={handlePlay3}
-                                        handlePause={handlePause3}
-                                        disabled={!audioUrl3}
-                                        setMPT={setRepeatCount(2)}
-                                    />
+                                    <PlayButton audioUrl={audioUrl3} setMPT={setRepeatCount(2)} />
                                 </td>
                                 <td className={`${subtestStyles.repeatCount}`}>
                                     <input

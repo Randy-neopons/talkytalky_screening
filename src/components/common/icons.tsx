@@ -185,3 +185,11 @@ export const VolumeIcon = ({ color = 'white', width = 24, height = 24 }: IconPro
         </svg>
     );
 };
+
+export const CheckIcon = ({ color = '#6979F8', width = 24, height = 24 }: IconProps) => {
+    return (
+        <svg xmlns='http://www.w3.org/2000/svg' width={width} height={height} viewBox='0 0 24 24' fill='none'>
+            <path d='M17 8L10.125 15L7 11.8182' stroke={color} strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+        </svg>
+    );
+};

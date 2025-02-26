@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState, type ChangeEventHandler, type ReactNode } from 'react';
+import { toast } from 'react-toastify';
 
-import { MikeIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/common/icons';
+import { getCookie } from 'cookies-next';
+
+import { CheckIcon, MikeIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/common/icons';
+import { upsertRecordingAPI } from '@/api/das';
 
 import styles from './Buttons.module.scss';
 
@@ -20,109 +24,6 @@ export const RoundedBox = ({ isShining, children }: { isShining?: boolean; child
         <div className='overflow-hidden rounded-full border-[9px] border-accent1/10'>
             <div className='flex items-center justify-center bg-accent1'>{children}</div>
         </div>
-    );
-};
-
-// 녹음, 재생, 정지, 일시정지 버튼 렌더링
-export const RecordButtonWithTime = ({
-    isRecording,
-    volume,
-    handleStartRecording,
-    handleStopRecording,
-}: {
-    isRecording: boolean;
-    volume: number;
-    handleStartRecording: () => Promise<void>;
-    handleStopRecording: () => void;
-}) => {
-    // 녹음 버튼 빛나게 하기
-    const [speaking, setSpeaking] = useState(false);
-
-    // 녹음 버튼 누르고 목소리를 처음 냈을 때 shining
-    useEffect(() => {
-        if (isRecording && volume && volume > 20) {
-            setSpeaking(true);
-        }
-    }, [isRecording, volume]);
-
-    // 녹음 종료 시 shining 종료
-    useEffect(() => {
-        if (!isRecording) {
-            setSpeaking(false);
-        }
-    }, [isRecording]);
-
-    const RADIUS = 41;
-    const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
-
-    const [progress, setProgress] = useState(0);
-    const animationFrameIdRef = useRef<number | null>(null);
-    const volumeRef = useRef(volume);
-
-    // 실시간 볼륨 저장
-    useEffect(() => {
-        volumeRef.current = volume;
-    }, [volume]);
-
-    // 애니메이션
-    useEffect(() => {
-        let lastTime: number | null = null;
-
-        const animate = (timestamp: number) => {
-            if (lastTime === null) {
-                lastTime = timestamp;
-            }
-            const delta = timestamp - lastTime; // 프레임 마다 증가량 (ms)
-
-            if (volumeRef.current > 30) {
-                setProgress(prev => Math.min(30, prev + delta / 1000)); // 초 단위로 더하기
-            }
-
-            lastTime = timestamp; // 기존 프레임 저장
-            animationFrameIdRef.current = requestAnimationFrame(animate);
-        };
-
-        animationFrameIdRef.current = requestAnimationFrame(animate);
-
-        return () => {
-            if (animationFrameIdRef.current) {
-                cancelAnimationFrame(animationFrameIdRef.current);
-            }
-        };
-    }, []);
-
-    if (isRecording) {
-        return (
-            <div className={styles.circleProgressWrap}>
-                <button
-                    type='button'
-                    className={styles.roundButton}
-                    onClick={handleStopRecording}
-                    style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
-                >
-                    <StopIcon width={50} height={50} />
-                </button>
-                <svg className={styles.circleProgress} width='94' height='94' viewBox='0 0 94 94' onClick={handleStopRecording}>
-                    <circle className={styles.frame} cx='47' cy='47' r={'41'} strokeWidth='12' />
-                    <circle
-                        className={styles.bar}
-                        cx='47'
-                        cy='47'
-                        r={'41'}
-                        strokeWidth='12'
-                        style={{ strokeDashoffset: CIRCUMFERENCE * (1 - progress / 30), strokeDasharray: CIRCUMFERENCE }}
-                    />
-                </svg>
-            </div>
-        );
-    }
-
-    return (
-        <RoundedBox>
-            <button type='button' className={styles.roundButton} onClick={handleStartRecording}>
-                <MikeIcon width={50} height={50} />
-            </button>
-        </RoundedBox>
     );
 };
 

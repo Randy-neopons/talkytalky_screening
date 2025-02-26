@@ -7,7 +7,7 @@ import {
     type KeyboardEventHandler,
     type MouseEventHandler,
 } from 'react';
-import { Controller, useFieldArray, useForm } from 'react-hook-form';
+import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import ReactTextareaAutosize from 'react-textarea-autosize';
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
@@ -86,70 +86,54 @@ const PauseIcon = () => {
 };
 
 const RecordButton = ({
-    isRecording,
-    handleStop,
-    handleStart,
-    volume,
-
+    recordingId,
+    partId,
     modalTitle,
     modalContent,
+    onSuccess,
 }: {
-    isRecording: boolean;
-    handleStop: () => void;
-    handleStart: () => void;
-    volume?: number;
-
+    recordingId?: number | null;
+    partId: number;
     modalTitle: string;
     modalContent: string;
+    onSuccess: (filePath: string) => void;
 }) => {
     const [modalOpen, setModalOpen] = useState(false);
     const handleOpenModal = useCallback(() => {
         setModalOpen(true);
-        handleStart();
-    }, [handleStart]);
+        // handleStart();
+    }, []);
     const handleCloseModal = useCallback(() => {
         setModalOpen(false);
-        handleStop();
-    }, [handleStop]);
+        // handleStop();
+    }, []);
 
     return (
         <>
-            <button
-                type='button'
-                className='m-auto flex'
-                onClick={
-                    isRecording
-                        ? handleStop
-                        : () => {
-                              handleOpenModal();
-                              handleStart();
-                          }
-                }
-            >
-                {isRecording ? <StopRecordIcon /> : <RecordIcon />}
+            <button type='button' className='m-auto flex' onClick={handleOpenModal}>
+                <RecordIcon />
             </button>
-            <VolumeModal title={modalTitle} content={modalContent} modalOpen={modalOpen} handleCloseModal={handleCloseModal} />
+            <VolumeModal
+                title={modalTitle}
+                content={modalContent}
+                recordingId={recordingId}
+                partId={partId}
+                modalOpen={modalOpen}
+                handleCloseModal={handleCloseModal}
+                onSuccess={onSuccess}
+            />
         </>
     );
 };
 
 const PlayButton = ({
-    audioBlob,
     audioUrl,
     setRepeatCount,
-
-    isPlaying,
-    handlePause,
-    handlePlay,
     disabled,
 }: {
-    audioBlob?: Blob | null;
     audioUrl?: string | null;
     setRepeatCount: (value: number) => void;
 
-    isPlaying: boolean;
-    handlePause: () => void;
-    handlePlay: () => void;
     disabled?: boolean;
 }) => {
     const [url, setUrl] = useState<string>();
@@ -159,17 +143,17 @@ const PlayButton = ({
     const handleOpenModal = useCallback(() => {
         // modal이 열려있을 때 Wavesurfer 플러그인이 로드되어야 한다.
         // 그래서 modalOpen을 true로 만들고 동시에 url을 세팅함
-        setUrl(audioBlob ? URL.createObjectURL(audioBlob) : audioUrl ? `/api/proxy?audioUrl=${audioUrl}` : undefined);
+        setUrl(audioUrl ? `/api/proxy?audioUrl=${audioUrl}` : undefined);
         setModalOpen(true);
-    }, [audioBlob, audioUrl]);
+    }, [audioUrl]);
     const handleCloseModal = useCallback(() => {
         setModalOpen(false);
     }, []);
 
     return (
         <>
-            <button type='button' className='m-auto flex' onClick={isPlaying ? handlePause : handleOpenModal} disabled={disabled}>
-                {isPlaying ? <PauseIcon /> : <PlayIcon disabled={disabled} />}
+            <button type='button' className='m-auto flex' onClick={handleOpenModal} disabled={!audioUrl}>
+                <PlayIcon disabled={!audioUrl} />
             </button>
 
             <WaveformModal
@@ -183,6 +167,11 @@ const PlayButton = ({
     );
 };
 
+type FormValues = {
+    recordings: Recording[];
+    answers: Answer[];
+};
+
 // SPEECH II 문항 페이지
 export default function SpeechMotorQuestionsPage({
     questionList,
@@ -194,61 +183,6 @@ export default function SpeechMotorQuestionsPage({
     currentPartId: number | null;
 }) {
     const router = useRouter();
-
-    // 파타카 녹음
-    const {
-        isRecording: isRecording1,
-        isPlaying: isPlaying1,
-        audioUrl: audioUrl1,
-        audioBlob: audioBlob1,
-        handleStartRecording: handleStartRecording1,
-        handleStopRecording: handleStopRecording1,
-        handlePlay: handlePlay1,
-        handlePause: handlePause1,
-        volume: volume1,
-    } = useAudioRecorder(recordingList[0]?.filePath);
-
-    useEffect(() => {
-        console.log('audioBlob1', audioBlob1);
-    }, [audioBlob1]);
-
-    useEffect(() => {
-        console.log('audioUrl1', audioUrl1);
-    }, [audioUrl1]);
-
-    const {
-        isRecording: isRecording2,
-        isPlaying: isPlaying2,
-        audioUrl: audioUrl2,
-        audioBlob: audioBlob2,
-        handleStartRecording: handleStartRecording2,
-        handleStopRecording: handleStopRecording2,
-        handlePlay: handlePlay2,
-        handlePause: handlePause2,
-        volume: volume2,
-    } = useAudioRecorder(recordingList[1]?.filePath);
-    const {
-        isRecording: isRecording3,
-        isPlaying: isPlaying3,
-        audioUrl: audioUrl3,
-        audioBlob: audioBlob3,
-        handleStartRecording: handleStartRecording3,
-        handleStopRecording: handleStopRecording3,
-        handlePlay: handlePlay3,
-        handlePause: handlePause3,
-        volume: volume3,
-    } = useAudioRecorder(recordingList[2]?.filePath);
-    const {
-        isRecording: isRecording4,
-        isPlaying: isPlaying4,
-        audioUrl: audioUrl4,
-        audioBlob: audioBlob4,
-        handleStartRecording: handleStartRecording4,
-        handleStopRecording: handleStopRecording4,
-        handlePlay: handlePlay4,
-        handlePause: handlePause4,
-        volume: volume4,
-    } = useAudioRecorder(recordingList[3]?.filePath);
 
     // 현재 소검사, 선택한 소검사 정보
     const { data: subtestsData } = useConductedSubtestsQuery({ sessionId: Number(router.query.sessionId), jwt: getCookie('jwt') || '' });
@@ -267,21 +201,39 @@ export default function SpeechMotorQuestionsPage({
     );
 
     // react-hook-form
-    const { control, register, setValue, handleSubmit, getValues } = useForm<{
-        recordings: Recording[];
-        answers: Answer[];
-    }>();
+    const { control, register, setValue, handleSubmit, getValues, watch } = useForm<FormValues>();
 
-    const { data: qnaData } = useQuestionsAndAnswersQuery({
+    const recordingId1 = useWatch({ control, name: 'recordings.0.recordingId' });
+    const recordingId2 = useWatch({ control, name: 'recordings.1.recordingId' });
+    const recordingId3 = useWatch({ control, name: 'recordings.2.recordingId' });
+    const recordingId4 = useWatch({ control, name: 'recordings.3.recordingId' });
+
+    const audioUrl1 = useWatch({ control, name: 'recordings.0.filePath' });
+    const audioUrl2 = useWatch({ control, name: 'recordings.1.filePath' });
+    const audioUrl3 = useWatch({ control, name: 'recordings.2.filePath' });
+    const audioUrl4 = useWatch({ control, name: 'recordings.3.filePath' });
+
+    const { data: qnaData, refetch } = useQuestionsAndAnswersQuery({
         sessionId: Number(router.query.sessionId),
         subtestId: CURRENT_SUBTEST_ID,
+        partId,
         start,
         end: end - 1,
         jwt: getCookie('jwt') || '',
     });
 
     useEffect(() => {
+        console.log('audioUrl1', audioUrl1);
+        console.log('disabled', !audioUrl1);
+    }, [audioUrl1]);
+
+    useEffect(() => {
+        console.log(partId);
+    }, [partId]);
+
+    useEffect(() => {
         if (qnaData?.recordings) {
+            console.log('recordings', qnaData.recordings);
             setValue('recordings', qnaData.recordings);
         }
 
@@ -298,30 +250,26 @@ export default function SpeechMotorQuestionsPage({
                 })),
             );
         }
-    }, [qnaData, setValue]);
+    }, [qnaData?.recordings, qnaData?.questions, setValue]);
 
     const [loading, setLoading] = useState(false);
 
     // 폼 데이터 제출
     const handleSubmitData = useCallback(
-        async ({ sessionId, data }: { sessionId: number; data: any }) => {
+        async ({ sessionId, data }: { sessionId: number; data: FormValues }) => {
             try {
                 setLoading(true);
 
-                const formData = new FormData();
-                formData.append('audio1', audioBlob1 || 'null');
-                formData.append('audio2', audioBlob2 || 'null');
-                formData.append('audio3', audioBlob3 || 'null');
-                formData.append('audio4', audioBlob4 || 'null');
-                formData.append('recordings', JSON.stringify(data.recordings));
-
-                formData.append('testTime', `${testTime}`);
-                formData.append('currentPartId', `${partId}`);
-                formData.append('answers', JSON.stringify(data.answers));
-
                 // 세션 갱신
                 const accessToken = getCookie('jwt') as string;
-                await updateSessionAPI({ sessionId, formData, jwt: accessToken });
+                await updateSessionAPI({
+                    sessionId,
+                    recordings: data.recordings,
+                    testTime,
+                    currentPartId: partId,
+                    answers: data.answers,
+                    jwt: accessToken,
+                });
 
                 setLoading(false);
             } catch (err) {
@@ -338,7 +286,7 @@ export default function SpeechMotorQuestionsPage({
                 console.error(err);
             }
         },
-        [audioBlob1, audioBlob2, audioBlob3, audioBlob4, partId, testTime],
+        [partId, testTime],
     );
 
     // 이전 파트로
@@ -375,8 +323,10 @@ export default function SpeechMotorQuestionsPage({
                 const sessionId = Number(router.query.sessionId);
                 await handleSubmitData({ sessionId, data });
 
+                console.log('partId', partId);
+
                 if (partId < partIndexList[partIndexList.length - 1].partId) {
-                    setPartId(partId => partId + 1);
+                    setPartId(prev => prev + 1);
                     typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
                 } else {
                     const subtests = subtestsData?.subtests;
@@ -413,23 +363,6 @@ export default function SpeechMotorQuestionsPage({
         setTestStart(true);
     }, [setTestStart]);
 
-    // 녹음 파일 로컬 주소 form 세팅
-    useEffect(() => {
-        audioUrl1 && setValue(`recordings.0.filePath`, audioUrl1);
-    }, [audioUrl1, setValue]);
-
-    useEffect(() => {
-        audioUrl2 && setValue(`recordings.1.filePath`, audioUrl2);
-    }, [audioUrl2, setValue]);
-
-    useEffect(() => {
-        audioUrl3 && setValue(`recordings.2.filePath`, audioUrl3);
-    }, [audioUrl3, setValue]);
-
-    useEffect(() => {
-        audioUrl4 && setValue(`recordings.3.filePath`, audioUrl4);
-    }, [audioUrl4, setValue]);
-
     return (
         <>
             <LoadingOverlay loading={loading} />
@@ -461,24 +394,17 @@ export default function SpeechMotorQuestionsPage({
                                     <td className={subtestStyles.button}>파</td>
                                     <td className={subtestStyles.button}>
                                         <RecordButton
-                                            isRecording={isRecording1}
-                                            handleStart={handleStartRecording1}
-                                            handleStop={handleStopRecording1}
-                                            volume={volume1}
+                                            recordingId={recordingId1}
+                                            partId={partId}
                                             modalTitle='AMR 측정 (파)'
                                             modalContent="'파'를 가능한 빨리 규칙적으로 반복해서 말해보세요."
+                                            onSuccess={(filePath: string) => {
+                                                setValue('recordings.0.filePath', filePath);
+                                            }}
                                         />
                                     </td>
                                     <td className={subtestStyles.button}>
-                                        <PlayButton
-                                            audioBlob={audioBlob1}
-                                            audioUrl={audioUrl1}
-                                            setRepeatCount={setRepeatCount(0)}
-                                            isPlaying={isPlaying1}
-                                            handlePlay={handlePlay1}
-                                            handlePause={handlePause1}
-                                            disabled={!audioUrl1}
-                                        />
+                                        <PlayButton audioUrl={audioUrl1} setRepeatCount={setRepeatCount(0)} disabled={!audioUrl1} />
                                     </td>
                                     <td className={subtestStyles.repeatCount}>
                                         <input
@@ -495,24 +421,17 @@ export default function SpeechMotorQuestionsPage({
                                     <td className={subtestStyles.button}>타</td>
                                     <td className={subtestStyles.button}>
                                         <RecordButton
-                                            isRecording={isRecording2}
-                                            handleStart={handleStartRecording2}
-                                            handleStop={handleStopRecording2}
-                                            volume={volume2}
+                                            recordingId={recordingId2}
+                                            partId={partId}
                                             modalTitle='AMR 측정 (타)'
                                             modalContent="'타'를 가능한 빨리 규칙적으로 반복해서 말해보세요."
+                                            onSuccess={(filePath: string) => {
+                                                setValue('recordings.1.filePath', filePath);
+                                            }}
                                         />
                                     </td>
                                     <td className={subtestStyles.button}>
-                                        <PlayButton
-                                            audioBlob={audioBlob2}
-                                            audioUrl={audioUrl2}
-                                            setRepeatCount={setRepeatCount(1)}
-                                            isPlaying={isPlaying2}
-                                            handlePlay={handlePlay2}
-                                            handlePause={handlePause2}
-                                            disabled={!audioUrl2}
-                                        />
+                                        <PlayButton audioUrl={audioUrl2} setRepeatCount={setRepeatCount(1)} disabled={!audioUrl2} />
                                     </td>
                                     <td className={subtestStyles.repeatCount}>
                                         <input
@@ -529,24 +448,17 @@ export default function SpeechMotorQuestionsPage({
                                     <td className={subtestStyles.button}>카</td>
                                     <td className={subtestStyles.button}>
                                         <RecordButton
-                                            isRecording={isRecording3}
-                                            handleStart={handleStartRecording3}
-                                            handleStop={handleStopRecording3}
-                                            volume={volume3}
+                                            recordingId={recordingId3}
+                                            partId={partId}
                                             modalTitle='AMR 측정 (카)'
                                             modalContent="'카'를 가능한 빨리 규칙적으로 반복해서 말해보세요."
+                                            onSuccess={(filePath: string) => {
+                                                setValue('recordings.2.filePath', filePath);
+                                            }}
                                         />
                                     </td>
                                     <td className={subtestStyles.button}>
-                                        <PlayButton
-                                            audioBlob={audioBlob3}
-                                            audioUrl={audioUrl3}
-                                            setRepeatCount={setRepeatCount(2)}
-                                            isPlaying={isPlaying3}
-                                            handlePlay={handlePlay3}
-                                            handlePause={handlePause3}
-                                            disabled={!audioUrl3}
-                                        />
+                                        <PlayButton audioUrl={audioUrl3} setRepeatCount={setRepeatCount(2)} disabled={!audioUrl3} />
                                     </td>
                                     <td className={subtestStyles.repeatCount}>
                                         <input
@@ -585,24 +497,17 @@ export default function SpeechMotorQuestionsPage({
                                     <td className={subtestStyles.button}>파타카</td>
                                     <td className={subtestStyles.button}>
                                         <RecordButton
-                                            isRecording={isRecording4}
-                                            handleStart={handleStartRecording4}
-                                            handleStop={handleStopRecording4}
-                                            volume={volume4}
+                                            recordingId={recordingId1}
+                                            partId={partId}
                                             modalTitle='SMR 측정 (파-타-카)'
                                             modalContent="'파-타-카'를 가능한 빨리 규칙적으로 반복해서 말해보세요."
+                                            onSuccess={(filePath: string) => {
+                                                setValue('recordings.0.filePath', filePath);
+                                            }}
                                         />
                                     </td>
                                     <td className={subtestStyles.button}>
-                                        <PlayButton
-                                            audioBlob={audioBlob4}
-                                            audioUrl={audioUrl4}
-                                            setRepeatCount={setRepeatCount(3)}
-                                            isPlaying={isPlaying4}
-                                            handlePlay={handlePlay4}
-                                            handlePause={handlePause4}
-                                            disabled={!audioUrl4}
-                                        />
+                                        <PlayButton audioUrl={audioUrl1} setRepeatCount={setRepeatCount(3)} disabled={!audioUrl1} />
                                     </td>
                                     <td className={subtestStyles.repeatCount}>
                                         <input
@@ -610,7 +515,7 @@ export default function SpeechMotorQuestionsPage({
                                             className='w-full text-center outline-none'
                                             autoComplete='off'
                                             onKeyDown={handleKeyDown}
-                                            {...register(`recordings.3.repeatCount`)}
+                                            {...register(`recordings.0.repeatCount`)}
                                         />
                                         회
                                     </td>

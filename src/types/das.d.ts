@@ -53,6 +53,7 @@ export type Answer = Pick<QuestionAnswer, 'questionId' | 'questionText' | 'answe
 
 // 말운동평가 녹음
 export type Recording = {
+    recordingId: number | null;
     filePath: string | null;
     repeatCount: number | null;
 };

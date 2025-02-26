@@ -17,25 +17,3 @@ input[type='radio']:checked + label.radioLabel rect {
 input[type='radio']:checked + label.radioLabel circle {
     @apply fill-accent1;
 }
-
-.circleProgressWrap {
-    position: relative;
-    width: 94px;
-    height: 94px;
-}
-.circleProgress {
-    transform: rotate(-90deg);
-    z-index: 10;
-    cursor: pointer;
-}
-.frame,
-.bar {
-    fill: none;
-}
-.frame {
-    stroke: #e6e6e6;
-}
-.bar {
-    stroke: #03c75a;
-    stroke-linecap: round;
-}

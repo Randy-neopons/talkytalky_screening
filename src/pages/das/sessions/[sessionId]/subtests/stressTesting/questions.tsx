@@ -72,7 +72,7 @@ export default function StressTestingQuestionsPage({ questionList }: { questionL
     const { data: qnaData } = useQuestionsAndAnswersQuery({
         sessionId: Number(router.query.sessionId),
         subtestId: CURRENT_SUBTEST_ID,
-        // partId,
+        partId,
         // start,
         // end,
         jwt: getCookie('jwt') || '',
@@ -119,14 +119,15 @@ export default function StressTestingQuestionsPage({ questionList }: { questionL
     const handleSubmitData = useCallback(
         async ({ sessionId, data }: { sessionId: number; data: any }) => {
             try {
-                const formData = new FormData();
-                formData.append('testTime', `${testTime}`);
-                formData.append('currentPartId', `${partId}`);
-                formData.append('answers', JSON.stringify(data.answers));
-
                 // 세션 갱신
                 const accessToken = getCookie('jwt') as string;
-                await updateSessionAPI({ sessionId, formData, jwt: accessToken });
+                await updateSessionAPI({
+                    sessionId,
+                    testTime,
+                    currentPartId: partId,
+                    answers: data.answers,
+                    jwt: accessToken,
+                });
             } catch (err) {
                 if (isAxiosError(err)) {
                     if (err.response?.status === 401) {

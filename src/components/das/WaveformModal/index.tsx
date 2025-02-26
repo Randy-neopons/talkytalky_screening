@@ -168,6 +168,14 @@ export default function WaveformModal({
         [],
     );
 
+    // 모달 종료 시 재생 중지
+    useEffect(() => {
+        if (!modalOpen && audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+        }
+    }, [modalOpen]);
+
     const [modalRoot, setModalRoot] = useState<Element | null>(null);
 
     useEffect(() => {
