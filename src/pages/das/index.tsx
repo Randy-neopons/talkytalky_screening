@@ -51,7 +51,7 @@ export default function Home() {
                             className='mt-auto flex items-center justify-center btn btn-small btn-outlined'
                             target='_blank'
                             rel='noopener noreferrer'
-                            href='https://storage.googleapis.com/multimodal-assets/others/DAS_paper.hwp'
+                            href='https://storage.googleapis.com/cdn.talkytalky-lab.com/assessment/assets/DAS_paper.pdf'
                         >
                             검사지 출력
                         </a>

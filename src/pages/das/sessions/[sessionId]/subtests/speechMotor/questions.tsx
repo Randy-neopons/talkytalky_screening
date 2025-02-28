@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import ReactTextareaAutosize from 'react-textarea-autosize';
+import { toast } from 'react-toastify';
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
@@ -20,10 +21,11 @@ import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
+import { CheckIcon, TrashIcon, UploadIcon } from '@/components/common/icons';
 import { LoadingOverlay } from '@/components/das/LoadingOverlay';
 import VolumeModal from '@/components/das/VolumeModal';
 import WaveformModal from '@/components/das/WaveformModal';
-import { useConductedSubtestsQuery, useQuestionsAndAnswersQuery } from '@/hooks/das';
+import { useConductedSubtestsQuery, useQuestionsAndAnswersQuery, useUpsertRecordingMutation } from '@/hooks/das';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
 
@@ -168,6 +170,79 @@ const PlayButton = ({
     );
 };
 
+const DeleteButton = ({ recordingId, partId, onSuccess }: { recordingId: number | null; partId: number; onSuccess: () => void }) => {
+    const router = useRouter();
+
+    const { mutateAsync } = useUpsertRecordingMutation({ onSuccess });
+
+    const handleClickDelete = useCallback(async () => {
+        try {
+            const sessionId = Number(router.query.sessionId);
+            const accessToken = getCookie('jwt') as string;
+            const result = await mutateAsync({ sessionId, recordingId, partId, audioBlob: null, jwt: accessToken });
+
+            onSuccess();
+        } catch (err) {
+            console.error(err);
+        }
+    }, [mutateAsync, onSuccess, partId, recordingId, router.query.sessionId]);
+
+    return (
+        <button type='button' className='m-auto flex' onClick={handleClickDelete}>
+            <TrashIcon color='#495057' />
+        </button>
+    );
+};
+
+const UploadButton = ({
+    recordingId,
+    partId,
+    onSuccess,
+}: {
+    recordingId: number | null;
+    partId: number;
+    onSuccess: (filePath: string) => void;
+}) => {
+    const router = useRouter();
+
+    const { mutateAsync } = useUpsertRecordingMutation({ onSuccess });
+
+    const handleClickUpload = useCallback(async () => {
+        try {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.mp3, .wav';
+            input.onchange = async (event: Event) => {
+                const target = event.target as HTMLInputElement;
+                if (target.files && target.files.length > 0) {
+                    const file = target.files[0];
+
+                    const sessionId = Number(router.query.sessionId);
+                    const accessToken = getCookie('jwt') as string;
+
+                    const result = await mutateAsync({ sessionId, recordingId, partId, audioBlob: file, jwt: accessToken });
+                    toast(
+                        <div className='flex items-center justify-center text-[0.875rem]'>
+                            <CheckIcon color='white' />
+                            업로드되었습니다.
+                        </div>,
+                    );
+                    onSuccess(result.filePath);
+                }
+            };
+            input.click();
+        } catch (err) {
+            console.error(err);
+        }
+    }, [mutateAsync, onSuccess, partId, recordingId, router.query.sessionId]);
+
+    return (
+        <button type='button' className='m-auto flex' onClick={handleClickUpload}>
+            <UploadIcon color='#495057' />
+        </button>
+    );
+};
+
 type FormValues = {
     recordings: Recording[];
     answers: Answer[];
@@ -207,12 +282,14 @@ export default function SpeechMotorQuestionsPage({
     const recordingId1 = useWatch({ control, name: 'recordings.0.recordingId' });
     const recordingId2 = useWatch({ control, name: 'recordings.1.recordingId' });
     const recordingId3 = useWatch({ control, name: 'recordings.2.recordingId' });
-    const recordingId4 = useWatch({ control, name: 'recordings.3.recordingId' });
 
     const audioUrl1 = useWatch({ control, name: 'recordings.0.filePath' });
     const audioUrl2 = useWatch({ control, name: 'recordings.1.filePath' });
     const audioUrl3 = useWatch({ control, name: 'recordings.2.filePath' });
-    const audioUrl4 = useWatch({ control, name: 'recordings.3.filePath' });
+
+    const [uploaded1, setUploaded1] = useState(false);
+    const [uploaded2, setUploaded2] = useState(false);
+    const [uploaded3, setUploaded3] = useState(false);
 
     const { data: qnaData, refetch } = useQuestionsAndAnswersQuery({
         sessionId: Number(router.query.sessionId),
@@ -374,155 +451,252 @@ export default function SpeechMotorQuestionsPage({
                     <h3 className='whitespace-pre-line text-center font-jalnan text-head-3'>{partTitleKo}</h3>
 
                     {partId === PART_ID_START ? (
-                        <table className={subtestStyles.recordingTable}>
-                            <thead data-title='AMR 측정' data-caption='*반복횟수란 1초당 각 음절을 반복한 횟수를 의미함'>
-                                <tr>
-                                    <th>AMR 측정 (5초)</th>
-                                    <th></th>
-                                    <th>녹음</th>
-                                    <th>재생</th>
-                                    {/* <th>파형</th> */}
-                                    <th className='rounded-tr-base'>반복횟수</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td rowSpan={3} className='rounded-bl-base text-center'>
-                                        숨을 크게 들어 마신 뒤, &apos;파&apos; 를 가능한 빨리
-                                        <br /> 규칙적으로 반복해서 말해보세요. <br />
-                                        (&apos;타&apos; 와 &apos;카&apos; 도 동일하게 시행)
-                                    </td>
-                                    <td className={subtestStyles.button}>파</td>
-                                    <td className={subtestStyles.button}>
-                                        <RecordButton
-                                            recordingId={recordingId1}
-                                            partId={partId}
-                                            modalTitle='AMR 측정 (파)'
-                                            modalContent="'파'를 가능한 빨리 규칙적으로 반복해서 말해보세요."
-                                            onSuccess={(filePath: string) => {
-                                                setValue('recordings.0.filePath', filePath);
-                                            }}
-                                        />
-                                    </td>
-                                    <td className={subtestStyles.button}>
-                                        <PlayButton audioUrl={audioUrl1} setRepeatCount={setRepeatCount(0)} disabled={!audioUrl1} />
-                                    </td>
-                                    <td className={subtestStyles.repeatCount}>
-                                        <input
-                                            type='number'
-                                            className='text-center outline-none'
-                                            autoComplete='off'
-                                            onKeyDown={handleKeyDown}
-                                            {...register(`recordings.0.repeatCount`)}
-                                        />
-                                        회
-                                    </td>
-                                </tr>
-                                <tr className={subtestStyles.repeatCount}>
-                                    <td className={subtestStyles.button}>타</td>
-                                    <td className={subtestStyles.button}>
-                                        <RecordButton
-                                            recordingId={recordingId2}
-                                            partId={partId}
-                                            modalTitle='AMR 측정 (타)'
-                                            modalContent="'타'를 가능한 빨리 규칙적으로 반복해서 말해보세요."
-                                            onSuccess={(filePath: string) => {
-                                                setValue('recordings.1.filePath', filePath);
-                                            }}
-                                        />
-                                    </td>
-                                    <td className={subtestStyles.button}>
-                                        <PlayButton audioUrl={audioUrl2} setRepeatCount={setRepeatCount(1)} disabled={!audioUrl2} />
-                                    </td>
-                                    <td className={subtestStyles.repeatCount}>
-                                        <input
-                                            type='number'
-                                            className='text-center outline-none'
-                                            autoComplete='off'
-                                            onKeyDown={handleKeyDown}
-                                            {...register(`recordings.1.repeatCount`)}
-                                        />
-                                        회
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td className={subtestStyles.button}>카</td>
-                                    <td className={subtestStyles.button}>
-                                        <RecordButton
-                                            recordingId={recordingId3}
-                                            partId={partId}
-                                            modalTitle='AMR 측정 (카)'
-                                            modalContent="'카'를 가능한 빨리 규칙적으로 반복해서 말해보세요."
-                                            onSuccess={(filePath: string) => {
-                                                setValue('recordings.2.filePath', filePath);
-                                            }}
-                                        />
-                                    </td>
-                                    <td className={subtestStyles.button}>
-                                        <PlayButton audioUrl={audioUrl3} setRepeatCount={setRepeatCount(2)} disabled={!audioUrl3} />
-                                    </td>
-                                    <td className={subtestStyles.repeatCount}>
-                                        <input
-                                            type='number'
-                                            className='text-center outline-none'
-                                            autoComplete='off'
-                                            onKeyDown={handleKeyDown}
-                                            {...register(`recordings.2.repeatCount`)}
-                                        />
-                                        회
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <>
+                            <table className={subtestStyles.recordingTable}>
+                                <thead>
+                                    <tr className={subtestStyles.subtitle}>
+                                        <th colSpan={6}>AMR 측정 (5초)</th>
+                                    </tr>
+                                    <tr className={subtestStyles.option}>
+                                        <th>안내</th>
+                                        <th></th>
+                                        <th>녹음</th>
+                                        <th>재생</th>
+                                        {/* <th>파형</th> */}
+                                        <th>반복횟수</th>
+                                        <th>가져오기</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td rowSpan={3} className='rounded-bl-base text-center'>
+                                            숨을 크게 들어 마신 뒤, &apos;파&apos; 를 가능한 빨리
+                                            <br /> 규칙적으로 반복해서 말해보세요. <br />
+                                            (&apos;타&apos; 와 &apos;카&apos; 도 동일하게 시행)
+                                        </td>
+                                        <td className={subtestStyles.button}>파</td>
+                                        <td className={subtestStyles.button}>
+                                            <RecordButton
+                                                recordingId={recordingId1}
+                                                partId={partId}
+                                                modalTitle='AMR 측정 (파)'
+                                                modalContent="'파'를 가능한 빨리 규칙적으로 반복해서 말해보세요."
+                                                onSuccess={(filePath: string) => {
+                                                    setValue('recordings.0.filePath', filePath);
+                                                }}
+                                            />
+                                        </td>
+                                        <td className={subtestStyles.button}>
+                                            <PlayButton audioUrl={audioUrl1} setRepeatCount={setRepeatCount(0)} disabled={!audioUrl1} />
+                                        </td>
+                                        <td className={subtestStyles.repeatCount}>
+                                            <input
+                                                type='number'
+                                                className='text-center outline-none'
+                                                autoComplete='off'
+                                                onKeyDown={handleKeyDown}
+                                                {...register(`recordings.0.repeatCount`)}
+                                            />
+                                            회
+                                        </td>
+                                        <td>
+                                            {uploaded1 ? (
+                                                <DeleteButton
+                                                    recordingId={recordingId1}
+                                                    partId={partId}
+                                                    onSuccess={() => {
+                                                        setValue('recordings.0.filePath', '');
+                                                        setUploaded1(false);
+                                                    }}
+                                                />
+                                            ) : (
+                                                <UploadButton
+                                                    recordingId={recordingId1}
+                                                    partId={partId}
+                                                    onSuccess={(filePath: string) => {
+                                                        setValue('recordings.0.filePath', filePath);
+                                                        setUploaded1(true);
+                                                    }}
+                                                />
+                                            )}
+                                        </td>
+                                    </tr>
+                                    <tr className={subtestStyles.repeatCount}>
+                                        <td className={subtestStyles.button}>타</td>
+                                        <td className={subtestStyles.button}>
+                                            <RecordButton
+                                                recordingId={recordingId2}
+                                                partId={partId}
+                                                modalTitle='AMR 측정 (타)'
+                                                modalContent="'타'를 가능한 빨리 규칙적으로 반복해서 말해보세요."
+                                                onSuccess={(filePath: string) => {
+                                                    setValue('recordings.1.filePath', filePath);
+                                                }}
+                                            />
+                                        </td>
+                                        <td className={subtestStyles.button}>
+                                            <PlayButton audioUrl={audioUrl2} setRepeatCount={setRepeatCount(1)} disabled={!audioUrl2} />
+                                        </td>
+                                        <td className={subtestStyles.repeatCount}>
+                                            <input
+                                                type='number'
+                                                className='text-center outline-none'
+                                                autoComplete='off'
+                                                onKeyDown={handleKeyDown}
+                                                {...register(`recordings.1.repeatCount`)}
+                                            />
+                                            회
+                                        </td>
+                                        <td>
+                                            {uploaded2 ? (
+                                                <DeleteButton
+                                                    recordingId={recordingId2}
+                                                    partId={partId}
+                                                    onSuccess={() => {
+                                                        setValue('recordings.1.filePath', '');
+                                                        setUploaded2(false);
+                                                    }}
+                                                />
+                                            ) : (
+                                                <UploadButton
+                                                    recordingId={recordingId2}
+                                                    partId={partId}
+                                                    onSuccess={(filePath: string) => {
+                                                        setValue('recordings.1.filePath', filePath);
+                                                        setUploaded2(true);
+                                                    }}
+                                                />
+                                            )}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td className={subtestStyles.button}>카</td>
+                                        <td className={subtestStyles.button}>
+                                            <RecordButton
+                                                recordingId={recordingId3}
+                                                partId={partId}
+                                                modalTitle='AMR 측정 (카)'
+                                                modalContent="'카'를 가능한 빨리 규칙적으로 반복해서 말해보세요."
+                                                onSuccess={(filePath: string) => {
+                                                    setValue('recordings.2.filePath', filePath);
+                                                }}
+                                            />
+                                        </td>
+                                        <td className={subtestStyles.button}>
+                                            <PlayButton audioUrl={audioUrl3} setRepeatCount={setRepeatCount(2)} disabled={!audioUrl3} />
+                                        </td>
+                                        <td className={subtestStyles.repeatCount}>
+                                            <input
+                                                type='number'
+                                                className='text-center outline-none'
+                                                autoComplete='off'
+                                                onKeyDown={handleKeyDown}
+                                                {...register(`recordings.2.repeatCount`)}
+                                            />
+                                            회
+                                        </td>
+                                        <td>
+                                            {uploaded3 ? (
+                                                <DeleteButton
+                                                    recordingId={recordingId3}
+                                                    partId={partId}
+                                                    onSuccess={() => {
+                                                        setValue('recordings.2.filePath', '');
+                                                        setUploaded3(false);
+                                                    }}
+                                                />
+                                            ) : (
+                                                <UploadButton
+                                                    recordingId={recordingId3}
+                                                    partId={partId}
+                                                    onSuccess={(filePath: string) => {
+                                                        setValue('recordings.2.filePath', filePath);
+                                                        setUploaded3(true);
+                                                    }}
+                                                />
+                                            )}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p className='w-full text-right text-neutral4 text-body-2'>*반복횟수란 1초당 각 음절을 반복한 횟수를 의미함</p>
+                        </>
                     ) : (
-                        <table className={subtestStyles.recordingTable}>
-                            <thead
-                                data-title='SMR 측정'
-                                data-caption={`*반복횟수란 1초당 각 음절을 반복한 횟수를 의미함('파타카'모두를 반복한 횟수가 아님)`}
-                            >
-                                <tr>
-                                    <th>SMR 측정 (5초)</th>
-                                    <th></th>
-                                    <th>녹음</th>
-                                    <th>재생</th>
-                                    {/* <th>파형</th> */}
-                                    <th className='rounded-tr-base'>반복횟수</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td align='center' className='rounded-bl-base'>
-                                        &apos;파-타-카&apos;를 가능한 한 빨리, 규칙적으로 <br />
-                                        반복해서 말해보세요.
-                                    </td>
-                                    <td className={subtestStyles.button}>파타카</td>
-                                    <td className={subtestStyles.button}>
-                                        <RecordButton
-                                            recordingId={recordingId1}
-                                            partId={partId}
-                                            modalTitle='SMR 측정 (파-타-카)'
-                                            modalContent="'파-타-카'를 가능한 빨리 규칙적으로 반복해서 말해보세요."
-                                            onSuccess={(filePath: string) => {
-                                                setValue('recordings.0.filePath', filePath);
-                                            }}
-                                        />
-                                    </td>
-                                    <td className={subtestStyles.button}>
-                                        <PlayButton audioUrl={audioUrl1} setRepeatCount={setRepeatCount(0)} disabled={!audioUrl1} />
-                                    </td>
-                                    <td className={subtestStyles.repeatCount}>
-                                        <input
-                                            type='number'
-                                            className='w-full text-center outline-none'
-                                            autoComplete='off'
-                                            onKeyDown={handleKeyDown}
-                                            {...register(`recordings.0.repeatCount`)}
-                                        />
-                                        회
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <>
+                            <table className={subtestStyles.recordingTable}>
+                                <thead>
+                                    <tr className={subtestStyles.subtitle}>
+                                        <th colSpan={6}>SMR 측정 (5초)</th>
+                                    </tr>
+                                    <tr className={subtestStyles.option}>
+                                        <th>안내</th>
+                                        <th></th>
+                                        <th>녹음</th>
+                                        <th>재생</th>
+                                        {/* <th>파형</th> */}
+                                        <th>반복횟수</th>
+                                        <th>가져오기</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td align='center' className='rounded-bl-base'>
+                                            &apos;파-타-카&apos;를 가능한 한 빨리, 규칙적으로 <br />
+                                            반복해서 말해보세요.
+                                        </td>
+                                        <td className={subtestStyles.button}>파타카</td>
+                                        <td className={subtestStyles.button}>
+                                            <RecordButton
+                                                recordingId={recordingId1}
+                                                partId={partId}
+                                                modalTitle='SMR 측정 (파-타-카)'
+                                                modalContent="'파-타-카'를 가능한 빨리 규칙적으로 반복해서 말해보세요."
+                                                onSuccess={(filePath: string) => {
+                                                    setValue('recordings.0.filePath', filePath);
+                                                }}
+                                            />
+                                        </td>
+                                        <td className={subtestStyles.button}>
+                                            <PlayButton audioUrl={audioUrl1} setRepeatCount={setRepeatCount(0)} disabled={!audioUrl1} />
+                                        </td>
+                                        <td className={subtestStyles.repeatCount}>
+                                            <input
+                                                type='number'
+                                                className='w-full text-center outline-none'
+                                                autoComplete='off'
+                                                onKeyDown={handleKeyDown}
+                                                {...register(`recordings.0.repeatCount`)}
+                                            />
+                                            회
+                                        </td>
+                                        <td>
+                                            {uploaded1 ? (
+                                                <DeleteButton
+                                                    recordingId={recordingId1}
+                                                    partId={partId}
+                                                    onSuccess={() => {
+                                                        setValue('recordings.0.filePath', '');
+                                                        setUploaded1(false);
+                                                    }}
+                                                />
+                                            ) : (
+                                                <UploadButton
+                                                    recordingId={recordingId1}
+                                                    partId={partId}
+                                                    onSuccess={(filePath: string) => {
+                                                        setValue('recordings.0.filePath', filePath);
+                                                        setUploaded1(true);
+                                                    }}
+                                                />
+                                            )}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p className='w-full text-right text-neutral4 text-body-2'>
+                                *반복횟수란 1초당 각 음절을 반복한 횟수를 의미함(&apos;파타카&apos;모두를 반복한 횟수가 아님)
+                            </p>
+                        </>
                     )}
 
                     <div>

@@ -193,3 +193,28 @@ export const CheckIcon = ({ color = '#6979F8', width = 24, height = 24 }: IconPr
         </svg>
     );
 };
+
+export const UploadIcon = ({ color = '#212529', width = 24, height = 24 }: IconProps) => {
+    return (
+        <svg xmlns='http://www.w3.org/2000/svg' width={width} height={height} viewBox='0 0 24 24' fill='none'>
+            <rect x='4' y='18' width='15' height='2' rx='0.5' fill={color} />
+            <rect x='5' y='13' width='7' height='2' rx='0.5' transform='rotate(90 5 13)' fill={color} />
+            <rect x='20' y='13' width='7' height='2' rx='0.5' transform='rotate(90 20 13)' fill={color} />
+            <rect x='10' y='8' width='3' height='8' rx='0.5' fill={color} />
+            <path
+                d='M10.674 5.21062C11.071 4.62878 11.929 4.62878 12.326 5.21062L16.0623 10.6864C16.5152 11.3502 16.0398 12.25 15.2362 12.25H7.76376C6.96019 12.25 6.48482 11.3502 6.93773 10.6864L10.674 5.21062Z'
+                fill={color}
+            />
+        </svg>
+    );
+};
+
+export const TrashIcon = ({ color = '#212529', width = 24, height = 24 }: IconProps) => {
+    return (
+        <svg xmlns='http://www.w3.org/2000/svg' width={width} height={height} viewBox='0 0 24 24' fill='none'>
+            <rect x='6' y='5' width='12' height='2' rx='0.5' fill={color} />
+            <rect x='9' y='4' width='6' height='2' rx='0.5' fill={color} />
+            <path d='M7 8H17V19C17 19.5523 16.5523 20 16 20H8C7.44772 20 7 19.5523 7 19V8Z' fill={color} />
+        </svg>
+    );
+};

@@ -147,15 +147,14 @@ export async function upsertRecordingAPI({
     jwt,
 }: {
     sessionId: number;
-    audioBlob: Blob;
+    audioBlob: Blob | null;
     recordingId?: number | null;
     partId: number;
     jwt: string;
 }) {
     const formData = new FormData();
-    formData.append('audio', audioBlob);
+    formData.append('audio', audioBlob || 'null');
     recordingId && formData.append('recordingId', String(recordingId));
-    console.log('recordingId', recordingId);
     formData.append('partId', String(partId));
 
     const response = await axiosInstance.post<{ result: boolean; recordingId: Number; filePath: string }>(

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ChangeEventHandler, type KeyboardEventHandler } from 'react';
 import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import ReactTextareaAutosize from 'react-textarea-autosize';
+import { toast } from 'react-toastify';
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
@@ -12,9 +13,10 @@ import { useTestTime, useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import CheckBox from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
+import { CheckIcon, TrashIcon, UploadIcon } from '@/components/common/icons';
 import VolumeModal from '@/components/das/VolumeModal';
 import WaveformModal from '@/components/das/WaveformModal';
-import { useConductedSubtestsQuery, useQuestionsAndAnswersQuery } from '@/hooks/das';
+import { useConductedSubtestsQuery, useQuestionsAndAnswersQuery, useUpsertRecordingMutation } from '@/hooks/das';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
 
@@ -201,6 +203,79 @@ const PlayButton = ({
     );
 };
 
+const DeleteButton = ({ recordingId, partId, onSuccess }: { recordingId: number | null; partId: number; onSuccess: () => void }) => {
+    const router = useRouter();
+
+    const { mutateAsync } = useUpsertRecordingMutation({ onSuccess });
+
+    const handleClickDelete = useCallback(async () => {
+        try {
+            const sessionId = Number(router.query.sessionId);
+            const accessToken = getCookie('jwt') as string;
+            const result = await mutateAsync({ sessionId, recordingId, partId, audioBlob: null, jwt: accessToken });
+
+            onSuccess();
+        } catch (err) {
+            console.error(err);
+        }
+    }, [mutateAsync, onSuccess, partId, recordingId, router.query.sessionId]);
+
+    return (
+        <button type='button' className='m-auto flex' onClick={handleClickDelete}>
+            <TrashIcon color='#495057' />
+        </button>
+    );
+};
+
+const UploadButton = ({
+    recordingId,
+    partId,
+    onSuccess,
+}: {
+    recordingId: number | null;
+    partId: number;
+    onSuccess: (filePath: string) => void;
+}) => {
+    const router = useRouter();
+
+    const { mutateAsync } = useUpsertRecordingMutation({ onSuccess });
+
+    const handleClickUpload = useCallback(async () => {
+        try {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.mp3, .wav';
+            input.onchange = async (event: Event) => {
+                const target = event.target as HTMLInputElement;
+                if (target.files && target.files.length > 0) {
+                    const file = target.files[0];
+
+                    const sessionId = Number(router.query.sessionId);
+                    const accessToken = getCookie('jwt') as string;
+
+                    const result = await mutateAsync({ sessionId, recordingId, partId, audioBlob: file, jwt: accessToken });
+                    toast(
+                        <div className='flex items-center justify-center text-[0.875rem]'>
+                            <CheckIcon color='white' />
+                            업로드되었습니다.
+                        </div>,
+                    );
+                    onSuccess(result.filePath);
+                }
+            };
+            input.click();
+        } catch (err) {
+            console.error(err);
+        }
+    }, [mutateAsync, onSuccess, partId, recordingId, router.query.sessionId]);
+
+    return (
+        <button type='button' className='m-auto flex' onClick={handleClickUpload}>
+            <UploadIcon color='#495057' />
+        </button>
+    );
+};
+
 // SPEECH I 문항 페이지
 export default function SpeechOneQuestionsPage({
     questionList,
@@ -212,38 +287,6 @@ export default function SpeechOneQuestionsPage({
     currentPartId: number | null;
 }) {
     const router = useRouter();
-
-    // MPT 측정 녹음
-    // const {
-    //     isRecording: isRecording1,
-    //     isPlaying: isPlaying1,
-    //     audioUrl: audioUrl1,
-    //     audioBlob: audioBlob1,
-    //     handleStartRecording: handleStartRecording1,
-    //     handleStopRecording: handleStopRecording1,
-    //     handlePlay: handlePlay1,
-    //     handlePause: handlePause1,
-    // } = useAudioRecorder(recordingList[0]?.filePath);
-    // const {
-    //     isRecording: isRecording2,
-    //     isPlaying: isPlaying2,
-    //     audioUrl: audioUrl2,
-    //     audioBlob: audioBlob2,
-    //     handleStartRecording: handleStartRecording2,
-    //     handleStopRecording: handleStopRecording2,
-    //     handlePlay: handlePlay2,
-    //     handlePause: handlePause2,
-    // } = useAudioRecorder(recordingList[1]?.filePath);
-    // const {
-    //     isRecording: isRecording3,
-    //     isPlaying: isPlaying3,
-    //     audioUrl: audioUrl3,
-    //     audioBlob: audioBlob3,
-    //     handleStartRecording: handleStartRecording3,
-    //     handleStopRecording: handleStopRecording3,
-    //     handlePlay: handlePlay3,
-    //     handlePause: handlePause3,
-    // } = useAudioRecorder(recordingList[2]?.filePath);
 
     // 현재 소검사, 선택한 소검사 정보
     const { data: subtestsData } = useConductedSubtestsQuery({ sessionId: Number(router.query.sessionId), jwt: getCookie('jwt') || '' });
@@ -292,12 +335,10 @@ export default function SpeechOneQuestionsPage({
     const recordingId1 = useWatch({ control, name: 'recordings.0.recordingId' });
     const recordingId2 = useWatch({ control, name: 'recordings.1.recordingId' });
     const recordingId3 = useWatch({ control, name: 'recordings.2.recordingId' });
-    const recordingId4 = useWatch({ control, name: 'recordings.3.recordingId' });
 
     const audioUrl1 = useWatch({ control, name: 'recordings.0.filePath' });
     const audioUrl2 = useWatch({ control, name: 'recordings.1.filePath' });
     const audioUrl3 = useWatch({ control, name: 'recordings.2.filePath' });
-    const audioUrl4 = useWatch({ control, name: 'recordings.3.filePath' });
 
     // 모두 정상 체크
     const handleChangeCheckAll1 = useCallback<ChangeEventHandler<HTMLInputElement>>(
@@ -455,6 +496,10 @@ export default function SpeechOneQuestionsPage({
         [handleSubmitData, page, partId, router, subtestsData?.subtests],
     );
 
+    const [uploaded1, setUploaded1] = useState(false);
+    const [uploaded2, setUploaded2] = useState(false);
+    const [uploaded3, setUploaded3] = useState(false);
+
     useEffect(() => {
         setTestStart(true);
     }, [setTestStart]);
@@ -495,20 +540,24 @@ export default function SpeechOneQuestionsPage({
 
     return (
         <Container>
-            <form onSubmit={handleSubmit(handleClickNext)} className={`${subtestStyles.subtestForm}`}>
+            <form onSubmit={handleSubmit(handleClickNext)} className={subtestStyles.subtestForm}>
                 <input type='hidden' />
                 <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>{partTitleEn}</h1>
                 <h2 className='whitespace-pre-line text-center font-jalnan text-head-2'>{partTitle}</h2>
 
                 {partId === PART_ID_START && (
-                    <table className={`${subtestStyles.recordingTable}`}>
-                        <thead data-title='MPT 측정'>
-                            <tr>
-                                <th>MPT 측정</th>
+                    <table className={subtestStyles.recordingTable}>
+                        <thead>
+                            <tr className={subtestStyles.subtitle}>
+                                <th colSpan={6}>MPT 측정</th>
+                            </tr>
+                            <tr className={subtestStyles.option}>
+                                <th>안내</th>
                                 <th></th>
                                 <th>녹음</th>
                                 <th>재생</th>
-                                <th className='rounded-tr-base'>지속시간</th>
+                                <th>지속시간</th>
+                                <th>가져오기</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -518,8 +567,8 @@ export default function SpeechOneQuestionsPage({
                                     <br />
                                     편안하게 ‘아~’ 소리를 내보세요.
                                 </td>
-                                <td className={`${subtestStyles.button}`}>1차</td>
-                                <td className={`${subtestStyles.button}`}>
+                                <td className={subtestStyles.button}>1차</td>
+                                <td className={subtestStyles.button}>
                                     <RecordButton
                                         recordingId={recordingId1}
                                         partId={partId}
@@ -527,13 +576,14 @@ export default function SpeechOneQuestionsPage({
                                         modalContent='숨을 크게 들어 마신 뒤, 쉬지 말고 최대한 길게 편안하게 ‘아~’ 소리를 내보세요.'
                                         onSuccess={(filePath: string) => {
                                             setValue('recordings.0.filePath', filePath);
+                                            setUploaded1(false);
                                         }}
                                     />
                                 </td>
-                                <td className={`${subtestStyles.button}`}>
+                                <td className={subtestStyles.button}>
                                     <PlayButton audioUrl={audioUrl1} setMPT={setRepeatCount(0)} />
                                 </td>
-                                <td className={`${subtestStyles.repeatCount}`}>
+                                <td className={subtestStyles.repeatCount}>
                                     <input
                                         type='number'
                                         className='outline-none'
@@ -543,10 +593,31 @@ export default function SpeechOneQuestionsPage({
                                     />
                                     초
                                 </td>
+                                <td>
+                                    {uploaded1 ? (
+                                        <DeleteButton
+                                            recordingId={recordingId1}
+                                            partId={partId}
+                                            onSuccess={() => {
+                                                setValue('recordings.0.filePath', '');
+                                                setUploaded1(false);
+                                            }}
+                                        />
+                                    ) : (
+                                        <UploadButton
+                                            recordingId={recordingId1}
+                                            partId={partId}
+                                            onSuccess={(filePath: string) => {
+                                                setValue('recordings.0.filePath', filePath);
+                                                setUploaded1(true);
+                                            }}
+                                        />
+                                    )}
+                                </td>
                             </tr>
                             <tr>
-                                <td className={`${subtestStyles.button}`}>2차</td>
-                                <td className={`${subtestStyles.button}`}>
+                                <td className={subtestStyles.button}>2차</td>
+                                <td className={subtestStyles.button}>
                                     <RecordButton
                                         recordingId={recordingId2}
                                         partId={partId}
@@ -554,13 +625,14 @@ export default function SpeechOneQuestionsPage({
                                         modalContent='숨을 크게 들어 마신 뒤, 쉬지 말고 최대한 길게 편안하게 ‘아~’ 소리를 내보세요.'
                                         onSuccess={(filePath: string) => {
                                             setValue('recordings.1.filePath', filePath);
+                                            setUploaded2(false);
                                         }}
                                     />
                                 </td>
-                                <td className={`${subtestStyles.button}`}>
+                                <td className={subtestStyles.button}>
                                     <PlayButton audioUrl={audioUrl2} setMPT={setRepeatCount(1)} />
                                 </td>
-                                <td className={`${subtestStyles.repeatCount}`}>
+                                <td className={subtestStyles.repeatCount}>
                                     <input
                                         type='number'
                                         className='outline-none'
@@ -570,10 +642,31 @@ export default function SpeechOneQuestionsPage({
                                     />
                                     초
                                 </td>
+                                <td>
+                                    {uploaded2 ? (
+                                        <DeleteButton
+                                            recordingId={recordingId2}
+                                            partId={partId}
+                                            onSuccess={() => {
+                                                setValue('recordings.1.filePath', '');
+                                                setUploaded2(false);
+                                            }}
+                                        />
+                                    ) : (
+                                        <UploadButton
+                                            recordingId={recordingId2}
+                                            partId={partId}
+                                            onSuccess={(filePath: string) => {
+                                                setValue('recordings.1.filePath', filePath);
+                                                setUploaded2(true);
+                                            }}
+                                        />
+                                    )}
+                                </td>
                             </tr>
                             <tr>
-                                <td className={`${subtestStyles.button}`}>3차</td>
-                                <td className={`${subtestStyles.button}`}>
+                                <td className={subtestStyles.button}>3차</td>
+                                <td className={subtestStyles.button}>
                                     <RecordButton
                                         recordingId={recordingId3}
                                         partId={partId}
@@ -581,13 +674,14 @@ export default function SpeechOneQuestionsPage({
                                         modalContent='숨을 크게 들어 마신 뒤, 쉬지 말고 최대한 길게 편안하게 ‘아~’ 소리를 내보세요.'
                                         onSuccess={(filePath: string) => {
                                             setValue('recordings.2.filePath', filePath);
+                                            setUploaded3(false);
                                         }}
                                     />
                                 </td>
-                                <td className={`${subtestStyles.button}`}>
+                                <td className={subtestStyles.button}>
                                     <PlayButton audioUrl={audioUrl3} setMPT={setRepeatCount(2)} />
                                 </td>
-                                <td className={`${subtestStyles.repeatCount}`}>
+                                <td className={subtestStyles.repeatCount}>
                                     <input
                                         type='number'
                                         className='outline-none'
@@ -596,6 +690,27 @@ export default function SpeechOneQuestionsPage({
                                         {...register(`recordings.2.repeatCount`)}
                                     />
                                     초
+                                </td>
+                                <td>
+                                    {uploaded3 ? (
+                                        <DeleteButton
+                                            recordingId={recordingId3}
+                                            partId={partId}
+                                            onSuccess={() => {
+                                                setValue('recordings.2.filePath', '');
+                                                setUploaded3(false);
+                                            }}
+                                        />
+                                    ) : (
+                                        <UploadButton
+                                            recordingId={recordingId3}
+                                            partId={partId}
+                                            onSuccess={(filePath: string) => {
+                                                setValue('recordings.2.filePath', filePath);
+                                                setUploaded3(true);
+                                            }}
+                                        />
+                                    )}
                                 </td>
                             </tr>
                         </tbody>
@@ -606,14 +721,13 @@ export default function SpeechOneQuestionsPage({
                         <table className={subtestStyles.questionTable}>
                             <thead>
                                 <tr className={subtestStyles.yesNo}>
-                                    <th colSpan={2}></th>
+                                    <th colSpan={2}>{subtitle1}</th>
                                     <th>예</th>
                                     <th colSpan={2}>아니오</th>
                                     <th>기타</th>
                                 </tr>
                                 <tr className={subtestStyles.option}>
-                                    <th></th>
-                                    <th>{subtitle1}</th>
+                                    <th colSpan={2}>질문</th>
                                     <th>정상</th>
                                     <th>경도</th>
                                     <th>심도</th>

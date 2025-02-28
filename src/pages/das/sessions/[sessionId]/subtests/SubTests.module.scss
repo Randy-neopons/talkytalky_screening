@@ -40,25 +40,37 @@ svg.tooltipArrow {
 
 .recordingTable thead {
     @apply relative;
+
+    tr.subtitle {
+        @apply bg-accent1 text-neutral11 text-body-2;
+
+        & > th:first-child {
+            @apply rounded-tl-base;
+        }
+
+        & > th:last-child {
+            @apply rounded-tr-base;
+        }
+    }
+
+    tr.option {
+        @apply bg-accent3 text-neutral3 text-body-2;
+    }
+
+    tr th {
+        @apply text-nowrap px-1 py-3;
+    }
 }
 
-.recordingTable thead::before {
-    @apply absolute -top-full inline-flex h-12 w-40 items-center justify-center rounded-t-2xl bg-accent1 font-bold text-white text-body-2;
-    content: attr(data-title);
-}
+// .recordingTable thead::before {
+//     @apply absolute -top-full inline-flex h-12 w-40 items-center justify-center rounded-t-2xl bg-accent1 font-bold text-white text-body-2;
+//     content: attr(data-title);
+// }
 
-.recordingTable thead::after {
-    @apply absolute -top-5 right-2.5 -translate-y-full text-neutral4 text-body-2;
-    content: attr(data-caption);
-}
-
-.recordingTable thead tr {
-    @apply bg-accent3 text-neutral3 text-body-2;
-}
-
-.recordingTable thead tr th {
-    @apply text-nowrap px-1 py-3;
-}
+// .recordingTable thead::after {
+//     @apply absolute -top-5 right-2.5 -translate-y-full text-neutral4 text-body-2;
+//     content: attr(data-caption);
+// }
 
 .recordingTable tbody td {
     @apply border border-solid border-neutral6 bg-white py-2.5 text-body-1;
