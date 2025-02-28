@@ -148,7 +148,7 @@ export async function upsertRecordingAPI({
 }: {
     sessionId: number;
     audioBlob: Blob;
-    recordingId?: number;
+    recordingId?: number | null;
     partId: number;
     jwt: string;
 }) {

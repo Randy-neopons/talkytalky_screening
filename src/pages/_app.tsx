@@ -1,6 +1,5 @@
 import '@/styles/globals.css';
 import { useEffect, useState } from 'react';
-import { ToastContainer } from 'react-toastify';
 import type { AppProps } from 'next/app';
 import { useRouter } from 'next/router';
 
@@ -61,31 +60,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
         <QueryClientProvider client={queryClient}>
             <HydrationBoundary state={pageProps.dehydratedState}>
                 <ModalProvider>{getLayout(<Component {...pageProps} />)}</ModalProvider>
-                <ToastContainer
-                    position='top-center' // 알람 위치 지정
-                    autoClose={2000} // 자동 off 시간
-                    closeButton={false}
-                    hideProgressBar // 진행시간바 숨김
-                    closeOnClick // 클릭으로 알람 닫기
-                    rtl={false} // 알림 좌우 반전
-                    pauseOnFocusLoss // 화면을 벗어나면 알람 정지
-                    pauseOnHover // 마우스를 올리면 알람 정지
-                    theme='dark'
-                    toastStyle={{
-                        padding: '10px',
-                        borderRadius: '6px',
-                        backgroundColor: '#212429',
-                        width: 'fit-content',
-                        minHeight: 'fit-content',
-                    }}
-                    // bodyStyle={{ padding: 0, margin: 0 }}
-                    style={{
-                        width: 'fit-content',
-                        height: 'fit-content',
-                        padding: 0,
-                        margin: 0,
-                    }}
-                />
             </HydrationBoundary>
             <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>

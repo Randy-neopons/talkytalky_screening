@@ -1,10 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEventHandler, type ReactNode } from 'react';
-import { toast } from 'react-toastify';
 
-import { getCookie } from 'cookies-next';
-
-import { CheckIcon, MikeIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/common/icons';
-import { upsertRecordingAPI } from '@/api/das';
+import { MikeIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/common/icons';
 
 import styles from './Buttons.module.scss';
 

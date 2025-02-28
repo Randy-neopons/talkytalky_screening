@@ -10,7 +10,7 @@ import {
     type ChangeEventHandler,
 } from 'react';
 import { createPortal } from 'react-dom';
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import { useRouter } from 'next/router';
 
 import WavesurferPlayer, { useWavesurfer } from '@wavesurfer/react';
@@ -156,7 +156,7 @@ export default function VolumeModal({
     title: string;
     content: string;
 
-    recordingId?: number;
+    recordingId?: number | null;
     partId: number;
     filePath?: string;
     modalOpen: boolean;
@@ -182,16 +182,20 @@ export default function VolumeModal({
     const [step, setStep] = useState<'ready' | 'recording' | 'complete'>('ready');
     const { mutateAsync } = useUpsertRecordingMutation({ onSuccess });
 
+    // 녹음 완료되면 저장
     useEffect(() => {
         if (audioBlob) {
             const sessionId = Number(router.query.sessionId);
             const accessToken = getCookie('jwt') as string;
             mutateAsync({ sessionId, audioBlob, recordingId, partId, jwt: accessToken }).then(res => {
                 toast(
-                    <div className='flex items-center justify-center text-body-2'>
+                    <div className='flex items-center justify-center text-[0.875rem]'>
                         <CheckIcon color='white' />
                         자동저장되었습니다.
                     </div>,
+                    {
+                        containerId: 'recording-container',
+                    },
                 );
 
                 setStep('complete');
@@ -282,6 +286,32 @@ export default function VolumeModal({
                         handleStop={handleStopRecording}
                     />
                 </div>
+                <ToastContainer
+                    containerId='recording-container'
+                    position='top-center' // 알람 위치 지정
+                    autoClose={2000} // 자동 off 시간
+                    closeButton={false}
+                    hideProgressBar // 진행시간바 숨김
+                    closeOnClick // 클릭으로 알람 닫기
+                    rtl={false} // 알림 좌우 반전
+                    pauseOnFocusLoss // 화면을 벗어나면 알람 정지
+                    pauseOnHover // 마우스를 올리면 알람 정지
+                    theme='dark'
+                    toastStyle={{
+                        padding: '10px',
+                        borderRadius: '6px',
+                        backgroundColor: '#212429',
+                        width: 'fit-content',
+                        minHeight: 'fit-content',
+                    }}
+                    // bodyStyle={{ padding: 0, margin: 0 }}
+                    style={{
+                        width: 'fit-content',
+                        height: 'fit-content',
+                        padding: 0,
+                        top: '64px',
+                    }}
+                />
             </div>
         </>,
         modalRoot,

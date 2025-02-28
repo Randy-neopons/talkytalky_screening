@@ -211,22 +211,22 @@ export default function WaveformModal({
                     </button>
                 </div>
 
-                <div className='relative flex h-full w-full flex-col items-center px-5 py-7.5'>
+                <div className='relative flex h-full w-full flex-col items-center px-8 pb-7.5 pt-4'>
                     <div ref={waveformRef} className='w-full' />
                     <p className='ml-2 mt-4 flex w-full text-left'>발화시간 : {(endTime - startTime).toFixed(2)}초</p>
                     <br />
-                    <audio className='w-full' ref={audioRef} />
+                    <audio className='-mt-1 w-full' ref={audioRef} />
                     {/* <WavesurferPlayer height={250} url={url} onReady={onReady} plugins={[() => TimelinePlugin.create()]} /> */}
                     {submitRepeatCount && (
                         <input
                             type='number'
-                            className='mt-20 h-[44px] w-full rounded-md border border-neutral6 px-[15px] py-3 outline-accent1'
+                            className='mt-4 h-[44px] w-full rounded-md border border-neutral6 px-[15px] py-3 outline-accent1'
                             placeholder={placeholder}
                             value={repeatCount || ''}
                             onChange={handleChangeRepeatCount}
                         />
                     )}
-                    <button className='mt-7.5 btn btn-large btn-contained' onClick={handleClickOk}>
+                    <button className='mt-7.5 btn btn-small btn-contained' onClick={handleClickOk}>
                         완료
                     </button>
                 </div>

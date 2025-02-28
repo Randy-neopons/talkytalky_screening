@@ -8,8 +8,8 @@
         "build:staging": "env-cmd -f .env.staging next build",
         "start": "next start",
         "lint": "next lint",
-        "deploy": "npm run build && gcloud app deploy --project talkytalky-platform-v2",
-        "deploy:staging": "npm run build:staging && gcloud app deploy app-staging.yaml --project talkytalky-platform-v2"
+        "deploy": "gcloud app deploy --project talkytalky-platform-v2",
+        "deploy:staging": "gcloud app deploy app-staging.yaml --project talkytalky-platform-v2"
     },
     "dependencies": {
         "@hookform/error-message": "^2.0.1",

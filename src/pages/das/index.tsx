@@ -83,7 +83,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
     try {
         const newToken = context.query.token;
         if (newToken) {
-            setCookie('jwt', context.query.token, { req: context.req, res: context.res, maxAge: 60 * 6 * 24 });
+            setCookie('jwt', context.query.token, { req: context.req, res: context.res, maxAge: 60 * 60 * 24 });
         }
 
         const accessToken = getCookie('jwt', context);

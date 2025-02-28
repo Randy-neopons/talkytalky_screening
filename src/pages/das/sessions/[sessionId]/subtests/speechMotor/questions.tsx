@@ -162,6 +162,7 @@ const PlayButton = ({
                 modalOpen={modalOpen}
                 handleCloseModal={handleCloseModal}
                 setRepeatCount={setRepeatCount}
+                placeholder='반복 횟수를 입력하세요.'
             />
         </>
     );
@@ -507,7 +508,7 @@ export default function SpeechMotorQuestionsPage({
                                         />
                                     </td>
                                     <td className={subtestStyles.button}>
-                                        <PlayButton audioUrl={audioUrl1} setRepeatCount={setRepeatCount(3)} disabled={!audioUrl1} />
+                                        <PlayButton audioUrl={audioUrl1} setRepeatCount={setRepeatCount(0)} disabled={!audioUrl1} />
                                     </td>
                                     <td className={subtestStyles.repeatCount}>
                                         <input

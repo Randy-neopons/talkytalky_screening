@@ -8,4 +8,4 @@ handlers:
       redirect_http_response_code: 301
 
 build_env_variables:
-    GOOGLE_NODE_RUN_SCRIPTS: ''
+    GOOGLE_NODE_RUN_SCRIPTS: build:staging
