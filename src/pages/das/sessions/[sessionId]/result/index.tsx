@@ -17,7 +17,7 @@ import { useModal } from '@/components/common/Modal/context';
 import { PrintIcon } from '@/components/common/icons';
 import PrintView from '@/components/das/PrintView';
 import { useUserQuery } from '@/hooks/user';
-import { getTestInfoAPI, getTestResultAPI, updateTestResultAPI } from '@/api/das';
+import { getTestInfoAPI, getTestResultAPI, updateTestResultAPI, type TestInfo } from '@/api/das';
 
 import styles from './TestResultPage.module.scss';
 
@@ -216,16 +216,7 @@ export default function TestResultPage({
     mixedDysarthriaTypeDetail,
     opinion: comprehensiveOpinion,
 }: {
-    testInfo: {
-        testDate: string;
-        patientName: string;
-        patientGender: string;
-        patientBirthdate: string;
-        neurologicalLesion: string;
-        brainLesions: string[];
-        medicalHistory: string;
-        patientMemo: string;
-    };
+    testInfo: TestInfo;
     testResultList: {
         pathname: string;
         subtestTitle: string;
@@ -555,7 +546,7 @@ export default function TestResultPage({
                 </button>
             </div>
 
-            <div className='hidden'>
+            <div>
                 <PrintView
                     testerName={user?.data?.fullName}
                     testInfo={testInfo}

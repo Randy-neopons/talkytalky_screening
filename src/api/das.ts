@@ -11,19 +11,34 @@ const makeHeaders = (accessToken: string) => {
     return { Authorization: `Bearer ${token}` };
 };
 
+export type TestInfo = {
+    therapistUserId: number;
+    testDate: string;
+    patientName: string;
+    patientGender: string;
+    patientBirthdate: string;
+    dominantHand: string;
+    hearingAidsUse: string;
+    educationYear: string;
+    brainLesions: string[];
+    medicalHistory: string;
+    patientMemo: string;
+    neurologicalLesion: string;
+    languageDisorder: string;
+    languageDisorderDetail: any;
+    cognitiveDisorder: string;
+    cognitiveDisorderDetail: any;
+    dysphagia?: string;
+    dysarthriaTypes: string[];
+    mixedDysarthriaTypeDetail: string;
+    opinion: string;
+};
+
 // 검사 정보 조회
 export async function getTestInfoAPI({ sessionId, jwt }: { sessionId: number; jwt: string }) {
     const response = await axiosInstance.get<{
         result: string;
-        testInfo: {
-            testDate: string;
-            patientName: string;
-            patientGender: string;
-            patientBirthdate: string;
-            brainLesions: string[];
-            medicalHistory: string;
-            patientMemo: string;
-        };
+        testInfo: TestInfo;
     }>(`/assessment/session/${sessionId}`, { headers: makeHeaders(jwt) });
     return response.data;
 }

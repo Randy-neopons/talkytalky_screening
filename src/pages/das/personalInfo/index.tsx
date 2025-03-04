@@ -9,6 +9,7 @@ import { getCookie } from 'cookies-next';
 import dayjs from 'dayjs';
 
 import { useTestInfo, useTestActions } from '@/stores/testStore';
+import { dominantHandOptions, genderOptions, hearingAidsUseOptions } from '@/utils/const';
 import { RadioButton } from '@/components/common/Buttons';
 import { CheckBoxGroup, CheckBoxGroupItem } from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
@@ -26,24 +27,6 @@ const makeRangeOptions = (min: number, max: number) => {
 const yearOptions = makeRangeOptions(1940, dayjs().year());
 const monthOptions = makeRangeOptions(1, 12);
 const dayOptions = makeRangeOptions(1, 31);
-
-const genderOptions = [
-    { value: 'female', label: '여' },
-    { value: 'male', label: '남' },
-];
-
-const dominantHandOptions = [
-    { value: 'right', label: '오른손' },
-    { value: 'left', label: '왼손' },
-    { value: 'both', label: '양손' },
-];
-
-const hearingAidsUseOptions = [
-    { value: 'left', label: '좌측' },
-    { value: 'right', label: '우측' },
-    { value: 'both', label: '양측' },
-    { value: 'none', label: '사용안함' },
-];
 
 const brainLesionOptions = [
     { value: 'bilateralUpperMotorNeuron', label: '양측상부운동신경손상' },
