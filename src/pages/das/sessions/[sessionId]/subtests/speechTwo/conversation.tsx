@@ -12,7 +12,7 @@ import { AudioButton } from '@/components/common/Buttons';
 import Container from '@/components/common/Container';
 import { InfoIcon, PrintIcon } from '@/components/common/icons';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
-import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
+import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI, upsertRecordingAPI } from '@/api/das';
 
 import styles from '../SubTests.module.scss';
 
@@ -68,19 +68,16 @@ export default function ConversationPage({ recording }: Props) {
     const handleSubmitData = useCallback(
         async ({ sessionId }: { sessionId: number }) => {
             try {
-                const formData = new FormData();
-                formData.append('audio1', audioBlob || 'null');
-                formData.append(
-                    'recordings',
-                    JSON.stringify([{ filePath: recording?.filePath || null, repeatCount: recording?.repeatCount || null }]),
-                );
-
-                formData.append('testTime', `${testTime}`);
-                formData.append('currentPartId', `${partId}`);
-
                 // 세션 갱신
                 const accessToken = getCookie('jwt') as string;
-                await updateSessionAPI({ sessionId, formData, jwt: accessToken });
+                await upsertRecordingAPI({
+                    sessionId,
+                    audioBlob: audioBlob || null,
+                    recordingId: recording?.recordingId,
+                    partId,
+                    jwt: accessToken,
+                });
+                await updateSessionAPI({ sessionId, answers: [], testTime, currentPartId: partId, jwt: accessToken });
             } catch (err) {
                 if (isAxiosError(err)) {
                     if (err.response?.status === 401) {
