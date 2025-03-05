@@ -150,6 +150,8 @@ export default function PrintView({
     opinion: string;
     printViewRef: any;
 }) {
+    console.log(testResultList);
+
     return (
         <div ref={printViewRef}>
             <div className={styles.printView}>
@@ -235,34 +237,132 @@ export default function PrintView({
                         <span className='absolute right-0'>{testInfo.patientName}님</span>
                     </h3>
                 </div>
-                <div className='h-full w-full'>
+                <div className='mt-5 h-full w-full'>
                     <div className='w-full'>
                         <div className='relative flex w-full'>
                             <h3 className='mb-1 text-xs font-bold'>TOTAL SCORE</h3>
-                            <span className='absolute bottom-0 right-0 text-[8px] text-neutral4'>*모든점수는 100점 만점을 기준으로함</span>
                         </div>
-                        <table className='mt-1.5 w-full text-center text-[8px]'>
-                            <thead>
-                                <tr className='border-t border-black font-bold'>
-                                    <th className='bg-neutral6 py-[7px]'>TOTAL SCORE</th>
-                                    <th className='bg-neutral8 py-[7px]'>SPEECH MECHANISM</th>
-                                    <th className='bg-neutral8 py-[7px]'>SPEECH</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr className='bg-[#F9F9F9]'>
-                                    <td className='py-[7px]' width='33%'>
-                                        100점
-                                    </td>
-                                    <td className='py-[7px]' width='33%'>
-                                        100점
-                                    </td>
-                                    <td className='py-[7px]' width='33%'>
-                                        100점
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div className={styles.scoreTableBox}>
+                            <table className={styles.scoreTable}>
+                                <thead>
+                                    <tr>
+                                        <th className='w-[107px] rounded-tl-md bg-[#192A88] py-[7px] text-white' rowSpan={2}>
+                                            말기제평가
+                                            <br />
+                                            SPEECH MECHANISM
+                                        </th>
+                                        <th colSpan={2} className='bg-[#192A88] py-[7px] text-white'>
+                                            말 평가 SPEECH
+                                        </th>
+                                        <th rowSpan={2} className='bg-[#192A88] py-[7px] text-white'>
+                                            총점
+                                            <br />
+                                            (원점수)
+                                        </th>
+                                        <th rowSpan={2} className='bg-[#192A88] py-[7px] text-white'>
+                                            총점
+                                            <br />
+                                            (환산점수)
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <th className='w-[107px] bg-[#E5E7FA] py-1 text-neutral3'>영역별</th>
+                                        <th className='w-[107px] bg-[#E5E7FA] py-1 text-neutral3'>종합적</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div className='flex w-full justify-between'>
+                                                <span>안면</span>
+                                                <span>{testResultList[0].partList[0].score} / 16</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className='flex w-full justify-between'>
+                                                <span>호흡&발성</span>
+                                                <span>{testResultList[1].partList[0].score} / 24</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className='flex w-full justify-between'>
+                                                <span>호흡&발성</span> <span>/ 16</span>
+                                            </div>
+                                        </td>
+                                        <td rowSpan={5}>
+                                            <span>/110</span>
+                                        </td>
+                                        <td rowSpan={5}>
+                                            <span>/10</span>
+                                        </td>
+                                    </tr>
+                                    <tr className='bg-[#FFFFFF]'>
+                                        <td>
+                                            <div className='flex w-full justify-between'>
+                                                <span>턱</span> <span>/ 16</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className='flex w-full justify-between'>
+                                                <span>공명</span> <span>/ 16</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className='flex w-full justify-between'>
+                                                <span>공명</span> <span>/ 4</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr className='bg-[#FFFFFF]'>
+                                        <td>
+                                            <div className='flex w-full justify-between'>
+                                                <span>혀</span> <span>/ 16</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className='flex w-full justify-between'>
+                                                <span>조음</span> <span>/ 16</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className='flex w-full justify-between'>
+                                                <span>조음</span> <span>/ 4</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr className='bg-[#FFFFFF]'>
+                                        <td>
+                                            <div className='flex w-full justify-between'>
+                                                <span>연구개 외</span> <span>/ 16</span>
+                                            </div>
+                                        </td>
+                                        <td></td>
+                                        <td>
+                                            <div className='flex w-full justify-between'>
+                                                <span>운율</span> <span>/ 20</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr className='bg-[#FFFFFF]'>
+                                        <td>
+                                            <div className='flex w-full justify-between'>
+                                                <span>Total</span> <span>/ 16</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className='flex w-full justify-between'>
+                                                <span>Total</span> <span>/ 16</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className='flex w-full justify-between'>
+                                                <span>Total</span> <span>/ 4</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                     {/* 소검사별 결과 */}
                     {testResultList.map(v => {
