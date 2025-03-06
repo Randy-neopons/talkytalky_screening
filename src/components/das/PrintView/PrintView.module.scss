@@ -1,5 +1,5 @@
 .printView {
-    background: #f9fafc;
+    // background: #f9fafc;
 }
 
 .printHeader {
@@ -89,22 +89,45 @@
     }
 }
 
-@media print {
-    .printHeader {
-        display: none;
-        position: fixed;
-        top: 0;
-        width: calc(100% - 60px);
-        z-index: 1000;
-    }
+.printTable {
+    @apply w-[595px];
 
-    @page {
-        margin-top: 30px;
-        margin-bottom: 30px;
+    td.printCell {
+        @apply px-7.5;
     }
+}
 
-    @page :first {
-        margin-top: 0px;
-        margin-bottom: 0px;
+.printHeaderSpace,
+.printFooterSpace {
+    @apply h-15;
+}
+
+// @media print {
+//     .printHeader {
+//         // display: none;
+//         position: fixed;
+//         top: 0;
+//         width: calc(100% - 60px);
+//         z-index: 1000;
+//     }
+
+//     @page {
+//         margin-top: 30px;
+//         margin-bottom: 30px;
+//     }
+
+//     @page :first {
+//         margin-top: 0px;
+//         margin-bottom: 0px;
+//     }
+// }
+
+@page {
+    margin-bottom: 30px;
+
+    @bottom-center {
+        content: counter(page);
+        size: 8px;
+        padding-bottom: 10px;
     }
 }

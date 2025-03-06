@@ -1,5 +1,6 @@
 import dynamic from 'next/dynamic';
 
+import cx from 'classnames';
 import dayjs from 'dayjs';
 
 import { answerOptions, brainLesionOptions, dominantHandOptions, genderOptions, hearingAidsUseOptions, typeOptions } from '@/utils/const';
@@ -8,6 +9,8 @@ import { useUserQuery } from '@/hooks/user';
 import type { TestInfo } from '@/api/das';
 
 import styles from './PrintView.module.scss';
+import SubtestScoreGraph, { SubtestScoreGraphPrintView } from '../SubtestScoreGraph';
+import SubtestScoreLineGraph, { SubtestScoreLineGraphPrintView } from '../SubtestScoreLineGraph';
 
 // function svgToPng(svgElement, callback) {
 //     // SVG 요소를 문자열로 변환
@@ -54,7 +57,8 @@ const CheckBoxIcon = () => (
     </svg>
 );
 
-export const SubtestScore = ({
+// 소검사 인쇄용 양식 (원그래프 + 막대 그래프)
+const SubtestScorePrintView = ({
     id,
     subtestTitle,
     totalScore,
@@ -74,15 +78,36 @@ export const SubtestScore = ({
     }[];
 }) => {
     return (
-        <div className='mt-7.5 w-full'>
-            <h2 className='text-xs font-bold text-black'>{subtestTitle}</h2>
-            <div className='mt-2.5 flex w-full gap-7.5 border-b border-t border-b-neutral7 border-t-black bg-white px-5 py-3.5'>
-                <div className='h-[100px] w-[100px] flex-none text-center'>
-                    <TestTotalScoreGraphPrintView
+        <div className='mt-8 w-full'>
+            <h2 className='text-[12px] font-bold text-black'>{subtestTitle}</h2>
+            {/* SPEECH 일 때만 MPT */}
+            {id === '2' && (
+                <div className='mt-2.5 flex w-full gap-[1px] rounded-md text-[8px]'>
+                    <div className='min-w-[100px] bg-white px-[15px] py-[9px]'>MPT 지속시간(초)</div>
+                    <div className='flex h-7.5 w-full justify-around bg-white py-[9px]'>
+                        <div className='flex flex-nowrap'>
+                            1차
+                            <div className='text-bold w-[90px] border-b border-neutral8 text-center'>2초</div>
+                        </div>
+                        <div className='flex flex-nowrap'>
+                            2차
+                            <div className='text-bold w-[90px] border-b border-neutral8 text-center'>3초</div>
+                        </div>
+                        <div className='flex flex-nowrap'>
+                            3차
+                            <div className='text-bold w-[90px] border-b border-neutral8 text-center'>3초</div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            <div className='mt-3.5 flex w-full gap-5 rounded-base bg-white py-3 pl-5 pr-2.5 shadow-base'>
+                <div className='w-[100px] flex-none text-center'>
+                    {/* 원 그래프 */}
+                    <SubtestScoreGraphPrintView
                         data={[
                             {
                                 id,
-                                data: [{ x: 'abc', y: totalScore, color: '#AAB2BB' }],
+                                data: [{ x: 'abc', y: totalScore, color }],
                             },
                         ]}
                         maxScore={maxScore}
@@ -91,29 +116,19 @@ export const SubtestScore = ({
                         경도/심도 항목
                     </button> */}
                 </div>
-                <div className='flex flex-1 flex-col gap-1.5'>
-                    {partList.map((part, i) => (
-                        <div key={i}>
-                            <div className='ml-1 mr-2 flex justify-between'>
-                                <span className='text-[8px] text-neutral3'>{part.partTitle}</span>
-                                <span className='text-[8px] text-neutral3'>
-                                    {part.score}점 / 총 {part.maxScore}점
-                                </span>
-                            </div>
-                            <div className='relative mt-1 h-1 w-full bg-[#D9D9D9]'>
-                                <div
-                                    className={`absolute left-0 h-full rounded-full`}
-                                    style={{ width: `${(100 * part.score) / part.maxScore}%`, backgroundColor: '#AAB2BB' }}
-                                ></div>
-                            </div>
-                        </div>
-                    ))}
+                <div className='flex flex-1 flex-col gap-3.5'>
+                    {/* 막대 그래프 */}
+                    <SubtestScoreLineGraphPrintView
+                        data={[{ id: 'score', data: partList.map(part => ({ x: part.partTitle, y: part.score, color })) }]}
+                        color={color}
+                    />
                 </div>
             </div>
         </div>
     );
 };
 
+// 인쇄용 양식
 export default function PrintView({
     testerName,
     testInfo,
@@ -150,12 +165,11 @@ export default function PrintView({
     opinion: string;
     printViewRef: any;
 }) {
-    console.log(testResultList);
-
     return (
         <div ref={printViewRef}>
             <div className={styles.printView}>
-                <div className='flex h-[842px] w-[595px] flex-col bg-white p-7.5 text-black'>
+                <div className='flex h-[812px] w-[595px] flex-col p-7.5 text-black'>
+                    {/* 표지 페이지 */}
                     <div className={styles.coverPage}>
                         <div className='mt-[100px] text-center'>
                             <h1 className='text-2xl font-bold text-[#192A88]'>마비말장애 평가시스템</h1>
@@ -229,251 +243,307 @@ export default function PrintView({
                     </div>
                 </div>
             </div>
-            <div className={styles.contentPage}>
-                <div className={styles.printHeader}>
-                    <h3 className='mt-2.5'>
-                        <span className='font-bold text-[#192A88]'>마비말장애 평가시스템</span>
-                        <span className='ml-2 text-[#6E757E]'>Dysarthria Assessment System</span>
-                        <span className='absolute right-0'>{testInfo.patientName}님</span>
-                    </h3>
-                </div>
-                <div className='mt-5 h-full w-full'>
-                    <div className='w-full'>
-                        <div className='relative flex w-full'>
-                            <h3 className='mb-1 text-xs font-bold'>TOTAL SCORE</h3>
-                        </div>
-                        <div className={styles.scoreTableBox}>
-                            <table className={styles.scoreTable}>
-                                <thead>
-                                    <tr>
-                                        <th className='w-[107px] rounded-tl-md bg-[#192A88] py-[7px] text-white' rowSpan={2}>
-                                            말기제평가
-                                            <br />
-                                            SPEECH MECHANISM
-                                        </th>
-                                        <th colSpan={2} className='bg-[#192A88] py-[7px] text-white'>
-                                            말 평가 SPEECH
-                                        </th>
-                                        <th rowSpan={2} className='bg-[#192A88] py-[7px] text-white'>
-                                            총점
-                                            <br />
-                                            (원점수)
-                                        </th>
-                                        <th rowSpan={2} className='bg-[#192A88] py-[7px] text-white'>
-                                            총점
-                                            <br />
-                                            (환산점수)
-                                        </th>
-                                    </tr>
-                                    <tr>
-                                        <th className='w-[107px] bg-[#E5E7FA] py-1 text-neutral3'>영역별</th>
-                                        <th className='w-[107px] bg-[#E5E7FA] py-1 text-neutral3'>종합적</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <div className='flex w-full justify-between'>
-                                                <span>안면</span>
-                                                <span>{testResultList[0].partList[0].score} / 16</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className='flex w-full justify-between'>
-                                                <span>호흡&발성</span>
-                                                <span>{testResultList[1].partList[0].score} / 24</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className='flex w-full justify-between'>
-                                                <span>호흡&발성</span> <span>/ 16</span>
-                                            </div>
-                                        </td>
-                                        <td rowSpan={5}>
-                                            <span>/110</span>
-                                        </td>
-                                        <td rowSpan={5}>
-                                            <span>/10</span>
-                                        </td>
-                                    </tr>
-                                    <tr className='bg-[#FFFFFF]'>
-                                        <td>
-                                            <div className='flex w-full justify-between'>
-                                                <span>턱</span> <span>/ 16</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className='flex w-full justify-between'>
-                                                <span>공명</span> <span>/ 16</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className='flex w-full justify-between'>
-                                                <span>공명</span> <span>/ 4</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr className='bg-[#FFFFFF]'>
-                                        <td>
-                                            <div className='flex w-full justify-between'>
-                                                <span>혀</span> <span>/ 16</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className='flex w-full justify-between'>
-                                                <span>조음</span> <span>/ 16</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className='flex w-full justify-between'>
-                                                <span>조음</span> <span>/ 4</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr className='bg-[#FFFFFF]'>
-                                        <td>
-                                            <div className='flex w-full justify-between'>
-                                                <span>연구개 외</span> <span>/ 16</span>
-                                            </div>
-                                        </td>
-                                        <td></td>
-                                        <td>
-                                            <div className='flex w-full justify-between'>
-                                                <span>운율</span> <span>/ 20</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr className='bg-[#FFFFFF]'>
-                                        <td>
-                                            <div className='flex w-full justify-between'>
-                                                <span>Total</span> <span>/ 16</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className='flex w-full justify-between'>
-                                                <span>Total</span> <span>/ 16</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className='flex w-full justify-between'>
-                                                <span>Total</span> <span>/ 4</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    {/* 소검사별 결과 */}
-                    {testResultList.map(v => {
-                        return (
-                            v.partList.length > 0 && (
-                                <SubtestScore
-                                    id={v.pathname}
-                                    key={v.pathname}
-                                    subtestTitle={v.subtestTitle}
-                                    totalScore={v.totalScore}
-                                    maxScore={v.maxScore}
-                                    color={v.color}
-                                    partList={v.partList}
-                                />
-                            )
-                        );
-                    })}
-
-                    {speechMotorResults.length > 0 && (
-                        <div className='mt-7.5 w-full'>
-                            <h2 className='text-xs font-bold'>SPEECH MOTOR : 말운동 평가</h2>
-                            <table className='mt-2.5 w-full overflow-hidden border-b border-b-neutral7 text-[8px]'>
-                                <thead>
-                                    <tr className='border-t border-t-black'>
-                                        <th className='bg-neutral8 py-[7px] font-bold' align='center' colSpan={2}>
-                                            AMR & SMR
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {speechMotorResults.map((v, i) => (
-                                        <tr key={i}>
-                                            <td className='border-t border-neutral7 bg-white py-[7px] pl-[15px]' width='87%'>
-                                                {v.questionText}
-                                            </td>
-                                            <td className='border-l border-t border-neutral7 bg-white py-[7px]' align='center' width='13%'>
-                                                {v.value}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-
-                    {mildAndModerateAnswers.length > 0 && (
-                        <div className='mt-7.5 w-full'>
-                            <h2 className='text-xs font-bold'>경도 & 심도 체크항목</h2>
-                            <table className='mt-2.5 w-full overflow-hidden border-b border-t border-b-neutral7 border-t-black text-[8px]'>
-                                <thead>
-                                    <tr className=''>
-                                        <th className='bg-neutral8 py-[7px] font-bold' align='center'>
-                                            영역
-                                        </th>
-                                        <th className='bg-neutral8 py-[7px] font-bold' align='center'>
-                                            질문
-                                        </th>
-                                        <th className='bg-neutral8 py-[7px] font-bold' align='center'>
-                                            답변
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {mildAndModerateAnswers.map((v, i) => (
-                                        <tr key={i} className=''>
-                                            <td className='border-t border-neutral7 bg-white py-[7px]' align='center' width='13%'>
-                                                {v.partTitle}
-                                            </td>
-                                            <td className='border-l border-t border-neutral7 bg-white py-[7px] pl-[15px]' width='74%'>
-                                                {v.questionText}
-                                            </td>
-                                            <td className='border-l border-t border-neutral7 bg-white py-[7px]' align='center' width='13%'>
-                                                {answerOptions.find(answer => answer.value === v.answer)?.label}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-
-                    <div className='mt-7.5 w-full'>
-                        <h2 className='text-xs font-bold'>마비말장애 유형</h2>
-                        <div className='mt-2.5 flex break-after-avoid flex-row flex-wrap gap-x-5 gap-y-3'>
-                            {typeOptions.map(type => (
-                                <div key={type.value} className='flex'>
-                                    <label className='flex cursor-pointer items-center text-[8px]'>
-                                        <input type='checkbox' className='peer hidden' checked={types?.includes(type.value)} readOnly />
-                                        <CheckBoxIcon />
-                                        {type.label}
-                                    </label>
-                                    {type.value === 'mixed' && types.includes('mixed') && (
-                                        <input
-                                            className='ml-2.5 w-40 border-b border-[#CED4DA] text-[8px]'
-                                            value={mixedTypeDetail || ''}
-                                            readOnly
-                                        />
-                                    )}
+            {/* 인쇄 레이아웃을 위해 table 설정*/}
+            <table className={styles.printTable}>
+                {/* thead는 페이지 header 역할 */}
+                <thead>
+                    <tr>
+                        <td className={styles.printCell}>
+                            <div className='mb-2.5 mt-7.5 h-1 w-full rounded-full bg-[#192A88]'></div>
+                            <div className='mb-5 flex w-full justify-between'>
+                                <h3 className='text-[12px]'>
+                                    <span className='font-bold text-[#192A88]'>마비말장애 평가시스템</span>
+                                    <span className='ml-2 text-[#6E757E]'>Dysarthria Assessment System</span>
+                                </h3>
+                                <span className='text-[12px]'>{testInfo.patientName}님</span>
+                            </div>
+                        </td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td className={styles.printCell}>
+                            <div className='h-full w-full'>
+                                <div className='w-full'>
+                                    <div className='relative flex w-full'>
+                                        <h3 className='mb-1 text-xs font-bold'>TOTAL SCORE</h3>
+                                    </div>
+                                    <div className={styles.scoreTableBox}>
+                                        <table className={styles.scoreTable}>
+                                            <thead>
+                                                <tr>
+                                                    <th className='w-[107px] rounded-tl-md bg-[#192A88] py-[7px] text-white' rowSpan={2}>
+                                                        말기제평가
+                                                        <br />
+                                                        SPEECH MECHANISM
+                                                    </th>
+                                                    <th colSpan={2} className='bg-[#192A88] py-[7px] text-white'>
+                                                        말 평가 SPEECH
+                                                    </th>
+                                                    <th rowSpan={2} className='bg-[#192A88] py-[7px] text-white'>
+                                                        총점
+                                                        <br />
+                                                        (원점수)
+                                                    </th>
+                                                    <th rowSpan={2} className='bg-[#192A88] py-[7px] text-white'>
+                                                        총점
+                                                        <br />
+                                                        (환산점수)
+                                                    </th>
+                                                </tr>
+                                                <tr>
+                                                    <th className='w-[107px] bg-[#E5E7FA] py-1 text-neutral3'>영역별</th>
+                                                    <th className='w-[107px] bg-[#E5E7FA] py-1 text-neutral3'>종합적</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <div className='flex w-full justify-between'>
+                                                            <span>안면</span>
+                                                            <span>{testResultList[0].partList[0].score} / 16</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div className='flex w-full justify-between'>
+                                                            <span>호흡&발성</span>
+                                                            <span>{testResultList[1].partList[0]?.score} / 24</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div className='flex w-full justify-between'>
+                                                            <span>호흡&발성</span> <span>/ 16</span>
+                                                        </div>
+                                                    </td>
+                                                    <td rowSpan={5}>
+                                                        <span>/110</span>
+                                                    </td>
+                                                    <td rowSpan={5}>
+                                                        <span>/10</span>
+                                                    </td>
+                                                </tr>
+                                                <tr className='bg-[#FFFFFF]'>
+                                                    <td>
+                                                        <div className='flex w-full justify-between'>
+                                                            <span>턱</span> <span>/ 16</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div className='flex w-full justify-between'>
+                                                            <span>공명</span> <span>/ 16</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div className='flex w-full justify-between'>
+                                                            <span>공명</span> <span>/ 4</span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr className='bg-[#FFFFFF]'>
+                                                    <td>
+                                                        <div className='flex w-full justify-between'>
+                                                            <span>혀</span> <span>/ 16</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div className='flex w-full justify-between'>
+                                                            <span>조음</span> <span>/ 16</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div className='flex w-full justify-between'>
+                                                            <span>조음</span> <span>/ 4</span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr className='bg-[#FFFFFF]'>
+                                                    <td>
+                                                        <div className='flex w-full justify-between'>
+                                                            <span>연구개 외</span> <span>/ 16</span>
+                                                        </div>
+                                                    </td>
+                                                    <td></td>
+                                                    <td>
+                                                        <div className='flex w-full justify-between'>
+                                                            <span>운율</span> <span>/ 20</span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr className='bg-[#FFFFFF]'>
+                                                    <td>
+                                                        <div className='flex w-full justify-between'>
+                                                            <span>Total</span> <span>/ 16</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div className='flex w-full justify-between'>
+                                                            <span>Total</span> <span>/ 16</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div className='flex w-full justify-between'>
+                                                            <span>Total</span> <span>/ 4</span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
+                                {/* 소검사별 결과 */}
+                                {testResultList.map(v => {
+                                    return (
+                                        v.partList.length > 0 && (
+                                            <SubtestScorePrintView
+                                                id={v.pathname}
+                                                key={v.pathname}
+                                                subtestTitle={v.subtestTitle}
+                                                totalScore={v.totalScore}
+                                                maxScore={v.maxScore}
+                                                color={v.color}
+                                                partList={v.partList}
+                                            />
+                                        )
+                                    );
+                                })}
 
-                    <div className='mt-7.5 w-full'>
-                        <h2 className='text-xs font-bold'>종합소견</h2>
-                        <div className='mt-2.5 flex min-h-[94px] flex-row flex-wrap gap-x-5 gap-y-3 border-b border-t border-b-neutral8 border-t-black px-[15px] py-2.5 text-[8px]'>
-                            {opinion || '없음'}
-                        </div>
-                    </div>
-                </div>
-            </div>
+                                {speechMotorResults.length > 0 && (
+                                    <div className='mt-7.5 w-full'>
+                                        <h2 className='text-xs font-bold'>SPEECH MOTOR : 말운동 평가</h2>
+                                        <div className='flex gap-3'>
+                                            <div className={cx(styles.scoreTableBox, 'w-full')}>
+                                                <table className={styles.scoreTable}>
+                                                    <thead>
+                                                        <tr>
+                                                            <th className='bg-[#192A88] p-1 text-white'>AMR</th>
+                                                            <th className='bg-accent3 p-1 text-neutral3'>반복횟수(초당)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {speechMotorResults.map((v, i) => (
+                                                            <tr key={i}>
+                                                                <td width='50%'>{v.questionText}</td>
+                                                                <td width='50%'>{v.value}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div className={cx(styles.scoreTableBox, 'w-full')}>
+                                                <table className={styles.scoreTable}>
+                                                    <thead>
+                                                        <tr>
+                                                            <th className='bg-[#192A88] p-1 text-white'>SMR</th>
+                                                            <th className='bg-accent3 p-1 text-neutral3'>반복횟수(초당)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {speechMotorResults.map((v, i) => (
+                                                            <tr key={i}>
+                                                                <td width='50%'>{v.questionText}</td>
+                                                                <td width='50%'>{v.value}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {mildAndModerateAnswers.length > 0 && (
+                                    <div className='mt-7.5 w-full'>
+                                        <h2 className='text-xs font-bold'>경도 & 심도 체크항목</h2>
+                                        <table className='mt-2.5 w-full overflow-hidden border-b border-t border-b-neutral7 border-t-black text-[8px]'>
+                                            <thead>
+                                                <tr className=''>
+                                                    <th className='bg-neutral8 py-[7px] font-bold' align='center'>
+                                                        영역
+                                                    </th>
+                                                    <th className='bg-neutral8 py-[7px] font-bold' align='center'>
+                                                        질문
+                                                    </th>
+                                                    <th className='bg-neutral8 py-[7px] font-bold' align='center'>
+                                                        답변
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {mildAndModerateAnswers.map((v, i) => (
+                                                    <tr key={i} className=''>
+                                                        <td
+                                                            className='border-t border-neutral7 bg-white py-[7px]'
+                                                            align='center'
+                                                            width='13%'
+                                                        >
+                                                            {v.partTitle}
+                                                        </td>
+                                                        <td
+                                                            className='border-l border-t border-neutral7 bg-white py-[7px] pl-[15px]'
+                                                            width='74%'
+                                                        >
+                                                            {v.questionText}
+                                                        </td>
+                                                        <td
+                                                            className='border-l border-t border-neutral7 bg-white py-[7px]'
+                                                            align='center'
+                                                            width='13%'
+                                                        >
+                                                            {answerOptions.find(answer => answer.value === v.answer)?.label}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+
+                                <div className='mt-7.5 w-full'>
+                                    <h2 className='text-xs font-bold'>마비말장애 유형</h2>
+                                    <div className='mt-2.5 flex break-after-avoid flex-row flex-wrap gap-x-5 gap-y-3'>
+                                        {typeOptions.map(type => (
+                                            <div key={type.value} className='flex'>
+                                                <label className='flex cursor-pointer items-center text-[8px]'>
+                                                    <input
+                                                        type='checkbox'
+                                                        className='peer hidden'
+                                                        checked={types?.includes(type.value)}
+                                                        readOnly
+                                                    />
+                                                    <CheckBoxIcon />
+                                                    {type.label}
+                                                </label>
+                                                {type.value === 'mixed' && types.includes('mixed') && (
+                                                    <input
+                                                        className='ml-2.5 w-40 border-b border-[#CED4DA] text-[8px]'
+                                                        value={mixedTypeDetail || ''}
+                                                        readOnly
+                                                    />
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className='mt-7.5 w-full'>
+                                    <h2 className='text-xs font-bold'>종합소견</h2>
+                                    <div className='mt-2.5 flex min-h-[94px] flex-row flex-wrap gap-x-5 gap-y-3 border-b border-t border-b-neutral8 border-t-black px-[15px] py-2.5 text-[8px]'>
+                                        {opinion || '없음'}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+                {/* tfoot는 페이지 footer 역할 */}
+                <tfoot>
+                    <tr>
+                        <td className={styles.printCell}>
+                            <div className='h-7.5'>&nbsp;</div>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
         </div>
     );
 }
