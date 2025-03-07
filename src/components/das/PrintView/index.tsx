@@ -46,7 +46,7 @@ const TestTotalScoreGraphPrintView = dynamic(
 
 const CheckBoxIcon = () => (
     <svg
-        className='mr-1 rounded border bg-white peer-checked:border-none peer-checked:bg-neutral3'
+        className='mr-1 rounded border bg-white peer-checked:border-none peer-checked:bg-[#192A88]'
         xmlns='http://www.w3.org/2000/svg'
         width='14'
         height='14'
@@ -81,10 +81,10 @@ const SubtestScorePrintView = ({
         <div className='mt-8 w-full'>
             <h2 className='text-[12px] font-bold text-black'>{subtestTitle}</h2>
             {/* SPEECH 일 때만 MPT */}
-            {id === '2' && (
-                <div className='mt-2.5 flex w-full gap-[1px] rounded-md text-[8px]'>
+            {id === 'speech' && (
+                <div className='mt-2.5 flex w-full gap-[1px] overflow-hidden rounded-md border border-neutral8 text-[8px]'>
                     <div className='min-w-[100px] bg-white px-[15px] py-[9px]'>MPT 지속시간(초)</div>
-                    <div className='flex h-7.5 w-full justify-around bg-white py-[9px]'>
+                    <div className='flex h-7.5 w-full justify-around bg-neutral10 py-[9px]'>
                         <div className='flex flex-nowrap'>
                             1차
                             <div className='text-bold w-[90px] border-b border-neutral8 text-center'>2초</div>
@@ -100,7 +100,7 @@ const SubtestScorePrintView = ({
                     </div>
                 </div>
             )}
-            <div className='mt-3.5 flex w-full gap-5 rounded-base bg-white py-3 pl-5 pr-2.5 shadow-base'>
+            <div className='mt-3.5 flex w-full gap-5 rounded-lg border border-neutral8 bg-white py-3 pl-5 pr-2.5'>
                 <div className='w-[100px] flex-none text-center'>
                     {/* 원 그래프 */}
                     <SubtestScoreGraphPrintView
@@ -454,47 +454,36 @@ export default function PrintView({
                                 {mildAndModerateAnswers.length > 0 && (
                                     <div className='mt-7.5 w-full'>
                                         <h2 className='text-xs font-bold'>경도 & 심도 체크항목</h2>
-                                        <table className='mt-2.5 w-full overflow-hidden border-b border-t border-b-neutral7 border-t-black text-[8px]'>
-                                            <thead>
-                                                <tr className=''>
-                                                    <th className='bg-neutral8 py-[7px] font-bold' align='center'>
-                                                        영역
-                                                    </th>
-                                                    <th className='bg-neutral8 py-[7px] font-bold' align='center'>
-                                                        질문
-                                                    </th>
-                                                    <th className='bg-neutral8 py-[7px] font-bold' align='center'>
-                                                        답변
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {mildAndModerateAnswers.map((v, i) => (
-                                                    <tr key={i} className=''>
-                                                        <td
-                                                            className='border-t border-neutral7 bg-white py-[7px]'
-                                                            align='center'
-                                                            width='13%'
-                                                        >
-                                                            {v.partTitle}
-                                                        </td>
-                                                        <td
-                                                            className='border-l border-t border-neutral7 bg-white py-[7px] pl-[15px]'
-                                                            width='74%'
-                                                        >
-                                                            {v.questionText}
-                                                        </td>
-                                                        <td
-                                                            className='border-l border-t border-neutral7 bg-white py-[7px]'
-                                                            align='center'
-                                                            width='13%'
-                                                        >
-                                                            {answerOptions.find(answer => answer.value === v.answer)?.label}
-                                                        </td>
+                                        <div className={styles.answerTableBox}>
+                                            <table className={styles.answerTable}>
+                                                <thead>
+                                                    <tr className=''>
+                                                        <th className='bg-[#E4E8FD] py-[7px] font-bold' align='center'>
+                                                            영역
+                                                        </th>
+                                                        <th className='bg-[#E4E8FD] py-[7px] font-bold' align='center'>
+                                                            질문
+                                                        </th>
+                                                        <th className='bg-[#E4E8FD] py-[7px] font-bold' align='center'>
+                                                            답변
+                                                        </th>
                                                     </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
+                                                </thead>
+                                                <tbody>
+                                                    {mildAndModerateAnswers.map((v, i) => (
+                                                        <tr key={i} className=''>
+                                                            <td align='center' width='13%'>
+                                                                {v.partTitle}
+                                                            </td>
+                                                            <td width='74%'>{v.questionText}</td>
+                                                            <td align='center' width='13%'>
+                                                                {answerOptions.find(answer => answer.value === v.answer)?.label}
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 )}
 
@@ -527,7 +516,7 @@ export default function PrintView({
 
                                 <div className='mt-7.5 w-full'>
                                     <h2 className='text-xs font-bold'>종합소견</h2>
-                                    <div className='mt-2.5 flex min-h-[94px] flex-row flex-wrap gap-x-5 gap-y-3 border-b border-t border-b-neutral8 border-t-black px-[15px] py-2.5 text-[8px]'>
+                                    <div className='mt-2.5 flex min-h-[94px] flex-row flex-wrap gap-x-5 gap-y-3 rounded-lg border border-neutral8 px-[15px] py-2.5 text-[8px]'>
                                         {opinion || '없음'}
                                     </div>
                                 </div>

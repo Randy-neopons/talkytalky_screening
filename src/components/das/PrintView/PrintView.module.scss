@@ -1,5 +1,5 @@
 .printView {
-    // background: #f9fafc;
+    background: #ffffff;
 }
 
 .printHeader {
@@ -89,8 +89,28 @@
     }
 }
 
+.answerTableBox {
+    @apply mt-2.5 overflow-hidden rounded-md border border-neutral8;
+}
+
+.answerTable {
+    @apply w-full border-collapse border-hidden text-center text-[8px];
+
+    thead {
+        @apply font-bold;
+    }
+
+    td {
+        @apply border border-neutral8 py-[7px];
+    }
+
+    th {
+        @apply border-t-0;
+    }
+}
+
 .printTable {
-    @apply w-[595px];
+    @apply w-[595px] bg-white;
 
     td.printCell {
         @apply px-7.5;

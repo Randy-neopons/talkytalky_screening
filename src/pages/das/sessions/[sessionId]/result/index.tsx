@@ -551,7 +551,11 @@ export default function TestResultPage({
                     testerName={user?.data?.fullName}
                     testInfo={testInfo}
                     testResultList={testResultList}
-                    mildAndModerateAnswers={mildAndModerateAnswers}
+                    mildAndModerateAnswers={[
+                        { partTitle: '안면', questionText: '/아/ 지속시간 (3회중 가장 길게 산출한 지속 시간)', answer: 'mild' },
+                        { partTitle: '안면', questionText: '/아/ 지속시간 (3회중 가장 길게 산출한 지속 시간)', answer: 'mild' },
+                        { partTitle: '안면', questionText: '/아/ 지속시간 (3회중 가장 길게 산출한 지속 시간)', answer: 'mild' },
+                    ]}
                     speechMotorResults={speechMotorResults}
                     types={types}
                     mixedTypeDetail={mixedTypeDetail || ''}
