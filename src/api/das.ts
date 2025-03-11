@@ -215,19 +215,39 @@ export async function completeSessionAPI({ sessionId, jwt }: { sessionId: number
     return response.data;
 }
 
+export type TestScore = {
+    totalScore: number;
+    maxScore: number;
+    partId: number;
+    partTitle: string;
+    partTitleEn: string;
+    subtestId: number;
+    subtestTitle: string;
+    subtestTitleEn: string;
+    pathname: string;
+    color: string;
+    partList: {
+        score: number;
+        maxScore: number;
+        partId: number;
+        partTitle: string;
+        partTitleEn: string;
+        subtestId: number;
+        subtestTitle: string;
+        subtestTitleEn: string;
+        pathname: string;
+        color: string;
+    }[];
+};
+
 // 세션 결과 보기
 export async function getTestResultAPI({ sessionId, jwt }: { sessionId: number; jwt: string }) {
     const response = await axiosInstance.get<{
-        testScore: {
-            score: number;
-            minusScore: number;
-            maxScore: number;
-            partId: number;
-            partTitle: string;
-            partTitleEn: string;
-            subtestId: number;
-            subtestTitle: string;
-        }[];
+        testScore: TestScore[];
+        speechMechanismResult: TestScore;
+        speechOneResult: TestScore;
+        speechTwoResult: TestScore;
+        speechTotalResult: TestScore;
         mildAndModerateAnswers: any[];
         speechMotorResults: { questionText: string; value: string }[];
         dysarthriaTypes?: string[];

@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import { answerOptions, brainLesionOptions, dominantHandOptions, genderOptions, hearingAidsUseOptions, typeOptions } from '@/utils/const';
 import { CheckBoxGroupItem } from '@/components/common/CheckBox';
 import { useUserQuery } from '@/hooks/user';
-import type { TestInfo } from '@/api/das';
+import type { TestInfo, TestScore } from '@/api/das';
 
 import styles from './PrintView.module.scss';
 import SubtestScoreGraph, { SubtestScoreGraphPrintView } from '../SubtestScoreGraph';
@@ -61,6 +61,7 @@ const CheckBoxIcon = () => (
 const SubtestScorePrintView = ({
     id,
     subtestTitle,
+    subtestTitleEn,
     totalScore,
     maxScore,
     color,
@@ -68,18 +69,22 @@ const SubtestScorePrintView = ({
 }: {
     id: string;
     subtestTitle: string;
+    subtestTitleEn: string;
     totalScore: number;
     maxScore: number;
     color: string;
     partList: {
         partTitle: string;
+        partTitleEn: string;
         score: number;
         maxScore: number;
     }[];
 }) => {
     return (
         <div className='mt-8 w-full'>
-            <h2 className='text-[12px] font-bold text-black'>{subtestTitle}</h2>
+            <h2 className='text-[12px] font-bold text-black'>
+                {subtestTitleEn} : {subtestTitle}
+            </h2>
             {/* SPEECH 일 때만 MPT */}
             {id === 'speech' && (
                 <div className='mt-2.5 flex w-full gap-[1px] overflow-hidden rounded-md border border-neutral8 text-[8px]'>
@@ -119,7 +124,18 @@ const SubtestScorePrintView = ({
                 <div className='flex flex-1 flex-col gap-3.5'>
                     {/* 막대 그래프 */}
                     <SubtestScoreLineGraphPrintView
-                        data={[{ id: 'score', data: partList.map(part => ({ x: part.partTitle, y: part.score, color })) }]}
+                        data={[
+                            {
+                                id: 'score',
+                                data: partList.map(part => {
+                                    const partTitleList = part.partTitle.split(',');
+                                    const partTitleEnList = part.partTitleEn.split(',');
+                                    const title = partTitleList.map((v, i) => `${v}(${partTitleEnList[i]})`).join('\n');
+
+                                    return { x: title, y: part.score, color };
+                                }),
+                            },
+                        ]}
                         color={color}
                     />
                 </div>
@@ -132,7 +148,10 @@ const SubtestScorePrintView = ({
 export default function PrintView({
     testerName,
     testInfo,
-    testResultList,
+    speechMechanismResult,
+    speechOneResult,
+    speechTwoResult,
+    speechTotalResult,
     mildAndModerateAnswers,
     speechMotorResults,
     types,
@@ -142,22 +161,10 @@ export default function PrintView({
 }: {
     testerName: string;
     testInfo: TestInfo;
-    testResultList: {
-        pathname: string;
-        subtestTitle: string;
-        graphTitle: string;
-        color: string;
-        totalScore: number;
-        maxScore: number;
-        partList: {
-            score: number;
-            maxScore: number;
-            partId: number;
-            partTitle: string;
-            subtestId: number;
-            subtestTitle: string;
-        }[];
-    }[];
+    speechMechanismResult: TestScore;
+    speechOneResult: TestScore;
+    speechTwoResult: TestScore;
+    speechTotalResult: TestScore;
     mildAndModerateAnswers: any[];
     speechMotorResults: { questionText: string; value: string }[];
     types: string[];
@@ -203,18 +210,18 @@ export default function PrintView({
                                 <div className={styles.infoRow}>
                                     <div className={styles.infoLabelRight}>주로 사용하는 손</div>
                                     <div className={styles.infoValue}>
-                                        {dominantHandOptions.find(v => v.value === testInfo.dominantHand)?.label}
+                                        {dominantHandOptions.find(v => v.value === testInfo.dominantHand)?.label || '없음'}
                                     </div>
                                 </div>
                                 <div className={styles.infoRow}>
                                     <div className={styles.infoLabelRight}>보청기 사용유무</div>
                                     <div className={styles.infoValue}>
-                                        {hearingAidsUseOptions.find(v => v.value === testInfo.hearingAidsUse)?.label}
+                                        {hearingAidsUseOptions.find(v => v.value === testInfo.hearingAidsUse)?.label || '없음'}
                                     </div>
                                 </div>
                                 <div className={styles.infoRow}>
                                     <div className={styles.infoLabelRight}>교육년수</div>
-                                    <div className={styles.infoValue}>{testInfo.educationYear}</div>
+                                    <div className={styles.infoValue}>{testInfo.educationYear || '없음'}</div>
                                 </div>
                             </div>
                         </div>
@@ -301,88 +308,145 @@ export default function PrintView({
                                                     <td>
                                                         <div className='flex w-full justify-between'>
                                                             <span>안면</span>
-                                                            <span>{testResultList[0].partList[0].score} / 16</span>
+                                                            <span>
+                                                                {speechMechanismResult.partList[0]?.score} /{' '}
+                                                                {speechMechanismResult.partList[0]?.maxScore}
+                                                            </span>
                                                         </div>
                                                     </td>
                                                     <td>
                                                         <div className='flex w-full justify-between'>
                                                             <span>호흡&발성</span>
-                                                            <span>{testResultList[1].partList[0]?.score} / 24</span>
+                                                            <span>
+                                                                {speechOneResult.partList[0]?.score} /{' '}
+                                                                {speechOneResult.partList[0]?.maxScore}
+                                                            </span>
                                                         </div>
                                                     </td>
                                                     <td>
                                                         <div className='flex w-full justify-between'>
-                                                            <span>호흡&발성</span> <span>/ 16</span>
+                                                            <span>호흡&발성</span>{' '}
+                                                            <span>
+                                                                {speechTwoResult.partList[0]?.score} /{' '}
+                                                                {speechTwoResult.partList[0]?.maxScore}
+                                                            </span>
                                                         </div>
                                                     </td>
                                                     <td rowSpan={5}>
-                                                        <span>/110</span>
+                                                        <span>
+                                                            {speechMechanismResult.totalScore + speechTotalResult.totalScore} /{' '}
+                                                            {speechMechanismResult.maxScore + speechTotalResult.maxScore}
+                                                        </span>
                                                     </td>
                                                     <td rowSpan={5}>
-                                                        <span>/10</span>
+                                                        <span>
+                                                            {speechMechanismResult.totalScore + speechTotalResult.totalScore} /{' '}
+                                                            {speechMechanismResult.maxScore + speechTotalResult.maxScore}
+                                                        </span>
                                                     </td>
                                                 </tr>
                                                 <tr className='bg-[#FFFFFF]'>
                                                     <td>
                                                         <div className='flex w-full justify-between'>
-                                                            <span>턱</span> <span>/ 16</span>
+                                                            <span>턱</span>{' '}
+                                                            <span>
+                                                                {speechMechanismResult.partList[1]?.score} /{' '}
+                                                                {speechMechanismResult.partList[1]?.maxScore}
+                                                            </span>
                                                         </div>
                                                     </td>
                                                     <td>
                                                         <div className='flex w-full justify-between'>
-                                                            <span>공명</span> <span>/ 16</span>
+                                                            <span>공명</span>{' '}
+                                                            <span>
+                                                                {speechOneResult.partList[1]?.score} /{' '}
+                                                                {speechOneResult.partList[1]?.maxScore}
+                                                            </span>
                                                         </div>
                                                     </td>
                                                     <td>
                                                         <div className='flex w-full justify-between'>
-                                                            <span>공명</span> <span>/ 4</span>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr className='bg-[#FFFFFF]'>
-                                                    <td>
-                                                        <div className='flex w-full justify-between'>
-                                                            <span>혀</span> <span>/ 16</span>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div className='flex w-full justify-between'>
-                                                            <span>조음</span> <span>/ 16</span>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div className='flex w-full justify-between'>
-                                                            <span>조음</span> <span>/ 4</span>
+                                                            <span>공명</span>{' '}
+                                                            <span>
+                                                                {speechTwoResult.partList[1]?.score} /{' '}
+                                                                {speechTwoResult.partList[1]?.maxScore}
+                                                            </span>
                                                         </div>
                                                     </td>
                                                 </tr>
                                                 <tr className='bg-[#FFFFFF]'>
                                                     <td>
                                                         <div className='flex w-full justify-between'>
-                                                            <span>연구개 외</span> <span>/ 16</span>
+                                                            <span>혀</span>{' '}
+                                                            <span>
+                                                                {speechMechanismResult.partList[2]?.score} /{' '}
+                                                                {speechMechanismResult.partList[2]?.maxScore}
+                                                            </span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div className='flex w-full justify-between'>
+                                                            <span>조음</span>{' '}
+                                                            <span>
+                                                                {speechOneResult.partList[2]?.score} /{' '}
+                                                                {speechOneResult.partList[2]?.maxScore}
+                                                            </span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div className='flex w-full justify-between'>
+                                                            <span>조음</span>{' '}
+                                                            <span>
+                                                                {speechTwoResult.partList[2]?.score} /{' '}
+                                                                {speechTwoResult.partList[2]?.maxScore}
+                                                            </span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr className='bg-[#FFFFFF]'>
+                                                    <td>
+                                                        <div className='flex w-full justify-between'>
+                                                            <span>연구개 외</span>{' '}
+                                                            <span>
+                                                                {speechMechanismResult.partList[3]?.score} /{' '}
+                                                                {speechMechanismResult.partList[3]?.maxScore}
+                                                            </span>
                                                         </div>
                                                     </td>
                                                     <td></td>
                                                     <td>
                                                         <div className='flex w-full justify-between'>
-                                                            <span>운율</span> <span>/ 20</span>
+                                                            <span>운율</span>{' '}
+                                                            <span>
+                                                                {speechTwoResult.partList[3]?.score} /{' '}
+                                                                {speechTwoResult.partList[3]?.maxScore}
+                                                            </span>
                                                         </div>
                                                     </td>
                                                 </tr>
                                                 <tr className='bg-[#FFFFFF]'>
                                                     <td>
                                                         <div className='flex w-full justify-between'>
-                                                            <span>Total</span> <span>/ 16</span>
+                                                            <span>Total</span>{' '}
+                                                            <span>
+                                                                {speechMechanismResult.totalScore} / {speechMechanismResult.maxScore}
+                                                            </span>
                                                         </div>
                                                     </td>
                                                     <td>
                                                         <div className='flex w-full justify-between'>
-                                                            <span>Total</span> <span>/ 16</span>
+                                                            <span>Total</span>{' '}
+                                                            <span>
+                                                                {speechOneResult.totalScore} / {speechOneResult.maxScore}
+                                                            </span>
                                                         </div>
                                                     </td>
                                                     <td>
                                                         <div className='flex w-full justify-between'>
-                                                            <span>Total</span> <span>/ 4</span>
+                                                            <span>Total</span>{' '}
+                                                            <span>
+                                                                {speechTwoResult.totalScore} / {speechTwoResult.maxScore}
+                                                            </span>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -390,23 +454,32 @@ export default function PrintView({
                                         </table>
                                     </div>
                                 </div>
+                                <p className='mr-[2px] mt-1 text-right text-[8px] text-neutral3'>*정상:2점 / 경도:1점 / 심도:0점</p>
                                 {/* 소검사별 결과 */}
-                                {testResultList.map(v => {
-                                    return (
-                                        v.partList.length > 0 && (
-                                            <SubtestScorePrintView
-                                                id={v.pathname}
-                                                key={v.pathname}
-                                                subtestTitle={v.subtestTitle}
-                                                totalScore={v.totalScore}
-                                                maxScore={v.maxScore}
-                                                color={v.color}
-                                                partList={v.partList}
-                                            />
-                                        )
-                                    );
-                                })}
-
+                                {speechMechanismResult.partList.length > 0 && (
+                                    <SubtestScorePrintView
+                                        id={speechMechanismResult.pathname}
+                                        key={speechMechanismResult.pathname}
+                                        subtestTitle={speechMechanismResult.subtestTitle}
+                                        subtestTitleEn={speechMechanismResult.subtestTitleEn}
+                                        totalScore={speechMechanismResult.totalScore}
+                                        maxScore={speechMechanismResult.maxScore}
+                                        color={speechMechanismResult.color}
+                                        partList={speechMechanismResult.partList}
+                                    />
+                                )}
+                                {speechTotalResult.partList.length > 0 && (
+                                    <SubtestScorePrintView
+                                        id={speechTotalResult.pathname}
+                                        key={speechTotalResult.pathname}
+                                        subtestTitle={speechTotalResult.subtestTitle}
+                                        subtestTitleEn={speechTotalResult.subtestTitleEn}
+                                        totalScore={speechTotalResult.totalScore}
+                                        maxScore={speechTotalResult.maxScore}
+                                        color={speechTotalResult.color}
+                                        partList={speechTotalResult.partList}
+                                    />
+                                )}
                                 {speechMotorResults.length > 0 && (
                                     <div className='mt-7.5 w-full'>
                                         <h2 className='text-xs font-bold'>SPEECH MOTOR : 말운동 평가</h2>
@@ -420,12 +493,18 @@ export default function PrintView({
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        {speechMotorResults.map((v, i) => (
-                                                            <tr key={i}>
-                                                                <td width='50%'>{v.questionText}</td>
-                                                                <td width='50%'>{v.value}</td>
-                                                            </tr>
-                                                        ))}
+                                                        <tr>
+                                                            <td width='50%'>파</td>
+                                                            <td width='50%'>{speechMotorResults[1].value}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td width='50%'>타</td>
+                                                            <td width='50%'>{speechMotorResults[2].value}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td width='50%'>카</td>
+                                                            <td width='50%'>{speechMotorResults[3].value}</td>
+                                                        </tr>
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -438,19 +517,20 @@ export default function PrintView({
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        {speechMotorResults.map((v, i) => (
-                                                            <tr key={i}>
-                                                                <td width='50%'>{v.questionText}</td>
-                                                                <td width='50%'>{v.value}</td>
-                                                            </tr>
-                                                        ))}
+                                                        <tr className='h-full'>
+                                                            <td width='50%' height='63px'>
+                                                                파타카
+                                                            </td>
+                                                            <td width='50%' height='63px'>
+                                                                {speechMotorResults[4].value}
+                                                            </td>
+                                                        </tr>
                                                     </tbody>
                                                 </table>
                                             </div>
                                         </div>
                                     </div>
                                 )}
-
                                 {mildAndModerateAnswers.length > 0 && (
                                     <div className='mt-7.5 w-full'>
                                         <h2 className='text-xs font-bold'>경도 & 심도 체크항목</h2>
@@ -476,8 +556,18 @@ export default function PrintView({
                                                                 {v.partTitle}
                                                             </td>
                                                             <td width='74%'>{v.questionText}</td>
-                                                            <td align='center' width='13%'>
-                                                                {answerOptions.find(answer => answer.value === v.answer)?.label}
+                                                            <td
+                                                                className={cx(
+                                                                    'border-l border-t border-neutral8 bg-white py-3',
+                                                                    v.answer === 'moderate' ? 'text-red1' : 'text-primary1',
+                                                                )}
+                                                                align='center'
+                                                                width='13%'
+                                                            >
+                                                                <span className={styles.answer}></span>
+                                                                <span className='text-neutral1'>
+                                                                    {answerOptions.find(answer => answer.value === v.answer)?.label}
+                                                                </span>
                                                             </td>
                                                         </tr>
                                                     ))}
@@ -486,7 +576,6 @@ export default function PrintView({
                                         </div>
                                     </div>
                                 )}
-
                                 <div className='mt-7.5 w-full'>
                                     <h2 className='text-xs font-bold'>마비말장애 유형</h2>
                                     <div className='mt-2.5 flex break-after-avoid flex-row flex-wrap gap-x-5 gap-y-3'>
@@ -513,7 +602,6 @@ export default function PrintView({
                                         ))}
                                     </div>
                                 </div>
-
                                 <div className='mt-7.5 w-full'>
                                     <h2 className='text-xs font-bold'>종합소견</h2>
                                     <div className='mt-2.5 flex min-h-[94px] flex-row flex-wrap gap-x-5 gap-y-3 rounded-lg border border-neutral8 px-[15px] py-2.5 text-[8px]'>

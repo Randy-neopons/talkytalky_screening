@@ -109,6 +109,17 @@
     }
 }
 
+span.answer::before {
+    content: '';
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    background-color: currentColor;
+    border-radius: 50%; /* 원형으로 만들기 */
+    margin-right: 3px; /* 텍스트와 간격 */
+    vertical-align: middle; /* 텍스트 높이 정렬 */
+}
+
 .printTable {
     @apply w-[595px] bg-white;
 

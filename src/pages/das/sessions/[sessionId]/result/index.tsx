@@ -17,7 +17,7 @@ import { useModal } from '@/components/common/Modal/context';
 import { PrintIcon } from '@/components/common/icons';
 import PrintView from '@/components/das/PrintView';
 import { useUserQuery } from '@/hooks/user';
-import { getTestInfoAPI, getTestResultAPI, updateTestResultAPI, type TestInfo } from '@/api/das';
+import { getTestInfoAPI, getTestResultAPI, updateTestResultAPI, type TestInfo, type TestScore } from '@/api/das';
 
 import styles from './TestResultPage.module.scss';
 
@@ -67,8 +67,15 @@ const subtestResultList = [
         color: '#20C997',
     },
     {
-        subtestIds: [2, 3],
-        subtestTitle: 'SPEECH I : 영역별 말평가 / SPEECH II : 종합적 말평가',
+        subtestIds: [2],
+        subtestTitle: 'SPEECH I : 영역별 말평가',
+        graphTitle: 'SPEECH',
+        pathname: 'speech',
+        color: '#FFA26B',
+    },
+    {
+        subtestIds: [3],
+        subtestTitle: 'SPEECH II : 종합적 말평가',
         graphTitle: 'SPEECH',
         pathname: 'speech',
         color: '#FFA26B',
@@ -82,24 +89,7 @@ const subtestResultList = [
     // },
 ];
 
-const makeTotalScoreGraphData = (
-    testResultList: {
-        pathname: string;
-        subtestTitle: string;
-        graphTitle: string;
-        color: string;
-        totalScore: number;
-        maxScore: number;
-        partList: {
-            score: number;
-            maxScore: number;
-            partId: number;
-            partTitle: string;
-            subtestId: number;
-            subtestTitle: string;
-        }[];
-    }[],
-) => {
+const makeTotalScoreGraphData = (testResultList: TestScore[]) => {
     const { score, maxScore } = testResultList.reduce(
         (accum, curr) => {
             return {
@@ -118,33 +108,17 @@ const makeTotalScoreGraphData = (
     ];
 };
 
-const makeScoreBarGraphData = (
-    testResultList: {
-        pathname: string;
-        subtestTitle: string;
-        graphTitle: string;
-        color: string;
-        totalScore: number;
-        maxScore: number;
-        partList: {
-            score: number;
-            maxScore: number;
-            partId: number;
-            partTitle: string;
-            subtestId: number;
-            subtestTitle: string;
-        }[];
-    }[],
-) => {
-    return testResultList.map(v => ({
-        graphTitle: v.graphTitle,
-        score: Math.floor((v.totalScore / v.maxScore) * 100),
-    }));
-};
+// const makeScoreBarGraphData = (testResultList: TestScore[]) => {
+//     return testResultList.map(v => ({
+//         graphTitle: v.graphTitle,
+//         score: Math.floor((v.totalScore / v.maxScore) * 100),
+//     }));
+// };
 
 export const SubtestScore = ({
     id,
     subtestTitle,
+    subtestTitleEn,
     totalScore,
     maxScore,
     color,
@@ -152,18 +126,22 @@ export const SubtestScore = ({
 }: {
     id: string;
     subtestTitle: string;
+    subtestTitleEn: string;
     totalScore: number;
     maxScore: number;
     color: string;
     partList: {
         partTitle: string;
+        partTitleEn: string;
         score: number;
         maxScore: number;
     }[];
 }) => {
     return (
         <div className='mt-20 w-full'>
-            <h2 className='font-bold text-black text-head-2'>{subtestTitle}</h2>
+            <h2 className='font-bold text-black text-head-2'>
+                {subtestTitleEn} : {subtestTitle}
+            </h2>
             <div className='mt-7.5 flex w-full gap-15 rounded-base bg-white px-[50px] pb-5 pt-10 shadow-base'>
                 <div className='w-40 flex-none text-center xl:w-[200px]'>
                     <SubtestScoreGraph
@@ -181,7 +159,18 @@ export const SubtestScore = ({
                 </div>
                 <div className='flex flex-1 flex-col gap-3.5'>
                     <SubtestScoreLineGraph
-                        data={[{ id: 'score', data: partList.map(part => ({ x: part.partTitle, y: part.score, color })) }]}
+                        data={[
+                            {
+                                id: 'score',
+                                data: partList.map(part => {
+                                    const partTitleList = part.partTitle.split(',');
+                                    const partTitleEnList = part.partTitleEn.split(',');
+                                    const title = partTitleList.map((v, i) => `${v}(${partTitleEnList[i]})`).join('\n');
+
+                                    return { x: title, y: part.score, color };
+                                }),
+                            },
+                        ]}
                         color={color}
                     />
                     {/* {partList.map((part, i) => (
@@ -209,7 +198,10 @@ export const SubtestScore = ({
 // Stress Testing 문항 페이지
 export default function TestResultPage({
     testInfo,
-    testResultList,
+    speechMechanismResult,
+    speechOneResult,
+    speechTwoResult,
+    speechTotalResult,
     mildAndModerateAnswers,
     speechMotorResults,
     dysarthriaTypes,
@@ -217,22 +209,10 @@ export default function TestResultPage({
     opinion: comprehensiveOpinion,
 }: {
     testInfo: TestInfo;
-    testResultList: {
-        pathname: string;
-        subtestTitle: string;
-        graphTitle: string;
-        color: string;
-        totalScore: number;
-        maxScore: number;
-        partList: {
-            score: number;
-            maxScore: number;
-            partId: number;
-            partTitle: string;
-            subtestId: number;
-            subtestTitle: string;
-        }[];
-    }[];
+    speechMechanismResult: TestScore;
+    speechOneResult: TestScore;
+    speechTwoResult: TestScore;
+    speechTotalResult: TestScore;
     mildAndModerateAnswers: any[];
     speechMotorResults: { questionText: string; value: string }[];
     dysarthriaTypes?: string[];
@@ -405,18 +385,53 @@ export default function TestResultPage({
                 <div className='mt-7.5 flex gap-7.5'>
                     <div className='flex h-[295px] min-w-[280px] items-center justify-center rounded-base bg-white shadow-base xl:h-[346px] xl:w-[390px]'>
                         <TestTotalScoreGraph
-                            data={makeTotalScoreGraphData(testResultList)}
-                            maxScore={testResultList.reduce((accum, curr) => accum + curr.maxScore, 0)}
+                            data={makeTotalScoreGraphData([speechMechanismResult, speechTotalResult])}
+                            maxScore={speechMechanismResult.maxScore + speechTotalResult.maxScore}
                         />
                     </div>
                     <div className='h-[295px] w-full rounded-base bg-white shadow-base xl:h-[346px] xl:w-[580px]'>
-                        <TestScoreBarGraph data={makeScoreBarGraphData(testResultList)} />
+                        <TestScoreBarGraph
+                            data={[
+                                {
+                                    graphTitle: 'SPEECH\nMECHANISM',
+                                    score: Math.floor((speechMechanismResult.totalScore / speechMechanismResult.maxScore) * 100),
+                                },
+                                {
+                                    graphTitle: 'SPEECH',
+                                    score: Math.floor((speechTotalResult.totalScore / speechTotalResult.maxScore) * 100),
+                                },
+                            ]}
+                        />
                     </div>
                 </div>
             </div>
 
             {/* 소검사별 결과 */}
-            {testResultList.map(v => {
+            {speechMechanismResult.partList.length > 0 && (
+                <SubtestScore
+                    id={speechMechanismResult.pathname}
+                    key={speechMechanismResult.pathname}
+                    subtestTitle={speechMechanismResult.subtestTitle}
+                    subtestTitleEn={speechMechanismResult.subtestTitleEn}
+                    totalScore={speechMechanismResult.totalScore}
+                    maxScore={speechMechanismResult.maxScore}
+                    color={speechMechanismResult.color}
+                    partList={speechMechanismResult.partList}
+                />
+            )}
+            {speechTotalResult.partList.length > 0 && (
+                <SubtestScore
+                    id={speechTotalResult.pathname}
+                    key={speechTotalResult.pathname}
+                    subtestTitle={speechTotalResult.subtestTitle}
+                    subtestTitleEn={speechTotalResult.subtestTitleEn}
+                    totalScore={speechTotalResult.totalScore}
+                    maxScore={speechTotalResult.maxScore}
+                    color={speechTotalResult.color}
+                    partList={speechTotalResult.partList}
+                />
+            )}
+            {/* {testResultList.map(v => {
                 return (
                     v.partList.length > 0 && (
                         <SubtestScore
@@ -430,7 +445,7 @@ export default function TestResultPage({
                         />
                     )
                 );
-            })}
+            })} */}
 
             {speechMotorResults.length > 0 && (
                 <div className='mt-20 w-full'>
@@ -550,7 +565,10 @@ export default function TestResultPage({
                 <PrintView
                     testerName={user?.data?.fullName}
                     testInfo={testInfo}
-                    testResultList={testResultList}
+                    speechMechanismResult={speechMechanismResult}
+                    speechOneResult={speechOneResult}
+                    speechTwoResult={speechTwoResult}
+                    speechTotalResult={speechTotalResult}
                     mildAndModerateAnswers={[
                         { partTitle: '안면', questionText: '/아/ 지속시간 (3회중 가장 길게 산출한 지속 시간)', answer: 'mild' },
                         { partTitle: '안면', questionText: '/아/ 지속시간 (3회중 가장 길게 산출한 지속 시간)', answer: 'mild' },
@@ -591,47 +609,30 @@ export const getServerSideProps: GetServerSideProps = async context => {
         const { testInfo } = await getTestInfoAPI({ sessionId, jwt: accessToken });
 
         // 소검사 문항 정보 fetch
-        const { testScore, mildAndModerateAnswers, speechMotorResults, dysarthriaTypes, mixedDysarthriaTypeDetail, opinion } =
-            await getTestResultAPI({
-                sessionId,
-                jwt: accessToken,
-            });
-
-        const testResultList = subtestResultList.map(v => {
-            const partList = testScore
-                .filter(score => v.subtestIds.includes(score.subtestId))
-                .map(score => {
-                    const partTitles = score.partTitle.split(',');
-                    const partTitleEns = score.partTitleEn.split(',');
-                    const partTitle = partTitles.map((title, i) => `${title}(${partTitleEns[i]})`).join('\n');
-
-                    return { ...score, partTitle };
-                });
-            const { totalScore, maxScore } = partList.reduce(
-                (accum, curr) => {
-                    const totalScore = accum.totalScore + curr.score;
-                    const maxScore = accum.maxScore + curr.maxScore;
-                    return { totalScore, maxScore };
-                },
-                { totalScore: 0, maxScore: 0 },
-            );
-
-            return {
-                pathname: v.pathname,
-                subtestTitle: v.subtestTitle,
-                graphTitle: v.graphTitle,
-                totalScore,
-                maxScore,
-                color: v.color,
-                partList,
-            };
+        const {
+            testScore,
+            speechMechanismResult,
+            speechOneResult,
+            speechTwoResult,
+            speechTotalResult,
+            mildAndModerateAnswers,
+            speechMotorResults,
+            dysarthriaTypes,
+            mixedDysarthriaTypeDetail,
+            opinion,
+        } = await getTestResultAPI({
+            sessionId,
+            jwt: accessToken,
         });
 
         return {
             props: {
                 isLoggedIn: true,
-                testResultList,
                 testInfo,
+                speechMechanismResult,
+                speechOneResult,
+                speechTwoResult,
+                speechTotalResult,
                 mildAndModerateAnswers,
                 speechMotorResults,
                 dysarthriaTypes,

@@ -247,8 +247,8 @@ export function SubtestScoreLineGraphPrintView({ data, color }: { data: Serie[];
                     truncateTickAt: 0,
                 }}
                 colors={color}
-                lineWidth={3}
-                pointSize={12}
+                lineWidth={2}
+                pointSize={8}
                 pointColor='#FFFFFF'
                 pointBorderWidth={3}
                 pointBorderColor={{ from: 'serieColor' }}
@@ -259,8 +259,8 @@ export function SubtestScoreLineGraphPrintView({ data, color }: { data: Serie[];
                         fontSize: 8,
                         fontFamily: 'Noto Sans KR',
                         lineHeight: 12,
-                        fill: color,
-                        fontWeight: 700,
+                        fill: '#000000',
+                        fontWeight: 400,
                     },
                     axis: {
                         ticks: {

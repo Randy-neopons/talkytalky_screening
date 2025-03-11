@@ -59,7 +59,7 @@ export function SubtestScoreGraphPrintView({
                 data={data}
                 valueFormat='>-.2f'
                 padding={0}
-                innerRadius={0.85}
+                innerRadius={0.9}
                 cornerRadius={20}
                 startAngle={90}
                 endAngle={450}
