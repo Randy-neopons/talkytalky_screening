@@ -3,21 +3,18 @@ import { createContext, type FC, useContext, type ReactNode, useState, useCallba
 
 import Modal from '.';
 
+type ModalProps = {
+    title?: ReactNode;
+    content: ReactNode;
+    onCancel?: MouseEventHandler<HTMLButtonElement>;
+    onOk?: MouseEventHandler<HTMLButtonElement>;
+    cancelText?: string;
+    okText?: string;
+};
+
 interface ModalContextType {
     modalOpen: boolean;
-    handleOpenModal: ({
-        content,
-        onCancel,
-        onOk,
-        cancelText,
-        okText,
-    }: {
-        content: ReactNode;
-        onCancel?: MouseEventHandler<HTMLButtonElement>;
-        onOk: MouseEventHandler<HTMLButtonElement>;
-        cancelText?: string;
-        okText?: string;
-    }) => void;
+    handleOpenModal: ({ title, content, onCancel, onOk, cancelText, okText }: ModalProps) => void;
     handleCloseModal: () => void;
 }
 
@@ -34,42 +31,22 @@ export const useModal = () => {
 export const ModalProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const [modalOpen, setModalOpen] = useState(false);
 
-    const [modalProps, setModalProps] = useState<{
-        content: ReactNode;
-        onCancel?: MouseEventHandler<HTMLButtonElement>;
-        onOk?: MouseEventHandler<HTMLButtonElement>;
-        cancelText?: string;
-        okText?: string;
-    }>({
+    const [modalProps, setModalProps] = useState<ModalProps>({
         content: null,
     });
 
-    const handleOpenModal = useCallback(
-        ({
+    const handleOpenModal = useCallback(({ title, content, onCancel, onOk, cancelText, okText }: ModalProps) => {
+        setModalProps({
+            title,
             content,
             onCancel,
             onOk,
             cancelText,
             okText,
-        }: {
-            content: ReactNode;
-            onCancel?: MouseEventHandler<HTMLButtonElement>;
-            onOk?: MouseEventHandler<HTMLButtonElement>;
-            cancelText?: string;
-            okText?: string;
-        }) => {
-            setModalProps({
-                content,
-                onCancel,
-                onOk,
-                cancelText,
-                okText,
-            });
+        });
 
-            setModalOpen(true);
-        },
-        [],
-    );
+        setModalOpen(true);
+    }, []);
     const handleCloseModal = useCallback(() => {
         setModalOpen(false);
     }, []);

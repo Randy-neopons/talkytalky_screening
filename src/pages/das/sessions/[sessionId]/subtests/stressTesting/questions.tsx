@@ -13,13 +13,13 @@ import Container from '@/components/common/Container';
 import { useQuestionsAndAnswersQuery } from '@/hooks/das';
 import { getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
 
-import subtestStyles from '../SubTests.module.css';
+import subtestStyles from '../SubTests.module.scss';
 
 import type { Answer, QuestionAnswer } from '@/types/das';
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 5;
-const PART_ID_START = 14;
+const PART_ID_START = 17;
 
 // 소검사 내 파트별 문항 index 정보
 // TODO: part title도 DB에서 가져오기
@@ -31,7 +31,7 @@ const partIndexList = [
         subtitle1: '피로도 검사',
         subtitle2: '음질',
         partTitle: 'Respiration (호흡)\nPhonation (발성)',
-        partId: 14,
+        partId: 17,
     },
 ];
 
@@ -72,7 +72,7 @@ export default function StressTestingQuestionsPage({ questionList }: { questionL
     const { data: qnaData } = useQuestionsAndAnswersQuery({
         sessionId: Number(router.query.sessionId),
         subtestId: CURRENT_SUBTEST_ID,
-        // partId,
+        partId,
         // start,
         // end,
         jwt: getCookie('jwt') || '',
@@ -99,7 +99,7 @@ export default function StressTestingQuestionsPage({ questionList }: { questionL
         e => {
             if (e.target.checked === true) {
                 Array.from({ length: split - start }, (v, i) => start + i).map(v => {
-                    setValue(`answers.${v}.answer`, 'normal');
+                    setValue(`answers.${v}.answer`, 'normal', { shouldValidate: true });
                 });
             }
 
@@ -119,14 +119,15 @@ export default function StressTestingQuestionsPage({ questionList }: { questionL
     const handleSubmitData = useCallback(
         async ({ sessionId, data }: { sessionId: number; data: any }) => {
             try {
-                const formData = new FormData();
-                formData.append('testTime', `${testTime}`);
-                formData.append('currentPartId', `${partId}`);
-                formData.append('answers', JSON.stringify(data.answers));
-
                 // 세션 갱신
                 const accessToken = getCookie('jwt') as string;
-                await updateSessionAPI({ sessionId, formData, jwt: accessToken });
+                await updateSessionAPI({
+                    sessionId,
+                    testTime,
+                    currentPartId: partId,
+                    answers: data.answers,
+                    jwt: accessToken,
+                });
             } catch (err) {
                 if (isAxiosError(err)) {
                     if (err.response?.status === 401) {
@@ -165,7 +166,7 @@ export default function StressTestingQuestionsPage({ questionList }: { questionL
         <Container>
             <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>Stress Testing</h1>
             <span className='text-center text-body-2'>본 검사는 중증 근무력증 선별검사로 필요시에만 실시합니다.</span>
-            <form onSubmit={handleSubmit(handleOnSubmit)} className={`${subtestStyles['subtest-form']}`}>
+            <form onSubmit={handleSubmit(handleOnSubmit)} className={`${subtestStyles.subtestForm}`}>
                 <table className={subtestStyles.questionTable}>
                     <thead data-title='피로도 검사'>
                         <tr className={subtestStyles.yesNo}>

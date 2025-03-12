@@ -9,13 +9,14 @@ import { getCookie } from 'cookies-next';
 import dayjs from 'dayjs';
 
 import { useTestInfo, useTestActions } from '@/stores/testStore';
+import { dominantHandOptions, genderOptions, hearingAidsUseOptions } from '@/utils/const';
 import { RadioButton } from '@/components/common/Buttons';
-import { CheckBoxGroupItem } from '@/components/common/CheckBox';
+import { CheckBoxGroup, CheckBoxGroupItem } from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import Select from '@/components/common/Select';
 import { useUserQuery } from '@/hooks/user';
 
-import styles from './PersonalInfo.module.css';
+import styles from './PersonalInfo.module.scss';
 
 import type { TestInfoFormValues } from '@/types/das';
 
@@ -26,11 +27,6 @@ const makeRangeOptions = (min: number, max: number) => {
 const yearOptions = makeRangeOptions(1940, dayjs().year());
 const monthOptions = makeRangeOptions(1, 12);
 const dayOptions = makeRangeOptions(1, 31);
-
-const genderOptions = [
-    { value: 'female', label: '여' },
-    { value: 'male', label: '남' },
-];
 
 const brainLesionOptions = [
     { value: 'bilateralUpperMotorNeuron', label: '양측상부운동신경손상' },
@@ -96,6 +92,9 @@ export const PersonalInfoForm = ({
         patientName: string;
         patientGender: string;
         patientBirthdate: string;
+        dominantHand: string;
+        hearingAidsUse: string;
+        educationYear: string;
         brainLesions: string[];
         medicalHistory: string;
         patientMemo: string;
@@ -129,6 +128,9 @@ export const PersonalInfoForm = ({
             birthYear: testInfo?.patientBirthdate ? `${dayjs(testInfo.patientBirthdate).year()}` : '',
             birthMonth: testInfo?.patientBirthdate ? `${dayjs(testInfo.patientBirthdate).month() + 1}` : '',
             birthDay: testInfo?.patientBirthdate ? `${dayjs(testInfo.patientBirthdate).date()}` : '',
+            dominantHand: testInfo?.dominantHand || '',
+            hearingAidsUse: testInfo?.hearingAidsUse || '',
+            educationYear: testInfo?.educationYear || '',
             brainLesions: testInfo?.brainLesions || [],
             medicalHistory: testInfo?.medicalHistory || '',
             patientMemo: testInfo?.patientMemo || '',
@@ -137,6 +139,7 @@ export const PersonalInfoForm = ({
             languageDisorderDetail: testInfo?.languageDisorderDetail,
             cognitiveDisorder: testInfo?.cognitiveDisorder,
             cognitiveDisorderDetail: testInfo?.cognitiveDisorderDetail,
+            dysphagia: testInfo?.dysphagia,
         },
         mode: 'onChange',
     });
@@ -154,7 +157,7 @@ export const PersonalInfoForm = ({
 
     return (
         <>
-            <form className='mb-20 mt-15 w-[550px] rounded-[20px] bg-white px-[50px] pb-[50px] pt-[10px] shadow-base xl:mt-20'>
+            <form className='mb-20 mt-15 w-[550px] rounded-2xl bg-white px-[50px] pb-[50px] pt-[10px] shadow-base xl:mt-20'>
                 <Label htmlFor='testerName' required>
                     검사자명
                 </Label>
@@ -172,7 +175,9 @@ export const PersonalInfoForm = ({
                 />
                 <ErrorMessage errors={errors} name='certificateNumber' render={({ message }) => <ErrorText>{message}</ErrorText>} />
 
-                <Label htmlFor='testDate'>검사일</Label>
+                <Label htmlFor='testDate' required>
+                    검사일
+                </Label>
                 <div className='flex gap-[15px]'>
                     <Select control={control} name='testYear' required options={yearOptions} placeholder='년' />
                     <Select control={control} name='testMonth' required options={monthOptions} placeholder='월' />
@@ -181,23 +186,29 @@ export const PersonalInfoForm = ({
 
                 <div className='mb-[10px] mt-10 h-[1px] w-full bg-[#ced4da] xl:mt-[50px] '></div>
 
-                <Label htmlFor='patientName' required>
-                    환자명
-                </Label>
-                <input
-                    {...register('patientName', { required: '환자명을 입력해주세요.' })}
-                    className={`${styles.input}`}
-                    placeholder='환자명을 입력해주세요.'
-                />
-                <ErrorMessage errors={errors} name='patientName' render={({ message }) => <ErrorText>{message}</ErrorText>} />
+                <div className='flex w-full basis-1/2 gap-2.5'>
+                    <div className='w-full'>
+                        <Label htmlFor='patientName' required>
+                            환자명
+                        </Label>
+                        <input
+                            {...register('patientName', { required: '환자명을 입력해주세요.' })}
+                            className={`${styles.input}`}
+                            placeholder='환자명을 입력해주세요.'
+                        />
+                        <ErrorMessage errors={errors} name='patientName' render={({ message }) => <ErrorText>{message}</ErrorText>} />
+                    </div>
 
-                <Label htmlFor='patientGender' required>
-                    성별
-                </Label>
-                <Select control={control} name='patientGender' required options={genderOptions} placeholder='성별' />
+                    <div className='w-full'>
+                        <Label htmlFor='patientGender' required>
+                            성별
+                        </Label>
+                        <Select control={control} name='patientGender' required options={genderOptions} placeholder='성별' />
+                    </div>
+                </div>
 
                 <Label htmlFor='patientBirthDate' required>
-                    생년월일(<span className='text-accent1'>{age}</span>세)
+                    생년월일(만 <span className='text-accent1'>{age}</span>세)
                 </Label>
                 <div className='flex gap-[15px]'>
                     <Select control={control} name='birthYear' required options={yearOptions} placeholder='년' />
@@ -205,16 +216,44 @@ export const PersonalInfoForm = ({
                     <Select control={control} name='birthDay' required options={dayOptions} placeholder='일' />
                 </div>
 
-                <Label htmlFor='brainLesions'>마비말장애 관련 뇌병변</Label>
-                <ul className='flex flex-row flex-wrap'>
-                    {brainLesionOptions.map((option, i) => (
-                        <li key={option.value} className='mb-[10px] basis-1/2 xl:mb-[11px]'>
-                            <CheckBoxGroupItem key={option.value} control={control} name='brainLesions' value={option.value}>
-                                {option.label}
-                            </CheckBoxGroupItem>
-                        </li>
-                    ))}
-                </ul>
+                <Label htmlFor='dominantHand' required>
+                    주로 사용하는 손
+                </Label>
+                <Select
+                    control={control}
+                    name='dominantHand'
+                    required
+                    options={dominantHandOptions}
+                    placeholder='주로 사용하는 손을 입력해주세요'
+                />
+                <ErrorMessage errors={errors} name='dominantHand' render={({ message }) => <ErrorText>{message}</ErrorText>} />
+
+                <Label htmlFor='hearingAidsUse' required>
+                    보청기 사용유무
+                </Label>
+                <Select
+                    control={control}
+                    name='hearingAidsUse'
+                    required
+                    options={hearingAidsUseOptions}
+                    placeholder='보청기 사용유무를 입력해주세요'
+                />
+                <ErrorMessage errors={errors} name='hearingAidsUse' render={({ message }) => <ErrorText>{message}</ErrorText>} />
+
+                <Label htmlFor='educationYear' required>
+                    교육년수
+                </Label>
+                <input
+                    {...register('educationYear', { required: '교육년수를 입력해주세요.' })}
+                    className={`${styles.input}`}
+                    placeholder='교육년수를 입력해주세요.'
+                />
+                <ErrorMessage errors={errors} name='patientName' render={({ message }) => <ErrorText>{message}</ErrorText>} />
+
+                <Label htmlFor='brainLesions' required>
+                    마비말장애 관련 뇌병변
+                </Label>
+                <CheckBoxGroup control={control} name='brainLesions' options={brainLesionOptions} required />
 
                 <Label htmlFor='medicalHistory'>병력</Label>
                 <Controller

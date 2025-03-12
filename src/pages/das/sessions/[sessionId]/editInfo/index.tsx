@@ -29,9 +29,23 @@ export default function PersonalInfoEditPage({
         patientName: string;
         patientGender: string;
         patientBirthdate: string;
+        dominantHand: string;
+        hearingAidsUse: string;
+        educationYear: string;
         brainLesions: string[];
         medicalHistory: string;
         patientMemo: string;
+        neurologicalLesion?: string; // 신경학적 병변
+        languageDisorder?: string; // 언어장애
+        languageDisorderDetail?: {
+            kWabAq?: number;
+            aphasiaType?: string;
+        }; // 언어장애
+        cognitiveDisorder?: string; // 인지장애
+        cognitiveDisorderDetail?: {
+            mmseScore?: number;
+        };
+        dysphagia?: string;
     };
 }) {
     const router = useRouter();

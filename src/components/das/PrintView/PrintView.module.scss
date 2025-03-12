@@ -1,0 +1,164 @@
+.printView {
+    background: #ffffff;
+}
+
+.printHeader {
+    @apply relative w-full border-t-4 border-[#192A88] text-xs;
+}
+
+.coverPage {
+    @apply h-full w-full border-y-4 border-[#192A88] px-[50px];
+}
+
+.contentPage {
+    @apply flex w-[595px] flex-col bg-white px-7.5 text-black;
+    page-break-inside: avoid; /* 큰 섹션 안에서 페이지 넘김이 일어나지 않도록 */
+}
+
+.infoTable {
+    @apply mt-3.5 w-1/2;
+}
+
+.infoRow {
+    @apply flex text-[8px];
+}
+
+.infoRow + .infoRow {
+    .infoValue {
+        border-top: none;
+    }
+}
+
+.infoRow:first-child {
+    .infoLabelLeft,
+    .infoLabelRight {
+        @apply rounded-tl-md;
+    }
+
+    .infoValue {
+        @apply rounded-tr-md;
+    }
+}
+
+.infoRow:last-child {
+    .infoLabelLeft,
+    .infoLabelRight {
+        @apply rounded-bl-md;
+    }
+
+    .infoValue {
+        @apply rounded-br-md;
+    }
+}
+
+.infoLabelLeft {
+    flex: 0 0 68px; /* 고정 너비 */
+
+    @apply border border-[#192a88] bg-[#192a88] p-1.5 font-bold text-white;
+}
+
+.infoLabelRight {
+    flex: 0 0 100px; /* 고정 너비 */
+
+    @apply border border-[#192a88] bg-[#192a88] p-1.5 font-bold text-white;
+}
+
+.infoValue {
+    flex: 1;
+
+    @apply border border-neutral8 bg-white p-1.5;
+}
+
+.scoreTableBox {
+    @apply mt-2.5 overflow-hidden rounded-md border border-neutral8;
+}
+
+.scoreTable {
+    @apply w-full border-collapse border-hidden text-center text-[8px];
+
+    thead {
+        @apply font-bold;
+    }
+
+    td {
+        @apply border border-neutral8 p-1;
+    }
+
+    th {
+        @apply border-t-0;
+    }
+}
+
+.answerTableBox {
+    @apply mt-2.5 overflow-hidden rounded-md border border-neutral8;
+}
+
+.answerTable {
+    @apply w-full border-collapse border-hidden text-center text-[8px];
+
+    thead {
+        @apply font-bold;
+    }
+
+    td {
+        @apply border border-neutral8 py-[7px];
+    }
+
+    th {
+        @apply border-t-0;
+    }
+}
+
+span.answer::before {
+    content: '';
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    background-color: currentColor;
+    border-radius: 50%; /* 원형으로 만들기 */
+    margin-right: 3px; /* 텍스트와 간격 */
+    vertical-align: middle; /* 텍스트 높이 정렬 */
+}
+
+.printTable {
+    @apply w-[595px] bg-white;
+
+    td.printCell {
+        @apply px-7.5;
+    }
+}
+
+.printHeaderSpace,
+.printFooterSpace {
+    @apply h-15;
+}
+
+// @media print {
+//     .printHeader {
+//         // display: none;
+//         position: fixed;
+//         top: 0;
+//         width: calc(100% - 60px);
+//         z-index: 1000;
+//     }
+
+//     @page {
+//         margin-top: 30px;
+//         margin-bottom: 30px;
+//     }
+
+//     @page :first {
+//         margin-top: 0px;
+//         margin-bottom: 0px;
+//     }
+// }
+
+@page {
+    margin-bottom: 30px;
+
+    @bottom-center {
+        content: counter(page);
+        size: 8px;
+        padding-bottom: 10px;
+    }
+}

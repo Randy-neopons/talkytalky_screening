@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, type ReactNode, type RefObject } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
@@ -13,9 +13,9 @@ import { AudioButton } from '@/components/common/Buttons';
 import Container from '@/components/common/Container';
 import { InfoIcon, PrintIcon } from '@/components/common/icons';
 import useAudioRecorder from '@/hooks/useAudioRecorder';
-import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI } from '@/api/das';
+import { getAnswersCountAPI, getQuestionAndAnswerListAPI, updateSessionAPI, upsertRecordingAPI } from '@/api/das';
 
-import styles from '../SubTests.module.css';
+import styles from '../SubTests.module.scss';
 
 import marketImg from 'public/static/images/market-img.png';
 import pictureDescImg from 'public/static/images/picture-desc-img.png';
@@ -24,14 +24,7 @@ import type { Recording } from '@/types/das';
 
 const TooltipArrowIcon = () => {
     return (
-        <svg
-            className={`${styles['tooltip-arrow']}`}
-            xmlns='http://www.w3.org/2000/svg'
-            width='54'
-            height='54'
-            viewBox='0 0 54 54'
-            fill='none'
-        >
+        <svg className={`${styles.tooltipArrow}`} xmlns='http://www.w3.org/2000/svg' width='54' height='54' viewBox='0 0 54 54' fill='none'>
             <path
                 d='M24.4019 4.5C25.5566 2.5 28.4434 2.5 29.5981 4.5L47.7846 36C48.9393 38 47.4959 40.5 45.1865 40.5H8.81346C6.50406 40.5 5.06069 38 6.21539 36L24.4019 4.5Z'
                 fill='#495057'
@@ -84,19 +77,16 @@ export default function PictureDescriptionPage({ recording }: Props) {
     const handleSubmitData = useCallback(
         async ({ sessionId }: { sessionId: number }) => {
             try {
-                const formData = new FormData();
-                formData.append('audio1', audioBlob || 'null');
-                formData.append(
-                    'recordings',
-                    JSON.stringify([{ filePath: recording?.filePath || null, repeatCount: recording?.repeatCount || null }]),
-                );
-
-                formData.append('testTime', `${testTime}`);
-                formData.append('currentPartId', `${partId}`);
-
                 // 세션 갱신
                 const accessToken = getCookie('jwt') as string;
-                await updateSessionAPI({ sessionId, formData, jwt: accessToken });
+                await upsertRecordingAPI({
+                    sessionId,
+                    audioBlob: audioBlob || null,
+                    recordingId: recording?.recordingId,
+                    partId,
+                    jwt: accessToken,
+                });
+                await updateSessionAPI({ sessionId, answers: [], testTime, currentPartId: partId, jwt: accessToken });
             } catch (err) {
                 if (isAxiosError(err)) {
                     if (err.response?.status === 401) {
@@ -127,26 +117,47 @@ export default function PictureDescriptionPage({ recording }: Props) {
         [handleSubmitData, router],
     );
 
+    const [showTooltip, setShowTooltip] = useState(true);
+    const tooltipContentRef = useRef<HTMLDivElement | null>(null);
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (tooltipContentRef.current && !tooltipContentRef.current.contains(event.target as Node)) {
+                console.log('here');
+                setShowTooltip(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     return (
         <Container>
-            <div className={`${styles['title']}`}>
+            <div className={`${styles.title}`}>
                 <h1 className='flex items-center whitespace-pre-line text-center font-jalnan text-head-1'>그림설명하기</h1>
-                <div className={`${styles['button-container']}`}>
+                <div
+                    className={`${styles.buttonContainer}`}
+                    onMouseEnter={() => setShowTooltip(true)}
+                    onMouseLeave={() => setShowTooltip(false)}
+                >
                     <button>
                         <InfoIcon bgColor='#6979F8' color='#FFFFFF' width={44} height={44} />
                     </button>
-                    <TooltipArrowIcon />
+                    {showTooltip && <TooltipArrowIcon />}
                 </div>
-                <div className={`${styles['tooltip-content']}`}>
-                    <p>
-                        <b>치료사 지시문</b>
-                    </p>
-                    <p>
-                        “지금부터 그림을 보여드릴거예요. 그림을 잘 보시고 1분동안 최대한 자세히 설명해주세요. 가능하면 문장으로
-                        설명해주세요.” (필요시 그림에서 설명하지 못한 부분을 가리키며) “여기는 어떤 일이 일어나고 있나요?” 라고 발화
-                        유도하기
-                    </p>
-                </div>
+                {showTooltip && (
+                    <div className={`${styles.tooltipContent}`} ref={tooltipContentRef}>
+                        <p>
+                            <b>치료사 지시문</b>
+                        </p>
+                        <p>
+                            자, 이 글 보이시나요?(안보인다면 크기 조절하기) 제가 &apos;시작&apos;하면 이 글을 소리내서 자연스럽게
+                            읽어주세요.
+                        </p>
+                    </div>
+                )}
             </div>
             <button
                 onClick={() => {

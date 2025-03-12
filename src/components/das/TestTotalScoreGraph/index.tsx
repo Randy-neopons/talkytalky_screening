@@ -1,6 +1,7 @@
 import { ResponsiveRadialBar, type RadialBarDatum, type RadialBarSerie } from '@nivo/radial-bar';
 
 type Datum = RadialBarDatum & {
+    maxValue: number;
     color: string;
 };
 

@@ -1,7 +1,7 @@
 import { useCallback, useState, type ChangeEventHandler } from 'react';
 import Image from 'next/image';
 
-import styles from './FontSizeButton.module.css';
+import styles from './FontSizeButton.module.scss';
 
 import fontSizeIcon from 'public/static/images/font-size-icon.png';
 

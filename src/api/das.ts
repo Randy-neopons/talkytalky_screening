@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import { API_URL } from '@/utils/const';
 
-import type { Answer, Subtest, TestInfoFormValues, TestSession } from '@/types/das';
+import type { Answer, Recording, Subtest, TestInfoFormValues, TestSession } from '@/types/das';
 
 const axiosInstance = axios.create({ baseURL: API_URL });
 
@@ -11,19 +11,34 @@ const makeHeaders = (accessToken: string) => {
     return { Authorization: `Bearer ${token}` };
 };
 
+export type TestInfo = {
+    therapistUserId: number;
+    testDate: string;
+    patientName: string;
+    patientGender: string;
+    patientBirthdate: string;
+    dominantHand: string;
+    hearingAidsUse: string;
+    educationYear: string;
+    brainLesions: string[];
+    medicalHistory: string;
+    patientMemo: string;
+    neurologicalLesion: string;
+    languageDisorder: string;
+    languageDisorderDetail: any;
+    cognitiveDisorder: string;
+    cognitiveDisorderDetail: any;
+    dysphagia?: string;
+    dysarthriaTypes: string[];
+    mixedDysarthriaTypeDetail: string;
+    opinion: string;
+};
+
 // 검사 정보 조회
 export async function getTestInfoAPI({ sessionId, jwt }: { sessionId: number; jwt: string }) {
     const response = await axiosInstance.get<{
         result: string;
-        testInfo: {
-            testDate: string;
-            patientName: string;
-            patientGender: string;
-            patientBirthdate: string;
-            brainLesions: string[];
-            medicalHistory: string;
-            patientMemo: string;
-        };
+        testInfo: TestInfo;
     }>(`/assessment/session/${sessionId}`, { headers: makeHeaders(jwt) });
     return response.data;
 }
@@ -138,9 +153,57 @@ export async function createSessionAPI({
     return response.data;
 }
 
+// 레코딩 업로드
+export async function upsertRecordingAPI({
+    sessionId,
+    audioBlob,
+    recordingId,
+    partId,
+    jwt,
+}: {
+    sessionId: number;
+    audioBlob: Blob | null;
+    recordingId?: number | null;
+    partId: number;
+    jwt: string;
+}) {
+    const formData = new FormData();
+    formData.append('audio', audioBlob || 'null');
+    recordingId && formData.append('recordingId', String(recordingId));
+    formData.append('partId', String(partId));
+
+    const response = await axiosInstance.post<{ result: boolean; recordingId: Number; filePath: string }>(
+        `/assessment/session/${sessionId}/recording`,
+        formData,
+        {
+            headers: makeHeaders(jwt),
+        },
+    );
+
+    return response.data;
+}
+
 // 세션 업데이트
-export async function updateSessionAPI({ sessionId, formData, jwt }: { sessionId: number; formData: FormData; jwt: string }) {
-    const response = await axiosInstance.patch(`/assessment/session/${sessionId}`, formData, { headers: makeHeaders(jwt) });
+export async function updateSessionAPI({
+    sessionId,
+    recordings,
+    testTime,
+    currentPartId,
+    answers,
+    jwt,
+}: {
+    sessionId: number;
+    recordings?: Recording[];
+    testTime: number;
+    currentPartId: number;
+    answers: Answer[];
+    jwt: string;
+}) {
+    const response = await axiosInstance.patch(
+        `/assessment/session/${sessionId}`,
+        { recordings, testTime, currentPartId, answers },
+        { headers: makeHeaders(jwt) },
+    );
 
     return response.data;
 }
@@ -152,21 +215,42 @@ export async function completeSessionAPI({ sessionId, jwt }: { sessionId: number
     return response.data;
 }
 
+export type TestScore = {
+    totalScore: number;
+    maxScore: number;
+    partId: number;
+    partTitle: string;
+    partTitleEn: string;
+    subtestId: number;
+    subtestTitle: string;
+    subtestTitleEn: string;
+    pathname: string;
+    color: string;
+    partList: {
+        score: number;
+        maxScore: number;
+        partId: number;
+        partTitle: string;
+        partTitleEn: string;
+        subtestId: number;
+        subtestTitle: string;
+        subtestTitleEn: string;
+        pathname: string;
+        color: string;
+    }[];
+};
+
 // 세션 결과 보기
 export async function getTestResultAPI({ sessionId, jwt }: { sessionId: number; jwt: string }) {
     const response = await axiosInstance.get<{
-        testScore: {
-            score: number;
-            minusScore: number;
-            maxScore: number;
-            partId: number;
-            partTitle: string;
-            partTitleEn: string;
-            subtestId: number;
-            subtestTitle: string;
-        }[];
+        testScore: TestScore[];
+        speechMechanismResult: TestScore | null;
+        speechOneResult: TestScore | null;
+        speechTwoResult: TestScore | null;
+        speechTotalResult: TestScore | null;
         mildAndModerateAnswers: any[];
-        speechMotorResults: { questionText: string; value: string }[];
+        speechOneRecordings: Recording[];
+        speechMotorRecordings: Recording[];
         dysarthriaTypes?: string[];
         mixedDysarthriaTypeDetail?: string;
         opinion?: string;

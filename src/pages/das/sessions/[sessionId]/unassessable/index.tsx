@@ -9,6 +9,7 @@ import { partList, subtestList } from '@/stores/testStore';
 import { useTimerActions } from '@/stores/timerStore';
 import { TALKYTALKY_URL } from '@/utils/const';
 import Container from '@/components/common/Container';
+import { useModal } from '@/components/common/Modal/context';
 import { completeSessionAPI, getUnassessableQuestionListAPI } from '@/api/das';
 
 import type { QuestionAnswer } from '@/types/das';
@@ -18,18 +19,29 @@ export default function UnassessableQuestionsPage({ questionList }: { questionLi
     const router = useRouter(); // next router
 
     const { setTestStart } = useTimerActions();
+    const { handleOpenModal } = useModal();
 
     // 폼 제출
     const handleClickNext = useCallback(async () => {
         try {
-            if (window.confirm('검사를 완료처리 하고 결과를 확인하시겠습니까?')) {
-                // 세션 완료 처리
-                const accessToken = getCookie('jwt') as string;
-                const sessionId = Number(router.query.sessionId);
-                await completeSessionAPI({ sessionId, jwt: accessToken });
+            handleOpenModal({
+                title: '검사를 마치고 결과를 확인하시겠습니까?',
+                content: '추후에 이어하기가 불가능합니다.',
+                cancelText: '아니오',
+                okText: '네',
+                onOk: async () => {
+                    try {
+                        // 세션 완료 처리
+                        const accessToken = getCookie('jwt') as string;
+                        const sessionId = Number(router.query.sessionId);
+                        await completeSessionAPI({ sessionId, jwt: accessToken });
 
-                router.push(`/das/sessions/${sessionId}/result`);
-            }
+                        router.push(`/das/sessions/${sessionId}/result`);
+                    } catch (err) {
+                        console.error(err);
+                    }
+                },
+            });
         } catch (err) {
             if (isAxiosError(err)) {
                 if (err.response?.status === 401) {
@@ -41,7 +53,7 @@ export default function UnassessableQuestionsPage({ questionList }: { questionLi
             }
             console.error(err);
         }
-    }, [router]);
+    }, [handleOpenModal, router]);
 
     // 이동하기
     const handleClickMove = useCallback(

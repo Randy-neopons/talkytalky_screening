@@ -1,7 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import { getCookie } from 'cookies-next';
 
-import { getConductedSubtestsAPI, getQuestionAndAnswerListAPI, getSessionListAPI } from '@/api/das';
+import { getConductedSubtestsAPI, getQuestionAndAnswerListAPI, getSessionListAPI, upsertRecordingAPI } from '@/api/das';
 
 import type { Subtest } from '@/types/das';
 
@@ -27,6 +28,20 @@ export const useQuestionsAndAnswersQuery = ({
         queryFn: () => getQuestionAndAnswerListAPI({ sessionId, subtestId, partId, start, end, jwt }),
     });
 };
+
+export function useUpsertRecordingMutation({ onSuccess }: { onSuccess: (filePath: string) => void }) {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: upsertRecordingAPI,
+        onError: error => {
+            console.error('레코딩 업로드 실패');
+        },
+        onSuccess: (data, variables, a) => {
+            onSuccess(data.filePath);
+        },
+    });
+}
 
 // 수행한 소검사
 export const conductedSubtestsQueryKey = 'subtests';

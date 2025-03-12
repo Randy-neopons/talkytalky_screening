@@ -23,7 +23,7 @@ const customStyles: StylesConfig<OptionType, false> = {
         ...baseStyles,
         flex: '1',
         width: '100%',
-        padding: '15px 16px',
+        padding: '12px 20px',
         border: '1px solid #CED4DA',
         borderRadius: '6px',
         background: '#ffffff',

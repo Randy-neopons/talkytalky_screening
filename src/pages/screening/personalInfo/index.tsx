@@ -13,7 +13,7 @@ import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
 import { useUserQuery } from '@/hooks/user';
 import { createScreeningSessionAPI } from '@/api/screening';
 
-import styles from './PersonalInfo.module.css';
+import styles from './PersonalInfo.module.scss';
 
 import type { ScreeningTestInfo } from '@/types/screening';
 import type { NextPageWithLayout } from '@/types/types';

@@ -10,29 +10,161 @@ import {
     type ChangeEventHandler,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import { useRouter } from 'next/router';
 
 import WavesurferPlayer, { useWavesurfer } from '@wavesurfer/react';
 import axios from 'axios';
+import { getCookie } from 'cookies-next';
 import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.js';
 
-import styles from './VolumeModal.module.css';
+import { CheckIcon, MikeIcon, StopIcon } from '@/components/common/icons';
+import { useUpsertRecordingMutation } from '@/hooks/das';
+import useAudioRecorder from '@/hooks/useAudioRecorder';
+import { upsertRecordingAPI } from '@/api/das';
+
+import styles from './VolumeModal.module.scss';
 
 const axiosInstance = axios.create({ baseURL: '' });
+
+// 녹음, 재생, 정지, 일시정지 버튼 렌더링
+export const RecordButtonWithTime = ({
+    isRecording,
+    volume,
+    step,
+    handleStart,
+    handleStop,
+}: {
+    isRecording: boolean;
+    volume: number;
+    step: 'ready' | 'recording' | 'complete';
+    handleStart: () => Promise<void>;
+    handleStop: () => void;
+}) => {
+    // 녹음 버튼 빛나게 하기
+    const [speaking, setSpeaking] = useState(false);
+
+    // 녹음 버튼 누르고 목소리를 처음 냈을 때 shining
+    useEffect(() => {
+        if (isRecording && volume && volume > 20) {
+            setSpeaking(true);
+        }
+    }, [isRecording, volume]);
+
+    // 녹음 종료 시 shining 종료
+    useEffect(() => {
+        if (!isRecording) {
+            setSpeaking(false);
+        }
+    }, [isRecording]);
+
+    const RADIUS = 41;
+    const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
+    const [progress, setProgress] = useState(0);
+    const animationFrameIdRef = useRef<number | null>(null);
+    const volumeRef = useRef(volume);
+
+    // 실시간 볼륨 저장
+    useEffect(() => {
+        volumeRef.current = volume;
+    }, [volume]);
+
+    // 애니메이션
+    useEffect(() => {
+        if (isRecording) {
+            let lastTime: number | null = null;
+
+            const animate = (timestamp: number) => {
+                if (lastTime === null) {
+                    lastTime = timestamp;
+                }
+                const delta = timestamp - lastTime; // 프레임 마다 증가량 (ms)
+
+                if (volumeRef.current > 20) {
+                    setProgress(prev => Math.min(20, prev + delta / 1000)); // 초 단위로 더하기
+                }
+
+                lastTime = timestamp; // 기존 프레임 저장
+                animationFrameIdRef.current = requestAnimationFrame(animate);
+            };
+
+            animationFrameIdRef.current = requestAnimationFrame(animate);
+
+            return () => {
+                if (animationFrameIdRef.current) {
+                    cancelAnimationFrame(animationFrameIdRef.current);
+                }
+            };
+        } else {
+            setProgress(0);
+        }
+    }, [isRecording]);
+
+    if (step === 'recording') {
+        return (
+            <div className={styles.circleProgressWrap}>
+                <button
+                    type='button'
+                    className={styles.roundButton}
+                    style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
+                >
+                    <StopIcon width={50} height={50} />
+                </button>
+                <svg className={styles.circleProgress} width='94' height='94' viewBox='0 0 94 94' onClick={handleStop}>
+                    <circle className={styles.frame} cx='47' cy='47' r={'41'} strokeWidth='12' />
+                    <circle
+                        className={styles.bar}
+                        cx='47'
+                        cy='47'
+                        r={'41'}
+                        strokeWidth='12'
+                        style={{ strokeDashoffset: CIRCUMFERENCE * (1 - progress / 30), strokeDasharray: CIRCUMFERENCE }}
+                    />
+                </svg>
+            </div>
+        );
+    }
+
+    if (step === 'complete') {
+        return (
+            <button type='button' className={styles.roundButton}>
+                <CheckIcon color='white' width={50} height={50} />
+            </button>
+        );
+    }
+
+    return (
+        <button type='button' className={styles.roundButton} onClick={handleStart}>
+            <MikeIcon width={50} height={50} />
+        </button>
+    );
+};
 
 export default function VolumeModal({
     title,
     content,
-    volume,
+
+    recordingId,
+    partId,
+    filePath,
     modalOpen,
     handleCloseModal,
+    onSuccess,
 }: {
     title: string;
     content: string;
-    volume?: number;
+
+    recordingId?: number | null;
+    partId: number;
+    filePath?: string;
     modalOpen: boolean;
     handleCloseModal: () => void;
+    onSuccess: (filePath: string) => void;
 }) {
+    const router = useRouter();
+
     const handleClickOverlay = useCallback<MouseEventHandler<HTMLDivElement>>(
         e => {
             e.preventDefault();
@@ -42,6 +174,48 @@ export default function VolumeModal({
     );
 
     const [repeatCount, setRepeatCount] = useState<number | null>(0);
+
+    // 파타카 녹음
+    const {
+        isRecording,
+        isPlaying,
+        audioUrl,
+        audioBlob,
+        setAudioBlob,
+        handleStartRecording,
+        handleStopRecording,
+        handlePlay,
+        handlePause,
+        volume,
+    } = useAudioRecorder(filePath);
+
+    const [step, setStep] = useState<'ready' | 'recording' | 'complete'>('ready');
+    const { mutateAsync } = useUpsertRecordingMutation({ onSuccess });
+
+    // 녹음 완료되면 저장
+    useEffect(() => {
+        if (audioBlob) {
+            const sessionId = Number(router.query.sessionId);
+            const accessToken = getCookie('jwt') as string;
+            mutateAsync({ sessionId, audioBlob, recordingId, partId, jwt: accessToken }).then(res => {
+                toast(
+                    <div className='flex items-center justify-center text-[0.875rem]'>
+                        <CheckIcon color='white' />
+                        자동저장되었습니다.
+                    </div>,
+                    {
+                        containerId: 'recording-container',
+                    },
+                );
+
+                setStep('complete');
+                setTimeout(() => {
+                    setStep('ready');
+                }, 1000);
+                setAudioBlob(null);
+            });
+        }
+    }, [audioBlob, partId, recordingId, router.query.sessionId, mutateAsync, setAudioBlob]);
 
     const modalStyle: CSSProperties = useMemo(
         () =>
@@ -112,10 +286,43 @@ export default function VolumeModal({
                         <div ref={barActiveRef} className={styles.volumeBarActive} style={{ width: `${volume}%` }}></div>
                     </div>
 
-                    <button className='mt-7.5 btn btn-small btn-contained' onClick={handleCloseModal}>
-                        완료
-                    </button>
+                    <RecordButtonWithTime
+                        isRecording={isRecording}
+                        volume={volume}
+                        step={step}
+                        handleStart={async () => {
+                            await handleStartRecording();
+                            setStep('recording');
+                        }}
+                        handleStop={handleStopRecording}
+                    />
                 </div>
+                <ToastContainer
+                    containerId='recording-container'
+                    position='top-center' // 알람 위치 지정
+                    autoClose={1000} // 자동 off 시간
+                    closeButton={false}
+                    hideProgressBar // 진행시간바 숨김
+                    closeOnClick // 클릭으로 알람 닫기
+                    rtl={false} // 알림 좌우 반전
+                    pauseOnFocusLoss // 화면을 벗어나면 알람 정지
+                    pauseOnHover // 마우스를 올리면 알람 정지
+                    theme='dark'
+                    toastStyle={{
+                        padding: '10px',
+                        borderRadius: '6px',
+                        backgroundColor: '#212429',
+                        width: 'fit-content',
+                        minHeight: 'fit-content',
+                    }}
+                    // bodyStyle={{ padding: 0, margin: 0 }}
+                    style={{
+                        width: 'fit-content',
+                        height: 'fit-content',
+                        padding: 0,
+                        top: '64px',
+                    }}
+                />
             </div>
         </>,
         modalRoot,

@@ -30,10 +30,20 @@ export default function AppLayout({ isLoggedIn, progress, children }: { isLogged
             return;
         }
 
-        if (window.confirm('검사를 종료하시겠습니까?')) {
-            router.push('/das');
-        }
-    }, [router]);
+        handleOpenModal({
+            title: '검사를 종료하시겠습니까?',
+            content: '지금까지 진행한 검사는 결과페이지에서 이어하실 수 있습니다.',
+            cancelText: '아니오',
+            okText: '네',
+            onOk: () => {
+                router.push('/das');
+            },
+        });
+
+        // if (window.confirm('검사를 종료하시겠습니까?')) {
+        //     router.push('/das');
+        // }
+    }, [handleOpenModal, router]);
 
     const { data: subtestsData } = useConductedSubtestsQuery({ sessionId: Number(router.query.sessionId), jwt: getCookie('jwt') || '' });
 

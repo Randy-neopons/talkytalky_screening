@@ -18,7 +18,7 @@ const ErrorText = ({ children }: { children: ReactNode }) => {
 
 const SubtestBox = ({ children }: { children: ReactNode }) => {
     return (
-        <div className='flex w-full flex-col flex-wrap gap-x-[180px] gap-y-5 rounded-[20px] bg-white px-[50px] py-[27px] shadow-base xl:flex-row xl:gap-y-[37px]'>
+        <div className='flex w-full flex-col flex-wrap gap-x-[180px] gap-y-5 rounded-2xl bg-white px-[50px] py-[27px] shadow-base xl:flex-row xl:gap-y-[37px]'>
             {children}
         </div>
     );
@@ -82,7 +82,7 @@ export default function SelectTestPage() {
 
     return (
         <Container>
-            <h1 className='font-jalnan text-head-1'>Dysarthria Assessment System (DAS)</h1>
+            <h1 className='font-jalnan text-head-1'>마비말장애 평가 시스템 (DAS)</h1>
             <span className='text-neutral3 text-body-2'>
                 평가를 원하는 소검사 항목에 <span className='font-bold text-accent1 text-body-2'>모두 체크 후 평가시작 버튼</span>을
                 누르세요.
