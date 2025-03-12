@@ -120,11 +120,14 @@ export default function WaveformModal({
         e => {
             e.preventDefault();
 
-            // MPT 설정
-            setMPT && setMPT(Number((endTime - startTime).toFixed(2)));
+            // 지속 시간
+            const mpt = Number((endTime - startTime).toFixed(2));
 
-            // 반복 횟수 설정
-            submitRepeatCount && repeatCount && submitRepeatCount(repeatCount);
+            // MPT 설정
+            setMPT && setMPT(mpt);
+
+            // 초당 반복 횟수 설정
+            submitRepeatCount && repeatCount && submitRepeatCount(Number((repeatCount / mpt).toFixed(2)));
 
             // 모달 닫기
             handleCloseModal();

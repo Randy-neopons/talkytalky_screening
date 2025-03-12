@@ -128,6 +128,8 @@ export const PersonalInfoForm = ({
             birthYear: testInfo?.patientBirthdate ? `${dayjs(testInfo.patientBirthdate).year()}` : '',
             birthMonth: testInfo?.patientBirthdate ? `${dayjs(testInfo.patientBirthdate).month() + 1}` : '',
             birthDay: testInfo?.patientBirthdate ? `${dayjs(testInfo.patientBirthdate).date()}` : '',
+            dominantHand: testInfo?.dominantHand || '',
+            hearingAidsUse: testInfo?.hearingAidsUse || '',
             educationYear: testInfo?.educationYear || '',
             brainLesions: testInfo?.brainLesions || [],
             medicalHistory: testInfo?.medicalHistory || '',
@@ -137,6 +139,7 @@ export const PersonalInfoForm = ({
             languageDisorderDetail: testInfo?.languageDisorderDetail,
             cognitiveDisorder: testInfo?.cognitiveDisorder,
             cognitiveDisorderDetail: testInfo?.cognitiveDisorderDetail,
+            dysphagia: testInfo?.dysphagia,
         },
         mode: 'onChange',
     });

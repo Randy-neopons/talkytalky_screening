@@ -19,7 +19,7 @@ import type { Answer, QuestionAnswer } from '@/types/das';
 
 // 소검사 ID
 const CURRENT_SUBTEST_ID = 5;
-const PART_ID_START = 14;
+const PART_ID_START = 17;
 
 // 소검사 내 파트별 문항 index 정보
 // TODO: part title도 DB에서 가져오기
@@ -31,7 +31,7 @@ const partIndexList = [
         subtitle1: '피로도 검사',
         subtitle2: '음질',
         partTitle: 'Respiration (호흡)\nPhonation (발성)',
-        partId: 14,
+        partId: 17,
     },
 ];
 

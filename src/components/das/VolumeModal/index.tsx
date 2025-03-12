@@ -176,8 +176,18 @@ export default function VolumeModal({
     const [repeatCount, setRepeatCount] = useState<number | null>(0);
 
     // 파타카 녹음
-    const { isRecording, isPlaying, audioUrl, audioBlob, handleStartRecording, handleStopRecording, handlePlay, handlePause, volume } =
-        useAudioRecorder(filePath);
+    const {
+        isRecording,
+        isPlaying,
+        audioUrl,
+        audioBlob,
+        setAudioBlob,
+        handleStartRecording,
+        handleStopRecording,
+        handlePlay,
+        handlePause,
+        volume,
+    } = useAudioRecorder(filePath);
 
     const [step, setStep] = useState<'ready' | 'recording' | 'complete'>('ready');
     const { mutateAsync } = useUpsertRecordingMutation({ onSuccess });
@@ -201,10 +211,11 @@ export default function VolumeModal({
                 setStep('complete');
                 setTimeout(() => {
                     setStep('ready');
-                }, 2000);
+                }, 1000);
+                setAudioBlob(null);
             });
         }
-    }, [audioBlob, partId, recordingId, router.query.sessionId, mutateAsync]);
+    }, [audioBlob, partId, recordingId, router.query.sessionId, mutateAsync, setAudioBlob]);
 
     const modalStyle: CSSProperties = useMemo(
         () =>
@@ -289,7 +300,7 @@ export default function VolumeModal({
                 <ToastContainer
                     containerId='recording-container'
                     position='top-center' // 알람 위치 지정
-                    autoClose={2000} // 자동 off 시간
+                    autoClose={1000} // 자동 off 시간
                     closeButton={false}
                     hideProgressBar // 진행시간바 숨김
                     closeOnClick // 클릭으로 알람 닫기

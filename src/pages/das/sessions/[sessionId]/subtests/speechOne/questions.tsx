@@ -506,7 +506,6 @@ export default function SpeechOneQuestionsPage({
 
     useEffect(() => {
         if (qnaData?.recordings) {
-            // console.log(qnaData?.recordings);
             setValue('recordings', qnaData.recordings);
         }
         if (qnaData?.questions) {
@@ -586,6 +585,7 @@ export default function SpeechOneQuestionsPage({
                                 <td className={subtestStyles.repeatCount}>
                                     <input
                                         type='number'
+                                        step='0.01'
                                         className='outline-none'
                                         autoComplete='off'
                                         onKeyDown={handleKeyDown}
@@ -635,6 +635,7 @@ export default function SpeechOneQuestionsPage({
                                 <td className={subtestStyles.repeatCount}>
                                     <input
                                         type='number'
+                                        step='0.01'
                                         className='outline-none'
                                         autoComplete='off'
                                         onKeyDown={handleKeyDown}
@@ -684,6 +685,7 @@ export default function SpeechOneQuestionsPage({
                                 <td className={subtestStyles.repeatCount}>
                                     <input
                                         type='number'
+                                        step='0.01'
                                         className='outline-none'
                                         autoComplete='off'
                                         onKeyDown={handleKeyDown}

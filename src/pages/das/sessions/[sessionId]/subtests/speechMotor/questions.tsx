@@ -301,17 +301,7 @@ export default function SpeechMotorQuestionsPage({
     });
 
     useEffect(() => {
-        console.log('audioUrl1', audioUrl1);
-        console.log('disabled', !audioUrl1);
-    }, [audioUrl1]);
-
-    useEffect(() => {
-        console.log(partId);
-    }, [partId]);
-
-    useEffect(() => {
         if (qnaData?.recordings) {
-            console.log('recordings', qnaData.recordings);
             setValue('recordings', qnaData.recordings);
         }
 
@@ -483,6 +473,7 @@ export default function SpeechMotorQuestionsPage({
                                                 modalContent="'파'를 가능한 빨리 규칙적으로 반복해서 말해보세요."
                                                 onSuccess={(filePath: string) => {
                                                     setValue('recordings.0.filePath', filePath);
+                                                    setUploaded1(false);
                                                 }}
                                             />
                                         </td>
@@ -492,6 +483,7 @@ export default function SpeechMotorQuestionsPage({
                                         <td className={subtestStyles.repeatCount}>
                                             <input
                                                 type='number'
+                                                step='0.01'
                                                 className='text-center outline-none'
                                                 autoComplete='off'
                                                 onKeyDown={handleKeyDown}
@@ -531,6 +523,7 @@ export default function SpeechMotorQuestionsPage({
                                                 modalContent="'타'를 가능한 빨리 규칙적으로 반복해서 말해보세요."
                                                 onSuccess={(filePath: string) => {
                                                     setValue('recordings.1.filePath', filePath);
+                                                    setUploaded2(false);
                                                 }}
                                             />
                                         </td>
@@ -540,6 +533,7 @@ export default function SpeechMotorQuestionsPage({
                                         <td className={subtestStyles.repeatCount}>
                                             <input
                                                 type='number'
+                                                step='0.01'
                                                 className='text-center outline-none'
                                                 autoComplete='off'
                                                 onKeyDown={handleKeyDown}
@@ -579,6 +573,7 @@ export default function SpeechMotorQuestionsPage({
                                                 modalContent="'카'를 가능한 빨리 규칙적으로 반복해서 말해보세요."
                                                 onSuccess={(filePath: string) => {
                                                     setValue('recordings.2.filePath', filePath);
+                                                    setUploaded3(false);
                                                 }}
                                             />
                                         </td>
@@ -588,6 +583,7 @@ export default function SpeechMotorQuestionsPage({
                                         <td className={subtestStyles.repeatCount}>
                                             <input
                                                 type='number'
+                                                step='0.01'
                                                 className='text-center outline-none'
                                                 autoComplete='off'
                                                 onKeyDown={handleKeyDown}
@@ -662,6 +658,7 @@ export default function SpeechMotorQuestionsPage({
                                         <td className={subtestStyles.repeatCount}>
                                             <input
                                                 type='number'
+                                                step='0.01'
                                                 className='w-full text-center outline-none'
                                                 autoComplete='off'
                                                 onKeyDown={handleKeyDown}
