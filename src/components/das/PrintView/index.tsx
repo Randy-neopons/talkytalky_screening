@@ -1,48 +1,17 @@
+import { useMemo } from 'react';
 import dynamic from 'next/dynamic';
 
 import cx from 'classnames';
 import dayjs from 'dayjs';
 
 import { answerOptions, brainLesionOptions, dominantHandOptions, genderOptions, hearingAidsUseOptions, typeOptions } from '@/utils/const';
-import { CheckBoxGroupItem } from '@/components/common/CheckBox';
-import { useUserQuery } from '@/hooks/user';
 import type { TestInfo, TestScore } from '@/api/das';
 
 import styles from './PrintView.module.scss';
-import SubtestScoreGraph, { SubtestScoreGraphPrintView } from '../SubtestScoreGraph';
-import SubtestScoreLineGraph, { SubtestScoreLineGraphPrintView } from '../SubtestScoreLineGraph';
+import { SubtestScoreGraphPrintView } from '../SubtestScoreGraph';
+import { SubtestScoreLineGraphPrintView } from '../SubtestScoreLineGraph';
 
-// function svgToPng(svgElement, callback) {
-//     // SVG 요소를 문자열로 변환
-//     const svgData = new XMLSerializer().serializeToString(svgElement);
-
-//     // SVG 데이터를 base64로 인코딩
-//     const svgBase64 = 'data:image/svg+xml;base64,' + btoa(svgData);
-
-//     // 이미지 객체 생성
-//     const img = new Image();
-//     img.onload = function () {
-//         // Canvas에 이미지 그리기
-//         const canvas = document.createElement('canvas');
-//         canvas.width = svgElement.clientWidth || 300; // 원하는 크기로 조정 가능
-//         canvas.height = svgElement.clientHeight || 300;
-//         const ctx = canvas.getContext('2d');
-//         ctx.drawImage(img, 0, 0);
-
-//         // Canvas에서 PNG 데이터 URL 가져오기
-//         const pngDataUrl = canvas.toDataURL('image/png');
-
-//         // 콜백으로 PNG 데이터 URL 반환
-//         callback(pngDataUrl);
-//     };
-
-//     img.src = svgBase64;
-// }
-
-const TestTotalScoreGraphPrintView = dynamic(
-    () => import('@/components/das/TestTotalScoreGraph').then(res => res.TestTotalScoreGraphPrintView),
-    { ssr: false },
-);
+import type { Recording } from '@/types/das';
 
 const CheckBoxIcon = () => (
     <svg
@@ -81,64 +50,40 @@ const SubtestScorePrintView = ({
     }[];
 }) => {
     return (
-        <div className='mt-8 w-full'>
-            <h2 className='text-[12px] font-bold text-black'>
-                {subtestTitleEn} : {subtestTitle}
-            </h2>
-            {/* SPEECH 일 때만 MPT */}
-            {id === 'speech' && (
-                <div className='mt-2.5 flex w-full gap-[1px] overflow-hidden rounded-md border border-neutral8 text-[8px]'>
-                    <div className='min-w-[100px] bg-white px-[15px] py-[9px]'>MPT 지속시간(초)</div>
-                    <div className='flex h-7.5 w-full justify-around bg-neutral10 py-[9px]'>
-                        <div className='flex flex-nowrap'>
-                            1차
-                            <div className='text-bold w-[90px] border-b border-neutral8 text-center'>2초</div>
-                        </div>
-                        <div className='flex flex-nowrap'>
-                            2차
-                            <div className='text-bold w-[90px] border-b border-neutral8 text-center'>3초</div>
-                        </div>
-                        <div className='flex flex-nowrap'>
-                            3차
-                            <div className='text-bold w-[90px] border-b border-neutral8 text-center'>3초</div>
-                        </div>
-                    </div>
-                </div>
-            )}
-            <div className='mt-3.5 flex w-full gap-5 rounded-lg border border-neutral8 bg-white py-3 pl-5 pr-2.5'>
-                <div className='w-[100px] flex-none text-center'>
-                    {/* 원 그래프 */}
-                    <SubtestScoreGraphPrintView
-                        data={[
-                            {
-                                id,
-                                data: [{ x: 'abc', y: totalScore, color }],
-                            },
-                        ]}
-                        maxScore={maxScore}
-                    />
-                    {/* <button className='mt-5 underline text-body-2' onClick={() => {}}>
+        <div className='flex w-full gap-5 rounded-lg border border-neutral8 bg-white py-3 pl-5 pr-2.5'>
+            <div className='w-[100px] flex-none text-center'>
+                {/* 원 그래프 */}
+                <SubtestScoreGraphPrintView
+                    data={[
+                        {
+                            id,
+                            data: [{ x: 'abc', y: totalScore, color }],
+                        },
+                    ]}
+                    maxScore={maxScore}
+                />
+                {/* <button className='mt-5 underline text-body-2' onClick={() => {}}>
                         경도/심도 항목
                     </button> */}
-                </div>
-                <div className='flex flex-1 flex-col gap-3.5'>
-                    {/* 막대 그래프 */}
-                    <SubtestScoreLineGraphPrintView
-                        data={[
-                            {
-                                id: 'score',
-                                data: partList.map(part => {
-                                    const partTitleList = part.partTitle.split(',');
-                                    const partTitleEnList = part.partTitleEn.split(',');
-                                    const title = partTitleList.map((v, i) => `${v}(${partTitleEnList[i]})`).join('\n');
+            </div>
+            <div className='flex flex-1 flex-col gap-3.5'>
+                {/* 막대 그래프 */}
+                <SubtestScoreLineGraphPrintView
+                    data={[
+                        {
+                            id: 'score',
+                            data: partList.map(part => {
+                                const partTitleList = part.partTitle.split(',');
+                                const partTitleEnList = part.partTitleEn.split(',');
+                                const title = partTitleList.map((v, i) => `${v}(${partTitleEnList[i]})`).join('\n');
+                                const score = Math.floor((part.score / part.maxScore) * 100);
 
-                                    return { x: title, y: part.score, color };
-                                }),
-                            },
-                        ]}
-                        color={color}
-                    />
-                </div>
+                                return { x: part.partTitle, y: score, color };
+                            }),
+                        },
+                    ]}
+                    color={color}
+                />
             </div>
         </div>
     );
@@ -153,6 +98,7 @@ export default function PrintView({
     speechTwoResult,
     speechTotalResult,
     mildAndModerateAnswers,
+    speechOneRecordings,
     speechMotorResults,
     types,
     mixedTypeDetail,
@@ -161,17 +107,26 @@ export default function PrintView({
 }: {
     testerName: string;
     testInfo: TestInfo;
-    speechMechanismResult: TestScore;
-    speechOneResult: TestScore;
-    speechTwoResult: TestScore;
-    speechTotalResult: TestScore;
+    speechMechanismResult: TestScore | null;
+    speechOneResult: TestScore | null;
+    speechTwoResult: TestScore | null;
+    speechTotalResult: TestScore | null;
     mildAndModerateAnswers: any[];
-    speechMotorResults: { questionText: string; value: string }[];
+    speechOneRecordings: Recording[];
+    speechMotorResults: { questionText: string; value: number }[];
     types: string[];
     mixedTypeDetail: string;
     opinion: string;
     printViewRef: any;
 }) {
+    const totalScore = useMemo(() => {
+        return (speechMechanismResult?.totalScore || 0) + (speechTotalResult?.totalScore || 0);
+    }, [speechMechanismResult?.totalScore, speechTotalResult?.totalScore]);
+
+    const maxScore = useMemo(() => {
+        return (speechMechanismResult?.maxScore || 0) + (speechTotalResult?.maxScore || 0);
+    }, [speechMechanismResult?.maxScore, speechTotalResult?.maxScore]);
+
     return (
         <div ref={printViewRef}>
             <div className={styles.printView}>
@@ -309,8 +264,8 @@ export default function PrintView({
                                                         <div className='flex w-full justify-between'>
                                                             <span>안면</span>
                                                             <span>
-                                                                {speechMechanismResult.partList[0]?.score} /{' '}
-                                                                {speechMechanismResult.partList[0]?.maxScore}
+                                                                {speechMechanismResult?.partList[0]?.score} /{' '}
+                                                                {speechMechanismResult?.partList[0]?.maxScore}
                                                             </span>
                                                         </div>
                                                     </td>
@@ -318,8 +273,8 @@ export default function PrintView({
                                                         <div className='flex w-full justify-between'>
                                                             <span>호흡&발성</span>
                                                             <span>
-                                                                {speechOneResult.partList[0]?.score} /{' '}
-                                                                {speechOneResult.partList[0]?.maxScore}
+                                                                {speechOneResult?.partList[0]?.score || 0} /{' '}
+                                                                {speechOneResult?.partList[0]?.maxScore || 0}
                                                             </span>
                                                         </div>
                                                     </td>
@@ -327,22 +282,18 @@ export default function PrintView({
                                                         <div className='flex w-full justify-between'>
                                                             <span>호흡&발성</span>{' '}
                                                             <span>
-                                                                {speechTwoResult.partList[0]?.score} /{' '}
-                                                                {speechTwoResult.partList[0]?.maxScore}
+                                                                {speechTwoResult?.partList[0]?.score || 0} /{' '}
+                                                                {speechTwoResult?.partList[0]?.maxScore || 0}
                                                             </span>
                                                         </div>
                                                     </td>
                                                     <td rowSpan={5}>
                                                         <span>
-                                                            {speechMechanismResult.totalScore + speechTotalResult.totalScore} /{' '}
-                                                            {speechMechanismResult.maxScore + speechTotalResult.maxScore}
+                                                            {totalScore} / {maxScore}
                                                         </span>
                                                     </td>
                                                     <td rowSpan={5}>
-                                                        <span>
-                                                            {speechMechanismResult.totalScore + speechTotalResult.totalScore} /{' '}
-                                                            {speechMechanismResult.maxScore + speechTotalResult.maxScore}
-                                                        </span>
+                                                        <span>{Math.floor((totalScore / maxScore) * 100)} / 100</span>
                                                     </td>
                                                 </tr>
                                                 <tr className='bg-[#FFFFFF]'>
@@ -350,8 +301,8 @@ export default function PrintView({
                                                         <div className='flex w-full justify-between'>
                                                             <span>턱</span>{' '}
                                                             <span>
-                                                                {speechMechanismResult.partList[1]?.score} /{' '}
-                                                                {speechMechanismResult.partList[1]?.maxScore}
+                                                                {speechMechanismResult?.partList[1]?.score} /{' '}
+                                                                {speechMechanismResult?.partList[1]?.maxScore}
                                                             </span>
                                                         </div>
                                                     </td>
@@ -359,8 +310,8 @@ export default function PrintView({
                                                         <div className='flex w-full justify-between'>
                                                             <span>공명</span>{' '}
                                                             <span>
-                                                                {speechOneResult.partList[1]?.score} /{' '}
-                                                                {speechOneResult.partList[1]?.maxScore}
+                                                                {speechOneResult?.partList[1]?.score} /{' '}
+                                                                {speechOneResult?.partList[1]?.maxScore}
                                                             </span>
                                                         </div>
                                                     </td>
@@ -368,8 +319,8 @@ export default function PrintView({
                                                         <div className='flex w-full justify-between'>
                                                             <span>공명</span>{' '}
                                                             <span>
-                                                                {speechTwoResult.partList[1]?.score} /{' '}
-                                                                {speechTwoResult.partList[1]?.maxScore}
+                                                                {speechTwoResult?.partList[1]?.score} /{' '}
+                                                                {speechTwoResult?.partList[1]?.maxScore}
                                                             </span>
                                                         </div>
                                                     </td>
@@ -379,8 +330,8 @@ export default function PrintView({
                                                         <div className='flex w-full justify-between'>
                                                             <span>혀</span>{' '}
                                                             <span>
-                                                                {speechMechanismResult.partList[2]?.score} /{' '}
-                                                                {speechMechanismResult.partList[2]?.maxScore}
+                                                                {speechMechanismResult?.partList[2]?.score} /{' '}
+                                                                {speechMechanismResult?.partList[2]?.maxScore}
                                                             </span>
                                                         </div>
                                                     </td>
@@ -388,8 +339,8 @@ export default function PrintView({
                                                         <div className='flex w-full justify-between'>
                                                             <span>조음</span>{' '}
                                                             <span>
-                                                                {speechOneResult.partList[2]?.score} /{' '}
-                                                                {speechOneResult.partList[2]?.maxScore}
+                                                                {speechOneResult?.partList[2]?.score} /{' '}
+                                                                {speechOneResult?.partList[2]?.maxScore}
                                                             </span>
                                                         </div>
                                                     </td>
@@ -397,8 +348,8 @@ export default function PrintView({
                                                         <div className='flex w-full justify-between'>
                                                             <span>조음</span>{' '}
                                                             <span>
-                                                                {speechTwoResult.partList[2]?.score} /{' '}
-                                                                {speechTwoResult.partList[2]?.maxScore}
+                                                                {speechTwoResult?.partList[2]?.score} /{' '}
+                                                                {speechTwoResult?.partList[2]?.maxScore}
                                                             </span>
                                                         </div>
                                                     </td>
@@ -408,8 +359,8 @@ export default function PrintView({
                                                         <div className='flex w-full justify-between'>
                                                             <span>연구개 외</span>{' '}
                                                             <span>
-                                                                {speechMechanismResult.partList[3]?.score} /{' '}
-                                                                {speechMechanismResult.partList[3]?.maxScore}
+                                                                {speechMechanismResult?.partList[3]?.score} /{' '}
+                                                                {speechMechanismResult?.partList[3]?.maxScore}
                                                             </span>
                                                         </div>
                                                     </td>
@@ -418,8 +369,8 @@ export default function PrintView({
                                                         <div className='flex w-full justify-between'>
                                                             <span>운율</span>{' '}
                                                             <span>
-                                                                {speechTwoResult.partList[3]?.score} /{' '}
-                                                                {speechTwoResult.partList[3]?.maxScore}
+                                                                {speechTwoResult?.partList[3]?.score} /{' '}
+                                                                {speechTwoResult?.partList[3]?.maxScore}
                                                             </span>
                                                         </div>
                                                     </td>
@@ -429,7 +380,7 @@ export default function PrintView({
                                                         <div className='flex w-full justify-between'>
                                                             <span>Total</span>{' '}
                                                             <span>
-                                                                {speechMechanismResult.totalScore} / {speechMechanismResult.maxScore}
+                                                                {speechMechanismResult?.totalScore} / {speechMechanismResult?.maxScore}
                                                             </span>
                                                         </div>
                                                     </td>
@@ -437,7 +388,7 @@ export default function PrintView({
                                                         <div className='flex w-full justify-between'>
                                                             <span>Total</span>{' '}
                                                             <span>
-                                                                {speechOneResult.totalScore} / {speechOneResult.maxScore}
+                                                                {speechOneResult?.totalScore} / {speechOneResult?.maxScore}
                                                             </span>
                                                         </div>
                                                     </td>
@@ -445,7 +396,7 @@ export default function PrintView({
                                                         <div className='flex w-full justify-between'>
                                                             <span>Total</span>{' '}
                                                             <span>
-                                                                {speechTwoResult.totalScore} / {speechTwoResult.maxScore}
+                                                                {speechTwoResult?.totalScore} / {speechTwoResult?.maxScore}
                                                             </span>
                                                         </div>
                                                     </td>
@@ -455,36 +406,76 @@ export default function PrintView({
                                     </div>
                                 </div>
                                 <p className='mr-[2px] mt-1 text-right text-[8px] text-neutral3'>*정상:2점 / 경도:1점 / 심도:0점</p>
-                                {/* 소검사별 결과 */}
-                                {speechMechanismResult.partList.length > 0 && (
-                                    <SubtestScorePrintView
-                                        id={speechMechanismResult.pathname}
-                                        key={speechMechanismResult.pathname}
-                                        subtestTitle={speechMechanismResult.subtestTitle}
-                                        subtestTitleEn={speechMechanismResult.subtestTitleEn}
-                                        totalScore={speechMechanismResult.totalScore}
-                                        maxScore={speechMechanismResult.maxScore}
-                                        color={speechMechanismResult.color}
-                                        partList={speechMechanismResult.partList}
-                                    />
+
+                                {/* SPEECH MECHANISM : 말기제 평가 */}
+                                {speechMechanismResult && (
+                                    <div className='mt-8'>
+                                        <h2 className='mb-2.5 text-[12px] font-bold text-black'>
+                                            {speechMechanismResult.subtestTitleEn} : {speechMechanismResult.subtestTitle}
+                                        </h2>
+                                        {/* 그래프 */}
+                                        <SubtestScorePrintView
+                                            id='speechMechanism'
+                                            subtestTitle={speechMechanismResult.subtestTitle}
+                                            subtestTitleEn={speechMechanismResult.subtestTitleEn}
+                                            totalScore={speechMechanismResult.totalScore}
+                                            maxScore={speechMechanismResult.maxScore}
+                                            color={speechMechanismResult.color}
+                                            partList={speechMechanismResult.partList}
+                                        />
+                                    </div>
                                 )}
-                                {speechTotalResult.partList.length > 0 && (
-                                    <SubtestScorePrintView
-                                        id={speechTotalResult.pathname}
-                                        key={speechTotalResult.pathname}
-                                        subtestTitle={speechTotalResult.subtestTitle}
-                                        subtestTitleEn={speechTotalResult.subtestTitleEn}
-                                        totalScore={speechTotalResult.totalScore}
-                                        maxScore={speechTotalResult.maxScore}
-                                        color={speechTotalResult.color}
-                                        partList={speechTotalResult.partList}
-                                    />
+
+                                {/* SPEECH : 말평가 */}
+                                {speechTotalResult && (
+                                    <div className='mt-8'>
+                                        {/* MPT 지속시간 */}
+                                        <h2 className='mb-2.5 text-[12px] font-bold text-black'>
+                                            {speechTotalResult.subtestTitleEn} : {speechTotalResult.subtestTitle}
+                                        </h2>
+                                        <div className='mb-2.5 flex w-full gap-[1px] overflow-hidden rounded-md border border-neutral8 text-[8px]'>
+                                            <div className='min-w-[100px] bg-white px-[15px] py-[9px]'>MPT 지속시간(초)</div>
+                                            <div className='flex h-7.5 w-full justify-around bg-neutral10 py-[9px]'>
+                                                <div className='flex flex-nowrap'>
+                                                    1차
+                                                    <div className='text-bold w-[90px] border-b border-neutral8 text-center'>
+                                                        {speechOneRecordings[0].repeatCount}초
+                                                    </div>
+                                                </div>
+                                                <div className='flex flex-nowrap'>
+                                                    2차
+                                                    <div className='text-bold w-[90px] border-b border-neutral8 text-center'>
+                                                        {speechOneRecordings[1].repeatCount}초
+                                                    </div>
+                                                </div>
+                                                <div className='flex flex-nowrap'>
+                                                    3차
+                                                    <div className='text-bold w-[90px] border-b border-neutral8 text-center'>
+                                                        {speechOneRecordings[2].repeatCount}초
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* 그래프 */}
+                                        <SubtestScorePrintView
+                                            id='speech'
+                                            subtestTitle={speechTotalResult.subtestTitle}
+                                            subtestTitleEn={speechTotalResult.subtestTitleEn}
+                                            totalScore={speechTotalResult.totalScore}
+                                            maxScore={speechTotalResult.maxScore}
+                                            color={speechTotalResult.color}
+                                            partList={speechTotalResult.partList}
+                                        />
+                                    </div>
                                 )}
+
+                                {/* SPEECH MOTOR : 말운동 평가 */}
                                 {speechMotorResults.length > 0 && (
                                     <div className='mt-7.5 w-full'>
                                         <h2 className='text-xs font-bold'>SPEECH MOTOR : 말운동 평가</h2>
                                         <div className='flex gap-3'>
-                                            <div className={cx(styles.scoreTableBox, 'w-full')}>
+                                            <div className={cx(styles.scoreTableBox, 'h-fit w-full')}>
                                                 <table className={styles.scoreTable}>
                                                     <thead>
                                                         <tr>
@@ -495,20 +486,20 @@ export default function PrintView({
                                                     <tbody>
                                                         <tr>
                                                             <td width='50%'>파</td>
-                                                            <td width='50%'>{speechMotorResults[1].value}</td>
+                                                            <td width='50%'>{speechMotorResults[0].value}회</td>
                                                         </tr>
                                                         <tr>
                                                             <td width='50%'>타</td>
-                                                            <td width='50%'>{speechMotorResults[2].value}</td>
+                                                            <td width='50%'>{speechMotorResults[1].value}회</td>
                                                         </tr>
                                                         <tr>
                                                             <td width='50%'>카</td>
-                                                            <td width='50%'>{speechMotorResults[3].value}</td>
+                                                            <td width='50%'>{speechMotorResults[2].value}회</td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
                                             </div>
-                                            <div className={cx(styles.scoreTableBox, 'w-full')}>
+                                            <div className={cx(styles.scoreTableBox, 'h-fit w-full')}>
                                                 <table className={styles.scoreTable}>
                                                     <thead>
                                                         <tr>
@@ -522,7 +513,7 @@ export default function PrintView({
                                                                 파타카
                                                             </td>
                                                             <td width='50%' height='63px'>
-                                                                {speechMotorResults[4].value}
+                                                                {speechMotorResults[3].value}회
                                                             </td>
                                                         </tr>
                                                     </tbody>

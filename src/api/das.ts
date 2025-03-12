@@ -244,12 +244,13 @@ export type TestScore = {
 export async function getTestResultAPI({ sessionId, jwt }: { sessionId: number; jwt: string }) {
     const response = await axiosInstance.get<{
         testScore: TestScore[];
-        speechMechanismResult: TestScore;
-        speechOneResult: TestScore;
-        speechTwoResult: TestScore;
-        speechTotalResult: TestScore;
+        speechMechanismResult: TestScore | null;
+        speechOneResult: TestScore | null;
+        speechTwoResult: TestScore | null;
+        speechTotalResult: TestScore | null;
         mildAndModerateAnswers: any[];
-        speechMotorResults: { questionText: string; value: string }[];
+        speechOneRecordings: Recording[];
+        speechMotorRecordings: Recording[];
         dysarthriaTypes?: string[];
         mixedDysarthriaTypeDetail?: string;
         opinion?: string;

@@ -34,12 +34,12 @@ export default function SubtestScoreLineGraph({ data, color }: { data: Serie[]; 
         <div className={`relative h-[200px] w-[400px] xl:h-[320px] xl:w-[640px]`}>
             <ResponsiveLine
                 data={data}
-                margin={{ top: 10, right: 60, bottom: 100, left: 80 }}
+                margin={{ top: 30, right: 60, bottom: 100, left: 85 }}
                 xScale={{ type: 'point' }}
                 yScale={{
                     type: 'linear',
                     min: 0,
-                    max: 50,
+                    max: 100,
                     stacked: false,
                     reverse: false,
                 }}
@@ -163,12 +163,12 @@ export function SubtestScoreLineGraphPrintView({ data, color }: { data: Serie[];
         <div className='relative h-[120px] w-full'>
             <ResponsiveLine
                 data={data}
-                margin={{ top: 10, right: 30, bottom: 50, left: 60 }}
+                margin={{ top: 30, right: 30, bottom: 50, left: 60 }}
                 xScale={{ type: 'point' }}
                 yScale={{
                     type: 'linear',
                     min: 0,
-                    max: 50,
+                    max: 100,
                     stacked: false,
                     reverse: false,
                 }}

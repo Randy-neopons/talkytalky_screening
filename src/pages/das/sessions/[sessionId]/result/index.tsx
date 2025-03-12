@@ -1,8 +1,7 @@
-import { Fragment, useCallback, useRef, useState, type ChangeEventHandler } from 'react';
+import { Fragment, useCallback, useMemo, useRef, useState, type ChangeEventHandler } from 'react';
 import ReactTextareaAutosize from 'react-textarea-autosize';
 import { useReactToPrint } from 'react-to-print';
 import type { GetServerSideProps } from 'next';
-import { imageOptimizer } from 'next/dist/server/image-optimizer';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -11,6 +10,7 @@ import cx from 'classnames';
 import { getCookie } from 'cookies-next';
 import dayjs from 'dayjs';
 
+import { answerOptions, brainLesionOptions, genderOptions, typeOptions } from '@/utils/const';
 import { CheckBoxGroupItem } from '@/components/common/CheckBox';
 import Container from '@/components/common/Container';
 import { useModal } from '@/components/common/Modal/context';
@@ -21,99 +21,12 @@ import { getTestInfoAPI, getTestResultAPI, updateTestResultAPI, type TestInfo, t
 
 import styles from './TestResultPage.module.scss';
 
+import type { Recording } from '@/types/das';
+
 const TestTotalScoreGraph = dynamic(() => import('@/components/das/TestTotalScoreGraph'), { ssr: false });
 const TestScoreBarGraph = dynamic(() => import('@/components/das/TestScoreBarGraph'), { ssr: false });
 const SubtestScoreGraph = dynamic(() => import('@/components/das/SubtestScoreGraph'), { ssr: false });
 const SubtestScoreLineGraph = dynamic(() => import('@/components/das/SubtestScoreLineGraph'), { ssr: false });
-
-const brainLesionOptions = [
-    { value: 'bilateralUpperMotorNeuron', label: '양측상부운동신경손상' },
-    { value: 'unilateralUpperMotorNeuron', label: '일측상부운동신경손상' },
-    { value: 'lowerMotorNeuron', label: '하부운동신경손상' },
-    { value: 'cerebellarControlCircuit', label: '소뇌조절회로' },
-    { value: 'basalGangliaControlCircuit', label: '기저핵조절회로' },
-    { value: 'unknown', label: '특정할 수 없음' },
-    { value: 'normal', label: '정상 소견' },
-];
-
-const answerOptions = [
-    { value: 'normal', label: '정상' },
-    { value: 'mild', label: '경도' },
-    { value: 'moderate', label: '심도' },
-    { value: 'unknown', label: '평가불가' },
-];
-
-const typeOptions = [
-    { value: 'spastic', label: '경직형(spastic)' },
-    { value: 'flaccid', label: '이완형(flaccid)' },
-    { value: 'ataxic', label: '실조형(ataxic)' },
-    { value: 'hypokinetic', label: '과소운동형(hypokinetic)' },
-    { value: 'hyperkinetic', label: '과다운동형(hyperkinetic)' },
-    { value: 'UUMN', label: '일측상부운동신경형(UUMN)' },
-    { value: 'mixed', label: '혼합형(mixed)' },
-];
-
-const genderOptionList = [
-    { value: 'male', label: '남' },
-    { value: 'female', label: '여' },
-];
-
-const subtestResultList = [
-    {
-        subtestIds: [1],
-        subtestTitle: 'SPEECH MECHANISM : 말기제 평가',
-        graphTitle: 'SPEECH\nMECHANISM',
-        pathname: 'speechMechanism',
-        color: '#20C997',
-    },
-    {
-        subtestIds: [2],
-        subtestTitle: 'SPEECH I : 영역별 말평가',
-        graphTitle: 'SPEECH',
-        pathname: 'speech',
-        color: '#FFA26B',
-    },
-    {
-        subtestIds: [3],
-        subtestTitle: 'SPEECH II : 종합적 말평가',
-        graphTitle: 'SPEECH',
-        pathname: 'speech',
-        color: '#FFA26B',
-    },
-    // {
-    //     subtestIds: [4],
-    //     subtestTitle: 'SPEECH MOTOR : 말운동 평가',
-    //     graphTitle: 'SPEECH\nMOTOR',
-    //     pathname: 'speechMotor',
-    //     color: '#0084F4',
-    // },
-];
-
-const makeTotalScoreGraphData = (testResultList: TestScore[]) => {
-    const { score, maxScore } = testResultList.reduce(
-        (accum, curr) => {
-            return {
-                score: accum.score + curr.totalScore,
-                maxScore: accum.maxScore + curr.maxScore,
-            };
-        },
-        { score: 0, maxScore: 0 },
-    );
-
-    return [
-        {
-            id: 'total',
-            data: [{ x: 'score', y: score, maxValue: maxScore, color: '#6979F8' }],
-        },
-    ];
-};
-
-// const makeScoreBarGraphData = (testResultList: TestScore[]) => {
-//     return testResultList.map(v => ({
-//         graphTitle: v.graphTitle,
-//         score: Math.floor((v.totalScore / v.maxScore) * 100),
-//     }));
-// };
 
 export const SubtestScore = ({
     id,
@@ -166,29 +79,14 @@ export const SubtestScore = ({
                                     const partTitleList = part.partTitle.split(',');
                                     const partTitleEnList = part.partTitleEn.split(',');
                                     const title = partTitleList.map((v, i) => `${v}(${partTitleEnList[i]})`).join('\n');
+                                    const score = Math.floor((part.score / part.maxScore) * 100); // 100점 환산 점수
 
-                                    return { x: title, y: part.score, color };
+                                    return { x: part.partTitle, y: score, color };
                                 }),
                             },
                         ]}
                         color={color}
                     />
-                    {/* {partList.map((part, i) => (
-                        <div key={i}>
-                            <div className='ml-1 mr-2 flex justify-between'>
-                                <span className='text-neutral3 text-body-2'>{part.partTitle}</span>
-                                <span className='text-neutral3 text-body-2'>
-                                    {part.score}점 / 총 {part.maxScore}점
-                                </span>
-                            </div>
-                            <div className='relative mt-1.5 h-5 w-full rounded-full bg-[#D9D9D9] xl:mt-2'>
-                                <div
-                                    className={`absolute left-0 h-full rounded-full`}
-                                    style={{ width: `${(100 * part.score) / part.maxScore}%`, backgroundColor: color }}
-                                ></div>
-                            </div>
-                        </div>
-                    ))} */}
                 </div>
             </div>
         </div>
@@ -203,18 +101,20 @@ export default function TestResultPage({
     speechTwoResult,
     speechTotalResult,
     mildAndModerateAnswers,
-    speechMotorResults,
+    speechOneRecordings,
+    speechMotorRecordings,
     dysarthriaTypes,
     mixedDysarthriaTypeDetail,
     opinion: comprehensiveOpinion,
 }: {
     testInfo: TestInfo;
-    speechMechanismResult: TestScore;
-    speechOneResult: TestScore;
-    speechTwoResult: TestScore;
-    speechTotalResult: TestScore;
+    speechMechanismResult: TestScore | null;
+    speechOneResult: TestScore | null;
+    speechTwoResult: TestScore | null;
+    speechTotalResult: TestScore | null;
     mildAndModerateAnswers: any[];
-    speechMotorResults: { questionText: string; value: string }[];
+    speechOneRecordings: Recording[];
+    speechMotorRecordings: Recording[];
     dysarthriaTypes?: string[];
     mixedDysarthriaTypeDetail?: string;
     opinion?: string;
@@ -266,6 +166,58 @@ export default function TestResultPage({
         }
     }, [handleOpenModal, mixedTypeDetail, opinion, router.query.sessionId, types]);
 
+    // Total Score 반원 그래프
+    const testTotalScoreGraphData = useMemo(() => {
+        return [
+            {
+                id: 'total',
+                data: [
+                    {
+                        x: 'score',
+                        y: (speechMechanismResult?.totalScore || 0) + (speechTotalResult?.totalScore || 0),
+                        maxValue: (speechMechanismResult?.maxScore || 0) + (speechTotalResult?.maxScore || 0),
+                        color: '#6979F8',
+                    },
+                ],
+            },
+        ];
+    }, [speechMechanismResult, speechTotalResult]);
+
+    // Total Score 막대 그래프
+    const testScoreBarGraphData = useMemo(() => {
+        const data: { graphTitle: string; score: number }[] = [];
+
+        if (speechMechanismResult) {
+            data.push({
+                graphTitle: 'SPEECH\nMECHANISM',
+                score: Math.floor(((speechMechanismResult?.totalScore || 0) / (speechMechanismResult?.maxScore || 0)) * 100),
+            });
+        }
+
+        if (speechTotalResult) {
+            data.push({
+                graphTitle: 'SPEECH',
+                score: Math.floor(((speechTotalResult?.totalScore || 0) / (speechTotalResult?.maxScore || 0)) * 100),
+            });
+        }
+
+        return data;
+    }, [speechMechanismResult, speechTotalResult]);
+
+    // SPEECH MOTOR : 말기제 평가
+    const speechMotorResults = useMemo(() => {
+        if (speechMotorRecordings?.length === 0) {
+            return [];
+        }
+
+        return [
+            { questionText: '/파/ 반복횟수', value: speechMotorRecordings[0].repeatCount || 0 },
+            { questionText: '/타/ 반복횟수', value: speechMotorRecordings[1].repeatCount || 0 },
+            { questionText: '/카/ 반복횟수', value: speechMotorRecordings[2].repeatCount || 0 },
+            { questionText: '/파타카/ 반복횟수', value: speechMotorRecordings[3].repeatCount || 0 },
+        ];
+    }, [speechMotorRecordings]);
+
     return (
         <Container>
             <div className='relative flex w-full flex-col gap-1'>
@@ -315,7 +267,7 @@ export default function TestResultPage({
                             {testInfo.patientName}
                         </td>
                         <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
-                            {genderOptionList.find(v => v.value === testInfo.patientGender)?.label}
+                            {genderOptions.find(v => v.value === testInfo.patientGender)?.label}
                         </td>
                         <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
                             만 {dayjs().diff(testInfo.patientBirthdate, 'year')}세
@@ -385,32 +337,20 @@ export default function TestResultPage({
                 <div className='mt-7.5 flex gap-7.5'>
                     <div className='flex h-[295px] min-w-[280px] items-center justify-center rounded-base bg-white shadow-base xl:h-[346px] xl:w-[390px]'>
                         <TestTotalScoreGraph
-                            data={makeTotalScoreGraphData([speechMechanismResult, speechTotalResult])}
-                            maxScore={speechMechanismResult.maxScore + speechTotalResult.maxScore}
+                            data={testTotalScoreGraphData}
+                            maxScore={(speechMechanismResult?.maxScore || 0) + (speechTotalResult?.maxScore || 0)}
                         />
                     </div>
                     <div className='h-[295px] w-full rounded-base bg-white shadow-base xl:h-[346px] xl:w-[580px]'>
-                        <TestScoreBarGraph
-                            data={[
-                                {
-                                    graphTitle: 'SPEECH\nMECHANISM',
-                                    score: Math.floor((speechMechanismResult.totalScore / speechMechanismResult.maxScore) * 100),
-                                },
-                                {
-                                    graphTitle: 'SPEECH',
-                                    score: Math.floor((speechTotalResult.totalScore / speechTotalResult.maxScore) * 100),
-                                },
-                            ]}
-                        />
+                        <TestScoreBarGraph data={testScoreBarGraphData} />
                     </div>
                 </div>
             </div>
 
             {/* 소검사별 결과 */}
-            {speechMechanismResult.partList.length > 0 && (
+            {speechMechanismResult?.partList?.length && (
                 <SubtestScore
-                    id={speechMechanismResult.pathname}
-                    key={speechMechanismResult.pathname}
+                    id='speechMechanism'
                     subtestTitle={speechMechanismResult.subtestTitle}
                     subtestTitleEn={speechMechanismResult.subtestTitleEn}
                     totalScore={speechMechanismResult.totalScore}
@@ -419,10 +359,9 @@ export default function TestResultPage({
                     partList={speechMechanismResult.partList}
                 />
             )}
-            {speechTotalResult.partList.length > 0 && (
+            {speechTotalResult?.partList?.length && (
                 <SubtestScore
-                    id={speechTotalResult.pathname}
-                    key={speechTotalResult.pathname}
+                    id='speech'
                     subtestTitle={speechTotalResult.subtestTitle}
                     subtestTitleEn={speechTotalResult.subtestTitleEn}
                     totalScore={speechTotalResult.totalScore}
@@ -465,7 +404,7 @@ export default function TestResultPage({
                                         {v.questionText}
                                     </td>
                                     <td className='border-l border-t border-neutral8 bg-white py-3' align='center' width='13%'>
-                                        {v.value}
+                                        {v.value}초
                                     </td>
                                 </tr>
                             ))}
@@ -569,11 +508,8 @@ export default function TestResultPage({
                     speechOneResult={speechOneResult}
                     speechTwoResult={speechTwoResult}
                     speechTotalResult={speechTotalResult}
-                    mildAndModerateAnswers={[
-                        { partTitle: '안면', questionText: '/아/ 지속시간 (3회중 가장 길게 산출한 지속 시간)', answer: 'mild' },
-                        { partTitle: '안면', questionText: '/아/ 지속시간 (3회중 가장 길게 산출한 지속 시간)', answer: 'mild' },
-                        { partTitle: '안면', questionText: '/아/ 지속시간 (3회중 가장 길게 산출한 지속 시간)', answer: 'mild' },
-                    ]}
+                    mildAndModerateAnswers={mildAndModerateAnswers}
+                    speechOneRecordings={speechOneRecordings}
                     speechMotorResults={speechMotorResults}
                     types={types}
                     mixedTypeDetail={mixedTypeDetail || ''}
@@ -616,7 +552,8 @@ export const getServerSideProps: GetServerSideProps = async context => {
             speechTwoResult,
             speechTotalResult,
             mildAndModerateAnswers,
-            speechMotorResults,
+            speechOneRecordings,
+            speechMotorRecordings,
             dysarthriaTypes,
             mixedDysarthriaTypeDetail,
             opinion,
@@ -634,7 +571,8 @@ export const getServerSideProps: GetServerSideProps = async context => {
                 speechTwoResult,
                 speechTotalResult,
                 mildAndModerateAnswers,
-                speechMotorResults,
+                speechOneRecordings,
+                speechMotorRecordings,
                 dysarthriaTypes,
                 mixedDysarthriaTypeDetail,
                 opinion,

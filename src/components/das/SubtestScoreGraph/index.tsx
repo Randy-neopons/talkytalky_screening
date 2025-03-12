@@ -38,9 +38,7 @@ export default function SubtestScoreGraph({
                     </span>
                     <span className='font-bold text-black'>점</span>
                 </div>
-                <span className='text-[14px] text-neutral4'>
-                    {data[0]?.data[0]?.y}점 / {maxScore}점 만점기준
-                </span>
+                <span className='text-[14px] text-neutral4'>100점 만점기준</span>
             </div>
         </div>
     );
@@ -77,9 +75,7 @@ export function SubtestScoreGraphPrintView({
                 <div className='flex items-end justify-center'>
                     <span className='text-[12px] font-bold text-black'>{Math.ceil((data[0]?.data[0]?.y / maxScore) * 100)}점</span>
                 </div>
-                <span className='text-[8px] text-neutral4'>
-                    {data[0]?.data[0]?.y}점/{maxScore}점 만점기준
-                </span>
+                <span className='text-[8px] text-neutral4'>100점 만점기준</span>
             </div>
         </div>
     );
