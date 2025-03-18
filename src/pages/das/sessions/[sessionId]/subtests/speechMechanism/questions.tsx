@@ -39,7 +39,7 @@ const partIndexList = [
     {
         start: 0,
         split: 1,
-        end: 6,
+        end: 5,
         subtitle1: '휴식시',
         subtitle2: '활동시',
         partTitle: '아랫턱 근육',
