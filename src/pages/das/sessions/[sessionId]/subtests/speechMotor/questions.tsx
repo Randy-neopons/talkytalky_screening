@@ -322,7 +322,6 @@ export default function SpeechMotorQuestionsPage({
 
     const [loading, setLoading] = useState(false);
 
-    // 폼 데이터 제출
     const handleSubmitData = useCallback(
         async ({ sessionId, data }: { sessionId: number; data: FormValues }) => {
             try {

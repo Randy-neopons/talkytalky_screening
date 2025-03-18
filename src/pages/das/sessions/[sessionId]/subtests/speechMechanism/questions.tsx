@@ -116,7 +116,6 @@ export default function SpeechMechanismQuestionsPage({
     }>();
     const { fields } = useFieldArray({ name: 'answers', control });
 
-    // 모두 정상 체크
     const handleChangeCheckAll1 = useCallback<ChangeEventHandler<HTMLInputElement>>(
         e => {
             if (e.target.checked === true) {
@@ -130,7 +129,6 @@ export default function SpeechMechanismQuestionsPage({
         [setValue, split],
     );
 
-    // 모두 정상 체크
     const handleChangeCheckAll2 = useCallback<ChangeEventHandler<HTMLInputElement>>(
         e => {
             if (e.target.checked === true) {
@@ -144,14 +142,12 @@ export default function SpeechMechanismQuestionsPage({
         [end, setValue, split, start],
     );
 
-    // 라디오 버튼 변경 핸들러1
     const handleRadioChange1 = () => {
         const answers = getValues('answers');
         const isAllNormal = answers.slice(0, split).every(answer => answer.answer === 'normal');
         setCheckAll1(isAllNormal);
     };
 
-    // 라디오 버튼 변경 핸들러2
     const handleRadioChange2 = () => {
         const answers = getValues('answers');
         const isAllNormal = answers.slice(split).every(answer => answer.answer === 'normal');
@@ -166,7 +162,6 @@ export default function SpeechMechanismQuestionsPage({
     //     typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
     // }, [partId]);
 
-    // 폼 데이터 제출
     const handleSubmitData = useCallback(
         async ({ sessionId, data }: { sessionId: number; data: any }) => {
             try {

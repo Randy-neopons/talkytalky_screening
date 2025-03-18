@@ -99,8 +99,6 @@ export default function SpeechTwoQuestionsPage({
         answers: Answer[];
     }>();
 
-    // useFieldArray: 동적 폼 필드 배열을 관리하는 Hook
-    // fields: 현재 폼 필드 배열의 상태
     const { fields } = useFieldArray({ name: 'answers', control });
 
     const { data: qnaData } = useQuestionsAndAnswersQuery({
@@ -160,10 +158,6 @@ export default function SpeechTwoQuestionsPage({
         handlePause: handlePause3,
     } = useAudioRecorder(recordingList[2]?.filePath);
 
-    // 모두 정상 체크 핸들러
-    // useCallback 사용 이유:
-    // 1. 함수를 메모이제이션하여 불필요한 리렌더링 방지
-    // 2. 의존성 배열([setValue, end, start])이 변경될 때만 함수 재생성
     const handleChangeCheckAll = useCallback<ChangeEventHandler<HTMLInputElement>>(
         e => {
             if (e.target.checked === true) {
@@ -178,16 +172,12 @@ export default function SpeechTwoQuestionsPage({
         [setValue, end, start],
     );
 
-    // 라디오 버튼 변경 핸들러
     const handleRadioChange = () => {
         const answers = getValues('answers');
         const isAllNormal = answers.every(answer => answer.answer === 'normal');
         setCheckAll(isAllNormal);
     };
 
-    // 폼 데이터 제출 핸들러
-    // 1. API 호출 함수의 안정성 보장
-    // 2. partId나 testTime이 변경될 때만 함수 재생성
     const handleSubmitData = useCallback(
         async ({ sessionId, data }: { sessionId: number; data: any }) => {
             try {
@@ -211,7 +201,7 @@ export default function SpeechTwoQuestionsPage({
                 console.error(err);
             }
         },
-        [partId, testTime], // 의존성 배열
+        [partId, testTime],
     );
 
     // 이전 파트로

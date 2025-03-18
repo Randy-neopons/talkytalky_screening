@@ -340,7 +340,6 @@ export default function SpeechOneQuestionsPage({
     const audioUrl2 = useWatch({ control, name: 'recordings.1.filePath' });
     const audioUrl3 = useWatch({ control, name: 'recordings.2.filePath' });
 
-    // 모두 정상 체크
     const handleChangeCheckAll1 = useCallback<ChangeEventHandler<HTMLInputElement>>(
         e => {
             if (e.target.checked === true) {
@@ -354,7 +353,6 @@ export default function SpeechOneQuestionsPage({
         [setValue, split, start],
     );
 
-    // 모두 정상 체크
     const handleChangeCheckAll2 = useCallback<ChangeEventHandler<HTMLInputElement>>(
         e => {
             if (e.target.checked === true) {
@@ -369,21 +367,18 @@ export default function SpeechOneQuestionsPage({
         [end, setValue, split, start],
     );
 
-    // 라디오 버튼 변경 핸들러1
     const handleRadioChange1 = () => {
         const answers = getValues('answers');
         const isAllNormal = answers.slice(0, split).every(answer => answer.answer === 'normal');
         setCheckAll1(isAllNormal);
     };
 
-    // 라디오 버튼 변경 핸들러2
     const handleRadioChange2 = () => {
         const answers = getValues('answers');
         const isAllNormal = answers.slice(split).every(answer => answer.answer === 'normal');
         setCheckAll2(isAllNormal);
     };
 
-    // 폼 데이터 제출'이전, 다음, 다른 파트' 이동 시 사용자 데이터 저장
     const handleSubmitData = useCallback(
         async ({ sessionId, data }: { sessionId: number; data: any }) => {
             try {

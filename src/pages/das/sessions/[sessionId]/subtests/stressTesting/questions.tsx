@@ -94,27 +94,6 @@ export default function StressTestingQuestionsPage({ questionList }: { questionL
         }
     }, [qnaData, setValue]);
 
-    // 모두 정상 체크
-    const handleChangeCheckAll1 = useCallback<ChangeEventHandler<HTMLInputElement>>(
-        e => {
-            if (e.target.checked === true) {
-                Array.from({ length: split - start }, (v, i) => start + i).map(v => {
-                    setValue(`answers.${v}.answer`, 'normal', { shouldValidate: true });
-                });
-            }
-
-            setCheckAll1(e.target.checked);
-        },
-        [setValue, split, start],
-    );
-
-    // 라디오 버튼 변경 핸들러
-    const handleRadioChange = () => {
-        const answers = getValues('answers');
-        const isAllNormal = answers.every(answer => answer.answer === 'normal');
-        setCheckAll(isAllNormal);
-    };
-
     // 이전 파트로
     const handleClickPrev = useCallback(() => {
         setCheckAll1(false);
