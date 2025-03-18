@@ -1,4 +1,4 @@
-import {
+import React, {
     useMemo,
     type ReactNode,
     useCallback,
@@ -142,7 +142,7 @@ export const RecordButtonWithTime = ({
     );
 };
 
-export default function VolumeModal({
+function VolumeModal({
     title,
     content,
 
@@ -283,7 +283,7 @@ export default function VolumeModal({
                 <div className='relative flex h-full w-full flex-col items-center px-5 py-7.5'>
                     <p className='mb-7.5'>{content}</p>
                     <div className={styles.volumeBar}>
-                        <div ref={barActiveRef} className={styles.volumeBarActive} style={{ width: `${volume}%` }}></div>
+                        <div ref={barActiveRef} className={styles.volumeBarActive} style={{ width: `${Math.max(volume, 100)}%` }}></div>
                     </div>
 
                     <RecordButtonWithTime
@@ -328,3 +328,5 @@ export default function VolumeModal({
         modalRoot,
     );
 }
+
+export default React.memo(VolumeModal);

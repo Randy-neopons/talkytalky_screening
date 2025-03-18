@@ -144,7 +144,7 @@ export default function StressTestingQuestionsPage({ questionList }: { questionL
     );
 
     // 폼 제출 후 redirect
-    const handleOnSubmit = useCallback(
+    const handleClickNext = useCallback(
         async (data: any) => {
             try {
                 const sessionId = Number(router.query.sessionId);
@@ -166,7 +166,7 @@ export default function StressTestingQuestionsPage({ questionList }: { questionL
         <Container>
             <h1 className='whitespace-pre-line text-center font-jalnan text-head-1'>Stress Testing</h1>
             <span className='text-center text-body-2'>본 검사는 중증 근무력증 선별검사로 필요시에만 실시합니다.</span>
-            <form onSubmit={handleSubmit(handleOnSubmit)} className={`${subtestStyles.subtestForm}`}>
+            <form onSubmit={handleSubmit(handleClickNext)} className={`${subtestStyles.subtestForm}`}>
                 <table className={subtestStyles.questionTable}>
                     <thead data-title='피로도 검사'>
                         <tr className={subtestStyles.yesNo}>
@@ -207,11 +207,13 @@ export default function StressTestingQuestionsPage({ questionList }: { questionL
                 </table>
 
                 <div>
-                    <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
-                        이전
-                    </button>
+                    {router.query.unassessable !== 'true' && (
+                        <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
+                            이전
+                        </button>
+                    )}
                     <button type='submit' className='ml-5 mt-20 btn btn-large btn-contained'>
-                        다음
+                        {router.query.unassessable !== 'true' ? '다음' : '완료'}
                     </button>
                 </div>
             </form>

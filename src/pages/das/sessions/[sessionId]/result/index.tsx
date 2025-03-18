@@ -499,6 +499,23 @@ export default function TestResultPage({
                     저장
                 </button>
             </div>
+            <div className='hidden'>
+                <PrintView
+                    testerName={user?.data?.fullName}
+                    testInfo={testInfo}
+                    speechMechanismResult={speechMechanismResult}
+                    speechOneResult={speechOneResult}
+                    speechTwoResult={speechTwoResult}
+                    speechTotalResult={speechTotalResult}
+                    mildAndModerateAnswers={mildAndModerateAnswers}
+                    speechOneRecordings={speechOneRecordings}
+                    speechMotorResults={speechMotorResults}
+                    types={types}
+                    mixedTypeDetail={mixedTypeDetail || ''}
+                    opinion={opinion || ''}
+                    printViewRef={printViewRef}
+                />
+            </div>
         </Container>
     );
 }

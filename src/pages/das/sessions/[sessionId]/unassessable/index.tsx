@@ -65,7 +65,9 @@ export default function UnassessableQuestionsPage({ questionList }: { questionLi
                 const subtestItem = subtestList.find(v => v.subtestId === subtestId);
 
                 if (subtestItem) {
-                    router.push(`/das/sessions/${sessionId}/subtests/${subtestItem.pathname}/questions?currentPartId=${partId}`);
+                    router.push(
+                        `/das/sessions/${sessionId}/subtests/${subtestItem.pathname}/questions?currentPartId=${partId}&unassessable=true`,
+                    );
                 }
             } catch (err) {
                 console.error(err);
