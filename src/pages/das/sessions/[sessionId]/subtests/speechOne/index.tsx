@@ -41,7 +41,7 @@ const PartListItem = ({ subtestName, partName, questionCount }: { subtestName: s
                     ))}
                 </div>
             </div>
-            <div className='flex items-center justify-center bg-white py-5 text-head-2'>총 {questionCount}문항</div>
+            <div className='flex items-center justify-center bg-white py-5 text-head-2'>{questionCount}문항</div>
         </li>
     );
 };
