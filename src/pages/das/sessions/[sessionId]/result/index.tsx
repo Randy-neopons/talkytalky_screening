@@ -297,7 +297,7 @@ export default function TestResultPage({
                                 ?.map(brainLesion => brainLesionOptions.find(option => option.value === brainLesion)?.label || '')
                                 .join(',') || '없음'}
                         </td>
-                        <td className='border-l border-neutral6 bg-white py-[18px]' align='center'>
+                        <td className='border-l border-neutral6 bg-white px-5 py-[18px]' align='center'>
                             {testInfo.neurologicalLesion || '없음'}
                         </td>
                     </tr>
@@ -325,7 +325,7 @@ export default function TestResultPage({
                         </td>
                     </tr>
                     <tr>
-                        <td className='bg-white py-[18px]' align='center'>
+                        <td className='bg-white px-5 py-[18px]' align='center'>
                             {testInfo.patientMemo || '없음'}
                         </td>
                     </tr>

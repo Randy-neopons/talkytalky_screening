@@ -25,7 +25,7 @@ import subtestStyles from '../SubTests.module.scss';
 import type { Answer, QuestionAnswer, Recording } from '@/types/das';
 
 // 소검사 ID
-const CURRENT_SUBTEST_ID = 2;
+const CURRENT_SUBTEST_ID = 2; // SpeechOne
 const PART_ID_START = 5;
 
 // 소검사 내 파트별 문항 index 정보
@@ -340,7 +340,6 @@ export default function SpeechOneQuestionsPage({
     const audioUrl2 = useWatch({ control, name: 'recordings.1.filePath' });
     const audioUrl3 = useWatch({ control, name: 'recordings.2.filePath' });
 
-    // 모두 정상 체크
     const handleChangeCheckAll1 = useCallback<ChangeEventHandler<HTMLInputElement>>(
         e => {
             if (e.target.checked === true) {
@@ -354,7 +353,6 @@ export default function SpeechOneQuestionsPage({
         [setValue, split, start],
     );
 
-    // 모두 정상 체크
     const handleChangeCheckAll2 = useCallback<ChangeEventHandler<HTMLInputElement>>(
         e => {
             if (e.target.checked === true) {
@@ -369,32 +367,18 @@ export default function SpeechOneQuestionsPage({
         [end, setValue, split, start],
     );
 
-    // // 이전 파트로
-    // const handleClickPrev = useCallback(() => {
-    //     setCheckAll1(false);
-    //     setCheckAll2(false);
-    //     partId > PART_ID_START && setPartId(partId => partId - 1);
-    //     typeof window !== 'undefined' && window.scrollTo(0, 0);
-    // }, [partId]);
+    const handleRadioChange1 = () => {
+        const answers = getValues('answers');
+        const isAllNormal = answers.slice(0, split).every(answer => answer.answer === 'normal');
+        setCheckAll1(isAllNormal);
+    };
 
-    // 다음 파트로
-    // const handleClickNext = useCallback(() => {
-    //     setCheckAll1(false);
-    //     setCheckAll2(false);
+    const handleRadioChange2 = () => {
+        const answers = getValues('answers');
+        const isAllNormal = answers.slice(split).every(answer => answer.answer === 'normal');
+        setCheckAll2(isAllNormal);
+    };
 
-    //     if (partId === PART_ID_START && page < 3) {
-    //         setPage(page => page + 1);
-    //     } else {
-    //         if (partId < partIndexList[partIndexList.length - 1].partId) {
-    //             setPartId(partId => partId + 1);
-    //             setPage(0);
-    //         }
-    //     }
-
-    //     typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
-    // }, [page, partId]);
-
-    // 폼 데이터 제출
     const handleSubmitData = useCallback(
         async ({ sessionId, data }: { sessionId: number; data: any }) => {
             try {
@@ -402,10 +386,10 @@ export default function SpeechOneQuestionsPage({
                 const accessToken = getCookie('jwt') as string;
                 await updateSessionAPI({
                     sessionId,
-                    testTime,
-                    currentPartId: partId,
-                    answers: data.answers,
-                    recordings: data.recordings,
+                    testTime, // 검사 시간
+                    currentPartId: partId, // 현재 파트
+                    answers: data.answers, // 답변
+                    recordings: data.recordings, // 녹음
                     jwt: accessToken,
                 });
             } catch (err) {
@@ -718,6 +702,7 @@ export default function SpeechOneQuestionsPage({
                         </tbody>
                     </table>
                 )}
+                {/* 휴식시 활동시 */}
                 {split - start > 0 && (
                     <>
                         <table className={subtestStyles.questionTable}>
@@ -742,16 +727,43 @@ export default function SpeechOneQuestionsPage({
                                         <td className={subtestStyles.num}>{i + 1}</td>
                                         <td className={subtestStyles.text}>{item.questionText}</td>
                                         <td className={subtestStyles.option}>
-                                            <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='normal' />
+                                            <input
+                                                type='radio'
+                                                {...register(`answers.${i}.answer`, {
+                                                    required: true,
+                                                    onChange: handleRadioChange1,
+                                                })}
+                                                value='normal'
+                                            />
                                         </td>
                                         <td className={subtestStyles.option}>
-                                            <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='mild' />
+                                            <input
+                                                type='radio'
+                                                {...register(`answers.${i}.answer`, {
+                                                    required: true,
+                                                    onChange: handleRadioChange1,
+                                                })}
+                                                value='mild'
+                                            />
                                         </td>
                                         <td className={subtestStyles.option}>
-                                            <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='moderate' />
+                                            <input
+                                                type='radio'
+                                                {...register(`answers.${i}.answer`, {
+                                                    required: true,
+                                                })}
+                                                value='moderate'
+                                            />
                                         </td>
                                         <td className={subtestStyles.option}>
-                                            <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='unknown' />
+                                            <input
+                                                type='radio'
+                                                {...register(`answers.${i}.answer`, {
+                                                    required: true,
+                                                    onChange: handleRadioChange1,
+                                                })}
+                                                value='unknown'
+                                            />
                                         </td>
                                     </tr>
                                 ))}
@@ -792,28 +804,40 @@ export default function SpeechOneQuestionsPage({
                                         <td className={subtestStyles.option}>
                                             <input
                                                 type='radio'
-                                                {...register(`answers.${split - start + i}.answer`, { required: true })}
+                                                {...register(`answers.${split - start + i}.answer`, {
+                                                    required: true,
+                                                    onChange: handleRadioChange2,
+                                                })}
                                                 value='normal'
                                             />
                                         </td>
                                         <td className={subtestStyles.option}>
                                             <input
                                                 type='radio'
-                                                {...register(`answers.${split - start + i}.answer`, { required: true })}
+                                                {...register(`answers.${split - start + i}.answer`, {
+                                                    required: true,
+                                                    onChange: handleRadioChange2,
+                                                })}
                                                 value='mild'
                                             />
                                         </td>
                                         <td className={subtestStyles.option}>
                                             <input
                                                 type='radio'
-                                                {...register(`answers.${split - start + i}.answer`, { required: true })}
+                                                {...register(`answers.${split - start + i}.answer`, {
+                                                    required: true,
+                                                    onChange: handleRadioChange2,
+                                                })}
                                                 value='moderate'
                                             />
                                         </td>
                                         <td className={subtestStyles.option}>
                                             <input
                                                 type='radio'
-                                                {...register(`answers.${split - start + i}.answer`, { required: true })}
+                                                {...register(`answers.${split - start + i}.answer`, {
+                                                    required: true,
+                                                    onChange: handleRadioChange2,
+                                                })}
                                                 value='unknown'
                                             />
                                         </td>

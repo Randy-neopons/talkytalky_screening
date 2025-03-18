@@ -18,7 +18,7 @@ import subtestStyles from '../SubTests.module.scss';
 import type { Answer, QuestionAnswer } from '@/types/das';
 
 // 소검사 ID
-const CURRENT_SUBTEST_ID = 5;
+const CURRENT_SUBTEST_ID = 5; // StressTesting
 const PART_ID_START = 17;
 
 // 소검사 내 파트별 문항 index 정보
@@ -93,20 +93,6 @@ export default function StressTestingQuestionsPage({ questionList }: { questionL
             );
         }
     }, [qnaData, setValue]);
-
-    // 모두 정상 체크
-    const handleChangeCheckAll1 = useCallback<ChangeEventHandler<HTMLInputElement>>(
-        e => {
-            if (e.target.checked === true) {
-                Array.from({ length: split - start }, (v, i) => start + i).map(v => {
-                    setValue(`answers.${v}.answer`, 'normal', { shouldValidate: true });
-                });
-            }
-
-            setCheckAll1(e.target.checked);
-        },
-        [setValue, split, start],
-    );
 
     // 이전 파트로
     const handleClickPrev = useCallback(() => {

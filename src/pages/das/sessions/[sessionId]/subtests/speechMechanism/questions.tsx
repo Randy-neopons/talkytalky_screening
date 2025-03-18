@@ -20,7 +20,7 @@ import subtestStyles from '../SubTests.module.scss';
 import type { Answer, QuestionAnswer } from '@/types/das';
 
 // 소검사 ID
-const CURRENT_SUBTEST_ID = 1;
+const CURRENT_SUBTEST_ID = 1; // SpeechMechanism
 const PART_ID_START = 1;
 
 // 소검사 내 파트별 문항 index 정보
@@ -28,7 +28,7 @@ const PART_ID_START = 1;
 const partIndexList = [
     {
         start: 0,
-        split: 3,
+        split: 3, // subtitle 기준으로 나눔
         end: 8,
         subtitle1: '휴식시',
         subtitle2: '활동시',
@@ -93,9 +93,10 @@ export default function SpeechMechanismQuestionsPage({
         [partId],
     );
 
+    // 질문 DB 답도 같이 저장
     const { data: qnaData } = useQuestionsAndAnswersQuery({
-        sessionId: Number(router.query.sessionId),
-        subtestId: CURRENT_SUBTEST_ID,
+        sessionId: Number(router.query.sessionId), // 테스트 마다 sesseion
+        subtestId: CURRENT_SUBTEST_ID, // 소검사 종류
         partId,
         // start,
         // end: end - 1,
@@ -115,7 +116,6 @@ export default function SpeechMechanismQuestionsPage({
     }>();
     const { fields } = useFieldArray({ name: 'answers', control });
 
-    // 모두 정상 체크
     const handleChangeCheckAll1 = useCallback<ChangeEventHandler<HTMLInputElement>>(
         e => {
             if (e.target.checked === true) {
@@ -129,7 +129,6 @@ export default function SpeechMechanismQuestionsPage({
         [setValue, split],
     );
 
-    // 모두 정상 체크
     const handleChangeCheckAll2 = useCallback<ChangeEventHandler<HTMLInputElement>>(
         e => {
             if (e.target.checked === true) {
@@ -143,6 +142,18 @@ export default function SpeechMechanismQuestionsPage({
         [end, setValue, split, start],
     );
 
+    const handleRadioChange1 = () => {
+        const answers = getValues('answers');
+        const isAllNormal = answers.slice(0, split).every(answer => answer.answer === 'normal');
+        setCheckAll1(isAllNormal);
+    };
+
+    const handleRadioChange2 = () => {
+        const answers = getValues('answers');
+        const isAllNormal = answers.slice(split).every(answer => answer.answer === 'normal');
+        setCheckAll2(isAllNormal);
+    };
+
     // 다음 파트로
     // const handleClickNext = useCallback(() => {
     //     setCheckAll1(false);
@@ -151,7 +162,6 @@ export default function SpeechMechanismQuestionsPage({
     //     typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
     // }, [partId]);
 
-    // 폼 데이터 제출
     const handleSubmitData = useCallback(
         async ({ sessionId, data }: { sessionId: number; data: any }) => {
             try {
@@ -290,16 +300,32 @@ export default function SpeechMechanismQuestionsPage({
                                 <td className={subtestStyles.num}>{i + 1}</td>
                                 <td className={subtestStyles.text}>{item.questionText}</td>
                                 <td className={subtestStyles.option}>
-                                    <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='normal' />
+                                    <input
+                                        type='radio'
+                                        {...register(`answers.${i}.answer`, { required: true, onChange: handleRadioChange1 })}
+                                        value='normal'
+                                    />
                                 </td>
                                 <td className={subtestStyles.option}>
-                                    <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='mild' />
+                                    <input
+                                        type='radio'
+                                        {...register(`answers.${i}.answer`, { required: true, onChange: handleRadioChange1 })}
+                                        value='mild'
+                                    />
                                 </td>
                                 <td className={subtestStyles.option}>
-                                    <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='moderate' />
+                                    <input
+                                        type='radio'
+                                        {...register(`answers.${i}.answer`, { required: true, onChange: handleRadioChange1 })}
+                                        value='moderate'
+                                    />
                                 </td>
                                 <td className={subtestStyles.option}>
-                                    <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='unknown' />
+                                    <input
+                                        type='radio'
+                                        {...register(`answers.${i}.answer`, { required: true, onChange: handleRadioChange1 })}
+                                        value='unknown'
+                                    />
                                 </td>
                             </tr>
                         ))}
@@ -338,28 +364,40 @@ export default function SpeechMechanismQuestionsPage({
                                         <td className={subtestStyles.option}>
                                             <input
                                                 type='radio'
-                                                {...register(`answers.${split + i}.answer`, { required: true })}
+                                                {...register(`answers.${split + i}.answer`, {
+                                                    required: true,
+                                                    onChange: handleRadioChange2,
+                                                })}
                                                 value='normal'
                                             />
                                         </td>
                                         <td className={subtestStyles.option}>
                                             <input
                                                 type='radio'
-                                                {...register(`answers.${split + i}.answer`, { required: true })}
+                                                {...register(`answers.${split + i}.answer`, {
+                                                    required: true,
+                                                    onChange: handleRadioChange2,
+                                                })}
                                                 value='mild'
                                             />
                                         </td>
                                         <td className={subtestStyles.option}>
                                             <input
                                                 type='radio'
-                                                {...register(`answers.${split + i}.answer`, { required: true })}
+                                                {...register(`answers.${split + i}.answer`, {
+                                                    required: true,
+                                                    onChange: handleRadioChange2,
+                                                })}
                                                 value='moderate'
                                             />
                                         </td>
                                         <td className={subtestStyles.option}>
                                             <input
                                                 type='radio'
-                                                {...register(`answers.${split + i}.answer`, { required: true })}
+                                                {...register(`answers.${split + i}.answer`, {
+                                                    required: true,
+                                                    onChange: handleRadioChange2,
+                                                })}
                                                 value='unknown'
                                             />
                                         </td>
@@ -421,7 +459,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         return {
             props: {
                 isLoggedIn: true,
-                currentPartId,
+                currentPartId, // 이어하기 위해 현재까지 진행한 파트 ID
             },
         };
     } catch (err) {
