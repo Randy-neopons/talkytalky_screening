@@ -25,7 +25,7 @@ import subtestStyles from '../SubTests.module.scss';
 import type { Answer, QuestionAnswer, Recording } from '@/types/das';
 
 // 소검사 ID
-const CURRENT_SUBTEST_ID = 2;
+const CURRENT_SUBTEST_ID = 2; // SpeechOne
 const PART_ID_START = 5;
 
 // 소검사 내 파트별 문항 index 정보
@@ -394,7 +394,7 @@ export default function SpeechOneQuestionsPage({
     //     typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
     // }, [page, partId]);
 
-    // 폼 데이터 제출
+    // 폼 데이터 제출'이전, 다음, 다른 파트' 이동 시 사용자 데이터 저장
     const handleSubmitData = useCallback(
         async ({ sessionId, data }: { sessionId: number; data: any }) => {
             try {
@@ -402,10 +402,10 @@ export default function SpeechOneQuestionsPage({
                 const accessToken = getCookie('jwt') as string;
                 await updateSessionAPI({
                     sessionId,
-                    testTime,
-                    currentPartId: partId,
-                    answers: data.answers,
-                    recordings: data.recordings,
+                    testTime, // 검사 시간
+                    currentPartId: partId, // 현재 파트
+                    answers: data.answers, // 답변
+                    recordings: data.recordings, // 녹음
                     jwt: accessToken,
                 });
             } catch (err) {
@@ -718,6 +718,7 @@ export default function SpeechOneQuestionsPage({
                         </tbody>
                     </table>
                 )}
+                {/* 휴식시 활동시 */}
                 {split - start > 0 && (
                     <>
                         <table className={subtestStyles.questionTable}>
@@ -742,16 +743,40 @@ export default function SpeechOneQuestionsPage({
                                         <td className={subtestStyles.num}>{i + 1}</td>
                                         <td className={subtestStyles.text}>{item.questionText}</td>
                                         <td className={subtestStyles.option}>
-                                            <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='normal' />
+                                            <input
+                                                type='radio'
+                                                {...register(`answers.${i}.answer`, {
+                                                    required: true,
+                                                })}
+                                                value='normal'
+                                            />
                                         </td>
                                         <td className={subtestStyles.option}>
-                                            <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='mild' />
+                                            <input
+                                                type='radio'
+                                                {...register(`answers.${i}.answer`, {
+                                                    required: true,
+                                                })}
+                                                value='mild'
+                                            />
                                         </td>
                                         <td className={subtestStyles.option}>
-                                            <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='moderate' />
+                                            <input
+                                                type='radio'
+                                                {...register(`answers.${i}.answer`, {
+                                                    required: true,
+                                                })}
+                                                value='moderate'
+                                            />
                                         </td>
                                         <td className={subtestStyles.option}>
-                                            <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='unknown' />
+                                            <input
+                                                type='radio'
+                                                {...register(`answers.${i}.answer`, {
+                                                    required: true,
+                                                })}
+                                                value='unknown'
+                                            />
                                         </td>
                                     </tr>
                                 ))}

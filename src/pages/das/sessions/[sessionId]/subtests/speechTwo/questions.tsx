@@ -22,7 +22,7 @@ import subtestStyles from '../SubTests.module.scss';
 import type { Answer, QuestionAnswer, Recording } from '@/types/das';
 
 // 소검사 ID
-const CURRENT_SUBTEST_ID = 3;
+const CURRENT_SUBTEST_ID = 3; // SpeechTwo
 const PART_ID_START = 11;
 
 // 소검사 내 파트별 문항 index 정보
@@ -88,18 +88,19 @@ export default function SpeechTwoQuestionsPage({
         () => partIndexList.find(v => v.partId === partId) || partIndexList[0],
         [partId],
     );
-
-    // react-hook-form
     const {
-        control,
-        register,
-        setValue,
-        handleSubmit,
-        formState: { isDirty, isValid },
-        getValues,
+        control, // 폼 컴포넌트를 제어하기 위한 객체
+        register, // 입력 필드를 폼에 등록하는 함수
+        setValue, // 폼 필드 값을 수동으로 설정하는 함수
+        handleSubmit, // 폼 제출 시 데이터를 처리하는 함수
+        formState: { isDirty, isValid }, // 폼의 상태 정보 (유효성, 수정 여부 등)
+        getValues, // 현재 폼의 모든 값을 가져오는 함수
     } = useForm<{
         answers: Answer[];
     }>();
+
+    // useFieldArray: 동적 폼 필드 배열을 관리하는 Hook
+    // fields: 현재 폼 필드 배열의 상태
     const { fields } = useFieldArray({ name: 'answers', control });
 
     const { data: qnaData } = useQuestionsAndAnswersQuery({
@@ -159,10 +160,14 @@ export default function SpeechTwoQuestionsPage({
         handlePause: handlePause3,
     } = useAudioRecorder(recordingList[2]?.filePath);
 
-    // 모두 정상 체크
+    // 모두 정상 체크 핸들러
+    // useCallback 사용 이유:
+    // 1. 함수를 메모이제이션하여 불필요한 리렌더링 방지
+    // 2. 의존성 배열([setValue, end, start])이 변경될 때만 함수 재생성
     const handleChangeCheckAll = useCallback<ChangeEventHandler<HTMLInputElement>>(
         e => {
             if (e.target.checked === true) {
+                // 모든 답변을 '정상'으로 설정
                 Array.from({ length: end - start }, (v, i) => i).map(v => {
                     setValue(`answers.${v}.answer`, 'normal', { shouldValidate: true });
                 });
@@ -173,11 +178,19 @@ export default function SpeechTwoQuestionsPage({
         [setValue, end, start],
     );
 
-    // 폼 데이터 제출
+    // 라디오 버튼 변경 핸들러
+    const handleRadioChange = () => {
+        const answers = getValues('answers');
+        const isAllNormal = answers.every(answer => answer.answer === 'normal');
+        setCheckAll(isAllNormal);
+    };
+
+    // 폼 데이터 제출 핸들러
+    // 1. API 호출 함수의 안정성 보장
+    // 2. partId나 testTime이 변경될 때만 함수 재생성
     const handleSubmitData = useCallback(
         async ({ sessionId, data }: { sessionId: number; data: any }) => {
             try {
-                // 세션 갱신
                 const accessToken = getCookie('jwt') as string;
                 await updateSessionAPI({
                     sessionId,
@@ -198,7 +211,7 @@ export default function SpeechTwoQuestionsPage({
                 console.error(err);
             }
         },
-        [partId, testTime],
+        [partId, testTime], // 의존성 배열
     );
 
     // 이전 파트로
@@ -389,16 +402,44 @@ export default function SpeechTwoQuestionsPage({
                                 <td className={subtestStyles.num}>{i + 1}</td>
                                 <td className={subtestStyles.text}>{item.questionText}</td>
                                 <td className={subtestStyles.option}>
-                                    <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='normal' />
+                                    <input
+                                        type='radio'
+                                        {...register(`answers.${i}.answer`, {
+                                            required: true,
+                                            onChange: () => handleRadioChange(),
+                                        })}
+                                        value='normal'
+                                    />
                                 </td>
                                 <td className={subtestStyles.option}>
-                                    <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='mild' />
+                                    <input
+                                        type='radio'
+                                        {...register(`answers.${i}.answer`, {
+                                            required: true,
+                                            onChange: () => handleRadioChange(),
+                                        })}
+                                        value='mild'
+                                    />
                                 </td>
                                 <td className={subtestStyles.option}>
-                                    <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='moderate' />
+                                    <input
+                                        type='radio'
+                                        {...register(`answers.${i}.answer`, {
+                                            required: true,
+                                            onChange: () => handleRadioChange(),
+                                        })}
+                                        value='moderate'
+                                    />
                                 </td>
                                 <td className={subtestStyles.option}>
-                                    <input type='radio' {...register(`answers.${i}.answer`, { required: true })} value='unknown' />
+                                    <input
+                                        type='radio'
+                                        {...register(`answers.${i}.answer`, {
+                                            required: true,
+                                            onChange: () => handleRadioChange(),
+                                        })}
+                                        value='unknown'
+                                    />
                                 </td>
                             </tr>
                         ))}
