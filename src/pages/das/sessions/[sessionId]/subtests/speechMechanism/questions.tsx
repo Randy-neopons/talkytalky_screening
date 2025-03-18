@@ -49,7 +49,7 @@ const partIndexList = [
     {
         start: 0,
         split: 5,
-        end: 12,
+        end: 11,
         subtitle1: '휴식시',
         subtitle2: '활동시',
         partTitle: '혀',
@@ -216,6 +216,14 @@ export default function SpeechMechanismQuestionsPage({
             try {
                 const sessionId = Number(router.query.sessionId);
                 await handleSubmitData({ sessionId, data });
+
+                console.log(data);
+
+                // 평가불가 페이지에서 왔을 경우 완료 이동
+                if (router.query.unassessable === 'true') {
+                    router.push(`/das/sessions/${sessionId}/unassessable`);
+                    return;
+                }
 
                 if (partId < partIndexList[partIndexList.length - 1].partId) {
                     // 검사할 파트가 남았으면 계속 진행
@@ -414,9 +422,11 @@ export default function SpeechMechanismQuestionsPage({
                 )}
 
                 <div>
-                    <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
-                        이전
-                    </button>
+                    {router.query.unassessable !== 'true' && (
+                        <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
+                            이전
+                        </button>
+                    )}
 
                     <button
                         key='submit'
@@ -424,7 +434,7 @@ export default function SpeechMechanismQuestionsPage({
                         className='ml-5 mt-20 btn btn-large btn-contained disabled:btn-contained-disabled'
                         disabled={!isValid}
                     >
-                        다음
+                        {router.query.unassessable !== 'true' ? '다음' : '완료'}
                     </button>
                 </div>
             </form>

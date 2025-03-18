@@ -277,7 +277,15 @@ export default function SpeechMotorQuestionsPage({
     );
 
     // react-hook-form
-    const { control, register, setValue, handleSubmit, getValues, watch } = useForm<FormValues>();
+    const {
+        control,
+        register,
+        setValue,
+        handleSubmit,
+        formState: { isDirty, isValid },
+        getValues,
+        watch,
+    } = useForm<FormValues>();
 
     const recordingId1 = useWatch({ control, name: 'recordings.0.recordingId' });
     const recordingId2 = useWatch({ control, name: 'recordings.1.recordingId' });
@@ -391,6 +399,12 @@ export default function SpeechMotorQuestionsPage({
                 await handleSubmitData({ sessionId, data });
 
                 console.log('partId', partId);
+
+                // 평가불가 페이지에서 왔을 경우 완료 이동
+                if (router.query.unassessable === 'true') {
+                    router.push(`/das/sessions/${sessionId}/unassessable`);
+                    return;
+                }
 
                 if (partId < partIndexList[partIndexList.length - 1].partId) {
                     setPartId(prev => prev + 1);
@@ -696,12 +710,19 @@ export default function SpeechMotorQuestionsPage({
                     )}
 
                     <div>
-                        <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
-                            이전
-                        </button>
+                        {router.query.unassessable !== 'true' && (
+                            <button type='button' className='mt-20 btn btn-large btn-outlined' onClick={handleClickPrev}>
+                                이전
+                            </button>
+                        )}
 
-                        <button key='submit' type='submit' className='ml-5 mt-20 btn btn-large btn-contained'>
-                            다음
+                        <button
+                            key='submit'
+                            type='submit'
+                            className='ml-5 mt-20 btn btn-large btn-contained disabled:btn-contained-disabled'
+                            disabled={!isValid}
+                        >
+                            {router.query.unassessable !== 'true' ? '다음' : '완료'}
                         </button>
                     </div>
                 </form>
