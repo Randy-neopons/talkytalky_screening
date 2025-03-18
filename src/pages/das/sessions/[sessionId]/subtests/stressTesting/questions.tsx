@@ -18,7 +18,7 @@ import subtestStyles from '../SubTests.module.scss';
 import type { Answer, QuestionAnswer } from '@/types/das';
 
 // 소검사 ID
-const CURRENT_SUBTEST_ID = 5;
+const CURRENT_SUBTEST_ID = 5; // StressTesting
 const PART_ID_START = 17;
 
 // 소검사 내 파트별 문항 index 정보

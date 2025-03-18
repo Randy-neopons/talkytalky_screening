@@ -34,7 +34,7 @@ import subtestStyles from '../SubTests.module.scss';
 import type { Answer, QuestionAnswer, Recording } from '@/types/das';
 
 // 소검사 ID
-const CURRENT_SUBTEST_ID = 4;
+const CURRENT_SUBTEST_ID = 4; // SpeechMotor
 const PART_ID_START = 15;
 
 // 소검사 내 파트별 문항 index 정보

@@ -20,7 +20,7 @@ import subtestStyles from '../SubTests.module.scss';
 import type { Answer, QuestionAnswer } from '@/types/das';
 
 // 소검사 ID
-const CURRENT_SUBTEST_ID = 1;
+const CURRENT_SUBTEST_ID = 1; // SpeechMechanism
 const PART_ID_START = 1;
 
 // 소검사 내 파트별 문항 index 정보
@@ -28,7 +28,7 @@ const PART_ID_START = 1;
 const partIndexList = [
     {
         start: 0,
-        split: 3,
+        split: 3, // subtitle 기준으로 나눔
         end: 8,
         subtitle1: '휴식시',
         subtitle2: '활동시',
@@ -93,9 +93,10 @@ export default function SpeechMechanismQuestionsPage({
         [partId],
     );
 
+    // 질문 DB 답도 같이 저장
     const { data: qnaData } = useQuestionsAndAnswersQuery({
-        sessionId: Number(router.query.sessionId),
-        subtestId: CURRENT_SUBTEST_ID,
+        sessionId: Number(router.query.sessionId), // 테스트 마다 sesseion
+        subtestId: CURRENT_SUBTEST_ID, // 소검사 종류
         partId,
         // start,
         // end: end - 1,
@@ -421,7 +422,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         return {
             props: {
                 isLoggedIn: true,
-                currentPartId,
+                currentPartId, // 이어하기 위해 현재까지 진행한 파트 ID
             },
         };
     } catch (err) {
