@@ -195,7 +195,10 @@ export default function ParagraphReadingPage({ recording }: Props) {
                         <p>
                             <b>치료사 지시문</b>
                         </p>
-                        <p>"자, 이 글 보이시나요?(안보인다면 크기 조절하기) 제가 ‘시작'하면 이 글을 소리내서 자연스럽게 읽어주세요."</p>
+                        <p>
+                            &ldquo;자, 이 글 보이시나요?(안보인다면 크기 조절하기) 제가 &lsquo;시작&rsquo;하면 이 글을 소리내서 자연스럽게
+                            읽어주세요.&rdquo;
+                        </p>
                     </div>
                 )}
             </div>
