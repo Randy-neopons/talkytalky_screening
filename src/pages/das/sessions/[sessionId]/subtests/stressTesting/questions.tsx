@@ -108,6 +108,13 @@ export default function StressTestingQuestionsPage({ questionList }: { questionL
         [setValue, split, start],
     );
 
+    // 라디오 버튼 변경 핸들러
+    const handleRadioChange = () => {
+        const answers = getValues('answers');
+        const isAllNormal = answers.every(answer => answer.answer === 'normal');
+        setCheckAll(isAllNormal);
+    };
+
     // 이전 파트로
     const handleClickPrev = useCallback(() => {
         setCheckAll1(false);

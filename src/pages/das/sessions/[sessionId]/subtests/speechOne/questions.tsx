@@ -369,30 +369,19 @@ export default function SpeechOneQuestionsPage({
         [end, setValue, split, start],
     );
 
-    // // 이전 파트로
-    // const handleClickPrev = useCallback(() => {
-    //     setCheckAll1(false);
-    //     setCheckAll2(false);
-    //     partId > PART_ID_START && setPartId(partId => partId - 1);
-    //     typeof window !== 'undefined' && window.scrollTo(0, 0);
-    // }, [partId]);
+    // 라디오 버튼 변경 핸들러1
+    const handleRadioChange1 = () => {
+        const answers = getValues('answers');
+        const isAllNormal = answers.slice(0, split).every(answer => answer.answer === 'normal');
+        setCheckAll1(isAllNormal);
+    };
 
-    // 다음 파트로
-    // const handleClickNext = useCallback(() => {
-    //     setCheckAll1(false);
-    //     setCheckAll2(false);
-
-    //     if (partId === PART_ID_START && page < 3) {
-    //         setPage(page => page + 1);
-    //     } else {
-    //         if (partId < partIndexList[partIndexList.length - 1].partId) {
-    //             setPartId(partId => partId + 1);
-    //             setPage(0);
-    //         }
-    //     }
-
-    //     typeof window !== 'undefined' && window.scrollTo(0, 0); // 스크롤 초기화
-    // }, [page, partId]);
+    // 라디오 버튼 변경 핸들러2
+    const handleRadioChange2 = () => {
+        const answers = getValues('answers');
+        const isAllNormal = answers.slice(split).every(answer => answer.answer === 'normal');
+        setCheckAll2(isAllNormal);
+    };
 
     // 폼 데이터 제출'이전, 다음, 다른 파트' 이동 시 사용자 데이터 저장
     const handleSubmitData = useCallback(
@@ -747,6 +736,7 @@ export default function SpeechOneQuestionsPage({
                                                 type='radio'
                                                 {...register(`answers.${i}.answer`, {
                                                     required: true,
+                                                    onChange: handleRadioChange1,
                                                 })}
                                                 value='normal'
                                             />
@@ -756,6 +746,7 @@ export default function SpeechOneQuestionsPage({
                                                 type='radio'
                                                 {...register(`answers.${i}.answer`, {
                                                     required: true,
+                                                    onChange: handleRadioChange1,
                                                 })}
                                                 value='mild'
                                             />
@@ -774,6 +765,7 @@ export default function SpeechOneQuestionsPage({
                                                 type='radio'
                                                 {...register(`answers.${i}.answer`, {
                                                     required: true,
+                                                    onChange: handleRadioChange1,
                                                 })}
                                                 value='unknown'
                                             />
@@ -817,28 +809,40 @@ export default function SpeechOneQuestionsPage({
                                         <td className={subtestStyles.option}>
                                             <input
                                                 type='radio'
-                                                {...register(`answers.${split - start + i}.answer`, { required: true })}
+                                                {...register(`answers.${split - start + i}.answer`, {
+                                                    required: true,
+                                                    onChange: handleRadioChange2,
+                                                })}
                                                 value='normal'
                                             />
                                         </td>
                                         <td className={subtestStyles.option}>
                                             <input
                                                 type='radio'
-                                                {...register(`answers.${split - start + i}.answer`, { required: true })}
+                                                {...register(`answers.${split - start + i}.answer`, {
+                                                    required: true,
+                                                    onChange: handleRadioChange2,
+                                                })}
                                                 value='mild'
                                             />
                                         </td>
                                         <td className={subtestStyles.option}>
                                             <input
                                                 type='radio'
-                                                {...register(`answers.${split - start + i}.answer`, { required: true })}
+                                                {...register(`answers.${split - start + i}.answer`, {
+                                                    required: true,
+                                                    onChange: handleRadioChange2,
+                                                })}
                                                 value='moderate'
                                             />
                                         </td>
                                         <td className={subtestStyles.option}>
                                             <input
                                                 type='radio'
-                                                {...register(`answers.${split - start + i}.answer`, { required: true })}
+                                                {...register(`answers.${split - start + i}.answer`, {
+                                                    required: true,
+                                                    onChange: handleRadioChange2,
+                                                })}
                                                 value='unknown'
                                             />
                                         </td>

@@ -406,7 +406,7 @@ export default function SpeechTwoQuestionsPage({
                                         type='radio'
                                         {...register(`answers.${i}.answer`, {
                                             required: true,
-                                            onChange: () => handleRadioChange(),
+                                            onChange: handleRadioChange,
                                         })}
                                         value='normal'
                                     />
@@ -416,7 +416,7 @@ export default function SpeechTwoQuestionsPage({
                                         type='radio'
                                         {...register(`answers.${i}.answer`, {
                                             required: true,
-                                            onChange: () => handleRadioChange(),
+                                            onChange: handleRadioChange,
                                         })}
                                         value='mild'
                                     />
@@ -426,7 +426,7 @@ export default function SpeechTwoQuestionsPage({
                                         type='radio'
                                         {...register(`answers.${i}.answer`, {
                                             required: true,
-                                            onChange: () => handleRadioChange(),
+                                            onChange: handleRadioChange,
                                         })}
                                         value='moderate'
                                     />
@@ -436,7 +436,7 @@ export default function SpeechTwoQuestionsPage({
                                         type='radio'
                                         {...register(`answers.${i}.answer`, {
                                             required: true,
-                                            onChange: () => handleRadioChange(),
+                                            onChange: handleRadioChange,
                                         })}
                                         value='unknown'
                                     />
