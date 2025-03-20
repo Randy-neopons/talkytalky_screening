@@ -1,8 +1,8 @@
-import { useEffect, useState, type ChangeEventHandler, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ChangeEventHandler, type ReactNode } from 'react';
 
 import { MikeIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/common/icons';
 
-import styles from './Buttons.module.css';
+import styles from './Buttons.module.scss';
 
 // 주위에 테두리 효과 주기
 export const RoundedBox = ({ isShining, children }: { isShining?: boolean; children: ReactNode }) => {
@@ -63,7 +63,7 @@ export const AudioButton = ({
     if (isRecording) {
         return (
             <RoundedBox isShining={buttonShining}>
-                <button type='button' className={styles['rounded-button']} onClick={handleStopRecording}>
+                <button type='button' className={styles.roundButton} onClick={handleStopRecording}>
                     <StopIcon width={50} height={50} />
                 </button>
             </RoundedBox>
@@ -74,11 +74,11 @@ export const AudioButton = ({
         if (isPlaying) {
             return (
                 <RoundedBox>
-                    <button type='button' className={styles['rounded-button']} onClick={handlePause}>
+                    <button type='button' className={styles.roundButton} onClick={handlePause}>
                         <PauseIcon width={50} height={50} />
                     </button>
                     <div className='h-9 w-[2px] bg-white'></div>
-                    <button type='button' className={styles['rounded-button']} onClick={handleStartRecording}>
+                    <button type='button' className={styles.roundButton} onClick={handleStartRecording}>
                         <MikeIcon width={50} height={50} />
                     </button>
                 </RoundedBox>
@@ -87,11 +87,11 @@ export const AudioButton = ({
 
         return (
             <RoundedBox>
-                <button type='button' className={styles['rounded-button']} onClick={handlePlay}>
+                <button type='button' className={styles.roundButton} onClick={handlePlay}>
                     <PlayIcon width={50} height={50} />
                 </button>
                 <div className='h-9 w-[2px] bg-white'></div>
-                <button type='button' className={styles['rounded-button']} onClick={handleStartRecording}>
+                <button type='button' className={styles.roundButton} onClick={handleStartRecording}>
                     <MikeIcon width={50} height={50} />
                 </button>
             </RoundedBox>
@@ -100,7 +100,7 @@ export const AudioButton = ({
 
     return (
         <RoundedBox>
-            <button type='button' className={styles['rounded-button']} onClick={handleStartRecording}>
+            <button type='button' className={styles.roundButton} onClick={handleStartRecording}>
                 <MikeIcon width={50} height={50} />
             </button>
         </RoundedBox>
@@ -124,7 +124,7 @@ export const RadioButton = ({
     return (
         <div className='flex'>
             <input type='radio' className='appearance-none' name={name} id={value} value={value} onChange={onChange} checked={checked} />
-            <label htmlFor={value} className={styles['radio-label']}>
+            <label htmlFor={value} className={styles.radioLabel}>
                 {label}
                 <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'>
                     <rect x='1' y='1' width='22' height='22' rx='11' stroke='#CED4DA' strokeWidth='2' />

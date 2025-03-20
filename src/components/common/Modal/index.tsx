@@ -4,12 +4,14 @@ import { createPortal } from 'react-dom';
 import { useModal } from './context';
 
 export default function Modal({
+    title,
     content,
     onCancel,
     onOk,
     cancelText,
     okText,
 }: {
+    title?: ReactNode;
     content: ReactNode;
     onCancel?: MouseEventHandler<HTMLButtonElement>;
     onOk?: MouseEventHandler<HTMLButtonElement>;
@@ -88,15 +90,16 @@ export default function Modal({
                 style={modalStyle}
             />
             <div
-                className='fixed left-1/2 top-1/2 z-[99] hidden w-full max-w-[calc(100%-40px)] -translate-x-1/2 -translate-y-1/2 overflow-y-hidden rounded-base bg-white px-10 py-15 sm:w-auto sm:min-w-[450px] sm:max-w-none xl:px-[45px] xl:py-20'
+                className='fixed left-1/2 top-1/2 z-[99] hidden w-full max-w-[540px] -translate-x-1/2 -translate-y-1/2 overflow-y-hidden rounded-md bg-white p-10'
                 style={modalBoxStyle}
             >
-                <div className='whitespace-pre-wrap text-center font-noto font-bold text-black text-head-2'>{content}</div>
-                <div className='mt-10 flex justify-center gap-5'>
-                    <button className='btn btn-large btn-outlined' onClick={handleClickCancel}>
+                {title && <div className='whitespace-pre-wrap font-noto font-bold text-black text-head-2'>{title}</div>}
+                <div className='mt-2.5 whitespace-pre-wrap break-keep font-noto text-neutral1 text-body-1'>{content}</div>
+                <div className='mt-10 flex justify-end gap-2.5'>
+                    <button className='btn btn-small btn-outlined' onClick={handleClickCancel}>
                         {cancelText || '취소'}
                     </button>
-                    <button className='btn btn-large btn-contained' onClick={handleClickOk}>
+                    <button className='btn btn-small btn-contained' onClick={handleClickOk}>
                         {okText || '확인'}
                     </button>
                 </div>

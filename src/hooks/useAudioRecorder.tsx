@@ -134,6 +134,7 @@ const useAudioRecorder = (defaultUrl?: string | null) => {
                 convertBlobToWav(audioBlob, wavBlob => {
                     const audioUrl = URL.createObjectURL(wavBlob);
                     setAudioBlob(wavBlob);
+                    console.log('audioUrl', audioUrl);
                     setAudioUrl(audioUrl);
                     if (audioPlayerRef.current) {
                         audioPlayerRef.current.src = audioUrl;

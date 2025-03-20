@@ -4,6 +4,9 @@ export interface TestInfoFormValues {
     patientName: string;
     patientGender: string;
     patientBirthdate: string;
+    dominantHand: string;
+    hearingAidsUse: string;
+    educationYear: string;
     brainLesions: string[]; // 뇌병변
     medicalHistory?: string; // 병력
     patientMemo?: string; // 개인정보
@@ -50,6 +53,7 @@ export type Answer = Pick<QuestionAnswer, 'questionId' | 'questionText' | 'answe
 
 // 말운동평가 녹음
 export type Recording = {
+    recordingId: number | null;
     filePath: string | null;
     repeatCount: number | null;
 };

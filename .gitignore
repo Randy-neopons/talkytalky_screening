@@ -40,10 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# GCP App Engine
-.gcloudignore
-*.yaml
-
 # cloud sql proxy
 cloud_sql_proxy*
 credentials/
