@@ -1,5 +1,5 @@
 runtime: nodejs22
-service: assess-dev
+service: screening-dev
 
 handlers:
     - url: /.*

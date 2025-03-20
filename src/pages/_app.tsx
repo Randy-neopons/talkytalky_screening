@@ -9,7 +9,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import nProgress from 'nprogress';
 
 import { ModalProvider } from '@/components/common/Modal/context';
-import AppLayout from '@/components/das/AppLayout';
+import ScreeningAppLayout from '@/components/screening/ScreeningAppLayout';
 
 import type { NextPageWithLayout } from '@/types/types';
 
@@ -25,13 +25,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     const [queryClient] = useState(() => new QueryClient());
     const router = useRouter();
 
-    const getLayout =
-        Component.getLayout ??
-        (page => (
-            <AppLayout isLoggedIn={pageProps.isLoggedIn} progress={pageProps.progress}>
-                {page}
-            </AppLayout>
-        ));
+    const getLayout = Component.getLayout ?? (page => <ScreeningAppLayout>{page}</ScreeningAppLayout>);
 
     // 페이지 전환 시 필요한 이벤트
     useEffect(() => {
